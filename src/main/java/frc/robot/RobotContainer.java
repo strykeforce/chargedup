@@ -5,9 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.Constants.DriveConstants;
+import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class RobotContainer {
@@ -15,26 +14,17 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem driveSubsystem;
-  private final Joystick joystick = new Joystick(0);
+  private final Joystick driveJoystick = new Joystick(0);
 
   public RobotContainer() {
     driveSubsystem = new DriveSubsystem();
-
-    driveSubsystem.setDefaultCommand(
-        new RunCommand(
-            () -> {
-              double vx = getLeftX() * -DriveConstants.kMaxSpeedMetersPerSecond;
-              double vy = getLeftY() * -DriveConstants.kMaxSpeedMetersPerSecond;
-              double omega = getRightY() * -DriveConstants.kMaxOmega;
-              driveSubsystem.drive(vx, vy, omega);
-            },
-            driveSubsystem));
 
     configureButtonBindings();
   }
 
   private void configureButtonBindings() {
-    new JoystickButton(joystick, InterlinkButton.RESET.id)
+    driveSubsystem.setDefaultCommand(new DriveTeleopCommand(driveJoystick, driveSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.RESET.id)
         .whenPressed(driveSubsystem::resetGyro, driveSubsystem);
     // Requires swerve migration to new Pose2D
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
@@ -53,7 +43,7 @@ public class RobotContainer {
     LEFT_BACK(4),
     RIGHT_BACK(3);
 
-    private final int id;
+    public final int id;
 
     Axis(int id) {
       this.id = id;
@@ -114,19 +104,19 @@ public class RobotContainer {
   }
 
   public double getLeftX() {
-    double val = joystick.getRawAxis(Axis.LEFT_X.id);
+    double val = driveJoystick.getRawAxis(Axis.LEFT_X.id);
     if (Math.abs(val) < kJoystickDeadband) return 0.0;
     return val;
   }
 
   public double getLeftY() {
-    double val = joystick.getRawAxis(Axis.LEFT_Y.id);
+    double val = driveJoystick.getRawAxis(Axis.LEFT_Y.id);
     if (Math.abs(val) < kJoystickDeadband) return 0.0;
     return val;
   }
 
   public double getRightY() {
-    double val = joystick.getRawAxis(Axis.RIGHT_Y.id);
+    double val = driveJoystick.getRawAxis(Axis.RIGHT_Y.id);
     if (Math.abs(val) < kJoystickDeadband) return 0.0;
     return val;
   }
