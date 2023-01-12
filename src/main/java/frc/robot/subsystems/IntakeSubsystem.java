@@ -35,6 +35,8 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeExtendFalcon.set(ControlMode.MotionMagic, IntakeConstants.kIntakeExtendPosTicks);
         intakeSetPointTicks = IntakeConstants.kIntakeExtendPosTicks;
         isIntakeExtended = true;
+        setIntakeSpeed(1);
+        setRollerSpeed(1);
         logger.info("Intake is extending to {}", IntakeConstants.kIntakeExtendPosTicks);
     }
 
@@ -42,6 +44,8 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeExtendFalcon.set(ControlMode.MotionMagic, IntakeConstants.kIntakeRetractPosTicks);
         intakeSetPointTicks = IntakeConstants.kIntakeRetractPosTicks;
         isIntakeExtended = false;
+        setIntakeSpeed(0);
+        setRollerSpeed(0);
         logger.info("Intake is retracting to {}", IntakeConstants.kIntakeRetractPosTicks);
     }
 
