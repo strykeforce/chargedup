@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
 import frc.robot.commands.intake.ToggleIntakeExtendedCommand;
@@ -42,11 +43,11 @@ public class RobotContainer {
     ShuffleboardLayout intakeCommands =
         pitTab.getLayout("Intake", BuiltInLayouts.kGrid).withPosition(3, 0).withSize(1, 2);
     intakeCommands
-        .add("FWD", new IntakeOpenLoopCommand(intakeSubsystem, 1))
+        .add("FWD", new IntakeOpenLoopCommand(intakeSubsystem, IntakeConstants.kIntakeSpeed))
         .withSize(1, 1)
         .withPosition(0, 0);
     intakeCommands
-        .add("REV", new IntakeOpenLoopCommand(intakeSubsystem, -1))
+        .add("REV", new IntakeOpenLoopCommand(intakeSubsystem, IntakeConstants.kIntakeReverseSpeed))
         .withSize(1, 1)
         .withPosition(0, 1);
     intakeCommands

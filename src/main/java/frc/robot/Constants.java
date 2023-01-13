@@ -18,6 +18,9 @@ public class Constants {
     public static final int kExtendPosTicks = 0; // FIXME: replace with correct # of ticks
     public static final int kRetractPosTicks = 0; // FIXME: replace with correct # of ticks
 
+    public static final double kIntakeSpeed = 0.5; // FIXME: tune speed
+    public static final double kIntakeReverseSpeed = -0.5; // FIXME: tune speed
+
     public static final int kIntakeZeroTicks = 2800; // FIXME: insert actual value
     public static final int kZeroStableCounts = 3;
     public static final int kZeroStableBand = 20;
