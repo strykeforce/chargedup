@@ -28,12 +28,12 @@ public class IntakeSubsystem extends SubsystemBase {
         zeroIntake();
     }
 
-    public void setIntakeSpeed(double speed) {
-        intakeFalcon.set(ControlMode.PercentOutput, speed);
+    public void setIntakeSpeed(double percentOutput) {
+        intakeFalcon.set(ControlMode.PercentOutput, percentOutput);
     }
 
-    public void setRollerSpeed(double speed) {
-        rollerFalcon.set(ControlMode.PercentOutput, speed);
+    public void setRollerSpeed(double percentOutput) {
+        rollerFalcon.set(ControlMode.PercentOutput, percentOutput);
     }
 
     public void extendClosedLoop() {
@@ -41,8 +41,6 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeSetPointTicks = IntakeConstants.kExtendPosTicks;
         isIntakeExtended = true;
         logger.info("Intake is extending to {}", IntakeConstants.kExtendPosTicks);
-        setIntakeSpeed(1);
-        setRollerSpeed(1);
     }
 
     public void retractClosedLoop() {
@@ -50,8 +48,6 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeSetPointTicks = IntakeConstants.kRetractPosTicks;
         isIntakeExtended = false;
         logger.info("Intake is retracting to {}", IntakeConstants.kRetractPosTicks);
-        setIntakeSpeed(0);
-        setRollerSpeed(0);
     }
 
     public boolean isIntakeAtPos() {

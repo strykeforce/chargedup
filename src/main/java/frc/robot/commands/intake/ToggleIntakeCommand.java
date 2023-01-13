@@ -13,7 +13,14 @@ public class ToggleIntakeCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        if (intakeSubsystem.getIsIntakeExtended()) intakeSubsystem.retractClosedLoop();
-        else intakeSubsystem.extendClosedLoop();
+        if (intakeSubsystem.getIsIntakeExtended()) {
+            intakeSubsystem.retractClosedLoop();
+            intakeSubsystem.setIntakeSpeed(0);
+            intakeSubsystem.setRollerSpeed(0);
+        } else {
+            intakeSubsystem.extendClosedLoop();
+            intakeSubsystem.setIntakeSpeed(1);
+            intakeSubsystem.setRollerSpeed(1);
+        }
     }
 }
