@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
-import frc.robot.commands.intake.ToggleIntakeCommand;
+import frc.robot.commands.intake.ToggleIntakeExtendedCommand;
 import frc.robot.subsystems.IntakeSubsystem;
 
 public class RobotContainer {
@@ -31,18 +31,32 @@ public class RobotContainer {
 
   private void configureBindings() {
     // intake buttons
-    new JoystickButton(xboxController, 0).whileTrue(new ToggleIntakeCommand(intakeSubsystem)); // FIXME: correct button id
+    new JoystickButton(xboxController, 0)
+        .whileTrue(new ToggleIntakeExtendedCommand(intakeSubsystem)); // FIXME: correct button id
   }
 
   private void configurePitDashboard() {
     // intake buttons
     ShuffleboardTab pitTab = Shuffleboard.getTab("Pit");
 
-    ShuffleboardLayout intakeCommands = pitTab.getLayout("Intake", BuiltInLayouts.kGrid).withPosition(3, 0).withSize(1, 2);
-    intakeCommands.add("FWD", new IntakeOpenLoopCommand(intakeSubsystem, 1)).withSize(1, 1).withPosition(0, 0);
-    intakeCommands.add("REV", new IntakeOpenLoopCommand(intakeSubsystem, -1)).withSize(1, 1).withPosition(0, 1);
-    intakeCommands.add("EXTEND", new IntakeExtendCommand(intakeSubsystem, true)).withSize(1, 1).withPosition(0, 2);
-    intakeCommands.add("RETRACT", new IntakeExtendCommand(intakeSubsystem, false)).withSize(1, 1).withPosition(0, 3);
+    ShuffleboardLayout intakeCommands =
+        pitTab.getLayout("Intake", BuiltInLayouts.kGrid).withPosition(3, 0).withSize(1, 2);
+    intakeCommands
+        .add("FWD", new IntakeOpenLoopCommand(intakeSubsystem, 1))
+        .withSize(1, 1)
+        .withPosition(0, 0);
+    intakeCommands
+        .add("REV", new IntakeOpenLoopCommand(intakeSubsystem, -1))
+        .withSize(1, 1)
+        .withPosition(0, 1);
+    intakeCommands
+        .add("EXTEND", new IntakeExtendCommand(intakeSubsystem, true))
+        .withSize(1, 1)
+        .withPosition(0, 2);
+    intakeCommands
+        .add("RETRACT", new IntakeExtendCommand(intakeSubsystem, false))
+        .withSize(1, 1)
+        .withPosition(0, 3);
   }
 
   public Command getAutonomousCommand() {
