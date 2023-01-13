@@ -1,11 +1,18 @@
 package frc.robot;
 
+import java.util.ArrayList;
+
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -125,5 +132,31 @@ public class Constants {
     public static final double kDOmega = 0.0;
     //    public static final double kMaxVelOmega = kMaxOmega / 2.0;
     public static final double kMaxAccelOmega = 3.14;
+
+
+    // Default safety path constants
+    public static final Pose2d startPose2d = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
+    public static final Pose2d endPose2d = new Pose2d(-1, 0, Rotation2d.fromDegrees(0));
+
+    public static ArrayList<Translation2d> getDefaultInternalWaypoints() {
+      ArrayList<Translation2d> waypoints = new ArrayList<>();
+      waypoints.add(new Translation2d(-0.5, 0));
+      return waypoints;
+    }
+
+    public static TrajectoryConfig getDefaultTrajectoryConfig() {
+      TrajectoryConfig trajectoryConfig = new TrajectoryConfig(1, 1);
+      trajectoryConfig.setReversed(true);
+      trajectoryConfig.setStartVelocity(0.0);
+      trajectoryConfig.setEndVelocity(0.0);
+      return trajectoryConfig;
+    }
+
+    // Azimuth Talon Config
+    public static SupplyCurrentLimitConfiguration getAzimuthSupplyCurrentLimit() {
+      return new SupplyCurrentLimitConfiguration(true, 10, 15, 0.04);
+    }
+
+    
   }
 }
