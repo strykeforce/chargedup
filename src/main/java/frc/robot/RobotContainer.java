@@ -7,6 +7,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.drive.DriveTeleopCommand;
+import frc.robot.commands.drive.ZeroGyroCommand;
+import frc.robot.commands.drive.xLockCommand;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class RobotContainer {
@@ -19,13 +21,17 @@ public class RobotContainer {
   public RobotContainer() {
     driveSubsystem = new DriveSubsystem();
 
-    configureButtonBindings();
+    configureDriverButtonBindings();
   }
 
-  private void configureButtonBindings() {
+  private void configureDriverButtonBindings() {
     driveSubsystem.setDefaultCommand(new DriveTeleopCommand(driveJoystick, driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.RESET.id)
-        .whenPressed(driveSubsystem::resetGyro, driveSubsystem);
+        .whenPressed(new ZeroGyroCommand(driveSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.X.id)
+        .whenPressed(new xLockCommand(driveSubsystem));
+
+    
     // Requires swerve migration to new Pose2D
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
     // {driveSubsystem.resetOdometry(new Pose2d());},driveSubsystem);

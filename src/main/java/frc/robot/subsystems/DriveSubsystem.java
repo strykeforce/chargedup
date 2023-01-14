@@ -14,10 +14,12 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
@@ -27,12 +29,21 @@ import net.consensys.cava.toml.TomlParseResult;
 import net.consensys.cava.toml.TomlTable;
 
 import org.strykeforce.swerve.SwerveDrive;
+import org.strykeforce.swerve.SwerveModule;
 import org.strykeforce.swerve.TalonSwerveModule;
 
 public class DriveSubsystem extends SubsystemBase {
   private final SwerveDrive swerveDrive;
   private final HolonomicDriveController holonomicController;
+  private final ProfiledPIDController omegaController;
+  private final PIDController xController;
+  private final PIDController yController;
 
+  private ChassisSpeeds holoContOutput = new ChassisSpeeds();
+  private State holoContInput = new State();
+  private Rotation2d holoContAngle = new Rotation2d();
+  private Double trajectoryActive = 0.0;
+  
   public DriveSubsystem() {
     var moduleBuilder =
         new TalonSwerveModule.Builder()
@@ -73,22 +84,22 @@ public class DriveSubsystem extends SubsystemBase {
     swerveDrive.setGyroOffset(Rotation2d.fromDegrees(0));
 
     // Setup Holonomic Controller
-    ProfiledPIDController omegaCont =
+    omegaController =
         new ProfiledPIDController(
             DriveConstants.kPOmega,
             DriveConstants.kIOmega,
             DriveConstants.kDOmega,
             new TrapezoidProfile.Constraints(
                 DriveConstants.kMaxOmega, DriveConstants.kMaxAccelOmega));
-    omegaCont.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
+    omegaController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
 
-    holonomicController =
-        new HolonomicDriveController(
-            new PIDController(
-                DriveConstants.kPHolonomic, DriveConstants.kIHolonomic, DriveConstants.kDHolonomic),
-            new PIDController(
-                DriveConstants.kPHolonomic, DriveConstants.kIHolonomic, DriveConstants.kDHolonomic),
-            omegaCont);
+    xController =
+        new PIDController(
+            DriveConstants.kPHolonomic, DriveConstants.kIHolonomic, DriveConstants.kDHolonomic);
+    yController =
+        new PIDController(
+            DriveConstants.kPHolonomic, DriveConstants.kIHolonomic, DriveConstants.kDHolonomic);
+    holonomicController = new HolonomicDriveController(xController, yController, omegaController);
     // Disabling the holonomic controller makes the robot directly follow the trajectory output (no
     // closing the loop on x,y,theta errors)
     holonomicController.setEnabled(true);
@@ -104,6 +115,10 @@ public class DriveSubsystem extends SubsystemBase {
   public void drive(double vXmps, double vYmps, double vOmegaRadps) {
     swerveDrive.drive(vXmps, vYmps, vOmegaRadps, true);
   }
+  // Closed-Loop (Velocity Controlled) Swerve Movement 
+  public void move(double vXmps, double vYmps, double vOmegaRadps, boolean isFieldOriented) {
+    swerveDrive.move(vXmps, vYmps, vOmegaRadps, false);
+  }
 
   public void resetGyro() {
     swerveDrive.resetGyro();
@@ -113,12 +128,45 @@ public class DriveSubsystem extends SubsystemBase {
     swerveDrive.setGyroOffset(rotation);
   }
 
-  // public void resetOdometry(Pose2d pose){
-  //     swerveDrive.resetOdometry(pose);
-  //     logger.info("reset odometry with: {}", pose);
-  // }
+  public void teleResetGyro() {
+    //logger.info("Driver Joystick: Reset Gyro");
+    swerveDrive.setGyroOffset(Rotation2d.fromDegrees(0.0));
+    swerveDrive.resetGyro();
+    swerveDrive.resetOdometry(
+        new Pose2d(swerveDrive.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0.0)));
+  }
+
+  public void resetOdometry(Pose2d pose){
+     swerveDrive.resetOdometry(pose);
+//     logger.info("reset odometry with: {}", pose);
+   }
   public Rotation2d getGyroRotation2d() {
     return swerveDrive.getHeading();
+  }
+
+  public void lockZero(){
+    SwerveModule[] swerveModules = swerveDrive.getSwerveModules();
+    for (int i = 0; i < 4; i++){
+      swerveModules[i].setAzimuthRotation2d(Rotation2d.fromDegrees(0.0));
+    }
+  } 
+
+  public void xLock(){
+    SwerveModule[] swerveModules = swerveDrive.getSwerveModules();
+    for (int i = 0 ; i < 4; i++){
+      if (i == 1 || i == 2) {
+        swerveModules[i].setAzimuthRotation2d(Rotation2d.fromDegrees(-45.0));
+      } 
+      if (i == 3 || i == 4) {
+        swerveModules[i].setAzimuthRotation2d(Rotation2d.fromDegrees(45.0));
+      }
+    }
+  }
+
+  public void resetHolonomicController() {
+    xController.reset();
+    yController.reset();
+    omegaController.reset(getGyroRotation2d().getRadians());
   }
     // Trajectory TOML Parsing
   public PathData generateTrajectory(String trajectoryName) {
@@ -187,16 +235,20 @@ public class DriveSubsystem extends SubsystemBase {
   }
   
   // Holonomic Controller
-  // public void calculateController(State desiredState, Rotation2d desiredAngle){
-  //     holoContInput = desiredState;
-  //     holoContAngle = desiredAngle;
-  //     holoContOutput = holonomicController.calculate(getPoseMeters(), desiredState,
-  // desiredAngle);
-  //     move(holoContOutput.vxMetersPerSecond, holoContOutput.vyMetersPerSecond,
-  // holoContOutput.omegaRadiansPerSecond, false);
+   public void calculateController(State desiredState, Rotation2d desiredAngle){
+       holoContInput = desiredState;
+       holoContAngle = desiredAngle;
+       holoContOutput = holonomicController.calculate(getPoseMeters(), desiredState,
+   desiredAngle);
+       move(holoContOutput.vxMetersPerSecond, holoContOutput.vyMetersPerSecond,
+   holoContOutput.omegaRadiansPerSecond, false);
 
-  // }
+   }
 
+   public void setEnableHolo(boolean enabled) {
+    holonomicController.setEnabled(enabled);
+    //logger.info("Holonomic Controller Enabled: {}", enabled);
+  }
 
 
 }
