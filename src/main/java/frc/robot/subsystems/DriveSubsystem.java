@@ -24,12 +24,10 @@ import frc.robot.Constants.DriveConstants;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Set;
-
 import net.consensys.cava.toml.Toml;
 import net.consensys.cava.toml.TomlArray;
 import net.consensys.cava.toml.TomlParseResult;
 import net.consensys.cava.toml.TomlTable;
-
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +52,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private Rotation2d holoContAngle = new Rotation2d();
   private Double trajectoryActive = 0.0;
   private double[] lastVelocity = new double[3];
+
   public DriveSubsystem() {
     var moduleBuilder =
         new TalonSwerveModule.Builder()
