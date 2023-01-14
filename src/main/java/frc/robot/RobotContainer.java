@@ -31,7 +31,6 @@ public class RobotContainer {
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .whenPressed(new xLockCommand(driveSubsystem));
 
-    
     // Requires swerve migration to new Pose2D
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
     // {driveSubsystem.resetOdometry(new Pose2d());},driveSubsystem);
