@@ -12,27 +12,35 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Set;
+
 import net.consensys.cava.toml.Toml;
 import net.consensys.cava.toml.TomlArray;
 import net.consensys.cava.toml.TomlParseResult;
 import net.consensys.cava.toml.TomlTable;
+
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.strykeforce.swerve.SwerveDrive;
 import org.strykeforce.swerve.SwerveModule;
 import org.strykeforce.swerve.TalonSwerveModule;
+import org.strykeforce.telemetry.TelemetryService;
+import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
+import org.strykeforce.telemetry.measurable.Measure;
 
-public class DriveSubsystem extends SubsystemBase {
+public class DriveSubsystem extends MeasurableSubsystem {
   private static final Logger logger = LoggerFactory.getLogger(DriveSubsystem.class);
   private final SwerveDrive swerveDrive;
   private final HolonomicDriveController holonomicController;
@@ -40,11 +48,12 @@ public class DriveSubsystem extends SubsystemBase {
   private final PIDController xController;
   private final PIDController yController;
 
+  // Grapher Variables
   private ChassisSpeeds holoContOutput = new ChassisSpeeds();
   private State holoContInput = new State();
   private Rotation2d holoContAngle = new Rotation2d();
   private Double trajectoryActive = 0.0;
-
+  private double[] lastVelocity = new double[3];
   public DriveSubsystem() {
     var moduleBuilder =
         new TalonSwerveModule.Builder()
@@ -165,11 +174,42 @@ public class DriveSubsystem extends SubsystemBase {
     }
   }
 
+  public SwerveModule[] getSwerveModules() {
+    return swerveDrive.getSwerveModules();
+  }
+
+  private SwerveModuleState[] getSwerveModuleStates() {
+    TalonSwerveModule[] swerveModules = (TalonSwerveModule[]) swerveDrive.getSwerveModules();
+    SwerveModuleState[] swerveModuleStates = new SwerveModuleState[4];
+    for (int i = 0; i < 4; i++) {
+      swerveModuleStates[i] = swerveModules[i].getState();
+    }
+
+    return swerveModuleStates;
+  }
+
   public void resetHolonomicController() {
     xController.reset();
     yController.reset();
     omegaController.reset(getGyroRotation2d().getRadians());
   }
+
+  public ChassisSpeeds getFieldRelSpeed() {
+    SwerveDriveKinematics kinematics = swerveDrive.getKinematics();
+    SwerveModule[] swerveModules = swerveDrive.getSwerveModules();
+    SwerveModuleState[] swerveModuleStates = new SwerveModuleState[4];
+    for (int i = 0; i < 4; ++i) {
+      swerveModuleStates[i] = swerveModules[i].getState();
+    }
+    ChassisSpeeds roboRelSpeed = kinematics.toChassisSpeeds(swerveModuleStates);
+    return new ChassisSpeeds(
+        roboRelSpeed.vxMetersPerSecond * swerveDrive.getHeading().unaryMinus().getCos()
+            + roboRelSpeed.vyMetersPerSecond * swerveDrive.getHeading().unaryMinus().getSin(),
+        -roboRelSpeed.vxMetersPerSecond * swerveDrive.getHeading().unaryMinus().getSin()
+            + roboRelSpeed.vyMetersPerSecond * swerveDrive.getHeading().unaryMinus().getCos(),
+        roboRelSpeed.omegaRadiansPerSecond);
+  }
+
   // Trajectory TOML Parsing
   public PathData generateTrajectory(String trajectoryName) {
 
@@ -251,5 +291,56 @@ public class DriveSubsystem extends SubsystemBase {
   public void setEnableHolo(boolean enabled) {
     holonomicController.setEnabled(enabled);
     logger.info("Holonomic Controller Enabled: {}", enabled);
+  }
+
+  public double getGyroRate() {
+    return swerveDrive.getGyroRate();
+  }
+
+  // Make whether a trajectory is currently active obvious on grapher
+  public void grapherTrajectoryActive(Boolean active) {
+    if (active) trajectoryActive = 1.0;
+    else trajectoryActive = 0.0;
+  }
+
+  @Override
+  public void registerWith(@NotNull TelemetryService telemetryService) {
+    super.registerWith(telemetryService);
+    swerveDrive.registerWith(telemetryService);
+  }
+
+  @Override
+  public Set<Measure> getMeasures() {
+    return Set.of(
+        new Measure("Gyro Rotation2D(deg)", () -> swerveDrive.getHeading().getDegrees()),
+        new Measure("Odometry X", () -> swerveDrive.getPoseMeters().getX()),
+        new Measure("Odometry Y", () -> swerveDrive.getPoseMeters().getY()),
+        new Measure(
+            "Odometry Rotation2D(deg)",
+            () -> swerveDrive.getPoseMeters().getRotation().getDegrees()),
+        new Measure("Trajectory Vel", () -> holoContInput.velocityMetersPerSecond),
+        new Measure("Trajectory Accel", () -> holoContInput.accelerationMetersPerSecondSq),
+        new Measure("Trajectory X", () -> holoContInput.poseMeters.getX()),
+        new Measure("Trajectory Y", () -> holoContInput.poseMeters.getY()),
+        new Measure(
+            "Trajectory Rotation2D(deg)",
+            () -> holoContInput.poseMeters.getRotation().getDegrees()),
+        new Measure("Desired Gyro Heading(deg)", () -> holoContAngle.getDegrees()),
+        new Measure("Holonomic Cont Vx", () -> holoContOutput.vxMetersPerSecond),
+        new Measure("Holonomic Cont Vy", () -> holoContOutput.vyMetersPerSecond),
+        new Measure("Holonomic Cont Vomega", () -> holoContOutput.omegaRadiansPerSecond),
+        new Measure("Trajectory Active", () -> trajectoryActive),
+        new Measure("Wheel 0 Angle", () -> getSwerveModuleStates()[0].angle.getDegrees()),
+        new Measure("Wheel 0 Speed", () -> getSwerveModuleStates()[0].speedMetersPerSecond),
+        new Measure("Wheel 1 Angle", () -> getSwerveModuleStates()[1].angle.getDegrees()),
+        new Measure("Wheel 1 Speed", () -> getSwerveModuleStates()[1].speedMetersPerSecond),
+        new Measure("Wheel 2 Angle", () -> getSwerveModuleStates()[2].angle.getDegrees()),
+        new Measure("Wheel 2 Speed", () -> getSwerveModuleStates()[2].speedMetersPerSecond),
+        new Measure("Wheel 3 Angle", () -> getSwerveModuleStates()[3].angle.getDegrees()),
+        new Measure("Wheel 3 Speed", () -> getSwerveModuleStates()[3].speedMetersPerSecond),
+        new Measure("FWD Vel", () -> lastVelocity[0]),
+        new Measure("STR Vel", () -> lastVelocity[1]),
+        new Measure("YAW Vel", () -> lastVelocity[2]),
+        new Measure("Gyro Rate", () -> getGyroRate()));
   }
 }
