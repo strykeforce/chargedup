@@ -6,11 +6,14 @@ import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import frc.robot.Constants;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.strykeforce.telemetry.TelemetryService;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
 import org.strykeforce.telemetry.measurable.Measure;
 
 public class ElevatorSubsystem extends MeasurableSubsystem {
+  private static final Logger logger = LoggerFactory.getLogger(ElevatorSubsystem.class);
   private TalonFX leftMain, rightFollower;
   private double desiredPosition;
   private ElevatorState elevatorState;
@@ -37,11 +40,13 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
   }
 
   public void setPos(double location) {
+    logger.info("Elevator moving to {}", location);
     desiredPosition = location;
     leftMain.set(TalonFXControlMode.MotionMagic, location);
   }
 
   public void setPct(double pct) {
+    logger.info("Elevator moving at {}% speed", pct);
     leftMain.set(TalonFXControlMode.PercentOutput, pct);
   }
 
@@ -61,12 +66,15 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
     rightFollower.configReverseSoftLimitEnable(false);
 
     leftMain.configSupplyCurrentLimit(
-        Constants.ElevatorConstants.getElevatorZeroSupplyCurrentLimit());
+        Constants.ElevatorConstants.getElevatorZeroSupplyCurrentLimit(),
+        Constants.kTalonConfigTimeout);
     rightFollower.configSupplyCurrentLimit(
-        Constants.ElevatorConstants.getElevatorZeroSupplyCurrentLimit());
+        Constants.ElevatorConstants.getElevatorZeroSupplyCurrentLimit(),
+        Constants.kTalonConfigTimeout);
 
     setPct(Constants.ElevatorConstants.kElevatorZeroSpeed);
 
+    logger.info("Elevator is zeroing");
     elevatorState = ElevatorState.ZEROING;
   }
 
@@ -117,6 +125,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
           break;
         }
       case ZEROED:
+        logger.info("Elevator is zeroed");
         break;
       default:
         break;
