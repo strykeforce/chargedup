@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.commands.ShoulderSpeedCommand;
-import frc.robot.commands.ShoulderToPositionCommand;
+import frc.robot.commands.ZeroShoulderCommand;
 import frc.robot.subsystems.ShoulderSubsystem;
 
 public class RobotContainer {
@@ -40,7 +40,7 @@ public class RobotContainer {
         .add("Shoulder Stop", new ShoulderSpeedCommand(shoulderSubsystem, 0))
         .withPosition(0, 0);
     shoulderCommands
-        .add("Shoulder Zero", new ShoulderToPositionCommand(shoulderSubsystem, 0))
+        .add("Shoulder Zero", new ZeroShoulderCommand(shoulderSubsystem))
         .withPosition(0, 1);
     shoulderCommands
         .add("Shoulder Forward", new ShoulderSpeedCommand(shoulderSubsystem, 0.1))
