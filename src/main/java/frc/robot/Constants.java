@@ -10,18 +10,20 @@ package frc.robot;
  */
 public class Constants {
   public static final class IntakeConstants {
-    public static final int kIntakeFalconID = 0; // FIXME: replace wih actual id
-    public static final int kRollerFalconID = 0; // FIXME: replace wih actual id
-    public static final int kIntakeExtendFalconID = 0; // FIXME: replace wih actual id
+    // FIXME: need correct values
+
+    public static final int kIntakeFalconID = 0;
+    public static final int kExtendTalonID = 0;
 
     public static final int kCloseEnoughTicks = 150;
-    public static final int kExtendPosTicks = 0; // FIXME: replace with correct # of ticks
-    public static final int kRetractPosTicks = 0; // FIXME: replace with correct # of ticks
+    public static final int kExtendPosTicks = 0;
+    public static final int kRetractPosTicks = 0;
 
-    public static final double kIntakeSpeed = 0.5; // FIXME: tune speed
-    public static final double kIntakeReverseSpeed = -0.5; // FIXME: tune speed
+    public static final double kIntakeSpeed = 0.5;
+    public static final double kIntakeEjectSpeed = -0.5;
+    public static final double kEjectTimerDelaySec = 3;
 
-    public static final int kIntakeZeroTicks = 2800; // FIXME: insert actual value
+    public static final int kIntakeZeroTicks = 2800;
     public static final int kZeroStableCounts = 3;
     public static final int kZeroStableBand = 20;
   }

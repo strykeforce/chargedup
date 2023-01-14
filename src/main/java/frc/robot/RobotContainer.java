@@ -32,8 +32,8 @@ public class RobotContainer {
 
   private void configureBindings() {
     // intake buttons
-    new JoystickButton(xboxController, 0)
-        .whileTrue(new ToggleIntakeExtendedCommand(intakeSubsystem)); // FIXME: correct button id
+    new JoystickButton(xboxController, 0) // FIXME: correct button id
+        .onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem));
   }
 
   private void configurePitDashboard() {
@@ -43,21 +43,25 @@ public class RobotContainer {
     ShuffleboardLayout intakeCommands =
         pitTab.getLayout("Intake", BuiltInLayouts.kGrid).withPosition(3, 0).withSize(1, 2);
     intakeCommands
-        .add("FWD", new IntakeOpenLoopCommand(intakeSubsystem, IntakeConstants.kIntakeSpeed))
+        .add("STOP", new IntakeOpenLoopCommand(intakeSubsystem, 0))
         .withSize(1, 1)
         .withPosition(0, 0);
     intakeCommands
-        .add("REV", new IntakeOpenLoopCommand(intakeSubsystem, IntakeConstants.kIntakeReverseSpeed))
+        .add("FWD", new IntakeOpenLoopCommand(intakeSubsystem, IntakeConstants.kIntakeSpeed))
         .withSize(1, 1)
         .withPosition(0, 1);
     intakeCommands
-        .add("EXTEND", new IntakeExtendCommand(intakeSubsystem, true))
+        .add("REV", new IntakeOpenLoopCommand(intakeSubsystem, IntakeConstants.kIntakeEjectSpeed))
         .withSize(1, 1)
         .withPosition(0, 2);
     intakeCommands
-        .add("RETRACT", new IntakeExtendCommand(intakeSubsystem, false))
+        .add("EXTEND", new IntakeExtendCommand(intakeSubsystem, true))
         .withSize(1, 1)
         .withPosition(0, 3);
+    intakeCommands
+        .add("RETRACT", new IntakeExtendCommand(intakeSubsystem, false))
+        .withSize(1, 1)
+        .withPosition(0, 4);
   }
 
   public Command getAutonomousCommand() {

@@ -15,7 +15,6 @@ public class IntakeOpenLoopCommand extends CommandBase {
 
   @Override
   public void initialize() {
-    intakeSubsystem.setIntakeSpeed(percentOutput);
-    intakeSubsystem.setRollerSpeed(percentOutput);
+    intakeSubsystem.intakeOpenLoop(percentOutput);
   }
 }
