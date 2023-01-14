@@ -26,11 +26,14 @@ import net.consensys.cava.toml.Toml;
 import net.consensys.cava.toml.TomlArray;
 import net.consensys.cava.toml.TomlParseResult;
 import net.consensys.cava.toml.TomlTable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.strykeforce.swerve.SwerveDrive;
 import org.strykeforce.swerve.SwerveModule;
 import org.strykeforce.swerve.TalonSwerveModule;
 
 public class DriveSubsystem extends SubsystemBase {
+  private static final Logger logger = LoggerFactory.getLogger(DriveSubsystem.class);
   private final SwerveDrive swerveDrive;
   private final HolonomicDriveController holonomicController;
   private final ProfiledPIDController omegaController;
@@ -127,7 +130,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void teleResetGyro() {
-    // logger.info("Driver Joystick: Reset Gyro");
+    logger.info("Driver Joystick: Reset Gyro");
     swerveDrive.setGyroOffset(Rotation2d.fromDegrees(0.0));
     swerveDrive.resetGyro();
     swerveDrive.resetOdometry(
@@ -136,7 +139,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void resetOdometry(Pose2d pose) {
     swerveDrive.resetOdometry(pose);
-    //     logger.info("reset odometry with: {}", pose);
+    logger.info("reset odometry with: {}", pose);
   }
 
   public Rotation2d getGyroRotation2d() {
@@ -153,11 +156,11 @@ public class DriveSubsystem extends SubsystemBase {
   public void xLock() {
     SwerveModule[] swerveModules = swerveDrive.getSwerveModules();
     for (int i = 0; i < 4; i++) {
+      if (i == 0 || i == 3) {
+        swerveModules[i].setAzimuthRotation2d(Rotation2d.fromDegrees(45.0));
+      }
       if (i == 1 || i == 2) {
         swerveModules[i].setAzimuthRotation2d(Rotation2d.fromDegrees(-45.0));
-      }
-      if (i == 3 || i == 4) {
-        swerveModules[i].setAzimuthRotation2d(Rotation2d.fromDegrees(45.0));
       }
     }
   }
@@ -173,12 +176,12 @@ public class DriveSubsystem extends SubsystemBase {
     try {
       TomlParseResult parseResult =
           Toml.parse(Paths.get("/home/lvuser/deploy/paths/" + trajectoryName + ".toml"));
-      // logger.info("Generating Trajectory: {}", trajectoryName);
+      logger.info("Generating Trajectory: {}", trajectoryName);
       Pose2d startPose = parsePose2d(parseResult, "start_pose");
       Pose2d endPose = parsePose2d(parseResult, "end_pose");
       TomlArray internalPointsToml = parseResult.getArray("internal_points");
       ArrayList<Translation2d> path = new ArrayList<>();
-      // logger.info("Toml Internal Points Array Size: {}", internalPointsToml.size());
+      logger.info("Toml Internal Points Array Size: {}", internalPointsToml.size());
 
       // Create a table for each internal point and put them into a translation2d waypoint
       for (int i = 0; i < internalPointsToml.size(); i++) {
@@ -200,15 +203,15 @@ public class DriveSubsystem extends SubsystemBase {
       // Yaw degrees is seperate from the trajectoryConfig
       double yawDegrees = parseResult.getDouble("target_yaw");
       Rotation2d targetYaw = Rotation2d.fromDegrees(yawDegrees);
-      // logger.info("Yaw is {}", targetYaw);
+      logger.info("Yaw is {}", targetYaw);
 
       // Create a the generated trajectory and return it along with the target yaw
       Trajectory trajectoryGenerated =
           TrajectoryGenerator.generateTrajectory(startPose, path, endPose, trajectoryConfig);
       return new PathData(targetYaw, trajectoryGenerated);
     } catch (Exception error) {
-      // logger.error(error.toString());
-      // logger.error("Path {} not found - Running Default Path", trajectoryName);
+      logger.error(error.toString());
+      logger.error("Path {} not found - Running Default Path", trajectoryName);
 
       // In the case of an error, set the trajectory to default
       Trajectory trajectoryGenerated =
@@ -247,6 +250,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   public void setEnableHolo(boolean enabled) {
     holonomicController.setEnabled(enabled);
-    // logger.info("Holonomic Controller Enabled: {}", enabled);
+    logger.info("Holonomic Controller Enabled: {}", enabled);
   }
 }

@@ -27,9 +27,9 @@ public class RobotContainer {
   private void configureDriverButtonBindings() {
     driveSubsystem.setDefaultCommand(new DriveTeleopCommand(driveJoystick, driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.RESET.id)
-        .whenPressed(new ZeroGyroCommand(driveSubsystem));
+        .onTrue(new ZeroGyroCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
-        .whenPressed(new xLockCommand(driveSubsystem));
+        .onTrue(new xLockCommand(driveSubsystem));
 
     // Requires swerve migration to new Pose2D
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->

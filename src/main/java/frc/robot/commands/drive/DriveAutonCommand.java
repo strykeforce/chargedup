@@ -7,11 +7,14 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.PathData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DriveAutonCommand extends CommandBase {
   private final DriveSubsystem driveSubsystem;
   private final Trajectory trajectory;
   private final Timer timer = new Timer();
+  private static final Logger logger = LoggerFactory.getLogger(DriveAutonCommand.class);
   private final Rotation2d robotHeading;
   private boolean lastPath;
   private String trajectoryName;
@@ -44,8 +47,7 @@ public class DriveAutonCommand extends CommandBase {
     driveSubsystem.resetHolonomicController();
     // driveSubsystem.grapherTrajectoryActive(true);
     timer.reset();
-    // logger.info("Begin Trajectory: {}", trajectoryName);
-
+    logger.info("Begin Trajectory: {}", trajectoryName);
   }
 
   @Override
@@ -71,6 +73,6 @@ public class DriveAutonCommand extends CommandBase {
     }
 
     // driveSubsystem.grapherTrajectoryActive(false);
-    // logger.info("End Trajectory {}: {}", trajectoryName, timer.get());
+    logger.info("End Trajectory {}: {}", trajectoryName, timer.get());
   }
 }
