@@ -13,9 +13,20 @@ import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
  * constants are needed, to reduce verbosity.
  */
 public class Constants {
+  public static final int kTalonConfigTimeout = 10; // ms
+
   public static class ElevatorConstants {
     public static final int kLeftMainId = 0; // FIXME
     public static final int kRightFollowerId = 0; // FIXME
+
+    public static final double kAllowedError = 0; // FIXME
+
+    public static final double kElevatorZeroSpeed = 0.1;
+    public static final double kZeroTargetSpeedTicksPer100ms = 5;
+    public static final int kZeroStableCounts = 25;
+
+    public static final double kMaxFwd = 0; // FIXME
+    public static final double kMaxRev = 0; // FIXME
 
     public static TalonFXConfiguration getElevatorFalconConfig() {
       TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
@@ -30,19 +41,20 @@ public class Constants {
       elevatorConfig.statorCurrLimit.triggerThresholdTime = 0.1;
       elevatorConfig.statorCurrLimit.enable = true;
 
-      elevatorConfig.slot0.kP = 1.0;
-      elevatorConfig.slot0.kI = 0.0;
-      elevatorConfig.slot0.kD = 0.0;
-      elevatorConfig.slot0.kF = 0.065;
-      elevatorConfig.slot0.integralZone = 0;
-      elevatorConfig.slot0.maxIntegralAccumulator = 0;
-      elevatorConfig.slot0.allowableClosedloopError = 0;
-      elevatorConfig.motionCruiseVelocity = 5_000;
-      elevatorConfig.motionAcceleration = 30_000;
-      elevatorConfig.forwardSoftLimitEnable = false;
-      elevatorConfig.forwardSoftLimitThreshold = 0;
-      elevatorConfig.reverseSoftLimitEnable = false;
-      elevatorConfig.reverseSoftLimitThreshold = -200_000;
+      // elevatorConfig.slot0.kP = 1.0;
+      // elevatorConfig.slot0.kI = 0.0;
+      // elevatorConfig.slot0.kD = 0.0;
+      // elevatorConfig.slot0.kF = 0.065;
+      // elevatorConfig.slot0.integralZone = 0;
+      // elevatorConfig.slot0.maxIntegralAccumulator = 0;
+      // elevatorConfig.slot0.allowableClosedloopError = 0;
+      // elevatorConfig.motionCruiseVelocity = 5_000;
+      // elevatorConfig.motionAcceleration = 30_000;
+
+      elevatorConfig.forwardSoftLimitEnable = true;
+      elevatorConfig.forwardSoftLimitThreshold = kMaxFwd;
+      elevatorConfig.reverseSoftLimitEnable = true;
+      elevatorConfig.reverseSoftLimitThreshold = kMaxRev;
       elevatorConfig.neutralDeadband = 0.01;
       elevatorConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
       elevatorConfig.velocityMeasurementWindow = 64;
@@ -53,18 +65,11 @@ public class Constants {
     }
 
     public static SupplyCurrentLimitConfiguration getElevatorSupplyLimitConfig() {
-      SupplyCurrentLimitConfiguration elevatorSupplyConfig = new SupplyCurrentLimitConfiguration();
-
-      elevatorSupplyConfig.currentLimit = 40;
-      elevatorSupplyConfig.triggerThresholdCurrent = 45;
-      elevatorSupplyConfig.triggerThresholdTime = .04;
-      elevatorSupplyConfig.enable = true;
-
-      return elevatorSupplyConfig;
+      return new SupplyCurrentLimitConfiguration(true, 40, 45, .04);
     }
 
     public static SupplyCurrentLimitConfiguration getElevatorZeroSupplyCurrentLimit() {
-      return new SupplyCurrentLimitConfiguration(true, 100, 120, 1.0);
+      return new SupplyCurrentLimitConfiguration(true, 5, 5, 0.1);
     }
   }
 }

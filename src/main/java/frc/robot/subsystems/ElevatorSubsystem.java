@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
@@ -13,6 +12,10 @@ import org.strykeforce.telemetry.measurable.Measure;
 
 public class ElevatorSubsystem extends MeasurableSubsystem {
   private TalonFX leftMain, rightFollower;
+  private double desiredPosition;
+  private ElevatorState elevatorState;
+
+  private int elevatorZeroStableCounts;
 
   public ElevatorSubsystem() {
     leftMain = new TalonFX(Constants.ElevatorConstants.kLeftMainId);
@@ -21,20 +24,50 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
     leftMain.configAllSettings(Constants.ElevatorConstants.getElevatorFalconConfig());
     leftMain.configSupplyCurrentLimit(Constants.ElevatorConstants.getElevatorSupplyLimitConfig());
     leftMain.setInverted(TalonFXInvertType.Clockwise);
-    
+
     rightFollower.configAllSettings(Constants.ElevatorConstants.getElevatorFalconConfig());
     rightFollower.configSupplyCurrentLimit(
         Constants.ElevatorConstants.getElevatorSupplyLimitConfig());
     rightFollower.setInverted(TalonFXInvertType.CounterClockwise);
     rightFollower.follow(leftMain, FollowerType.PercentOutput);
+
+    elevatorZeroStableCounts = 0;
+    desiredPosition = getPos();
+    elevatorState = ElevatorState.IDLE;
   }
 
   public void setPos(double location) {
-    leftMain.set(TalonFXControlMode.MotionProfile, location);
+    desiredPosition = location;
+    leftMain.set(TalonFXControlMode.MotionMagic, location);
   }
 
   public void setPct(double pct) {
     leftMain.set(TalonFXControlMode.PercentOutput, pct);
+  }
+
+  public double getPos() {
+    return leftMain.getSelectedSensorPosition();
+  }
+
+  public boolean isFinished() {
+    return Math.abs(desiredPosition - getPos()) <= Constants.ElevatorConstants.kAllowedError;
+  }
+
+  public void zeroElevator() {
+    leftMain.configForwardSoftLimitEnable(false);
+    leftMain.configReverseSoftLimitEnable(false);
+
+    rightFollower.configForwardSoftLimitEnable(false);
+    rightFollower.configReverseSoftLimitEnable(false);
+
+    leftMain.configSupplyCurrentLimit(
+        Constants.ElevatorConstants.getElevatorZeroSupplyCurrentLimit());
+    rightFollower.configSupplyCurrentLimit(
+        Constants.ElevatorConstants.getElevatorZeroSupplyCurrentLimit());
+
+    setPct(Constants.ElevatorConstants.kElevatorZeroSpeed);
+
+    elevatorState = ElevatorState.ZEROING;
   }
 
   @Override
@@ -47,5 +80,52 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
   @Override
   public Set<Measure> getMeasures() {
     return Set.of();
+  }
+
+  @Override
+  public void periodic() {
+    switch (elevatorState) {
+      case IDLE:
+        break;
+      case ZEROING:
+        if (Math.abs(leftMain.getSelectedSensorVelocity())
+            < Constants.ElevatorConstants.kZeroTargetSpeedTicksPer100ms) {
+          elevatorZeroStableCounts++;
+        } else {
+          elevatorZeroStableCounts = 0;
+        }
+
+        if (elevatorZeroStableCounts > Constants.ElevatorConstants.kZeroStableCounts) {
+          leftMain.setSelectedSensorPosition(0.0);
+          rightFollower.setSelectedSensorPosition(0.0);
+          leftMain.configSupplyCurrentLimit(
+              Constants.ElevatorConstants.getElevatorSupplyLimitConfig(),
+              Constants.kTalonConfigTimeout);
+          rightFollower.configSupplyCurrentLimit(
+              Constants.ElevatorConstants.getElevatorSupplyLimitConfig(),
+              Constants.kTalonConfigTimeout);
+
+          leftMain.configForwardSoftLimitEnable(true);
+          leftMain.configReverseSoftLimitEnable(true);
+
+          rightFollower.configForwardSoftLimitEnable(true);
+          rightFollower.configReverseSoftLimitEnable(true);
+
+          setPct(0);
+          desiredPosition = 0;
+          elevatorState = ElevatorState.ZEROED;
+          break;
+        }
+      case ZEROED:
+        break;
+      default:
+        break;
+    }
+  }
+
+  public enum ElevatorState {
+    IDLE,
+    ZEROING,
+    ZEROED
   }
 }
