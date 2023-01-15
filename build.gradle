@@ -113,3 +113,7 @@ spotless{
         lineEndings = 'GIT_ATTRIBUTES'
     }
 }
+
+repositories(){
+    mavenLocal()
+}
