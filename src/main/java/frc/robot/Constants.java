@@ -16,8 +16,8 @@ public class Constants {
   public static final int kTalonConfigTimeout = 10; // ms
 
   public static class ElevatorConstants {
-    public static final int kLeftMainId = 31; 
-    public static final int kRightFollowerId = 21; 
+    public static final int kLeftMainId = 31;
+    public static final int kRightFollowerId = 21;
 
     public static final double kAllowedError = 0; // FIXME
 

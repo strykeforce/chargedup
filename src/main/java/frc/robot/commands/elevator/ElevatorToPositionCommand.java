@@ -1,21 +1,21 @@
-package frc.robot.commands;
+package frc.robot.commands.elevator;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.ElevatorSubsystem;
 
-public class ElevatorSpeedCommand extends InstantCommand {
+public class ElevatorToPositionCommand extends InstantCommand {
   private ElevatorSubsystem elevatorSubsystem;
-  private double pctSpeed;
+  private double position;
 
-  public ElevatorSpeedCommand(ElevatorSubsystem elevatorSubsystem, double pctSpeed) {
+  public ElevatorToPositionCommand(ElevatorSubsystem elevatorSubsystem, double position) {
     this.elevatorSubsystem = elevatorSubsystem;
-    this.pctSpeed = pctSpeed;
+    this.position = position;
 
     addRequirements(elevatorSubsystem);
   }
 
   @Override
   public void initialize() {
-    elevatorSubsystem.setPct(pctSpeed);
+    elevatorSubsystem.setPos(position);
   }
 }
