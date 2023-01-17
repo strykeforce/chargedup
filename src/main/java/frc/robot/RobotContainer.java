@@ -10,18 +10,31 @@ import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
+import org.strykeforce.telemetry.TelemetryController;
+import org.strykeforce.telemetry.TelemetryService;
 
 public class RobotContainer {
   private static final double kJoystickDeadband = 0.1;
 
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem driveSubsystem;
+  private final VisionSubsystem visionSubsystem;
   private final Joystick driveJoystick = new Joystick(0);
+  private final TelemetryService telemetryService = new TelemetryService(TelemetryController::new);
 
   public RobotContainer() {
     driveSubsystem = new DriveSubsystem();
+    visionSubsystem = new VisionSubsystem();
 
+    configureTelemetry();
     configureDriverButtonBindings();
+  }
+
+  private void configureTelemetry() {
+    driveSubsystem.registerWith(telemetryService);
+    visionSubsystem.registerWith(telemetryService);
+    telemetryService.start();
   }
 
   private void configureDriverButtonBindings() {
