@@ -1,12 +1,12 @@
-package frc.robot.commands;
+package frc.robot.commands.hand;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.HandSubsystem;
 
-public class GrabCubeCommand extends InstantCommand {
+public class ZeroHandCommand extends InstantCommand {
   private HandSubsystem handSubsystem;
 
-  public GrabCubeCommand(HandSubsystem handSubsystem) {
+  public ZeroHandCommand(HandSubsystem handSubsystem) {
     this.handSubsystem = handSubsystem;
 
     addRequirements(handSubsystem);
@@ -14,6 +14,6 @@ public class GrabCubeCommand extends InstantCommand {
 
   @Override
   public void initialize() {
-    handSubsystem.grabCube();
+    handSubsystem.zeroHand();
   }
 }

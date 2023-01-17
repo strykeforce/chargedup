@@ -1,19 +1,21 @@
-package frc.robot.commands;
+package frc.robot.commands.hand;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.HandSubsystem;
 
-public class GrabConeCommand extends InstantCommand {
+public class HandToPositionCommand extends InstantCommand {
   private HandSubsystem handSubsystem;
+  private double position;
 
-  public GrabConeCommand(HandSubsystem handSubsystem) {
+  public HandToPositionCommand(HandSubsystem handSubsystem, double position) {
     this.handSubsystem = handSubsystem;
+    this.position = position;
 
     addRequirements(handSubsystem);
   }
 
   @Override
   public void initialize() {
-    handSubsystem.grabCone();
+    handSubsystem.setPos(position);
   }
 }

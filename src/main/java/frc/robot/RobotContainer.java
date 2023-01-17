@@ -10,10 +10,10 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.commands.GrabConeCommand;
-import frc.robot.commands.GrabCubeCommand;
-import frc.robot.commands.HandSpeedCommand;
-import frc.robot.commands.ZeroHandCommand;
+import frc.robot.commands.hand.GrabConeCommand;
+import frc.robot.commands.hand.GrabCubeCommand;
+import frc.robot.commands.hand.HandSpeedCommand;
+import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.subsystems.HandSubsystem;
 
 public class RobotContainer {

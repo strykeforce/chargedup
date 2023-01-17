@@ -1,21 +1,21 @@
-package frc.robot.commands;
+package frc.robot.commands.hand;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.HandSubsystem;
 
-public class HandToPositionCommand extends InstantCommand {
+public class HandSpeedCommand extends InstantCommand {
   private HandSubsystem handSubsystem;
-  private double position;
+  private double pct;
 
-  public HandToPositionCommand(HandSubsystem handSubsystem, double position) {
+  public HandSpeedCommand(HandSubsystem handSubsystem, double pct) {
     this.handSubsystem = handSubsystem;
-    this.position = position;
+    this.pct = pct;
 
     addRequirements(handSubsystem);
   }
 
   @Override
   public void initialize() {
-    handSubsystem.setPos(position);
+    handSubsystem.setPct(pct);
   }
 }
