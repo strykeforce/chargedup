@@ -13,6 +13,7 @@ import org.strykeforce.telemetry.measurable.Measure;
 public class HandSubsystem extends MeasurableSubsystem {
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
   private TalonSRX handTalon;
+  private TalonSRX wristTalon;
   private double desiredPosition;
   private HandState handState;
   private int handZeroStableCounts;
@@ -21,6 +22,10 @@ public class HandSubsystem extends MeasurableSubsystem {
     handTalon = new TalonSRX(Constants.HandConstants.kHandTalonId);
     handTalon.configAllSettings(Constants.HandConstants.getHandTalonConfig());
     handTalon.configSupplyCurrentLimit(Constants.HandConstants.getHandSupplyLimitConfig());
+
+    wristTalon = new TalonSRX(Constants.HandConstants.kWristTalonId); // DOES NOTHING
+    wristTalon.configAllSettings(Constants.HandConstants.getHandTalonConfig());
+    wristTalon.configSupplyCurrentLimit(Constants.HandConstants.getHandSupplyLimitConfig());
 
     desiredPosition = getPos();
     handState = HandState.IDLE;

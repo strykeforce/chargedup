@@ -16,7 +16,8 @@ public class Constants {
   public static final int kTalonConfigTimeout = 10; // ms
 
   public static class HandConstants {
-    public static int kHandTalonId = 0; // FIXME
+    public static int kHandTalonId = 40;
+    public static int kWristTalonId = 0; // FIXME
 
     public static final double kMaxFwd = 0; // FIXME
     public static final double kMaxRev = 0; // FIXME
