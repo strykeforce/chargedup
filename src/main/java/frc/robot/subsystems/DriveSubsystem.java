@@ -120,6 +120,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
     swerveDrive.periodic();
   }
 
+  public void setOdometry(Rotation2d Odom) {
+    swerveDrive.setOdometry(null);
+  }
   // Open-Loop Swerve Movements
   public void drive(double vXmps, double vYmps, double vOmegaRadps) {
     swerveDrive.drive(vXmps, vYmps, vOmegaRadps, true);

@@ -154,4 +154,27 @@ public class Constants {
       return new SupplyCurrentLimitConfiguration(true, 10, 15, 0.04);
     }
   }
+
+  public static final class VisionConstants {
+    public static final double kApTag1x = 15.514;
+    public static final double kApTag2x = 15.514;
+    public static final double kApTag3x = 15.514;
+    public static final double kApTag4x = 16.179;
+    public static final double kApTag5x = 0.362;
+    public static final double kApTag6x = 1.027;
+    public static final double kApTag7x = 1.027;
+    public static final double kApTag8x = 1.027;
+
+    public static final double kApTag1y = 1.072;
+    public static final double kApTag2y = 2.748;
+    public static final double kApTag3y = 4.424;
+    public static final double kApTag4y = 6.750;
+    public static final double kApTag5y = 6.750;
+    public static final double kApTag6y = 4.424;
+    public static final double kApTag7y = 2.748;
+    public static final double kApTag8y = 1.072;
+
+    public static final double kYCameraOffset = .09;
+    public static final double kXCameraOffset = .28;
+  }
 }

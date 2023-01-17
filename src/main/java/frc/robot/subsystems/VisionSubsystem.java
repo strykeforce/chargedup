@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.Constants;
 import java.util.List;
 import java.util.Set;
 import org.photonvision.PhotonCamera;
@@ -14,6 +16,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   List<PhotonTrackedTarget> targets;
   PhotonTrackedTarget bestTarget;
   PhotonPipelineResult result;
+  double timeStamp;
 
   public VisionSubsystem() {}
 
@@ -34,9 +37,22 @@ public class VisionSubsystem extends MeasurableSubsystem {
     return targets.size();
   }
 
+  public double getAmbiguity() {
+    if (getHasTargets() == 1.0) {
+      return bestTarget.getPoseAmbiguity();
+    }
+    return 2767;
+  }
+
   public double getHasTargets() {
     if (result.hasTargets()) return 1.0;
     return 0.0;
+  }
+
+  public Translation2d getPositionFromRobot() {
+    double x = bestTarget.getBestCameraToTarget().getX() + Constants.VisionConstants.kXCameraOffset;
+    double y = bestTarget.getBestCameraToTarget().getY() + Constants.VisionConstants.kYCameraOffset;
+    return new Translation2d(x, y); // z is from the camera height
   }
 
   @Override
@@ -44,6 +60,8 @@ public class VisionSubsystem extends MeasurableSubsystem {
     result = cam1.getLatestResult();
     targets = result.getTargets();
     bestTarget = result.getBestTarget();
+    timeStamp = result.getTimestampSeconds();
+    // result.setTimestampSeconds(timeStamp);
   }
 
   @Override
@@ -64,6 +82,10 @@ public class VisionSubsystem extends MeasurableSubsystem {
         new Measure("Distance to 8", () -> targetDist(8)),
         new Measure("Best Target Id", () -> getBestTarget()),
         new Measure("Num Targets", () -> getNumTargets()),
+        new Measure("BestTarget Ambiguity", () -> getAmbiguity()),
+        new Measure("Time Stamp", () -> timeStamp),
+        new Measure("Position From Robot X", () -> getPositionFromRobot().getX()),
+        new Measure("Position From Robot Y", () -> getPositionFromRobot().getY()),
         new Measure("Has Targets", () -> getHasTargets()));
   }
 }
