@@ -16,7 +16,7 @@ public class Constants {
   public static final double kCanConfigTimeout = 10; // ms
 
   public static final class ShoulderConstants {
-    public static final int kShoulderId = 0; // FIXME
+    public static final int kShoulderId = 30; // FIXME
     public static final int kZeroId = 0; // FIXME
 
     public static final double kShoulderZeroTicks = 0; // FIXME
