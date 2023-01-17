@@ -6,10 +6,13 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
 import frc.robot.subsystems.DriveSubsystem;
+import org.strykeforce.telemetry.TelemetryController;
+import org.strykeforce.telemetry.TelemetryService;
 
 public class RobotContainer {
   private static final double kJoystickDeadband = 0.1;
@@ -17,9 +20,14 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final DriveSubsystem driveSubsystem;
   private final Joystick driveJoystick = new Joystick(0);
+  private final TelemetryService telemetryService;
 
   public RobotContainer() {
     driveSubsystem = new DriveSubsystem();
+    telemetryService = new TelemetryService(TelemetryController::new);
+
+    driveSubsystem.registerWith(telemetryService);
+    telemetryService.start();
 
     configureDriverButtonBindings();
   }
@@ -30,6 +38,8 @@ public class RobotContainer {
         .onTrue(new ZeroGyroCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+        .onTrue(new DriveAutonCommand(driveSubsystem, "straightPath", true, true));
 
     // Requires swerve migration to new Pose2D
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
