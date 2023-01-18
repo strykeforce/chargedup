@@ -1,10 +1,19 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.Constants;
+import edu.wpi.first.math.geometry.Translation3d;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.photonvision.PhotonCamera;
+import org.photonvision.RobotPoseEstimator;
+import org.photonvision.RobotPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import org.strykeforce.telemetry.TelemetryService;
@@ -17,8 +26,22 @@ public class VisionSubsystem extends MeasurableSubsystem {
   PhotonTrackedTarget bestTarget;
   PhotonPipelineResult result;
   double timeStamp;
+  List<Pair<PhotonCamera, Transform3d>> camList = new ArrayList<Pair<PhotonCamera, Transform3d>>();
+  AprilTagFieldLayout aprilTagFieldLayout;
+  RobotPoseEstimator robotPoseEstimator;
 
-  public VisionSubsystem() {}
+  public VisionSubsystem() {
+    camList.add(
+        new Pair<PhotonCamera, Transform3d>(
+            cam1, new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0, 0))));
+    try {
+      aprilTagFieldLayout = new AprilTagFieldLayout(AprilTagFields.k2023ChargedUp.m_resourceFile);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    robotPoseEstimator =
+        new RobotPoseEstimator(aprilTagFieldLayout, PoseStrategy.LOWEST_AMBIGUITY, camList);
+  }
 
   public double targetDist(int ID) {
     for (PhotonTrackedTarget temp : targets) {
@@ -65,42 +88,45 @@ public class VisionSubsystem extends MeasurableSubsystem {
 
   public Translation2d getOdometry() {
     Translation2d position = getPositionFromRobot();
-    switch ((int) getBestTarget()) {
-      case 1:
-        return new Translation2d(
-            position.getX() + Constants.VisionConstants.kApTag1x,
-            position.getY() - Constants.VisionConstants.kApTag1y);
-      case 2:
-        return new Translation2d(
-            position.getX() + Constants.VisionConstants.kApTag2x,
-            position.getY() - Constants.VisionConstants.kApTag2y);
-      case 3:
-        return new Translation2d(
-            position.getX() + Constants.VisionConstants.kApTag3x,
-            position.getY() - Constants.VisionConstants.kApTag3y);
-      case 4:
-        return new Translation2d(
-            position.getX() + Constants.VisionConstants.kApTag4x,
-            position.getY() - Constants.VisionConstants.kApTag4y);
-      case 5:
-        return new Translation2d(
-            position.getX() + Constants.VisionConstants.kApTag5x,
-            position.getY() - Constants.VisionConstants.kApTag5y);
-      case 6:
-        return new Translation2d(
-            position.getX() + Constants.VisionConstants.kApTag6x,
-            Constants.VisionConstants.kApTag6y - position.getY());
-      case 7:
-        return new Translation2d(
-            position.getX() + Constants.VisionConstants.kApTag7x,
-            Constants.VisionConstants.kApTag7y - position.getY());
-      case 8:
-        return new Translation2d(
-            position.getX() + Constants.VisionConstants.kApTag8x,
-            Constants.VisionConstants.kApTag8y - position.getY());
-      default:
-        return new Translation2d(2767, 2767);
-    }
+    // switch ((int) getBestTarget()) {
+    //   case 1:
+    //     return new Translation2d(
+    //         position.getX() + Constants.VisionConstants.kApTag1x,
+    //         position.getY() - Constants.VisionConstants.kApTag1y);
+    //   case 2:
+    //     return new Translation2d(
+    //         position.getX() + Constants.VisionConstants.kApTag2x,
+    //         position.getY() - Constants.VisionConstants.kApTag2y);
+    //   case 3:
+    //     return new Translation2d(
+    //         position.getX() + Constants.VisionConstants.kApTag3x,
+    //         position.getY() - Constants.VisionConstants.kApTag3y);
+    //   case 4:
+    //     return new Translation2d(
+    //         position.getX() + Constants.VisionConstants.kApTag4x,
+    //         position.getY() - Constants.VisionConstants.kApTag4y);
+    //   case 5:
+    //     return new Translation2d(
+    //         position.getX() + Constants.VisionConstants.kApTag5x,
+    //         position.getY() - Constants.VisionConstants.kApTag5y);
+    //   case 6:
+    //     return new Translation2d(
+    //         position.getX() + Constants.VisionConstants.kApTag6x,
+    //         Constants.VisionConstants.kApTag6y - position.getY());
+    //   case 7:
+    //     return new Translation2d(
+    //         position.getX() + Constants.VisionConstants.kApTag7x,
+    //         Constants.VisionConstants.kApTag7y - position.getY());
+    //   case 8:
+    //     return new Translation2d(
+    //         position.getX() + Constants.VisionConstants.kApTag8x,
+    //         Constants.VisionConstants.kApTag8y - position.getY());
+    //   default:
+    //     return new Translation2d(2767, 2767);
+    // }
+    return new Translation2d(
+        robotPoseEstimator.update().get().getFirst().getX(),
+        robotPoseEstimator.update().get().getFirst().getY());
   }
 
   @Override
