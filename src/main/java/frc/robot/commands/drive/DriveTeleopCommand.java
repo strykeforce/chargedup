@@ -19,7 +19,6 @@ public class DriveTeleopCommand extends CommandBase {
   // private final RateLimit rateLimitMove = new RateLimit(DriveConstants.kRateLimitMove);
   // private double[] adjustedValues = new double[3];
   // private final double vectorOffset =
-  //     Math.sqrt(2)
   //         / (DriveConstants.kExpoScaleMoveFactor
   //                 * Math.pow((Math.sqrt(2) - DriveConstants.kDeadbandAllStick), 3)
   //             + (1 - DriveConstants.kExpoScaleMoveFactor)

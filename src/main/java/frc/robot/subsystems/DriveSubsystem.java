@@ -235,19 +235,23 @@ public class DriveSubsystem extends MeasurableSubsystem {
       TrajectoryConfig trajectoryConfig =
           new TrajectoryConfig(
               parseResult.getDouble("max_velocity"), parseResult.getDouble("max_acceleration"));
+      logger.info("max velocity/acceleration worked");
       trajectoryConfig.setReversed(parseResult.getBoolean("is_reversed"));
       trajectoryConfig.setStartVelocity(parseResult.getDouble("start_velocity"));
+      logger.info("start velocity worked");
       trajectoryConfig.setEndVelocity(parseResult.getDouble("end_velocity"));
+      logger.info("end velocity worked");
 
       // Yaw degrees is seperate from the trajectoryConfig
       double yawDegrees = parseResult.getDouble("target_yaw");
-      Rotation2d targetYaw = Rotation2d.fromDegrees(yawDegrees);
-      logger.info("Yaw is {}", targetYaw);
+      logger.info("target yaw worked");
+      Rotation2d target_yaw = Rotation2d.fromDegrees(yawDegrees);
+      logger.info("Yaw is {}", target_yaw);
 
       // Create a the generated trajectory and return it along with the target yaw
       Trajectory trajectoryGenerated =
           TrajectoryGenerator.generateTrajectory(startPose, path, endPose, trajectoryConfig);
-      return new PathData(targetYaw, trajectoryGenerated);
+      return new PathData(target_yaw, trajectoryGenerated);
     } catch (Exception error) {
       logger.error(error.toString());
       logger.error("Path {} not found - Running Default Path", trajectoryName);

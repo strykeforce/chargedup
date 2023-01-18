@@ -39,7 +39,7 @@ public class RobotContainer {
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-        .onTrue(new DriveAutonCommand(driveSubsystem, "straightPath", true, true));
+        .onTrue(new DriveAutonCommand(driveSubsystem, "straightPathY", true, true));
 
     // Requires swerve migration to new Pose2D
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
