@@ -14,8 +14,9 @@ import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
  */
 public class Constants {
   public static final class ElbowConstants {
-    public static final int kLeftMainFalconID = 0;
-    public static final int kRightFollowFalconID = 0;
+    public static final int kLeftMainFalconID = 33;
+    public static final int kRightFollowFalconID = 34;
+    public static final int kBeamBreakCANifierID = 35;
 
     public static TalonFXConfiguration getElbowFalonConfig() {
       
