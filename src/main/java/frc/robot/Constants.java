@@ -16,7 +16,9 @@ public class Constants {
   public static final class ElbowConstants {
     public static final int kLeftMainFalconID = 33;
     public static final int kRightFollowFalconID = 34;
-    public static final int kBeamBreakCANifierID = 35;
+    public static final int kRemoteEncoderID = 35;
+
+    public static final int kCloseEnoughTicks = 20;
 
     public static TalonFXConfiguration getElbowFalonConfig() {
       
