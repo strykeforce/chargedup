@@ -3,6 +3,10 @@
 
 [![CI](https://github.com/strykeforce/chargedup/actions/workflows/main.yml/badge.svg)](https://github.com/strykeforce/chargedup/actions/workflows/main.yml)
 
+## Controls
+
+![operator](docs/operator-controls.png)
+
 ## CAN Bus
 
 | Subsystem  | Type     | Talon                 | ID | PDP | Motor  | Breaker |
@@ -16,8 +20,7 @@
 | Drive      | FX       | drive                 | 12 |     | falcon |         |
 | Drive      | FX       | drive                 | 13 |     | falcon |         |
 | Intake     | FX       | intake                | 20 |     | falcon |         |
-| Intake     | SRX      | extendLeftMain        | 21 |     | ??     |         |
-| Intake     | SRX      | extendRightFollow     | 21 |     | ??     |         |
+| Intake     | SRX      | extend                | 21 |     | bag x2 |         |
 | Shoulder   | SRX      | shoulder              | 30 |     | ??     |         |
 | Elevator   | FX       | elevatorLeftMain      | 31 |     | falcon |         |
 | Elevator   | FX       | elevatorrightFollower | 32 |     | falcon |         |
