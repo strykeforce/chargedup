@@ -37,28 +37,16 @@ public class RobotContainer {
     ShuffleboardTab pitTab = Shuffleboard.getTab("Pit");
 
     // Hand Commands
-    ShuffleboardLayout elevatorCommands =
+    ShuffleboardLayout Hand =
         pitTab.getLayout("Hand", BuiltInLayouts.kGrid).withPosition(0, 0).withSize(1, 9);
-    elevatorCommands
-        .add("Hand Left Stop", new HandLeftSpeedCommand(handSubsystem, 0))
-        .withPosition(0, 0);
-    elevatorCommands
-        .add("Hand Right Stop", new HandRightSpeedCommand(handSubsystem, 0))
-        .withPosition(0, 1);
-    elevatorCommands.add("Hand Zero", new ZeroHandCommand(handSubsystem)).withPosition(0, 2);
-    elevatorCommands
-        .add("Hand Left In", new HandLeftSpeedCommand(handSubsystem, 0.1))
-        .withPosition(0, 3);
-    elevatorCommands
-        .add("Hand Right In", new HandRightSpeedCommand(handSubsystem, 0.1))
-        .withPosition(0, 4);
-    elevatorCommands
-        .add("Hand Left Out", new HandLeftSpeedCommand(handSubsystem, -0.1))
-        .withPosition(0, 5);
-    elevatorCommands
-        .add("Hand Right Out", new HandRightSpeedCommand(handSubsystem, -0.1))
-        .withPosition(0, 6);
-    elevatorCommands.add("Grab Cube", new GrabCubeCommand(handSubsystem)).withPosition(0, 7);
-    elevatorCommands.add("Grab Cone", new GrabConeCommand(handSubsystem)).withPosition(0, 8);
+    Hand.add("Hand Left Stop", new HandLeftSpeedCommand(handSubsystem, 0)).withPosition(0, 0);
+    Hand.add("Hand Right Stop", new HandRightSpeedCommand(handSubsystem, 0)).withPosition(0, 1);
+    Hand.add("Hand Zero", new ZeroHandCommand(handSubsystem)).withPosition(0, 2);
+    Hand.add("Hand Left In", new HandLeftSpeedCommand(handSubsystem, 0.1)).withPosition(0, 3);
+    Hand.add("Hand Right In", new HandRightSpeedCommand(handSubsystem, 0.1)).withPosition(0, 4);
+    Hand.add("Hand Left Out", new HandLeftSpeedCommand(handSubsystem, -0.1)).withPosition(0, 5);
+    Hand.add("Hand Right Out", new HandRightSpeedCommand(handSubsystem, -0.1)).withPosition(0, 6);
+    Hand.add("Grab Cube", new GrabCubeCommand(handSubsystem)).withPosition(0, 7);
+    Hand.add("Grab Cone", new GrabConeCommand(handSubsystem)).withPosition(0, 8);
   }
 }

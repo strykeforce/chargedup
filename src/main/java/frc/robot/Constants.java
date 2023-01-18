@@ -36,15 +36,15 @@ public class Constants {
     public static TalonSRXConfiguration getHandTalonConfig() {
       TalonSRXConfiguration handConfig = new TalonSRXConfiguration();
 
-      // shoulderConfig.slot0.kP = 0.0;
-      // shoulderConfig.slot0.kI = 0.0;
-      // shoulderConfig.slot0.kD = 0.0;
-      // shoulderConfig.slot0.kF = 0.0;
-      // shoulderConfig.slot0.integralZone = 0;
-      // shoulderConfig.slot0.maxIntegralAccumulator = 0;
-      // shoulderConfig.slot0.allowableClosedloopError = 0;
-      // shoulderConfig.motionCruiseVelocity = 0;
-      // shoulderConfig.motionAcceleration = 0;
+      // handConfig.slot0.kP = 0.0;
+      // handConfig.slot0.kI = 0.0;
+      // handConfig.slot0.kD = 0.0;
+      // handConfig.slot0.kF = 0.0;
+      // handConfig.slot0.integralZone = 0;
+      // handConfig.slot0.maxIntegralAccumulator = 0;
+      // handConfig.slot0.allowableClosedloopError = 0;
+      // handConfig.motionCruiseVelocity = 0;
+      // handConfig.motionAcceleration = 0;
 
       handConfig.forwardSoftLimitEnable = true;
       handConfig.forwardSoftLimitThreshold = kMaxFwd;
