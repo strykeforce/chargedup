@@ -5,17 +5,20 @@ import frc.robot.subsystems.HandSubsystem;
 
 public class HandToPositionCommand extends InstantCommand {
   private HandSubsystem handSubsystem;
-  private double position;
+  private double leftPosition;
+  private double rightPosition;
 
-  public HandToPositionCommand(HandSubsystem handSubsystem, double position) {
+  public HandToPositionCommand(
+      HandSubsystem handSubsystem, double leftPosition, double rightPosition) {
     this.handSubsystem = handSubsystem;
-    this.position = position;
+    this.leftPosition = leftPosition;
+    this.rightPosition = rightPosition;
 
     addRequirements(handSubsystem);
   }
 
   @Override
   public void initialize() {
-    handSubsystem.setPos(position);
+    handSubsystem.setPos(leftPosition, rightPosition);
   }
 }

@@ -12,7 +12,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.commands.hand.GrabConeCommand;
 import frc.robot.commands.hand.GrabCubeCommand;
-import frc.robot.commands.hand.HandSpeedCommand;
+import frc.robot.commands.hand.HandLeftSpeedCommand;
+import frc.robot.commands.hand.HandRightSpeedCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.subsystems.HandSubsystem;
 
@@ -37,12 +38,27 @@ public class RobotContainer {
 
     // Hand Commands
     ShuffleboardLayout elevatorCommands =
-        pitTab.getLayout("Hand", BuiltInLayouts.kGrid).withPosition(0, 0).withSize(1, 6);
-    elevatorCommands.add("Hand Stop", new HandSpeedCommand(handSubsystem, 0)).withPosition(0, 0);
-    elevatorCommands.add("Hand Zero", new ZeroHandCommand(handSubsystem)).withPosition(0, 1);
-    elevatorCommands.add("Hand Close", new HandSpeedCommand(handSubsystem, 0.1)).withPosition(0, 2);
-    elevatorCommands.add("Hand Open", new HandSpeedCommand(handSubsystem, -0.1)).withPosition(0, 3);
-    elevatorCommands.add("Grab Cube", new GrabCubeCommand(handSubsystem)).withPosition(0, 4);
-    elevatorCommands.add("Grab Cone", new GrabConeCommand(handSubsystem)).withPosition(0, 5);
+        pitTab.getLayout("Hand", BuiltInLayouts.kGrid).withPosition(0, 0).withSize(1, 9);
+    elevatorCommands
+        .add("Hand Left Stop", new HandLeftSpeedCommand(handSubsystem, 0))
+        .withPosition(0, 0);
+    elevatorCommands
+        .add("Hand Right Stop", new HandRightSpeedCommand(handSubsystem, 0))
+        .withPosition(0, 1);
+    elevatorCommands.add("Hand Zero", new ZeroHandCommand(handSubsystem)).withPosition(0, 2);
+    elevatorCommands
+        .add("Hand Left In", new HandLeftSpeedCommand(handSubsystem, 0.1))
+        .withPosition(0, 3);
+    elevatorCommands
+        .add("Hand Right In", new HandRightSpeedCommand(handSubsystem, 0.1))
+        .withPosition(0, 4);
+    elevatorCommands
+        .add("Hand Left Out", new HandLeftSpeedCommand(handSubsystem, -0.1))
+        .withPosition(0, 5);
+    elevatorCommands
+        .add("Hand Right Out", new HandRightSpeedCommand(handSubsystem, -0.1))
+        .withPosition(0, 6);
+    elevatorCommands.add("Grab Cube", new GrabCubeCommand(handSubsystem)).withPosition(0, 7);
+    elevatorCommands.add("Grab Cone", new GrabConeCommand(handSubsystem)).withPosition(0, 8);
   }
 }

@@ -12,71 +12,118 @@ import org.strykeforce.telemetry.measurable.Measure;
 
 public class HandSubsystem extends MeasurableSubsystem {
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
-  private TalonSRX handTalon;
-  private TalonSRX wristTalon;
-  private double desiredPosition;
-  private HandState handState;
-  private int handZeroStableCounts;
+  private TalonSRX handLeftTalon;
+  private TalonSRX handRightTalon;
+
+  private double leftDesiredPosition;
+  private double rightDesiredPosition;
+
+  private HandStates handState;
+
+  private int handLeftZeroStableCounts;
+  private int handRightZeroStableCounts;
+
+  private boolean leftZeroDone;
+  private boolean rightZeroDone;
 
   public HandSubsystem() {
-    handTalon = new TalonSRX(Constants.HandConstants.kHandTalonId);
-    handTalon.configAllSettings(Constants.HandConstants.getHandTalonConfig());
-    handTalon.configSupplyCurrentLimit(Constants.HandConstants.getHandSupplyLimitConfig());
+    handLeftTalon = new TalonSRX(Constants.HandConstants.kHandTalonId);
+    handLeftTalon.configAllSettings(Constants.HandConstants.getHandTalonConfig());
+    handLeftTalon.configSupplyCurrentLimit(Constants.HandConstants.getHandSupplyLimitConfig());
 
-    wristTalon = new TalonSRX(Constants.HandConstants.kWristTalonId); // DOES NOTHING
-    wristTalon.configAllSettings(Constants.HandConstants.getHandTalonConfig());
-    wristTalon.configSupplyCurrentLimit(Constants.HandConstants.getHandSupplyLimitConfig());
+    handRightTalon = new TalonSRX(Constants.HandConstants.kWristTalonId);
+    handRightTalon.configAllSettings(Constants.HandConstants.getHandTalonConfig());
+    handRightTalon.configSupplyCurrentLimit(Constants.HandConstants.getHandSupplyLimitConfig());
 
-    desiredPosition = getPos();
-    handState = HandState.IDLE;
-    handZeroStableCounts = 0;
+    leftDesiredPosition = getLeftPos();
+    rightDesiredPosition = getRightPos();
+
+    handState = HandStates.IDLE;
+    handLeftZeroStableCounts = 0;
+    handRightZeroStableCounts = 0;
   }
 
-  public void setPos(double location) {
-    logger.info("Hand moving to {}", location);
-    desiredPosition = location;
-    handTalon.set(ControlMode.MotionMagic, location);
+  public void setLeftPos(double location) {
+    logger.info("Hand (left) moving to {}", location);
+    leftDesiredPosition = location;
+    handLeftTalon.set(ControlMode.MotionMagic, location);
   }
 
-  public void setPct(double pct) {
-    logger.info("Hand speed: {}", pct);
-    handTalon.set(ControlMode.PercentOutput, pct);
+  public void setRightPos(double location) {
+    logger.info("Hand (right) moving to {}", location);
+    rightDesiredPosition = location;
+    handRightTalon.set(ControlMode.MotionMagic, location);
   }
 
-  public double getPos() {
-    return handTalon.getSelectedSensorPosition();
+  public void setPos(double leftLocation, double rightLocation) {
+    setLeftPos(leftLocation);
+    setRightPos(rightLocation);
+  }
+
+  public void setLeftPct(double pct) {
+    logger.info("Hand (left) speed: {}", pct);
+    handLeftTalon.set(ControlMode.PercentOutput, pct);
+  }
+
+  public void setRightPct(double pct) {
+    logger.info("Hand (right) speed: {}", pct);
+    handRightTalon.set(ControlMode.PercentOutput, pct);
+  }
+
+  public double getLeftPos() {
+    return handLeftTalon.getSelectedSensorPosition();
+  }
+
+  public double getRightPos() {
+    return handRightTalon.getSelectedSensorPosition();
   }
 
   public boolean isFinished() {
-    return Math.abs(desiredPosition - getPos()) <= Constants.HandConstants.kAllowedError;
+    return Math.abs(leftDesiredPosition - getLeftPos()) <= Constants.HandConstants.kAllowedError
+        && Math.abs(rightDesiredPosition - getRightPos()) <= Constants.HandConstants.kAllowedError;
   }
 
   public void zeroHand() {
-    handTalon.configForwardSoftLimitEnable(false);
+    leftZeroDone = false;
+    rightZeroDone = false;
 
-    handTalon.configSupplyCurrentLimit(
+    handLeftTalon.configForwardSoftLimitEnable(false);
+    handLeftTalon.configReverseSoftLimitEnable(false);
+
+    handRightTalon.configForwardSoftLimitEnable(false);
+    handRightTalon.configReverseSoftLimitEnable(false);
+
+    handLeftTalon.configSupplyCurrentLimit(
+        Constants.HandConstants.getHandZeroSupplyCurrentLimit(), Constants.kTalonConfigTimeout);
+    handRightTalon.configSupplyCurrentLimit(
         Constants.HandConstants.getHandZeroSupplyCurrentLimit(), Constants.kTalonConfigTimeout);
 
-    setPct(Constants.HandConstants.kHandZeroSpeed);
+    setLeftPct(Constants.HandConstants.kHandZeroSpeed);
+    setRightPct(Constants.HandConstants.kHandZeroSpeed);
 
     logger.info("Hand is zeroing");
-    handState = HandState.ZEROING;
+    handState = HandStates.ZEROING;
   }
 
   public void grabCube() {
     logger.info("Grabbing cube");
-    setPos(Constants.HandConstants.kCubeGrabbingPosition);
+    setPos(
+        Constants.HandConstants.kCubeGrabbingPositionLeft,
+        Constants.HandConstants.kCubeGrabbingPositionRight);
   }
 
   public void grabCone() {
     logger.info("Grabbing cone");
-    setPos(Constants.HandConstants.kConeGrabbingPosition);
+    setPos(
+        Constants.HandConstants.kConeGrabbingPositionLeft,
+        Constants.HandConstants.kConeGrabbingPositionRight);
   }
 
   @Override
   public void registerWith(TelemetryService telemetryService) {
     super.registerWith(telemetryService);
-    telemetryService.register(handTalon);
+    telemetryService.register(handLeftTalon);
+    telemetryService.register(handRightTalon);
   }
 
   @Override
@@ -90,26 +137,53 @@ public class HandSubsystem extends MeasurableSubsystem {
       case IDLE:
         break;
       case ZEROING:
-        if (Math.abs(handTalon.getSelectedSensorVelocity())
+        if (Math.abs(handLeftTalon.getSelectedSensorVelocity())
             < Constants.HandConstants.kZeroTargetSpeedTicksPer100ms) {
-          handZeroStableCounts++;
+          handLeftZeroStableCounts++;
         } else {
-          handZeroStableCounts = 0;
+          handLeftZeroStableCounts = 0;
         }
 
-        if (handZeroStableCounts > Constants.HandConstants.kZeroStableCounts) {
-          handTalon.setSelectedSensorPosition(0.0);
-          handTalon.configSupplyCurrentLimit(
+        if (Math.abs(handRightTalon.getSelectedSensorVelocity())
+            < Constants.HandConstants.kZeroTargetSpeedTicksPer100ms) {
+          handRightZeroStableCounts++;
+        } else {
+          handRightZeroStableCounts = 0;
+        }
+
+        if (!leftZeroDone && handLeftZeroStableCounts > Constants.HandConstants.kZeroStableCounts) {
+          handLeftTalon.setSelectedSensorPosition(0.0);
+          handLeftTalon.configSupplyCurrentLimit(
               Constants.HandConstants.getHandSupplyLimitConfig(), Constants.kTalonConfigTimeout);
 
-          handTalon.configForwardSoftLimitEnable(true);
-          handTalon.configReverseSoftLimitEnable(true);
+          handLeftTalon.configForwardSoftLimitEnable(true);
+          handLeftTalon.configReverseSoftLimitEnable(true);
 
-          setPct(0);
-          desiredPosition = 0;
-          handState = HandState.ZEROED;
-          break;
+          setLeftPct(0);
+          leftDesiredPosition = 0;
+          leftZeroDone = true;
         }
+
+        if (!rightZeroDone
+            && handRightZeroStableCounts > Constants.HandConstants.kZeroStableCounts) {
+          handRightTalon.setSelectedSensorPosition(0.0);
+          handRightTalon.configSupplyCurrentLimit(
+              Constants.HandConstants.getHandSupplyLimitConfig(), Constants.kTalonConfigTimeout);
+
+          handRightTalon.configForwardSoftLimitEnable(true);
+          handRightTalon.configReverseSoftLimitEnable(true);
+
+          setRightPct(0);
+          rightDesiredPosition = 0;
+          rightZeroDone = true;
+        }
+
+        if (handLeftZeroStableCounts > Constants.HandConstants.kZeroStableCounts
+            && handRightZeroStableCounts > Constants.HandConstants.kZeroStableCounts) {
+          handState = HandStates.ZEROED;
+        }
+
+        break;
       case ZEROED:
         logger.info("Hand is zeroed");
         break;
@@ -118,7 +192,7 @@ public class HandSubsystem extends MeasurableSubsystem {
     }
   }
 
-  public enum HandState {
+  public enum HandStates {
     IDLE,
     ZEROING,
     ZEROED

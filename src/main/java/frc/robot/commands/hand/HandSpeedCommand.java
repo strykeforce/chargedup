@@ -5,17 +5,20 @@ import frc.robot.subsystems.HandSubsystem;
 
 public class HandSpeedCommand extends InstantCommand {
   private HandSubsystem handSubsystem;
-  private double pct;
+  private double leftPct;
+  private double rightPct;
 
-  public HandSpeedCommand(HandSubsystem handSubsystem, double pct) {
+  public HandSpeedCommand(HandSubsystem handSubsystem, double leftPct, double rightPct) {
     this.handSubsystem = handSubsystem;
-    this.pct = pct;
+    this.leftPct = leftPct;
+    this.rightPct = rightPct;
 
     addRequirements(handSubsystem);
   }
 
   @Override
   public void initialize() {
-    handSubsystem.setPct(pct);
+    handSubsystem.setLeftPct(leftPct);
+    handSubsystem.setRightPct(rightPct);
   }
 }

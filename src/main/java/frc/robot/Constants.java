@@ -28,8 +28,10 @@ public class Constants {
 
     public static final double kAllowedError = 0; // FIXME
 
-    public static final double kCubeGrabbingPosition = 0; // FIXME
-    public static final double kConeGrabbingPosition = 0; // FIXME
+    public static final double kCubeGrabbingPositionLeft = 0; // FIXME
+    public static final double kConeGrabbingPositionLeft = 0; // FIXME
+    public static final double kCubeGrabbingPositionRight = 0; // FIXME
+    public static final double kConeGrabbingPositionRight = 0; // FIXME
 
     public static TalonSRXConfiguration getHandTalonConfig() {
       TalonSRXConfiguration handConfig = new TalonSRXConfiguration();
