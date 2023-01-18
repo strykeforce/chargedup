@@ -30,7 +30,10 @@ public class VisionSubsystem extends MeasurableSubsystem {
   }
 
   public double getBestTarget() {
-    return bestTarget.getFiducialId();
+    if (result.hasTargets()) {
+      return bestTarget.getFiducialId();
+    }
+    return 2767.0;
   }
 
   public double getNumTargets() {
@@ -50,9 +53,54 @@ public class VisionSubsystem extends MeasurableSubsystem {
   }
 
   public Translation2d getPositionFromRobot() {
-    double x = bestTarget.getBestCameraToTarget().getX() + Constants.VisionConstants.kXCameraOffset;
-    double y = bestTarget.getBestCameraToTarget().getY() + Constants.VisionConstants.kYCameraOffset;
-    return new Translation2d(x, y); // z is from the camera height
+    if (result.hasTargets()) {
+      double x =
+          bestTarget.getBestCameraToTarget().getX(); // + Constants.VisionConstants.kXCameraOffset;
+      double y =
+          bestTarget.getBestCameraToTarget().getY(); // + Constants.VisionConstants.kYCameraOffset;
+      return new Translation2d(x, y); // z is from the camera height
+    }
+    return new Translation2d(2767, 2767);
+  }
+
+  public Translation2d getOdometry() {
+    Translation2d position = getPositionFromRobot();
+    switch ((int) getBestTarget()) {
+      case 1:
+        return new Translation2d(
+            position.getX() + Constants.VisionConstants.kApTag1x,
+            position.getY() - Constants.VisionConstants.kApTag1y);
+      case 2:
+        return new Translation2d(
+            position.getX() + Constants.VisionConstants.kApTag2x,
+            position.getY() - Constants.VisionConstants.kApTag2y);
+      case 3:
+        return new Translation2d(
+            position.getX() + Constants.VisionConstants.kApTag3x,
+            position.getY() - Constants.VisionConstants.kApTag3y);
+      case 4:
+        return new Translation2d(
+            position.getX() + Constants.VisionConstants.kApTag4x,
+            position.getY() - Constants.VisionConstants.kApTag4y);
+      case 5:
+        return new Translation2d(
+            position.getX() + Constants.VisionConstants.kApTag5x,
+            position.getY() - Constants.VisionConstants.kApTag5y);
+      case 6:
+        return new Translation2d(
+            position.getX() + Constants.VisionConstants.kApTag6x,
+            Constants.VisionConstants.kApTag6y - position.getY());
+      case 7:
+        return new Translation2d(
+            position.getX() + Constants.VisionConstants.kApTag7x,
+            Constants.VisionConstants.kApTag7y - position.getY());
+      case 8:
+        return new Translation2d(
+            position.getX() + Constants.VisionConstants.kApTag8x,
+            Constants.VisionConstants.kApTag8y - position.getY());
+      default:
+        return new Translation2d(2767, 2767);
+    }
   }
 
   @Override
@@ -84,8 +132,10 @@ public class VisionSubsystem extends MeasurableSubsystem {
         new Measure("Num Targets", () -> getNumTargets()),
         new Measure("BestTarget Ambiguity", () -> getAmbiguity()),
         new Measure("Time Stamp", () -> timeStamp),
-        new Measure("Position From Robot X", () -> getPositionFromRobot().getX()),
-        new Measure("Position From Robot Y", () -> getPositionFromRobot().getY()),
-        new Measure("Has Targets", () -> getHasTargets()));
+        new Measure("Position From Robot X", () -> getOdometry().getX()),
+        new Measure("Position From Robot Y", () -> getOdometry().getY()),
+        new Measure("Has Targets", () -> getHasTargets()),
+        new Measure("Supposed x pos", () -> getOdometry().getX()),
+        new Measure("Supposed y pos", () -> getOdometry().getY()));
   }
 }
