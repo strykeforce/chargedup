@@ -3,6 +3,10 @@
 
 [![CI](https://github.com/strykeforce/chargedup/actions/workflows/main.yml/badge.svg)](https://github.com/strykeforce/chargedup/actions/workflows/main.yml)
 
+## Controls
+
+![operator](docs/operator-controls.png)
+
 ## CAN Bus
 
 | Subsystem  | Type     | Talon                 | ID | PDP | Motor  | Breaker |
