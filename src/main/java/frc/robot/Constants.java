@@ -21,9 +21,11 @@ import java.util.ArrayList;
  * constants are needed, to reduce verbosity.
  */
 public class Constants {
+  public static final class RobotStateConstants {}
 
   public static final int kTalonConfigTimeout = 10; // ms
   public static final double kDeadeyePowerCycleTimeout = 5; // s
+  public static final double kJoystickDeadband = 0.1;
 
   public static final class DriveConstants {
     // Drive Constants
