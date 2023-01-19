@@ -4,22 +4,21 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.subsystems.RobotStateSubsystem;
-import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
-import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
-import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.RobotStateSubsystem;
+import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
+import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
+import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 
 public class RobotContainer {
   private RobotStateSubsystem robotStateSubsystem;
@@ -30,7 +29,6 @@ public class RobotContainer {
 
   private static final double kJoystickDeadband = Constants.kJoystickDeadband;
 
-
   public RobotContainer() {
     robotStateSubsystem = new RobotStateSubsystem(TargetLevel.NONE, TargetCol.NONE, GamePiece.NONE);
     driveSubsystem = new DriveSubsystem();
@@ -39,9 +37,7 @@ public class RobotContainer {
     configureBindings();
   }
 
-  private void configureBindings() {
-
-  }
+  private void configureBindings() {}
 
   private void configureDriverButtonBindings() {
     driveSubsystem.setDefaultCommand(new DriveTeleopCommand(driveJoystick, driveSubsystem));
@@ -146,5 +142,4 @@ public class RobotContainer {
     if (Math.abs(val) < kJoystickDeadband) return 0.0;
     return val;
   }
-  
 }
