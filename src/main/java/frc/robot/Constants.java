@@ -9,6 +9,5 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public class Constants {
-  public static final class RobotStateConstants {
-  }
+  public static final class RobotStateConstants {}
 }
