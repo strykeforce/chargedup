@@ -21,7 +21,7 @@ import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
 import org.strykeforce.telemetry.measurable.Measure;
 
 public class VisionSubsystem extends MeasurableSubsystem {
-  PhotonCamera cam1 = new PhotonCamera("cam1");
+  PhotonCamera cam1 = new PhotonCamera("OV9281");
   List<PhotonTrackedTarget> targets;
   PhotonTrackedTarget bestTarget;
   PhotonPipelineResult result;
