@@ -2,6 +2,8 @@ package frc.robot.subsytems;
 
 import com.ctre.phoenix.CANifier;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.RemoteFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -20,9 +22,16 @@ public class ElbowSubsystem extends SubsystemBase {
         rightFollowFalcon.configAllSettings(ElbowConstants.getElbowFalonConfig());
         rightFollowFalcon.follow(leftMainFalcon);
 
-        // TODO: make remote encoder work
-
         remoteEncoder = new CANifier(ElbowConstants.kRemoteEncoderID);
+
+        leftMainFalcon.configSelectedFeedbackSensor(RemoteFeedbackDevice.RemoteSensor0);
+        leftMainFalcon.configRemoteFeedbackFilter(ElbowConstants.kRemoteEncoderID, RemoteSensorSource.CANifier_Quadrature, 0);
+
+        zeroElbow();
+    }
+
+    private void zeroElbow() {
+
     }
 
     public void rotateOpenLoop(double percentOutput) {
