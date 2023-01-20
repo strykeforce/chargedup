@@ -27,6 +27,8 @@ public class Constants {
   public static final double kDeadeyePowerCycleTimeout = 5; // s
   public static final double kJoystickDeadband = 0.1;
 
+  public static final class ArmConstants {}
+
   public static final class DriveConstants {
     // Drive Constants
     public static final double kWheelDiameterInches = 3.0 * (571.0 / 500.0); // Actual/Odometry
