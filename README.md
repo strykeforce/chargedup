@@ -26,7 +26,7 @@
 | Elevator   | FX       | elevatorrightFollower | 32 |     | falcon |         |
 | Elbow      | FX       | elbowLeftMain         | 33 |     | falcon |         |
 | Elbow      | FX       | elbowRightFollower    | 34 |     | falcon |         |
-| Elbow      | Canifier | canifier              | 35 |     | -      |         |
+| Elbow      | Canifier | canifier              | 15 |     | -      |         |
 | Hand       | SRX      | hand                  | 40 |     | ??     |         |
 
 * elbow uses remote encoder attached to canifier
