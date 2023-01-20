@@ -156,4 +156,8 @@ public class Constants {
       return new SupplyCurrentLimitConfiguration(true, 10, 15, 0.04);
     }
   }
+
+  public static final class FieldConstants {
+    public static final double kFieldLength = 16.54;
+  }
 }

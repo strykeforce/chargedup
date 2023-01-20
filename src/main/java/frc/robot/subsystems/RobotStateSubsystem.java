@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private TargetCol targetCol;
   private GamePiece gamePiece;
   private Logger logger = LoggerFactory.getLogger(RobotStateSubsystem.class);
+  private Alliance allianceColor;
 
   public RobotStateSubsystem(TargetLevel targetLevel, TargetCol targetCol, GamePiece gamePiece) {
     this.targetLevel = targetLevel;
@@ -48,6 +50,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   @Override
   public Set<Measure> getMeasures() {
     return Set.of();
+  }
+
+  public void setAllianceColor(Alliance alliance) {
+    allianceColor = alliance;
   }
 
   public enum TargetLevel {

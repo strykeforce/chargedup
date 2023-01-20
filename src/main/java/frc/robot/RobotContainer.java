@@ -4,10 +4,12 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -20,6 +22,7 @@ import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
+import java.util.Map;
 import org.strykeforce.telemetry.TelemetryController;
 import org.strykeforce.telemetry.TelemetryService;
 
@@ -33,6 +36,10 @@ public class RobotContainer {
   private static final double kJoystickDeadband = Constants.kJoystickDeadband;
   private final TelemetryService telemetryService;
 
+  // Dashboard Widgets
+  private SuppliedValueWidget<Boolean> allianceColor;
+  private Alliance alliance = Alliance.Invalid;
+
   public RobotContainer() {
     robotStateSubsystem = new RobotStateSubsystem(TargetLevel.NONE, TargetCol.NONE, GamePiece.NONE);
     driveSubsystem = new DriveSubsystem();
@@ -43,6 +50,7 @@ public class RobotContainer {
 
     configurePitDashboard();
     configureBindings();
+    configureDriverButtonBindings();
   }
 
   private void configureBindings() {}
@@ -54,7 +62,7 @@ public class RobotContainer {
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-        .onTrue(new DriveAutonCommand(driveSubsystem, "straightPathX", true, true));
+        .onTrue(new DriveAutonCommand(driveSubsystem, "mirrorTestPath", true, true));
   }
 
   public Command getAutonomousCommand() {
@@ -63,6 +71,21 @@ public class RobotContainer {
 
   private void configurePitDashboard() {
     ShuffleboardTab pitTab = Shuffleboard.getTab("Pit");
+
+    allianceColor =
+        Shuffleboard.getTab("Match")
+            .addBoolean("AllianceColor", () -> alliance != Alliance.Invalid)
+            .withProperties(Map.of("colorWhenFalse", "black"))
+            .withSize(2, 2)
+            .withPosition(0, 0);
+  }
+
+  public void setAllianceColor(Alliance alliance) {
+    this.alliance = alliance;
+    allianceColor.withProperties(
+        Map.of(
+            "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
+    robotStateSubsystem.setAllianceColor(alliance);
   }
 
   // Interlink Controller Mapping

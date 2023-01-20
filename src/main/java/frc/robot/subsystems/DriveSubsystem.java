@@ -19,6 +19,8 @@ import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import java.nio.file.Paths;
@@ -217,7 +219,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
           Toml.parse(Paths.get("/home/lvuser/deploy/paths/" + trajectoryName + ".toml"));
       logger.info("Generating Trajectory: {}", trajectoryName);
       Pose2d startPose = parsePose2d(parseResult, "start_pose");
+      apply(startPose);
       Pose2d endPose = parsePose2d(parseResult, "end_pose");
+      apply(endPose);
       TomlArray internalPointsToml = parseResult.getArray("internal_points");
       ArrayList<Translation2d> path = new ArrayList<>();
       logger.info("Toml Internal Points Array Size: {}", internalPointsToml.size());
@@ -227,6 +231,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         TomlTable waypointToml = internalPointsToml.getTable(i);
         Translation2d waypoint =
             new Translation2d(waypointToml.getDouble("x"), waypointToml.getDouble("y"));
+        apply(waypoint);
         path.add(waypoint);
       }
 
@@ -266,6 +271,30 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
       return new PathData(getGyroRotation2d(), trajectoryGenerated);
     }
+  }
+
+  public static Translation2d apply(Translation2d translation) {
+    if (shouldFlip()) {
+      return new Translation2d(
+          Constants.FieldConstants.kFieldLength - translation.getX(), translation.getY());
+    } else {
+      return translation;
+    }
+  }
+
+  public static Pose2d apply(Pose2d pose) {
+    if (shouldFlip()) {
+      return new Pose2d(
+          Constants.FieldConstants.kFieldLength - pose.getX(),
+          pose.getY(),
+          new Rotation2d(-pose.getRotation().getCos(), pose.getRotation().getSin()));
+    } else {
+      return pose;
+    }
+  }
+
+  private static boolean shouldFlip() {
+    return DriverStation.getAlliance() == Alliance.Red;
   }
 
   private Pose2d parsePose2d(TomlParseResult parseResult, String pose) {
