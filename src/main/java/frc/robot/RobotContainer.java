@@ -5,32 +5,47 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.RobotStateSubsystem;
+import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
+import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
+import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 import org.strykeforce.telemetry.TelemetryController;
 import org.strykeforce.telemetry.TelemetryService;
 
 public class RobotContainer {
-  private static final double kJoystickDeadband = 0.1;
-
-  // The robot's subsystems and commands are defined here...
+  private RobotStateSubsystem robotStateSubsystem;
   private final DriveSubsystem driveSubsystem;
+
+  private final XboxController xbox = new XboxController(1);
   private final Joystick driveJoystick = new Joystick(0);
+
+  private static final double kJoystickDeadband = Constants.kJoystickDeadband;
   private final TelemetryService telemetryService;
 
   public RobotContainer() {
+    robotStateSubsystem = new RobotStateSubsystem(TargetLevel.NONE, TargetCol.NONE, GamePiece.NONE);
     driveSubsystem = new DriveSubsystem();
     telemetryService = new TelemetryService(TelemetryController::new);
 
     driveSubsystem.registerWith(telemetryService);
     telemetryService.start();
 
-    configureDriverButtonBindings();
+    configurePitDashboard();
+    configureBindings();
   }
+
+  private void configureBindings() {}
 
   private void configureDriverButtonBindings() {
     driveSubsystem.setDefaultCommand(new DriveTeleopCommand(driveJoystick, driveSubsystem));
@@ -40,13 +55,15 @@ public class RobotContainer {
         .onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
         .onTrue(new DriveAutonCommand(driveSubsystem, "straightPathX", true, true));
-
-    // Requires swerve migration to new Pose2D
-    // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
-    // {driveSubsystem.resetOdometry(new Pose2d());},driveSubsystem);
   }
 
-  // public Command getAutonomousCommand() {}
+  public Command getAutonomousCommand() {
+    return Commands.print("No autonomous command configured");
+  }
+
+  private void configurePitDashboard() {
+    ShuffleboardTab pitTab = Shuffleboard.getTab("Pit");
+  }
 
   // Interlink Controller Mapping
   public enum Axis {
