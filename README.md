@@ -5,6 +5,8 @@
 
 ## Controls
 
+![driver](docs/driver-controls.png)
+
 ![operator](docs/operator-controls.png)
 
 ## CAN Bus
