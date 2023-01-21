@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
+import frc.robot.commands.robot_state.SetAutoStagingCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
@@ -21,7 +22,7 @@ import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 
 public class RobotContainer {
-  private RobotStateSubsystem robotStateSubsystem;
+  private final RobotStateSubsystem robotStateSubsystem;
   private final DriveSubsystem driveSubsystem;
 
   private final XboxController xbox = new XboxController(1);
@@ -30,7 +31,12 @@ public class RobotContainer {
   private static final double kJoystickDeadband = Constants.kJoystickDeadband;
 
   public RobotContainer() {
-    robotStateSubsystem = new RobotStateSubsystem(TargetLevel.NONE, TargetCol.NONE, GamePiece.NONE);
+    robotStateSubsystem =
+        new RobotStateSubsystem(
+            TargetLevel.NONE,
+            TargetCol.NONE,
+            GamePiece.NONE,
+            true); // TODO: choose correct settings
     driveSubsystem = new DriveSubsystem();
 
     configurePitDashboard();
@@ -45,6 +51,16 @@ public class RobotContainer {
         .onTrue(new ZeroGyroCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
+
+    // Toggle auto staging
+    new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
+        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, false));
+    new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
+        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, false));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, false));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
+        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, false));
   }
 
   public Command getAutonomousCommand() {

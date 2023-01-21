@@ -17,14 +17,45 @@ public class ArmSubsystem extends MeasurableSubsystem {
       ShoulderSubsystem shoulderSubsystem,
       ElevatorSubsystem elevatorSubsystem,
       ElbowSubsystem elbowSubsystem) {
-    this.armState = ArmState.STOWED;
+    this.armState = ArmState.STOWED; // Maybe not?
     this.shoulderSubsystem = shoulderSubsystem;
     this.elevatorSubsystem = elevatorSubsystem;
     this.elbowSubsystem = elbowSubsystem;
   }
 
-  public void setArmState(ArmState newArmState) {
+  public void toStowPos() {
+    setArmState(ArmState.STOWED);
+  }
+
+  public void toIntakePos() {
+    setArmState(ArmState.INTAKE);
+  }
+
+  public void toLowPos() {
+    setArmState(ArmState.LOW);
+  }
+
+  public void toMidPos() {
+    setArmState(ArmState.MID);
+  }
+
+  public void toHighPos() {
+    setArmState(ArmState.HIGH);
+  }
+
+  public void toShelfPos() {
+    setArmState(ArmState.SHELF);
+  }
+
+  public boolean isFinished() {
+    return shoulderSubsystem.isFinished()
+        && elevatorSubsystem.isFinished()
+        && elbowSubsystem.isFinished();
+  }
+
+  private void setArmState(ArmState newArmState) {
     this.armState = newArmState;
+
     shoulderSubsystem.setPos(armState.shoulderPos);
     elevatorSubsystem.setPos(armState.elevatorPos);
     elbowSubsystem.rotateClosedLoop(armState.elbowPos);
@@ -39,20 +70,21 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
   @Override
   public void periodic() {
+
     switch (armState) {
       case STOWED:
         break;
+      case INTAKE:
+        break;
       case LOW:
         break;
-      case MID_CUBE:
+      case MID:
         break;
-      case HIGH_CUBE:
+      case HIGH:
         break;
-      case MID_CONE:
+      case SHELF:
         break;
-      case HIGH_CONE:
-        break;
-      case PORTAL:
+      case OPENLOOP:
         break;
       default:
         break;
@@ -61,12 +93,12 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
   public enum ArmState {
     STOWED(0, 0, 0),
+    INTAKE(0, 0, 0),
     LOW(0, 0, 0),
-    MID_CUBE(0, 0, 0),
-    HIGH_CUBE(0, 0, 0),
-    MID_CONE(0, 0, 0),
-    HIGH_CONE(0, 0, 0),
-    PORTAL(0, 0, 0);
+    MID(0, 0, 0),
+    HIGH(0, 0, 0),
+    SHELF(0, 0, 0),
+    OPENLOOP(0, 0, 0);
 
     public final double shoulderPos;
     public final double elevatorPos;
