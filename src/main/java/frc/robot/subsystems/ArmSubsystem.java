@@ -9,18 +9,18 @@ import org.strykeforce.telemetry.measurable.Measure;
 public class ArmSubsystem extends MeasurableSubsystem {
   private Logger logger = LoggerFactory.getLogger(ArmSubsystem.class);
   private ArmState armState;
-  private ShoulderSubsystem shoulderSubsystem;
-  private ElevatorSubsystem elevatorSubsystem;
-  private ElbowSubsystem elbowSubsystem;
+  // private ShoulderSubsystem shoulderSubsystem;
+  // private ElevatorSubsystem elevatorSubsystem;
+  // private ElbowSubsystem elbowSubsystem;
 
   public ArmSubsystem(
-      ShoulderSubsystem shoulderSubsystem,
+      /*ShoulderSubsystem shoulderSubsystem,
       ElevatorSubsystem elevatorSubsystem,
-      ElbowSubsystem elbowSubsystem) {
+      ElbowSubsystem elbowSubsystem*/) {
     this.armState = ArmState.STOWED; // Maybe not?
-    this.shoulderSubsystem = shoulderSubsystem;
-    this.elevatorSubsystem = elevatorSubsystem;
-    this.elbowSubsystem = elbowSubsystem;
+    // this.shoulderSubsystem = shoulderSubsystem;
+    // this.elevatorSubsystem = elevatorSubsystem;
+    // this.elbowSubsystem = elbowSubsystem;
   }
 
   public void toStowPos() {
@@ -47,18 +47,18 @@ public class ArmSubsystem extends MeasurableSubsystem {
     setArmState(ArmState.SHELF);
   }
 
-  public boolean isFinished() {
-    return shoulderSubsystem.isFinished()
-        && elevatorSubsystem.isFinished()
-        && elbowSubsystem.isFinished();
-  }
+  // public boolean isFinished() {
+  //   return shoulderSubsystem.isFinished()
+  //       && elevatorSubsystem.isFinished()
+  //       && elbowSubsystem.isFinished();
+  // }
 
   private void setArmState(ArmState newArmState) {
     this.armState = newArmState;
 
-    shoulderSubsystem.setPos(armState.shoulderPos);
-    elevatorSubsystem.setPos(armState.elevatorPos);
-    elbowSubsystem.rotateClosedLoop(armState.elbowPos);
+    // shoulderSubsystem.setPos(armState.shoulderPos);
+    // elevatorSubsystem.setPos(armState.elevatorPos);
+    // elbowSubsystem.rotateClosedLoop(armState.elbowPos);
 
     logger.info("Setting armState to {}", newArmState.name());
   }

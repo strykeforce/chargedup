@@ -15,6 +15,7 @@ import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.robot_state.SetAutoStagingCommand;
+import frc.robot.commands.robot_state.SetLevelAndColCommandGroup;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
@@ -58,9 +59,27 @@ public class RobotContainer {
     new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
         .onTrue(new SetAutoStagingCommand(robotStateSubsystem, false));
     new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, false));
+        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
     new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
-        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, false));
+        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
+  }
+
+  public void configureOperatorButtonBindings() {
+    // Set auto staging target
+    // Left column
+    new JoystickButton(xbox, XboxController.Button.kLeftBumper.value)
+        .onTrue(
+            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID, TargetCol.LEFT));
+    new JoystickButton(xbox, XboxController.Axis.kLeftTrigger.value)
+        .onTrue(
+            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.HIGH, TargetCol.LEFT));
+    // Right column
+    new JoystickButton(xbox, XboxController.Button.kRightBumper.value)
+        .onTrue(
+            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID, TargetCol.RIGHT));
+    new JoystickButton(xbox, XboxController.Axis.kRightTrigger.value)
+        .onTrue(
+            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.HIGH, TargetCol.RIGHT));
   }
 
   public Command getAutonomousCommand() {

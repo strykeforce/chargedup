@@ -11,5 +11,7 @@ public class SetLevelAndColCommandGroup extends ParallelCommandGroup {
     addCommands(
         new SetTargetLevelCommand(robotStateSubsystem, targetLevel),
         new SetTargetColCommand(robotStateSubsystem, targetCol));
+
+    addRequirements(robotStateSubsystem);
   }
 }

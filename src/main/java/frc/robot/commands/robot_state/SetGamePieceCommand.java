@@ -11,6 +11,8 @@ public class SetGamePieceCommand extends InstantCommand {
   public SetGamePieceCommand(RobotStateSubsystem robotStateSubsystem, GamePiece gamePiece) {
     this.robotStateSubsystem = robotStateSubsystem;
     this.gamePiece = gamePiece;
+
+    addRequirements(robotStateSubsystem);
   }
 
   @Override

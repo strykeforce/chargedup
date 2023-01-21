@@ -11,6 +11,8 @@ public class SetTargetLevelCommand extends InstantCommand {
   public SetTargetLevelCommand(RobotStateSubsystem robotStateSubsystem, TargetLevel targetLevel) {
     this.robotStateSubsystem = robotStateSubsystem;
     this.targetLevel = targetLevel;
+
+    addRequirements(robotStateSubsystem);
   }
 
   @Override

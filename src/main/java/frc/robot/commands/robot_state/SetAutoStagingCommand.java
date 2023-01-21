@@ -10,6 +10,8 @@ public class SetAutoStagingCommand extends InstantCommand {
   public SetAutoStagingCommand(RobotStateSubsystem robotStateSubsystem, boolean enable) {
     this.robotStateSubsystem = robotStateSubsystem;
     this.enabled = enable;
+
+    addRequirements(robotStateSubsystem);
   }
 
   @Override
