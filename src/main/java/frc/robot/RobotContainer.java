@@ -32,8 +32,11 @@ public class RobotContainer {
 
   private void configureBindings() {
     // intake buttons
-    new JoystickButton(xboxController, 0) // FIXME: correct button id
+    new JoystickButton(xboxController, 3) // FIXME: correct button id
         .onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem));
+    new JoystickButton(xboxController, 2)
+        .onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem))
+        .onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));
   }
 
   private void configurePitDashboard() {
