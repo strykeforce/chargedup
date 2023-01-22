@@ -17,10 +17,10 @@
 | Drive      | SRX      | azimuth               | 1  |  12 | 9015   |         |
 | Drive      | SRX      | azimuth               | 2  |  9  | 9015   |         |
 | Drive      | SRX      | azimuth               | 3  |  11 | 9015   |         |
-| Drive      | FX       | drive                 | 10 |     | falcon |         |
-| Drive      | FX       | drive                 | 11 |     | falcon |         |
-| Drive      | FX       | drive                 | 12 |     | falcon |         |
-| Drive      | FX       | drive                 | 13 |     | falcon |         |
+| Drive      | FX       | drive                 | 10 |  6  | falcon |         |
+| Drive      | FX       | drive                 | 11 | 15  | falcon |         |
+| Drive      | FX       | drive                 | 12 |  7  | falcon |         |
+| Drive      | FX       | drive                 | 13 | 14  | falcon |         |
 | Intake     | FX       | intake                | 20 |     | falcon |         |
 | Intake     | SRX      | extend                | 21 | 13  | bag x2 |         |
 | Shoulder   | SRX      | shoulder              | 30 | 10  | ??     |         |
