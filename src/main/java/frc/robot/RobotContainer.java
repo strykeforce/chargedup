@@ -7,10 +7,12 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.drive.DriveAutonCommand;
@@ -40,17 +42,42 @@ public class RobotContainer {
   private SuppliedValueWidget<Boolean> allianceColor;
   private Alliance alliance = Alliance.Invalid;
 
+  // Paths
+  private DriveAutonCommand testPath;
+
   public RobotContainer() {
-    robotStateSubsystem = new RobotStateSubsystem(TargetLevel.NONE, TargetCol.NONE, GamePiece.NONE);
     driveSubsystem = new DriveSubsystem();
+    robotStateSubsystem = new RobotStateSubsystem(TargetLevel.NONE, TargetCol.NONE, GamePiece.NONE);
+    driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
     telemetryService = new TelemetryService(TelemetryController::new);
 
     driveSubsystem.registerWith(telemetryService);
     telemetryService.start();
 
+    configurePaths();
+    configureMatchDashboard();
     configurePitDashboard();
     configureBindings();
     configureDriverButtonBindings();
+  }
+
+  private void configurePaths() {
+    testPath = new DriveAutonCommand(driveSubsystem, "mirrorTestPath", true, true);
+    CommandScheduler.getInstance()
+        .onCommandInitialize(
+            command ->
+                Shuffleboard.addEventMarker(
+                    "Command initialized", command.getName(), EventImportance.kNormal));
+    CommandScheduler.getInstance()
+        .onCommandInterrupt(
+            command ->
+                Shuffleboard.addEventMarker(
+                    "Command interrupted", command.getName(), EventImportance.kNormal));
+    CommandScheduler.getInstance()
+        .onCommandFinish(
+            command ->
+                Shuffleboard.addEventMarker(
+                    "Command finished", command.getName(), EventImportance.kNormal));
   }
 
   private void configureBindings() {}
@@ -61,17 +88,14 @@ public class RobotContainer {
         .onTrue(new ZeroGyroCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-        .onTrue(new DriveAutonCommand(driveSubsystem, "mirrorTestPath", true, true));
+    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(testPath);
   }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
   }
 
-  private void configurePitDashboard() {
-    ShuffleboardTab pitTab = Shuffleboard.getTab("Pit");
-
+  private void configureMatchDashboard() {
     allianceColor =
         Shuffleboard.getTab("Match")
             .addBoolean("AllianceColor", () -> alliance != Alliance.Invalid)
@@ -80,12 +104,17 @@ public class RobotContainer {
             .withPosition(0, 0);
   }
 
+  private void configurePitDashboard() {
+    ShuffleboardTab pitTab = Shuffleboard.getTab("Pit");
+  }
+
   public void setAllianceColor(Alliance alliance) {
     this.alliance = alliance;
     allianceColor.withProperties(
         Map.of(
             "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
     robotStateSubsystem.setAllianceColor(alliance);
+    testPath.generateTrajectory();
   }
 
   // Interlink Controller Mapping

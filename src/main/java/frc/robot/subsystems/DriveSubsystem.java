@@ -19,7 +19,6 @@ import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
@@ -47,6 +46,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private final ProfiledPIDController omegaController;
   private final PIDController xController;
   private final PIDController yController;
+  private RobotStateSubsystem robotStateSubsystem;
 
   // Grapher Variables
   private ChassisSpeeds holoContOutput = new ChassisSpeeds();
@@ -114,6 +114,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
     // Disabling the holonomic controller makes the robot directly follow the trajectory output (no
     // closing the loop on x,y,theta errors)
     holonomicController.setEnabled(true);
+  }
+
+  public void setRobotStateSubsystem(RobotStateSubsystem robotStateSubsystem) {
+    this.robotStateSubsystem = robotStateSubsystem;
   }
 
   @Override
@@ -215,13 +219,16 @@ public class DriveSubsystem extends MeasurableSubsystem {
   public PathData generateTrajectory(String trajectoryName) {
 
     try {
+      if (shouldFlip()) {
+        logger.info("Flipping path");
+      }
       TomlParseResult parseResult =
           Toml.parse(Paths.get("/home/lvuser/deploy/paths/" + trajectoryName + ".toml"));
       logger.info("Generating Trajectory: {}", trajectoryName);
       Pose2d startPose = parsePose2d(parseResult, "start_pose");
-      apply(startPose);
+      startPose = apply(startPose);
       Pose2d endPose = parsePose2d(parseResult, "end_pose");
-      apply(endPose);
+      endPose = apply(endPose);
       TomlArray internalPointsToml = parseResult.getArray("internal_points");
       ArrayList<Translation2d> path = new ArrayList<>();
       logger.info("Toml Internal Points Array Size: {}", internalPointsToml.size());
@@ -231,7 +238,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         TomlTable waypointToml = internalPointsToml.getTable(i);
         Translation2d waypoint =
             new Translation2d(waypointToml.getDouble("x"), waypointToml.getDouble("y"));
-        apply(waypoint);
+        waypoint = apply(waypoint);
         path.add(waypoint);
       }
 
@@ -251,6 +258,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
       double yawDegrees = parseResult.getDouble("target_yaw");
       logger.info("target yaw worked");
       Rotation2d target_yaw = Rotation2d.fromDegrees(yawDegrees);
+      target_yaw = apply(target_yaw);
       logger.info("Yaw is {}", target_yaw);
 
       // Create a the generated trajectory and return it along with the target yaw
@@ -273,7 +281,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
     }
   }
 
-  public static Translation2d apply(Translation2d translation) {
+  public Translation2d apply(Translation2d translation) {
     if (shouldFlip()) {
       return new Translation2d(
           Constants.FieldConstants.kFieldLength - translation.getX(), translation.getY());
@@ -282,7 +290,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
     }
   }
 
-  public static Pose2d apply(Pose2d pose) {
+  public Pose2d apply(Pose2d pose) {
     if (shouldFlip()) {
       return new Pose2d(
           Constants.FieldConstants.kFieldLength - pose.getX(),
@@ -293,8 +301,16 @@ public class DriveSubsystem extends MeasurableSubsystem {
     }
   }
 
-  private static boolean shouldFlip() {
-    return DriverStation.getAlliance() == Alliance.Red;
+  public Rotation2d apply(Rotation2d rotation) {
+    logger.info(
+        "initial target yaw: {}, cos: {}, sin: {}", rotation, rotation.getCos(), rotation.getSin());
+    if (shouldFlip()) {
+      return new Rotation2d(-rotation.getCos(), rotation.getSin());
+    } else return rotation;
+  }
+
+  private boolean shouldFlip() {
+    return robotStateSubsystem.getAllianceColor() == Alliance.Red;
   }
 
   private Pose2d parsePose2d(TomlParseResult parseResult, String pose) {
@@ -313,6 +329,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
     holoContInput = desiredState;
     holoContAngle = desiredAngle;
     holoContOutput = holonomicController.calculate(getPoseMeters(), desiredState, desiredAngle);
+    logger.info("input: {}, output: {}", holoContInput, holoContOutput);
     move(
         holoContOutput.vxMetersPerSecond,
         holoContOutput.vyMetersPerSecond,

@@ -144,8 +144,8 @@ public class Constants {
     }
 
     public static TrajectoryConfig getDefaultTrajectoryConfig() {
-      TrajectoryConfig trajectoryConfig = new TrajectoryConfig(1, 1);
-      trajectoryConfig.setReversed(true);
+      TrajectoryConfig trajectoryConfig = new TrajectoryConfig(0.5, 0.5);
+      trajectoryConfig.setReversed(false);
       trajectoryConfig.setStartVelocity(0.0);
       trajectoryConfig.setEndVelocity(0.0);
       return trajectoryConfig;
