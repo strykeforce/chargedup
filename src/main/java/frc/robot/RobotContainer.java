@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
+import frc.robot.commands.elbow.ElbowOpenLoopCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
@@ -52,6 +53,15 @@ public class RobotContainer {
         .onTrue(new ZeroGyroCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
+  }
+
+  private void ConfigureButtonBindings() {
+    new JoystickButton(xboxController, Trim.LEFT_Y_NEG.id)
+        .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
+        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.2));
+    new JoystickButton(xboxController, Trim.LEFT_Y_POS.id)
+        .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
+        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.2));
   }
 
   private void configureTelemetry() {
