@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -14,25 +13,18 @@ import org.strykeforce.telemetry.measurable.Measure;
 
 public class ElevatorSubsystem extends MeasurableSubsystem {
   private static final Logger logger = LoggerFactory.getLogger(ElevatorSubsystem.class);
-  private TalonFX leftMain, rightFollower;
+  private TalonFX elevatorFalcon;
   private double desiredPosition;
   private ElevatorState elevatorState;
 
   private int elevatorZeroStableCounts;
 
   public ElevatorSubsystem() {
-    leftMain = new TalonFX(Constants.ElevatorConstants.kLeftMainId);
-    rightFollower = new TalonFX(Constants.ElevatorConstants.kRightFollowerId);
+    elevatorFalcon = new TalonFX(Constants.ElevatorConstants.kLeftMainId);
 
-    leftMain.configAllSettings(Constants.ElevatorConstants.getElevatorFalconConfig());
-    leftMain.configSupplyCurrentLimit(Constants.ElevatorConstants.getElevatorSupplyLimitConfig());
-    leftMain.setInverted(TalonFXInvertType.Clockwise);
-
-    rightFollower.configAllSettings(Constants.ElevatorConstants.getElevatorFalconConfig());
-    rightFollower.configSupplyCurrentLimit(
-        Constants.ElevatorConstants.getElevatorSupplyLimitConfig());
-    rightFollower.setInverted(TalonFXInvertType.CounterClockwise);
-    rightFollower.follow(leftMain, FollowerType.PercentOutput);
+    elevatorFalcon.configAllSettings(Constants.ElevatorConstants.getElevatorFalconConfig());
+    elevatorFalcon.configSupplyCurrentLimit(Constants.ElevatorConstants.getElevatorSupplyLimitConfig());
+    elevatorFalcon.setInverted(TalonFXInvertType.Clockwise);
 
     elevatorZeroStableCounts = 0;
     desiredPosition = getPos();
@@ -42,16 +34,16 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
   public void setPos(double location) {
     logger.info("Elevator moving to {}", location);
     desiredPosition = location;
-    leftMain.set(TalonFXControlMode.MotionMagic, location);
+    elevatorFalcon.set(TalonFXControlMode.MotionMagic, location);
   }
 
   public void setPct(double pct) {
     logger.info("Elevator moving at {}% speed", pct);
-    leftMain.set(TalonFXControlMode.PercentOutput, pct);
+    elevatorFalcon.set(TalonFXControlMode.PercentOutput, pct);
   }
 
   public double getPos() {
-    return leftMain.getSelectedSensorPosition();
+    return elevatorFalcon.getSelectedSensorPosition();
   }
 
   public boolean isFinished() {
@@ -59,16 +51,10 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
   }
 
   public void zeroElevator() {
-    leftMain.configForwardSoftLimitEnable(false);
-    leftMain.configReverseSoftLimitEnable(false);
+    elevatorFalcon.configForwardSoftLimitEnable(false);
+    elevatorFalcon.configReverseSoftLimitEnable(false);
 
-    rightFollower.configForwardSoftLimitEnable(false);
-    rightFollower.configReverseSoftLimitEnable(false);
-
-    leftMain.configSupplyCurrentLimit(
-        Constants.ElevatorConstants.getElevatorZeroSupplyCurrentLimit(),
-        Constants.kTalonConfigTimeout);
-    rightFollower.configSupplyCurrentLimit(
+    elevatorFalcon.configSupplyCurrentLimit(
         Constants.ElevatorConstants.getElevatorZeroSupplyCurrentLimit(),
         Constants.kTalonConfigTimeout);
 
@@ -81,8 +67,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
   @Override
   public void registerWith(TelemetryService telemetryService) {
     super.registerWith(telemetryService);
-    telemetryService.register(leftMain);
-    telemetryService.register(rightFollower);
+    telemetryService.register(elevatorFalcon);
   }
 
   @Override
@@ -96,7 +81,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
       case IDLE:
         break;
       case ZEROING:
-        if (Math.abs(leftMain.getSelectedSensorVelocity())
+        if (Math.abs(elevatorFalcon.getSelectedSensorVelocity())
             < Constants.ElevatorConstants.kZeroTargetSpeedTicksPer100ms) {
           elevatorZeroStableCounts++;
         } else {
@@ -104,20 +89,13 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
         }
 
         if (elevatorZeroStableCounts > Constants.ElevatorConstants.kZeroStableCounts) {
-          leftMain.setSelectedSensorPosition(0.0);
-          rightFollower.setSelectedSensorPosition(0.0);
-          leftMain.configSupplyCurrentLimit(
-              Constants.ElevatorConstants.getElevatorSupplyLimitConfig(),
-              Constants.kTalonConfigTimeout);
-          rightFollower.configSupplyCurrentLimit(
+          elevatorFalcon.setSelectedSensorPosition(0.0);
+          elevatorFalcon.configSupplyCurrentLimit(
               Constants.ElevatorConstants.getElevatorSupplyLimitConfig(),
               Constants.kTalonConfigTimeout);
 
-          leftMain.configForwardSoftLimitEnable(true);
-          leftMain.configReverseSoftLimitEnable(true);
-
-          rightFollower.configForwardSoftLimitEnable(true);
-          rightFollower.configReverseSoftLimitEnable(true);
+          elevatorFalcon.configForwardSoftLimitEnable(true);
+          elevatorFalcon.configReverseSoftLimitEnable(true);
 
           setPct(0);
           desiredPosition = 0;
