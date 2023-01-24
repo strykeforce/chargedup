@@ -23,7 +23,8 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
     elevatorFalcon = new TalonFX(Constants.ElevatorConstants.kLeftMainId);
 
     elevatorFalcon.configAllSettings(Constants.ElevatorConstants.getElevatorFalconConfig());
-    elevatorFalcon.configSupplyCurrentLimit(Constants.ElevatorConstants.getElevatorSupplyLimitConfig());
+    elevatorFalcon.configSupplyCurrentLimit(
+        Constants.ElevatorConstants.getElevatorSupplyLimitConfig());
     elevatorFalcon.setInverted(TalonFXInvertType.Clockwise);
 
     elevatorZeroStableCounts = 0;
