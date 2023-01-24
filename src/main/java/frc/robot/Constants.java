@@ -14,8 +14,7 @@ import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
  */
 public class Constants {
   public static final class ElbowConstants {
-    public static final int kLeftMainFalconID = 33; // 33
-    public static final int kRightFollowFalconID = 34;
+    public static final int kElbowFalconID = 33; // 33
     public static final int kRemoteEncoderID = 15; // 15
 
     public static final int kZeroTicks = 1_000; // FIXME needs real tick values
