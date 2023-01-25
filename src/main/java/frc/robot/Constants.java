@@ -36,15 +36,15 @@ public class Constants {
 
     // From: https://github.com/strykeforce/axis-config/
     public static final double kMaxSpeedMetersPerSecond = 3.889;
-    public static final double kRobotWidth = 0.625;
-    public static final double kRobotLength = 0.625;
+    public static final double kRobotWidth = 0.5; // practice bot: 0.625
+    public static final double kRobotLength = 0.615; // practice bot: 0.625
 
     public static final double kMaxOmega =
         (kMaxSpeedMetersPerSecond / Math.hypot(kRobotWidth / 2.0, kRobotLength / 2.0))
             / 2.0; // wheel locations below
 
     // From: https://github.com/strykeforce/axis-config/
-    static final double kDriveMotorOutputGear = 22;
+    static final double kDriveMotorOutputGear = 22; // practice bot: 22
     static final double kDriveInputGear = 48;
     static final double kBevelInputGear = 15;
     static final double kBevelOutputGear = 45;
