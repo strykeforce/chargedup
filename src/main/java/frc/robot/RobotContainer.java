@@ -24,6 +24,8 @@ import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
+import org.strykeforce.telemetry.TelemetryController;
+import org.strykeforce.telemetry.TelemetryService;
 
 public class RobotContainer {
   private RobotStateSubsystem robotStateSubsystem;
@@ -36,10 +38,18 @@ public class RobotContainer {
 
   private final ElevatorSubsystem elevatorSubsystem;
 
+  private final TelemetryService telemetryService = new TelemetryService(TelemetryController::new);
+
   public RobotContainer() {
     robotStateSubsystem = new RobotStateSubsystem(TargetLevel.NONE, TargetCol.NONE, GamePiece.NONE);
     driveSubsystem = new DriveSubsystem();
     elevatorSubsystem = new ElevatorSubsystem();
+
+    robotStateSubsystem.registerWith(telemetryService);
+    driveSubsystem.registerWith(telemetryService);
+    elevatorSubsystem.registerWith(telemetryService);
+
+    telemetryService.start();
 
     configurePitDashboard();
     configureDriverButtonBindings();

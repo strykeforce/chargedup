@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import frc.robot.Constants;
@@ -24,6 +25,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
     elevatorFalcon.configAllSettings(Constants.ElevatorConstants.getElevatorFalconConfig());
     elevatorFalcon.configSupplyCurrentLimit(
         Constants.ElevatorConstants.getElevatorSupplyLimitConfig());
+    elevatorFalcon.setNeutralMode(NeutralMode.Brake);
 
     elevatorZeroStableCounts = 0;
     desiredPosition = getPos();

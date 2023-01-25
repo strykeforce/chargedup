@@ -166,7 +166,7 @@ public class Constants {
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
     public static final int kZeroStableCounts = 25;
 
-    public static final double kMaxFwd = 0;
+    public static final double kMaxFwd = -500;
     public static final double kMaxRev = -62_000;
 
     public static TalonFXConfiguration getElevatorFalconConfig() {
