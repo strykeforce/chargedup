@@ -35,7 +35,7 @@ public class Constants {
     public static final double kPutOdomResetThreshold = 0.35;
 
     // From: https://github.com/strykeforce/axis-config/
-    public static final double kMaxSpeedMetersPerSecond = 3.889;
+    public static final double kMaxSpeedMetersPerSecond = 5.121; // practice bot 3.889
     public static final double kRobotWidth = 0.5; // practice bot: 0.625
     public static final double kRobotLength = 0.615; // practice bot: 0.625
 
@@ -44,7 +44,7 @@ public class Constants {
             / 2.0; // wheel locations below
 
     // From: https://github.com/strykeforce/axis-config/
-    static final double kDriveMotorOutputGear = 22; // practice bot: 22
+    static final double kDriveMotorOutputGear = 30; // practice bot: 22
     static final double kDriveInputGear = 48;
     static final double kBevelInputGear = 15;
     static final double kBevelOutputGear = 45;
