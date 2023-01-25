@@ -161,7 +161,7 @@ public class Constants {
     public static final int kElbowFalconID = 33; // 33
     public static final int kRemoteEncoderID = 15; // 15
 
-    public static final int kZeroTicks = 1_000; // FIXME needs real tick values
+    public static final int kZeroTicks = 1196; // FIXME needs real tick values
 
     public static final int kCloseEnoughTicks = 20;
 

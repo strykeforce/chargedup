@@ -6,6 +6,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.RemoteFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants.ElbowConstants;
 import java.util.Set;
 import org.strykeforce.telemetry.TelemetryService;
@@ -29,6 +31,8 @@ public class ElbowSubsystem extends MeasurableSubsystem {
         ElbowConstants.kRemoteEncoderID, RemoteSensorSource.CANifier_Quadrature, 0);
 
     zeroElbow();
+
+    Rotation2d bob = new Rotation2d(5);
   }
 
   private double getPulseWidthFor(PWMChannel channel) {
