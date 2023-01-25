@@ -31,8 +31,6 @@ public class ElbowSubsystem extends MeasurableSubsystem {
         ElbowConstants.kRemoteEncoderID, RemoteSensorSource.CANifier_Quadrature, 0);
 
     zeroElbow();
-
-    Rotation2d bob = new Rotation2d(5);
   }
 
   private double getPulseWidthFor(PWMChannel channel) {
