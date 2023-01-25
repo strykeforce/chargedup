@@ -1,9 +1,5 @@
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
-
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
@@ -163,16 +159,15 @@ public class Constants {
 
   public static class ElevatorConstants {
     public static final int kLeftMainId = 31;
-    public static final int kRightFollowerId = 21;
 
-    public static final double kAllowedError = 0; // FIXME
+    public static final double kAllowedError = 100; // FIXME
 
     public static final double kElevatorZeroSpeed = 0.1;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
     public static final int kZeroStableCounts = 25;
 
-    public static final double kMaxFwd = 0; // FIXME
-    public static final double kMaxRev = 0; // FIXME
+    public static final double kMaxFwd = 0;
+    public static final double kMaxRev = -62_000;
 
     public static TalonFXConfiguration getElevatorFalconConfig() {
       TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();

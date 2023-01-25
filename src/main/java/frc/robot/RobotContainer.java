@@ -6,24 +6,24 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
+import frc.robot.commands.elevator.ElevatorSpeedCommand;
+import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
-import frc.robot.commands.elevator.ElevatorSpeedCommand;
-import frc.robot.commands.elevator.ZeroElevatorCommand;
-import frc.robot.subsystems.ElevatorSubsystem;
 
 public class RobotContainer {
   private RobotStateSubsystem robotStateSubsystem;
@@ -34,7 +34,7 @@ public class RobotContainer {
 
   private static final double kJoystickDeadband = Constants.kJoystickDeadband;
 
-  private ElevatorSubsystem elevatorSubsystem;
+  private final ElevatorSubsystem elevatorSubsystem;
 
   public RobotContainer() {
     robotStateSubsystem = new RobotStateSubsystem(TargetLevel.NONE, TargetCol.NONE, GamePiece.NONE);
@@ -42,6 +42,7 @@ public class RobotContainer {
     elevatorSubsystem = new ElevatorSubsystem();
 
     configurePitDashboard();
+    configureDriverButtonBindings();
     configureBindings();
   }
 
@@ -53,6 +54,19 @@ public class RobotContainer {
         .onTrue(new ZeroGyroCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
+
+    // Elevator testing
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
+        .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, -0.2));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+        .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, 0.2));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
+        .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+        .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
+
+    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+        .onTrue(new ZeroElevatorCommand(elevatorSubsystem));
   }
 
   public Command getAutonomousCommand() {
