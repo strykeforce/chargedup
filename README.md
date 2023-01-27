@@ -24,11 +24,9 @@
 | Intake     | FX       | intake                | 20 |     | falcon |         |
 | Intake     | SRX      | extend                | 21 | 13  | bag x2 |         |
 | Shoulder   | SRX      | shoulder              | 30 | 10  | ??     |         |
-| Elevator   | FX       | elevatorLeftMain      | 31 |     | falcon |         |
-| Elevator   | FX       | elevatorrightFollower | 32 |     | falcon |         |
-| Elbow      | FX       | elbowLeftMain         | 33 |     | falcon |         |
-| Elbow      | FX       | elbowRightFollower    | 34 |     | falcon |         |
-| Elbow      | Canifier | canifier              | 15 |     | -      |         |
+| Elevator   | FX       | elevator              | 31 | 5   | falcon |         |
+| Elbow      | FX       | elbow                 | 33 |  4  | falcon |         |
+| Elbow      | Canifier | canifier              | 15 |  23 | -      |         |
 | Hand       | SRX      | hand                  | 40 |     | ??     |         |
 
 * elbow uses remote encoder attached to canifier

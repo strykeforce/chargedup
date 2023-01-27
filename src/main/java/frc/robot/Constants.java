@@ -29,22 +29,22 @@ public class Constants {
 
   public static final class DriveConstants {
     // Drive Constants
-    public static final double kWheelDiameterInches = 3.0 * (571.0 / 500.0); // Actual/Odometry
+    public static final double kWheelDiameterInches = 3.0 * (575.0 / 500.0); // Actual/Odometry
     public static final double kUpdateThreshold = 0.35;
     public static final double kResetThreshold = 0.005;
     public static final double kPutOdomResetThreshold = 0.35;
 
     // From: https://github.com/strykeforce/axis-config/
-    public static final double kMaxSpeedMetersPerSecond = 3.889;
-    public static final double kRobotWidth = 0.625;
-    public static final double kRobotLength = 0.625;
+    public static final double kMaxSpeedMetersPerSecond = 5.121; // practice bot 3.889
+    public static final double kRobotWidth = 0.5; // practice bot: 0.625
+    public static final double kRobotLength = 0.615; // practice bot: 0.625
 
     public static final double kMaxOmega =
         (kMaxSpeedMetersPerSecond / Math.hypot(kRobotWidth / 2.0, kRobotLength / 2.0))
             / 2.0; // wheel locations below
 
     // From: https://github.com/strykeforce/axis-config/
-    static final double kDriveMotorOutputGear = 22;
+    static final double kDriveMotorOutputGear = 30; // practice bot: 22
     static final double kDriveInputGear = 48;
     static final double kBevelInputGear = 15;
     static final double kBevelOutputGear = 45;
@@ -144,8 +144,8 @@ public class Constants {
     }
 
     public static TrajectoryConfig getDefaultTrajectoryConfig() {
-      TrajectoryConfig trajectoryConfig = new TrajectoryConfig(1, 1);
-      trajectoryConfig.setReversed(true);
+      TrajectoryConfig trajectoryConfig = new TrajectoryConfig(0.5, 0.5);
+      trajectoryConfig.setReversed(false);
       trajectoryConfig.setStartVelocity(0.0);
       trajectoryConfig.setEndVelocity(0.0);
       return trajectoryConfig;
@@ -155,6 +155,10 @@ public class Constants {
     public static SupplyCurrentLimitConfiguration getAzimuthSupplyCurrentLimit() {
       return new SupplyCurrentLimitConfiguration(true, 10, 15, 0.04);
     }
+  }
+
+  public static final class FieldConstants {
+    public static final double kFieldLength = 16.54;
   }
 
   public static class ElevatorConstants {

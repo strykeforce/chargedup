@@ -4,15 +4,20 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
@@ -24,6 +29,7 @@ import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
+import java.util.Map;
 import org.strykeforce.telemetry.TelemetryController;
 import org.strykeforce.telemetry.TelemetryService;
 
@@ -35,15 +41,27 @@ public class RobotContainer {
   private final Joystick driveJoystick = new Joystick(0);
 
   private static final double kJoystickDeadband = Constants.kJoystickDeadband;
+  private final TelemetryService telemetryService;
+
+  // Dashboard Widgets
+  private SuppliedValueWidget<Boolean> allianceColor;
+  private Alliance alliance = Alliance.Invalid;
+
+  // Paths
+  private DriveAutonCommand testPath;
 
   private final ElevatorSubsystem elevatorSubsystem;
 
-  private final TelemetryService telemetryService = new TelemetryService(TelemetryController::new);
-
   public RobotContainer() {
-    robotStateSubsystem = new RobotStateSubsystem(TargetLevel.NONE, TargetCol.NONE, GamePiece.NONE);
     driveSubsystem = new DriveSubsystem();
+    robotStateSubsystem = new RobotStateSubsystem(TargetLevel.NONE, TargetCol.NONE, GamePiece.NONE);
+    driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
     elevatorSubsystem = new ElevatorSubsystem();
+
+    telemetryService = new TelemetryService(TelemetryController::new);
+
+    driveSubsystem.registerWith(telemetryService);
+    telemetryService.start();
 
     robotStateSubsystem.registerWith(telemetryService);
     driveSubsystem.registerWith(telemetryService);
@@ -51,19 +69,42 @@ public class RobotContainer {
 
     telemetryService.start();
 
+    configurePaths();
+    configureMatchDashboard();
     configurePitDashboard();
     configureDriverButtonBindings();
     configureBindings();
   }
 
+  private void configurePaths() {
+    testPath = new DriveAutonCommand(driveSubsystem, "mirrorTestPath", true, true);
+    CommandScheduler.getInstance()
+        .onCommandInitialize(
+            command ->
+                Shuffleboard.addEventMarker(
+                    "Command initialized", command.getName(), EventImportance.kNormal));
+    CommandScheduler.getInstance()
+        .onCommandInterrupt(
+            command ->
+                Shuffleboard.addEventMarker(
+                    "Command interrupted", command.getName(), EventImportance.kNormal));
+    CommandScheduler.getInstance()
+        .onCommandFinish(
+            command ->
+                Shuffleboard.addEventMarker(
+                    "Command finished", command.getName(), EventImportance.kNormal));
+  }
+
   private void configureBindings() {}
 
   private void configureDriverButtonBindings() {
-    driveSubsystem.setDefaultCommand(new DriveTeleopCommand(driveJoystick, driveSubsystem));
+    driveSubsystem.setDefaultCommand(
+        new DriveTeleopCommand(driveJoystick, driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.RESET.id)
         .onTrue(new ZeroGyroCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(testPath);
 
     // Elevator testing
     new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
@@ -75,12 +116,21 @@ public class RobotContainer {
     new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
         .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
 
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+    new JoystickButton(driveJoystick, InterlinkButton.DOWN.id)
         .onTrue(new ZeroElevatorCommand(elevatorSubsystem));
   }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
+  }
+
+  private void configureMatchDashboard() {
+    allianceColor =
+        Shuffleboard.getTab("Match")
+            .addBoolean("AllianceColor", () -> alliance != Alliance.Invalid)
+            .withProperties(Map.of("colorWhenFalse", "black"))
+            .withSize(2, 2)
+            .withPosition(0, 0);
   }
 
   private void configurePitDashboard() {
@@ -101,6 +151,15 @@ public class RobotContainer {
     elevatorCommands
         .add("Elevator Down", new ElevatorSpeedCommand(elevatorSubsystem, -0.1))
         .withPosition(0, 3);
+  }
+
+  public void setAllianceColor(Alliance alliance) {
+    this.alliance = alliance;
+    allianceColor.withProperties(
+        Map.of(
+            "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
+    robotStateSubsystem.setAllianceColor(alliance);
+    testPath.generateTrajectory();
   }
 
   // Interlink Controller Mapping
