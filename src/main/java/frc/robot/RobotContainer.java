@@ -62,7 +62,7 @@ public class RobotContainer {
   }
 
   private void configurePaths() {
-    testPath = new DriveAutonCommand(driveSubsystem, "mirrorTestPath", true, true);
+    testPath = new DriveAutonCommand(driveSubsystem, "pieceTwoFetchPath", true, true);
     CommandScheduler.getInstance()
         .onCommandInitialize(
             command ->
