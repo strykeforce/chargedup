@@ -34,7 +34,7 @@ public class Constants {
     public static final double kResetThreshold = 0.005;
     public static final double kPutOdomResetThreshold = 0.35;
 
-    // From: https://github.com/strykeforce/axis-config/
+    // Drive Base Size and Gearing
     public static final double kMaxSpeedMetersPerSecond = 5.121; // practice bot 3.889
     public static final double kRobotWidth = 0.5; // practice bot: 0.625
     public static final double kRobotLength = 0.615; // practice bot: 0.625
@@ -43,7 +43,6 @@ public class Constants {
         (kMaxSpeedMetersPerSecond / Math.hypot(kRobotWidth / 2.0, kRobotLength / 2.0))
             / 2.0; // wheel locations below
 
-    // From: https://github.com/strykeforce/axis-config/
     static final double kDriveMotorOutputGear = 30; // practice bot: 22
     static final double kDriveInputGear = 48;
     static final double kBevelInputGear = 15;
@@ -215,6 +214,32 @@ public class Constants {
 
     public static SupplyCurrentLimitConfiguration getElevatorZeroSupplyCurrentLimit() {
       return new SupplyCurrentLimitConfiguration(true, 5, 5, 0.1);
+    }
+  }
+
+  public static final class ElbowConstants {
+    public static final int kElbowFalconID = 33; // 33
+    public static final int kRemoteEncoderID = 15; // 15
+
+    // zero=up&slightly towards the elevator
+    public static final int kZeroTicks = 1878; // FIXME needs real tick values
+    public static final int kForwardSoftLimit = 1905;
+    public static final int kReverseSoftLimit = -506;
+
+    public static final int kCloseEnoughTicks = 20;
+
+    public static TalonFXConfiguration getElbowFalonConfig() {
+
+      TalonFXConfiguration elbowConfig = new TalonFXConfiguration();
+
+      elbowConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 40, 40, 0.5);
+      elbowConfig.voltageMeasurementFilter = 32;
+      elbowConfig.voltageCompSaturation = 12;
+      elbowConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
+      elbowConfig.velocityMeasurementWindow = 64;
+      elbowConfig.neutralDeadband = 0.01;
+
+      return elbowConfig;
     }
   }
 }
