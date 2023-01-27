@@ -21,11 +21,11 @@ import java.util.ArrayList;
  * constants are needed, to reduce verbosity.
  */
 public class Constants {
-  public static final class RobotStateConstants {}
-
   public static final int kTalonConfigTimeout = 10; // ms
   public static final double kDeadeyePowerCycleTimeout = 5; // s
   public static final double kJoystickDeadband = 0.1;
+
+  public static final class RobotStateConstants {}
 
   public static final class DriveConstants {
     // Drive Constants
@@ -159,5 +159,62 @@ public class Constants {
 
   public static final class FieldConstants {
     public static final double kFieldLength = 16.54;
+  }
+
+  public static class ElevatorConstants {
+    public static final int kLeftMainId = 31;
+
+    public static final double kAllowedError = 100; // FIXME
+
+    public static final double kElevatorZeroSpeed = 0.1;
+    public static final double kZeroTargetSpeedTicksPer100ms = 5;
+    public static final int kZeroStableCounts = 25;
+
+    public static final double kMaxFwd = -500;
+    public static final double kMaxRev = -62_000;
+
+    public static TalonFXConfiguration getElevatorFalconConfig() {
+      TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
+
+      elevatorConfig.supplyCurrLimit.currentLimit = 80;
+      elevatorConfig.supplyCurrLimit.triggerThresholdCurrent = 90;
+      elevatorConfig.supplyCurrLimit.triggerThresholdTime = 0.1;
+      elevatorConfig.supplyCurrLimit.enable = true;
+
+      elevatorConfig.statorCurrLimit.currentLimit = 100.0;
+      elevatorConfig.statorCurrLimit.triggerThresholdCurrent = 120.0;
+      elevatorConfig.statorCurrLimit.triggerThresholdTime = 0.1;
+      elevatorConfig.statorCurrLimit.enable = true;
+
+      // elevatorConfig.slot0.kP = 1.0;
+      // elevatorConfig.slot0.kI = 0.0;
+      // elevatorConfig.slot0.kD = 0.0;
+      // elevatorConfig.slot0.kF = 0.065;
+      // elevatorConfig.slot0.integralZone = 0;
+      // elevatorConfig.slot0.maxIntegralAccumulator = 0;
+      // elevatorConfig.slot0.allowableClosedloopError = 0;
+      // elevatorConfig.motionCruiseVelocity = 5_000;
+      // elevatorConfig.motionAcceleration = 30_000;
+
+      elevatorConfig.forwardSoftLimitEnable = true;
+      elevatorConfig.forwardSoftLimitThreshold = kMaxFwd;
+      elevatorConfig.reverseSoftLimitEnable = true;
+      elevatorConfig.reverseSoftLimitThreshold = kMaxRev;
+      elevatorConfig.neutralDeadband = 0.01;
+      elevatorConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
+      elevatorConfig.velocityMeasurementWindow = 64;
+      elevatorConfig.voltageCompSaturation = 12;
+      elevatorConfig.voltageMeasurementFilter = 32;
+
+      return elevatorConfig;
+    }
+
+    public static SupplyCurrentLimitConfiguration getElevatorSupplyLimitConfig() {
+      return new SupplyCurrentLimitConfiguration(true, 40, 45, .04);
+    }
+
+    public static SupplyCurrentLimitConfiguration getElevatorZeroSupplyCurrentLimit() {
+      return new SupplyCurrentLimitConfiguration(true, 5, 5, 0.1);
+    }
   }
 }

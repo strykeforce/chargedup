@@ -7,8 +7,10 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,7 +21,10 @@ import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
+import frc.robot.commands.elevator.ElevatorSpeedCommand;
+import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
@@ -45,20 +50,30 @@ public class RobotContainer {
   // Paths
   private DriveAutonCommand testPath;
 
+  private final ElevatorSubsystem elevatorSubsystem;
+
   public RobotContainer() {
     driveSubsystem = new DriveSubsystem();
     robotStateSubsystem = new RobotStateSubsystem(TargetLevel.NONE, TargetCol.NONE, GamePiece.NONE);
     driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
+    elevatorSubsystem = new ElevatorSubsystem();
+
     telemetryService = new TelemetryService(TelemetryController::new);
 
     driveSubsystem.registerWith(telemetryService);
     telemetryService.start();
 
+    robotStateSubsystem.registerWith(telemetryService);
+    driveSubsystem.registerWith(telemetryService);
+    elevatorSubsystem.registerWith(telemetryService);
+
+    telemetryService.start();
+
     configurePaths();
     configureMatchDashboard();
     configurePitDashboard();
-    configureBindings();
     configureDriverButtonBindings();
+    configureBindings();
   }
 
   private void configurePaths() {
@@ -90,6 +105,19 @@ public class RobotContainer {
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(testPath);
+
+    // Elevator testing
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
+        .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, -0.2));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+        .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, 0.2));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
+        .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+        .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
+
+    new JoystickButton(driveJoystick, InterlinkButton.DOWN.id)
+        .onTrue(new ZeroElevatorCommand(elevatorSubsystem));
   }
 
   public Command getAutonomousCommand() {
@@ -107,6 +135,22 @@ public class RobotContainer {
 
   private void configurePitDashboard() {
     ShuffleboardTab pitTab = Shuffleboard.getTab("Pit");
+
+    // Elevator Commands
+    ShuffleboardLayout elevatorCommands =
+        pitTab.getLayout("Elevator", BuiltInLayouts.kGrid).withPosition(0, 0).withSize(1, 3);
+    elevatorCommands
+        .add("Elevator Stop", new ElevatorSpeedCommand(elevatorSubsystem, 0))
+        .withPosition(0, 0);
+    elevatorCommands
+        .add("Elevator Zero", new ZeroElevatorCommand(elevatorSubsystem))
+        .withPosition(0, 1);
+    elevatorCommands
+        .add("Elevator Up", new ElevatorSpeedCommand(elevatorSubsystem, 0.1))
+        .withPosition(0, 2);
+    elevatorCommands
+        .add("Elevator Down", new ElevatorSpeedCommand(elevatorSubsystem, -0.1))
+        .withPosition(0, 3);
   }
 
   public void setAllianceColor(Alliance alliance) {
