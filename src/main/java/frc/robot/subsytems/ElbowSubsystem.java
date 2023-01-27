@@ -6,10 +6,10 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.RemoteFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-
-import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants.ElbowConstants;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.strykeforce.telemetry.TelemetryService;
 import org.strykeforce.telemetry.measurable.CanifierMeasurable;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
@@ -19,6 +19,7 @@ public class ElbowSubsystem extends MeasurableSubsystem {
   private TalonFX elbowFalcon;
   private int setPointTicks = 0;
   private CANifier remoteEncoder;
+  private Logger logger = LoggerFactory.getLogger(ElbowSubsystem.class);
 
   public ElbowSubsystem() {
     elbowFalcon = new TalonFX(ElbowConstants.kElbowFalconID);
@@ -30,22 +31,35 @@ public class ElbowSubsystem extends MeasurableSubsystem {
     elbowFalcon.configRemoteFeedbackFilter(
         ElbowConstants.kRemoteEncoderID, RemoteSensorSource.CANifier_Quadrature, 0);
 
+    elbowFalcon.configForwardSoftLimitThreshold(ElbowConstants.kForwardSoftLimit);
+    elbowFalcon.configForwardSoftLimitEnable(true);
+    elbowFalcon.configReverseSoftLimitThreshold(ElbowConstants.kReverseSoftLimit);
+    elbowFalcon.configReverseSoftLimitEnable(true);
+
     zeroElbow();
   }
 
-  private double getPulseWidthFor(PWMChannel channel) {
+  private int getPulseWidthFor(PWMChannel channel) {
     double[] pulseWidthandPeriod = new double[2];
     remoteEncoder.getPWMInput(channel, pulseWidthandPeriod);
-    return pulseWidthandPeriod[0];
+    return (int) pulseWidthandPeriod[0];
   }
 
   private void zeroElbow() {
-    double offset = getPulseWidthFor(PWMChannel.PWMChannel0) - ElbowConstants.kZeroTicks;
-    elbowFalcon.setSelectedSensorPosition(offset);
+    int absoluteTicks = getPulseWidthFor(PWMChannel.PWMChannel0);
+    int offset = absoluteTicks - ElbowConstants.kZeroTicks;
+    // elbowFalcon.setSelectedSensorPosition(offset);
+    remoteEncoder.setQuadraturePosition(offset, 10);
+    logger.info(
+        "Zeroed elbow, absolute: {}, offset: {}, zero ticks: {}",
+        absoluteTicks,
+        offset,
+        ElbowConstants.kZeroTicks);
   }
 
   public void rotateOpenLoop(double percentOutput) {
     elbowFalcon.set(ControlMode.PercentOutput, percentOutput);
+    logger.info("elbow openloop percentOutput: {}", percentOutput);
   }
 
   public void rotateClosedLoop(int posTicks) {

@@ -42,10 +42,8 @@ public class RobotContainer {
 
     configurePitDashboard();
     configureTelemetry();
-    configureBindings();
+    configureButtonBindings();
   }
-
-  private void configureBindings() {}
 
   private void configureDriverButtonBindings() {
     driveSubsystem.setDefaultCommand(new DriveTeleopCommand(driveJoystick, driveSubsystem));
@@ -55,13 +53,13 @@ public class RobotContainer {
         .onTrue(new xLockCommand(driveSubsystem));
   }
 
-  private void ConfigureButtonBindings() {
-    new JoystickButton(xboxController, Trim.LEFT_Y_NEG.id)
+  private void configureButtonBindings() {
+    new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
         .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.2));
-    new JoystickButton(xboxController, Trim.LEFT_Y_POS.id)
+        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.1));
+    new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
         .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.2));
+        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
   }
 
   private void configureTelemetry() {
