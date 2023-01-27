@@ -34,7 +34,7 @@ public class Constants {
     public static final double kResetThreshold = 0.005;
     public static final double kPutOdomResetThreshold = 0.35;
 
-    //Drive Base Size and Gearing
+    // Drive Base Size and Gearing
     public static final double kMaxSpeedMetersPerSecond = 5.121; // practice bot 3.889
     public static final double kRobotWidth = 0.5; // practice bot: 0.625
     public static final double kRobotLength = 0.615; // practice bot: 0.625

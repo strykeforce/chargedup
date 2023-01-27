@@ -8,32 +8,30 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
+import frc.robot.commands.elbow.ElbowOpenLoopCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
-import frc.robot.commands.elbow.ElbowOpenLoopCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
+import frc.robot.subsytems.ElbowSubsystem;
 import java.util.Map;
 import org.strykeforce.telemetry.TelemetryController;
 import org.strykeforce.telemetry.TelemetryService;
-import frc.robot.subsytems.ElbowSubsystem;
 
 public class RobotContainer {
   private RobotStateSubsystem robotStateSubsystem;
@@ -102,8 +100,8 @@ public class RobotContainer {
     new JoystickButton(driveJoystick, InterlinkButton.DOWN.id)
         .onTrue(new ZeroElevatorCommand(elevatorSubsystem));
 
-    //Elbow testing
-        new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
+    // Elbow testing
+    new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
         .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
         .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.1));
     new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
@@ -111,10 +109,7 @@ public class RobotContainer {
         .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
   }
 
-
-  private void configureOperatorButtonBindings() {
- 
-  }
+  private void configureOperatorButtonBindings() {}
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
