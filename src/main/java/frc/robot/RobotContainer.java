@@ -83,7 +83,8 @@ public class RobotContainer {
   private void configureBindings() {}
 
   private void configureDriverButtonBindings() {
-    driveSubsystem.setDefaultCommand(new DriveTeleopCommand(driveJoystick, driveSubsystem));
+    driveSubsystem.setDefaultCommand(
+        new DriveTeleopCommand(driveJoystick, driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.RESET.id)
         .onTrue(new ZeroGyroCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)

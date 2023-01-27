@@ -2,16 +2,19 @@ package frc.robot.commands.drive;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.RobotStateSubsystem;
 import org.strykeforce.thirdcoast.util.ExpoScale;
 
 public class DriveTeleopCommand extends CommandBase {
   private final Joystick joystick;
   private final DriveSubsystem driveSubsystem;
+  private final RobotStateSubsystem robotStateSubsystem;
   private double[] rawValues = new double[3];
   private final ExpoScale expoScaleYaw =
       new ExpoScale(DriveConstants.kDeadbandAllStick, DriveConstants.kExpoScaleYawFactor);
@@ -27,10 +30,12 @@ public class DriveTeleopCommand extends CommandBase {
   private final SlewRateLimiter strLimiter = new SlewRateLimiter(DriveConstants.kRateLimitFwdStr);
   private final SlewRateLimiter yawLimiter = new SlewRateLimiter(DriveConstants.kRateLimitYaw);
 
-  public DriveTeleopCommand(Joystick driver, DriveSubsystem driveSubsystem) {
+  public DriveTeleopCommand(
+      Joystick driver, DriveSubsystem driveSubsystem, RobotStateSubsystem robotStateSubsystem) {
     addRequirements(driveSubsystem);
     joystick = driver;
     this.driveSubsystem = driveSubsystem;
+    this.robotStateSubsystem = robotStateSubsystem;
   }
 
   @Override
@@ -45,22 +50,41 @@ public class DriveTeleopCommand extends CommandBase {
     //         joystick.getRawAxis(RobotContainer.Axis.LEFT_Y.id),
     //         joystick.getRawAxis(RobotContainer.Axis.RIGHT_Y.id));
 
-    driveSubsystem.drive(
-        -DriveConstants.kMaxSpeedMetersPerSecond
-            * fwdLimiter.calculate(
-                MathUtil.applyDeadband(
-                    joystick.getRawAxis(RobotContainer.Axis.LEFT_X.id),
-                    DriveConstants.kDeadbandAllStick)),
-        -DriveConstants.kMaxSpeedMetersPerSecond
-            * strLimiter.calculate(
-                MathUtil.applyDeadband(
-                    joystick.getRawAxis(RobotContainer.Axis.LEFT_Y.id),
-                    DriveConstants.kDeadbandAllStick)),
-        -DriveConstants.kMaxOmega
-            * yawLimiter.calculate(
-                MathUtil.applyDeadband(
-                    joystick.getRawAxis(RobotContainer.Axis.RIGHT_Y.id),
-                    DriveConstants.kDeadbandAllStick)));
+    if (robotStateSubsystem.getAllianceColor() == Alliance.Blue) {
+      driveSubsystem.drive(
+          -DriveConstants.kMaxSpeedMetersPerSecond
+              * fwdLimiter.calculate(
+                  MathUtil.applyDeadband(
+                      joystick.getRawAxis(RobotContainer.Axis.LEFT_X.id),
+                      DriveConstants.kDeadbandAllStick)),
+          -DriveConstants.kMaxSpeedMetersPerSecond
+              * strLimiter.calculate(
+                  MathUtil.applyDeadband(
+                      joystick.getRawAxis(RobotContainer.Axis.LEFT_Y.id),
+                      DriveConstants.kDeadbandAllStick)),
+          -DriveConstants.kMaxOmega
+              * yawLimiter.calculate(
+                  MathUtil.applyDeadband(
+                      joystick.getRawAxis(RobotContainer.Axis.RIGHT_Y.id),
+                      DriveConstants.kDeadbandAllStick)));
+    } else if (robotStateSubsystem.getAllianceColor() == Alliance.Red) {
+      driveSubsystem.drive(
+          -DriveConstants.kMaxSpeedMetersPerSecond
+              * fwdLimiter.calculate(
+                  MathUtil.applyDeadband(
+                      -joystick.getRawAxis(RobotContainer.Axis.LEFT_X.id),
+                      DriveConstants.kDeadbandAllStick)),
+          -DriveConstants.kMaxSpeedMetersPerSecond
+              * strLimiter.calculate(
+                  MathUtil.applyDeadband(
+                      -joystick.getRawAxis(RobotContainer.Axis.LEFT_Y.id),
+                      DriveConstants.kDeadbandAllStick)),
+          -DriveConstants.kMaxOmega
+              * yawLimiter.calculate(
+                  MathUtil.applyDeadband(
+                      -joystick.getRawAxis(RobotContainer.Axis.RIGHT_Y.id),
+                      DriveConstants.kDeadbandAllStick)));
+    }
   }
 
   @Override
