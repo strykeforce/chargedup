@@ -6,8 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
@@ -18,13 +16,13 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
+import frc.robot.commands.shoulder.ShoulderSpeedCommand;
+import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
-import frc.robot.commands.shoulder.ShoulderSpeedCommand;
-import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.subsystems.ShoulderSubsystem;
 
 public class RobotContainer {
@@ -48,7 +46,14 @@ public class RobotContainer {
     configureBindings();
   }
 
-  private void configureBindings() {}
+  private void configureBindings() {
+    new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
+        .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
+        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, -0.1));
+    new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
+        .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
+        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, 0.1));
+  }
 
   private void configureDriverButtonBindings() {
     driveSubsystem.setDefaultCommand(new DriveTeleopCommand(driveJoystick, driveSubsystem));
