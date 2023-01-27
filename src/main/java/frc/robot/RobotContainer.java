@@ -70,9 +70,9 @@ public class RobotContainer {
 
     telemetryService.start();
 
+    configurePaths();
     configureDriverButtonBindings();
     configureOperatorButtonBindings();
-    configurePaths();
     configureMatchDashboard();
     configurePitDashboard();
   }
