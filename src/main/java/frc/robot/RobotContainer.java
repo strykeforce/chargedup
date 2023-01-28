@@ -24,6 +24,8 @@ import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 import frc.robot.subsystems.ShoulderSubsystem;
+import org.strykeforce.telemetry.TelemetryController;
+import org.strykeforce.telemetry.TelemetryService;
 
 public class RobotContainer {
   private ShoulderSubsystem shoulderSubsystem;
@@ -34,25 +36,32 @@ public class RobotContainer {
   private final XboxController xbox = new XboxController(1);
   private final Joystick driveJoystick = new Joystick(0);
 
+  private final TelemetryService telemetryService = new TelemetryService(TelemetryController::new);
+
   private static final double kJoystickDeadband = Constants.kJoystickDeadband;
 
   public RobotContainer() {
     robotStateSubsystem = new RobotStateSubsystem(TargetLevel.NONE, TargetCol.NONE, GamePiece.NONE);
     driveSubsystem = new DriveSubsystem();
-
-    configurePitDashboard();
     shoulderSubsystem = new ShoulderSubsystem();
 
+    robotStateSubsystem.registerWith(telemetryService);
+    driveSubsystem.registerWith(telemetryService);
+    shoulderSubsystem.registerWith(telemetryService);
+
+    telemetryService.start();
+
+    configurePitDashboard();
     configureBindings();
   }
 
   private void configureBindings() {
     new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
         .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
-        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, -0.1));
+        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, -0.45));
     new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
         .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
-        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, 0.1));
+        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, 0.4));
   }
 
   private void configureDriverButtonBindings() {

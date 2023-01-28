@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -13,7 +12,6 @@ import org.strykeforce.telemetry.measurable.Measure;
 
 public class ShoulderSubsystem extends MeasurableSubsystem {
   private TalonSRX shoulderTalon;
-  private DigitalInput zeroShoulderInput = new DigitalInput(Constants.ShoulderConstants.kZeroId);
   private double desiredPosition;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -23,7 +21,7 @@ public class ShoulderSubsystem extends MeasurableSubsystem {
     shoulderTalon.configAllSettings(Constants.ShoulderConstants.getShoulderTalonConfig());
     shoulderTalon.configSupplyCurrentLimit(
         Constants.ShoulderConstants.getShoulderTalonSupplyLimitConfig());
-
+    zeroShoulder();
     desiredPosition = getPos();
   }
 
@@ -49,23 +47,14 @@ public class ShoulderSubsystem extends MeasurableSubsystem {
   }
 
   public void zeroShoulder() {
-    if (zeroShoulderInput.get()) {
-      double absolute = shoulderTalon.getSelectedSensorPosition();
-      double offset = absolute - Constants.ShoulderConstants.kShoulderZeroTicks;
-
-      shoulderTalon.setSelectedSensorPosition(offset);
-
-      logger.info(
-          "Shoulder zeroed; offset: {} zeroTicks: {} absolute: {}",
-          offset,
-          Constants.ShoulderConstants.kShoulderZeroTicks,
-          absolute);
-
-    } else {
-      shoulderTalon.configPeakOutputForward(0, 0);
-      shoulderTalon.configPeakOutputReverse(0, 0);
-      logger.error("Shoulder zero failed. Killing shoulder...");
-    }
+    double absolute = shoulderTalon.getSensorCollection().getPulseWidthPosition() & 0xFFF;
+    double offset = absolute - Constants.ShoulderConstants.kShoulderZeroTicks;
+    shoulderTalon.setSelectedSensorPosition(offset);
+    logger.info(
+        "Absolute: {}, Zero pos: {}, Offset: {}",
+        absolute,
+        Constants.ShoulderConstants.kShoulderZeroTicks,
+        offset);
   }
 
   @Override
