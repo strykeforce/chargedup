@@ -19,11 +19,11 @@ import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
-import frc.robot.commands.shoulder.ShoulderSpeedCommand;
-import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.commands.elbow.ElbowOpenLoopCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
+import frc.robot.commands.shoulder.ShoulderSpeedCommand;
+import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElbowSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -32,10 +32,9 @@ import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 import frc.robot.subsystems.ShoulderSubsystem;
+import java.util.Map;
 import org.strykeforce.telemetry.TelemetryController;
 import org.strykeforce.telemetry.TelemetryService;
-
-import java.util.Map;
 
 public class RobotContainer {
   private ShoulderSubsystem shoulderSubsystem;
@@ -71,7 +70,7 @@ public class RobotContainer {
     driveSubsystem.registerWith(telemetryService);
     robotStateSubsystem.registerWith(telemetryService);
     elevatorSubsystem.registerWith(telemetryService);
-    elbowSubsystem.registerWith(telemetryService);    
+    elbowSubsystem.registerWith(telemetryService);
     shoulderSubsystem.registerWith(telemetryService);
 
     telemetryService.start();
@@ -85,7 +84,7 @@ public class RobotContainer {
 
   private void configurePaths() {
     testPath = new DriveAutonCommand(driveSubsystem, "mirrorTestPath", true, true);
-  
+
     new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
         .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
         .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, -0.45));
