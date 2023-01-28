@@ -13,10 +13,9 @@ public class ArmSubsystem extends MeasurableSubsystem {
   // private ElevatorSubsystem elevatorSubsystem;
   // private ElbowSubsystem elbowSubsystem;
 
-  public ArmSubsystem(
-      /*ShoulderSubsystem shoulderSubsystem,
+  public ArmSubsystem(/*ShoulderSubsystem shoulderSubsystem,
       ElevatorSubsystem elevatorSubsystem,
-      ElbowSubsystem elbowSubsystem*/) {
+      ElbowSubsystem elbowSubsystem*/ ) {
     this.armState = ArmState.STOWED; // Maybe not?
     // this.shoulderSubsystem = shoulderSubsystem;
     // this.elevatorSubsystem = elevatorSubsystem;
