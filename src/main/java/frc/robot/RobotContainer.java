@@ -8,9 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
@@ -72,12 +70,8 @@ public class RobotContainer {
 
     driveSubsystem.registerWith(telemetryService);
     robotStateSubsystem.registerWith(telemetryService);
-    driveSubsystem.registerWith(telemetryService);
     elevatorSubsystem.registerWith(telemetryService);
     elbowSubsystem.registerWith(telemetryService);    
-
-    robotStateSubsystem.registerWith(telemetryService);
-    driveSubsystem.registerWith(telemetryService);
     shoulderSubsystem.registerWith(telemetryService);
 
     telemetryService.start();
