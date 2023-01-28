@@ -12,13 +12,14 @@ import org.slf4j.LoggerFactory;
 
 public class DriveAutonCommand extends CommandBase {
   private final DriveSubsystem driveSubsystem;
-  private final Trajectory trajectory;
+  private Trajectory trajectory;
   private final Timer timer = new Timer();
   private static final Logger logger = LoggerFactory.getLogger(DriveAutonCommand.class);
-  private final Rotation2d robotHeading;
+  private Rotation2d robotHeading;
   private boolean lastPath;
   private String trajectoryName;
   private boolean resetOdometry;
+  private boolean trajectoryGenerated = false;
 
   public DriveAutonCommand(
       DriveSubsystem driveSubsystem,
@@ -30,11 +31,16 @@ public class DriveAutonCommand extends CommandBase {
     this.driveSubsystem = driveSubsystem;
     this.lastPath = lastPath;
     this.resetOdometry = resetOdometry;
+    this.trajectoryName = trajectoryName;
+    timer.start();
+  }
+
+  public void generateTrajectory() {
     PathData pathdata = driveSubsystem.generateTrajectory(trajectoryName);
     trajectory = pathdata.trajectory;
     robotHeading = pathdata.targetYaw;
-    this.trajectoryName = trajectoryName;
-    timer.start();
+    logger.info("trajectory generated");
+    trajectoryGenerated = true;
   }
 
   @Override
@@ -52,8 +58,10 @@ public class DriveAutonCommand extends CommandBase {
 
   @Override
   public void execute() {
-    Trajectory.State desiredState = trajectory.sample(timer.get());
-    driveSubsystem.calculateController(desiredState, robotHeading);
+    if (trajectoryGenerated) {
+      Trajectory.State desiredState = trajectory.sample(timer.get());
+      driveSubsystem.calculateController(desiredState, robotHeading);
+    } else logger.error("trajectory not generated");
   }
 
   @Override
@@ -74,5 +82,6 @@ public class DriveAutonCommand extends CommandBase {
 
     // driveSubsystem.grapherTrajectoryActive(false);
     logger.info("End Trajectory {}: {}", trajectoryName, timer.get());
+    trajectoryGenerated = false;
   }
 }
