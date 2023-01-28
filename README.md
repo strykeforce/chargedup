@@ -5,28 +5,28 @@
 
 ## Controls
 
+![driver](docs/driver-controls.png)
+
 ![operator](docs/operator-controls.png)
 
 ## CAN Bus
 
 | Subsystem  | Type     | Talon                 | ID | PDP | Motor  | Breaker |
 | ---------- | -------- | --------------------- | -- | --- | ------ | ------- |
-| Drive      | SRX      | azimuth               | 0  |     | 9015   |         |
-| Drive      | SRX      | azimuth               | 1  |     | 9015   |         |
-| Drive      | SRX      | azimuth               | 2  |     | 9015   |         |
-| Drive      | SRX      | azimuth               | 3  |     | 9015   |         |
-| Drive      | FX       | drive                 | 10 |     | falcon |         |
-| Drive      | FX       | drive                 | 11 |     | falcon |         |
-| Drive      | FX       | drive                 | 12 |     | falcon |         |
-| Drive      | FX       | drive                 | 13 |     | falcon |         |
+| Drive      | SRX      | azimuth               | 0  |  8  | 9015   |         |
+| Drive      | SRX      | azimuth               | 1  |  12 | 9015   |         |
+| Drive      | SRX      | azimuth               | 2  |  9  | 9015   |         |
+| Drive      | SRX      | azimuth               | 3  |  11 | 9015   |         |
+| Drive      | FX       | drive                 | 10 |  6  | falcon |         |
+| Drive      | FX       | drive                 | 11 | 15  | falcon |         |
+| Drive      | FX       | drive                 | 12 |  7  | falcon |         |
+| Drive      | FX       | drive                 | 13 | 14  | falcon |         |
 | Intake     | FX       | intake                | 20 |     | falcon |         |
-| Intake     | SRX      | extend                | 21 |     | bag x2 |         |
-| Shoulder   | SRX      | shoulder              | 30 |     | ??     |         |
-| Elevator   | FX       | elevatorLeftMain      | 31 |     | falcon |         |
-| Elevator   | FX       | elevatorrightFollower | 32 |     | falcon |         |
-| Elbow      | FX       | elbowLeftMain         | 33 |     | falcon |         |
-| Elbow      | FX       | elbowRightFollower    | 34 |     | falcon |         |
-| Elbow      | Canifier | canifier              | 15 |     | -      |         |
+| Intake     | SRX      | extend                | 21 | 13  | bag x2 |         |
+| Shoulder   | SRX      | shoulder              | 30 | 10  | ??     |         |
+| Elevator   | FX       | elevator              | 31 | 5   | falcon |         |
+| Elbow      | FX       | elbow                 | 33 |  4  | falcon |         |
+| Elbow      | Canifier | canifier              | 15 |  23 | -      |         |
 | Hand       | SRX      | hand                  | 40 |     | ??     |         |
 
 * elbow uses remote encoder attached to canifier

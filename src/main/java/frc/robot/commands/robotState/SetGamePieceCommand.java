@@ -1,4 +1,4 @@
-package frc.robot.commands.robot_state;
+package frc.robot.commands.robotState;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.RobotStateSubsystem;
@@ -11,8 +11,6 @@ public class SetGamePieceCommand extends InstantCommand {
   public SetGamePieceCommand(RobotStateSubsystem robotStateSubsystem, GamePiece gamePiece) {
     this.robotStateSubsystem = robotStateSubsystem;
     this.gamePiece = gamePiece;
-
-    addRequirements(robotStateSubsystem);
   }
 
   @Override
