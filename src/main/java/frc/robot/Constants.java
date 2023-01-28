@@ -169,13 +169,13 @@ public class Constants {
 
     public static final double kElevatorZeroSpeed = 0.1;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
-    public static final int kZeroStableCounts = 25;
+    public static final int kZeroStableCounts = 10; // old 25
 
     public static final double kMaxFwd = -500;
     public static final double kMaxRev = -62_000;
 
-    public static final double kTicksPerMeter = 62000.0 / 0.445; // FIXME
-    public static final double kMaxExtension = 1.33; // FIXME meters
+    public static final double kTicksPerMeter = 62000.0 / 0.4; // FIXME
+    public static final double kMaxExtension = 1.23; // FIXME meters
 
     public static TalonFXConfiguration getElevatorFalconConfig() {
       TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
@@ -258,16 +258,23 @@ public class Constants {
     public static final int kShoulderId = 30; // FIXME
     public static final int kZeroId = 0; // FIXME
 
-    public static final double kShoulderZeroTicks = 1836; // FIXME
+    public static final double kShoulderZeroTicks = 1610; // FIXME old: 1836
 
     public static final double kMaxFwd = -43; // FIXME
     public static final double kMaxRev = -1490; // FIXME
 
     public static final double kZeroDegs = 0; // FIXME
 
-    public static final double kTicksPerDeg = 70.0 / 20.0 * 4096.0 / 360.0; // FIXME
+    public static final double kTicksPerDeg = 35.55556; // FIXME old: 70.0 / 20.0 * 4096.0 / 360.0
 
     public static final double kAllowedError = 100; // FIXME
+
+    public static final double kShoulderLen = 0.2; // a
+    public static final double kShoulderLowerToElevatorLowerPivotDist = 0.245; // d
+    public static final double kShoulderUpperToElevatorUpperPivotDist = 0.2; // b
+    public static final double kElevatorPivotDist = 0.27; // c
+    public static final double kElevatorBaseToPivot = 0.065; // f
+    public static final double kElevatorBaseToElevatorUpperPivot = 0.23; // g
 
     public static TalonSRXConfiguration getShoulderTalonConfig() {
       TalonSRXConfiguration shoulderConfig = new TalonSRXConfiguration();

@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.Constants;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,17 +11,18 @@ import org.strykeforce.telemetry.measurable.Measure;
 public class ArmSubsystem extends MeasurableSubsystem {
   private Logger logger = LoggerFactory.getLogger(ArmSubsystem.class);
   private ArmState armState;
-  // private ShoulderSubsystem shoulderSubsystem;
-  // private ElevatorSubsystem elevatorSubsystem;
-  // private ElbowSubsystem elbowSubsystem;
+  private ShoulderSubsystem shoulderSubsystem;
+  private ElevatorSubsystem elevatorSubsystem;
+  private ElbowSubsystem elbowSubsystem;
 
-  public ArmSubsystem(/*ShoulderSubsystem shoulderSubsystem,
+  public ArmSubsystem(
+      ShoulderSubsystem shoulderSubsystem,
       ElevatorSubsystem elevatorSubsystem,
-      ElbowSubsystem elbowSubsystem*/ ) {
+      ElbowSubsystem elbowSubsystem) {
     this.armState = ArmState.STOWED; // Maybe not?
-    // this.shoulderSubsystem = shoulderSubsystem;
-    // this.elevatorSubsystem = elevatorSubsystem;
-    // this.elbowSubsystem = elbowSubsystem;
+    this.shoulderSubsystem = shoulderSubsystem;
+    this.elevatorSubsystem = elevatorSubsystem;
+    this.elbowSubsystem = elbowSubsystem;
   }
 
   public void toStowPos() {
@@ -46,30 +49,46 @@ public class ArmSubsystem extends MeasurableSubsystem {
     setArmState(ArmState.SHELF);
   }
 
-  // public boolean isFinished() {
-  //   return shoulderSubsystem.isFinished()
-  //       && elevatorSubsystem.isFinished()
-  //       && elbowSubsystem.isFinished();
-  // }
+  public boolean isFinished() {
+    return shoulderSubsystem.isFinished() && elevatorSubsystem.isFinished()
+    /*&& elbowSubsystem.isFinished()*/ ;
+  }
 
   private void setArmState(ArmState newArmState) {
     this.armState = newArmState;
 
-    // shoulderSubsystem.setPos(armState.shoulderPos);
-    // elevatorSubsystem.setPos(armState.elevatorPos);
-    // elbowSubsystem.rotateClosedLoop(armState.elbowPos);
+    shoulderSubsystem.setPos(armState.shoulderPos);
+    elevatorSubsystem.setPos(armState.elevatorPos);
+    elbowSubsystem.rotateClosedLoop((int) armState.elbowPos);
 
     logger.info("Setting armState to {}", newArmState.name());
   }
 
+  public Translation2d getHandPosition() {
+    double elbowAngleWithGround =
+        Math.toRadians(shoulderSubsystem.getDegs() - (90.0 - elbowSubsystem.getRelativeDegs()));
+
+    double x =
+        elevatorSubsystem.getExtensionMeters()
+                * Math.cos(Math.toRadians(shoulderSubsystem.getDegs()))
+            + Constants.ElbowConstants.kLength * Math.cos(elbowAngleWithGround);
+    double y =
+        elevatorSubsystem.getExtensionMeters()
+                * Math.sin(Math.toRadians(shoulderSubsystem.getDegs()))
+            + Constants.ElbowConstants.kLength * Math.sin(elbowAngleWithGround);
+
+    return new Translation2d(x, y);
+  }
+
   @Override
   public Set<Measure> getMeasures() {
-    return Set.of();
+    return Set.of(
+        new Measure("Hand X", () -> getHandPosition().getX()),
+        new Measure("Hand Y", () -> getHandPosition().getY()));
   }
 
   @Override
   public void periodic() {
-
     switch (armState) {
       case STOWED:
         break;

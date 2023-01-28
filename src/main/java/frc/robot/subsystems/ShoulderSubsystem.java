@@ -39,7 +39,23 @@ public class ShoulderSubsystem extends MeasurableSubsystem {
   }
 
   public double getDegs() {
-    return getPos() / Constants.ShoulderConstants.kTicksPerDeg;
+    double rawDegs = 90.0 + getPos() / Constants.ShoulderConstants.kTicksPerDeg;
+
+    double a = Constants.ShoulderConstants.kShoulderLen;
+    double b = Constants.ShoulderConstants.kShoulderUpperToElevatorUpperPivotDist;
+    double c = Constants.ShoulderConstants.kElevatorPivotDist;
+    double d = Constants.ShoulderConstants.kShoulderLowerToElevatorLowerPivotDist;
+    double f = Constants.ShoulderConstants.kElevatorBaseToPivot;
+    double g = Constants.ShoulderConstants.kElevatorBaseToElevatorUpperPivot;
+
+    double e = Math.sqrt(a * a + d * d - 2 * a * d * Math.cos(Math.toRadians(rawDegs)));
+
+    double unadjustedAngle =
+        Math.toDegrees(
+            Math.acos((d * d + e * e - a * a) / (2 * d * e))
+                + Math.acos((e * e + c * c - b * b) / (2 * e * c)));
+
+    return 90.0 - (180.0 - unadjustedAngle - Math.toDegrees(Math.atan2(g, f)));
   }
 
   public double getPos() {

@@ -26,6 +26,7 @@ import frc.robot.commands.robotState.SetAutoStagingCommand;
 import frc.robot.commands.robotState.SetLevelAndColCommandGroup;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElbowSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -43,6 +44,7 @@ public class RobotContainer {
   private final RobotStateSubsystem robotStateSubsystem;
   private final DriveSubsystem driveSubsystem;
   private final ElbowSubsystem elbowSubsystem;
+  private final ArmSubsystem armSubsystem;
 
   private final XboxController xboxController = new XboxController(1);
   private final Joystick driveJoystick = new Joystick(0);
@@ -74,12 +76,14 @@ public class RobotContainer {
     elevatorSubsystem = new ElevatorSubsystem();
     elbowSubsystem = new ElbowSubsystem();
     shoulderSubsystem = new ShoulderSubsystem();
+    armSubsystem = new ArmSubsystem(shoulderSubsystem, elevatorSubsystem, elbowSubsystem);
 
     driveSubsystem.registerWith(telemetryService);
     robotStateSubsystem.registerWith(telemetryService);
     elevatorSubsystem.registerWith(telemetryService);
     elbowSubsystem.registerWith(telemetryService);
     shoulderSubsystem.registerWith(telemetryService);
+    armSubsystem.registerWith(telemetryService);
 
     telemetryService.start();
 

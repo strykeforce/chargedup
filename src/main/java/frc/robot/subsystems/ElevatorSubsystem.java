@@ -49,7 +49,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
 
   public double getExtensionMeters() {
     return Constants.ElevatorConstants.kMaxExtension
-        + 2 * getPos() / Constants.ElevatorConstants.kTicksPerMeter;
+        + getPos() / Constants.ElevatorConstants.kTicksPerMeter;
   }
 
   public boolean isFinished() {
