@@ -174,6 +174,9 @@ public class Constants {
     public static final double kMaxFwd = -500;
     public static final double kMaxRev = -62_000;
 
+    public static final double kTicksPerMeter = 62000.0 / 0.445; // FIXME
+    public static final double kMaxExtension = 1.33; // FIXME meters
+
     public static TalonFXConfiguration getElevatorFalconConfig() {
       TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
 
@@ -230,6 +233,10 @@ public class Constants {
 
     public static final int kCloseEnoughTicks = 20;
 
+    public static final double kZeroDegs = -90; // FIXME
+    public static final double kTicksPerDeg = 4096.0 / 360.0; // FIXME
+    public static final double kLength = 0.7855; // m
+
     public static TalonFXConfiguration getElbowFalonConfig() {
 
       TalonFXConfiguration elbowConfig = new TalonFXConfiguration();
@@ -256,11 +263,11 @@ public class Constants {
     public static final double kMaxFwd = -43; // FIXME
     public static final double kMaxRev = -1490; // FIXME
 
-    public static final double kZeroRads = 0; // FIXME
+    public static final double kZeroDegs = 0; // FIXME
 
-    public static final double kTicksPerDeg = 0; // FIXME
+    public static final double kTicksPerDeg = 70.0 / 20.0 * 4096.0 / 360.0; // FIXME
 
-    public static final double kAllowedError = 0; // FIXME
+    public static final double kAllowedError = 100; // FIXME
 
     public static TalonSRXConfiguration getShoulderTalonConfig() {
       TalonSRXConfiguration shoulderConfig = new TalonSRXConfiguration();

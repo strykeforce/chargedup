@@ -47,6 +47,11 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
     return elevatorFalcon.getSelectedSensorPosition();
   }
 
+  public double getExtensionMeters() {
+    return Constants.ElevatorConstants.kMaxExtension
+        + 2 * getPos() / Constants.ElevatorConstants.kTicksPerMeter;
+  }
+
   public boolean isFinished() {
     return Math.abs(desiredPosition - getPos()) <= Constants.ElevatorConstants.kAllowedError;
   }
@@ -73,7 +78,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
 
   @Override
   public Set<Measure> getMeasures() {
-    return Set.of();
+    return Set.of(new Measure("Extension meters", () -> getExtensionMeters()));
   }
 
   @Override

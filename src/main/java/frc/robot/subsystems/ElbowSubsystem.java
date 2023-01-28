@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.RemoteFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import frc.robot.Constants;
 import frc.robot.Constants.ElbowConstants;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -67,6 +68,11 @@ public class ElbowSubsystem extends MeasurableSubsystem {
     setPointTicks = posTicks;
   }
 
+  public double getRelativeDegs() {
+    return Constants.ElbowConstants.kZeroDegs
+        + elbowFalcon.getSelectedSensorPosition() / Constants.ElbowConstants.kTicksPerDeg;
+  }
+
   public boolean isElbowAtPos() {
     return Math.abs(setPointTicks - elbowFalcon.getSelectedSensorPosition())
         < ElbowConstants.kCloseEnoughTicks;
@@ -79,7 +85,7 @@ public class ElbowSubsystem extends MeasurableSubsystem {
 
   @Override
   public Set<Measure> getMeasures() {
-    return Set.of();
+    return Set.of(new Measure("Relative Degrees", () -> getRelativeDegs()));
   }
 
   @Override

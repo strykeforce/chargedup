@@ -11,8 +11,6 @@ public class SetTargetColCommand extends InstantCommand {
   public SetTargetColCommand(RobotStateSubsystem robotStateSubsystem, TargetCol targetCol) {
     this.robotStateSubsystem = robotStateSubsystem;
     this.targetCol = targetCol;
-
-    addRequirements(robotStateSubsystem);
   }
 
   @Override
