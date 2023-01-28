@@ -22,6 +22,8 @@ import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elbow.ElbowOpenLoopCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
+import frc.robot.commands.shoulder.ShoulderSpeedCommand;
+import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElbowSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -29,12 +31,14 @@ import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
-
+import frc.robot.subsystems.ShoulderSubsystem;
 import java.util.Map;
 import org.strykeforce.telemetry.TelemetryController;
 import org.strykeforce.telemetry.TelemetryService;
 
 public class RobotContainer {
+  private ShoulderSubsystem shoulderSubsystem;
+
   private RobotStateSubsystem robotStateSubsystem;
   private final DriveSubsystem driveSubsystem;
   private final ElbowSubsystem elbowSubsystem;
@@ -42,8 +46,9 @@ public class RobotContainer {
   private final XboxController xboxController = new XboxController(1);
   private final Joystick driveJoystick = new Joystick(0);
 
+  private final TelemetryService telemetryService = new TelemetryService(TelemetryController::new);
+
   private static final double kJoystickDeadband = Constants.kJoystickDeadband;
-  private final TelemetryService telemetryService;
 
   // Dashboard Widgets
   private SuppliedValueWidget<Boolean> allianceColor;
@@ -60,14 +65,13 @@ public class RobotContainer {
     driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
     elevatorSubsystem = new ElevatorSubsystem();
     elbowSubsystem = new ElbowSubsystem();
-
-    telemetryService = new TelemetryService(TelemetryController::new);
+    shoulderSubsystem = new ShoulderSubsystem();
 
     driveSubsystem.registerWith(telemetryService);
     robotStateSubsystem.registerWith(telemetryService);
-    driveSubsystem.registerWith(telemetryService);
     elevatorSubsystem.registerWith(telemetryService);
     elbowSubsystem.registerWith(telemetryService);
+    shoulderSubsystem.registerWith(telemetryService);
 
     telemetryService.start();
 
@@ -80,6 +84,13 @@ public class RobotContainer {
 
   private void configurePaths() {
     testPath = new DriveAutonCommand(driveSubsystem, "mirrorTestPath", true, true);
+
+    new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
+        .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
+        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, -0.45));
+    new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
+        .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
+        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, 0.4));
   }
 
   private void configureDriverButtonBindings() {
@@ -127,6 +138,22 @@ public class RobotContainer {
 
   private void configurePitDashboard() {
     ShuffleboardTab pitTab = Shuffleboard.getTab("Pit");
+
+    // Shoulder Commands
+    ShuffleboardLayout shoulderCommands =
+        pitTab.getLayout("Shoulder", BuiltInLayouts.kGrid).withPosition(0, 0).withSize(1, 3);
+    shoulderCommands
+        .add("Shoulder Stop", new ShoulderSpeedCommand(shoulderSubsystem, 0))
+        .withPosition(0, 0);
+    shoulderCommands
+        .add("Shoulder Zero", new ZeroShoulderCommand(shoulderSubsystem))
+        .withPosition(0, 1);
+    shoulderCommands
+        .add("Shoulder Forward", new ShoulderSpeedCommand(shoulderSubsystem, 0.1))
+        .withPosition(0, 2);
+    shoulderCommands
+        .add("Shoulder Reverse", new ShoulderSpeedCommand(shoulderSubsystem, -0.1))
+        .withPosition(0, 3);
 
     // Elevator Commands
     ShuffleboardLayout elevatorCommands =
