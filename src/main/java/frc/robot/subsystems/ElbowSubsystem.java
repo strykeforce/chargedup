@@ -1,4 +1,4 @@
-package frc.robot.subsytems;
+package frc.robot.subsystems;
 
 import com.ctre.phoenix.CANifier;
 import com.ctre.phoenix.CANifier.PWMChannel;
