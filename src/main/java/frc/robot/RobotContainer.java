@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -61,6 +62,7 @@ public class RobotContainer {
     configureDriverButtonBindings();
   }
 
+  // Path Configuration For Robot Container
   private void configurePaths() {
     testPath = new DriveAutonCommand(driveSubsystem, "pieceTwoFetchPath", true, true);
     CommandScheduler.getInstance()
@@ -116,6 +118,12 @@ public class RobotContainer {
             "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
     robotStateSubsystem.setAllianceColor(alliance);
     testPath.generateTrajectory();
+    // Flips gyro angle if Red team so driver doesn't need to do it manually
+    if (robotStateSubsystem.getAllianceColor() == Alliance.Red) {
+      driveSubsystem.setGyroOffset(Rotation2d.fromDegrees(180));
+    } else {
+      driveSubsystem.setGyroOffset(Rotation2d.fromDegrees(0));
+    }
   }
 
   // Interlink Controller Mapping
