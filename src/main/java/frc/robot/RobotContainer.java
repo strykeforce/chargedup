@@ -27,6 +27,7 @@ import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElbowSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.RGBlightsSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
@@ -39,9 +40,10 @@ import org.strykeforce.telemetry.TelemetryService;
 public class RobotContainer {
   private ShoulderSubsystem shoulderSubsystem;
 
-  private RobotStateSubsystem robotStateSubsystem;
+  private final RobotStateSubsystem robotStateSubsystem;
   private final DriveSubsystem driveSubsystem;
   private final ElbowSubsystem elbowSubsystem;
+  private final RGBlightsSubsystem rgblightsSubsystem;
 
   private final XboxController xboxController = new XboxController(1);
   private final Joystick driveJoystick = new Joystick(0);
