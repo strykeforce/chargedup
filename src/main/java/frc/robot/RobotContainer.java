@@ -99,10 +99,10 @@ public class RobotContainer {
 
     new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
         .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
-        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, -0.45));
+        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, -0.35));
     new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
         .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
-        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, 0.4));
+        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, 0.3));
   }
 
   private void configureDriverButtonBindings() {

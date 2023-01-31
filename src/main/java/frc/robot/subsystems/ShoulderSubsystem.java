@@ -38,6 +38,10 @@ public class ShoulderSubsystem extends MeasurableSubsystem {
     setPos(Constants.ShoulderConstants.kZeroDegs + degs * Constants.ShoulderConstants.kTicksPerDeg);
   }
 
+  public double getShoulderAngle(){
+    return 90.0 + getPos() / Constants.ShoulderConstants.kTicksPerDeg;
+  }
+
   public double getDegs() {
     double rawDegs = 90.0 + getPos() / Constants.ShoulderConstants.kTicksPerDeg;
 
@@ -85,6 +89,7 @@ public class ShoulderSubsystem extends MeasurableSubsystem {
 
   @Override
   public Set<Measure> getMeasures() {
-    return Set.of(new Measure("Degrees", () -> getDegs()));
+    return Set.of(new Measure("Degrees", () -> getDegs()),
+    new Measure("Shoulder Degrees", () -> getShoulderAngle()));
   }
 }

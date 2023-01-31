@@ -258,7 +258,7 @@ public class Constants {
     public static final int kShoulderId = 30; // FIXME
     public static final int kZeroId = 0; // FIXME
 
-    public static final double kShoulderZeroTicks = 1610; // FIXME old: 1836
+    public static final double kShoulderZeroTicks = 1990; // FIXME old: 1836
 
     public static final double kMaxFwd = -43; // FIXME
     public static final double kMaxRev = -1490; // FIXME
