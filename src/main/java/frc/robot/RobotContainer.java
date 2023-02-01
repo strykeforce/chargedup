@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
@@ -22,11 +23,15 @@ import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elbow.ElbowOpenLoopCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
+import frc.robot.commands.intake.IntakeExtendCommand;
+import frc.robot.commands.intake.IntakeOpenLoopCommand;
+import frc.robot.commands.intake.ToggleIntakeExtendedCommand;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElbowSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
@@ -35,11 +40,6 @@ import frc.robot.subsystems.ShoulderSubsystem;
 import java.util.Map;
 import org.strykeforce.telemetry.TelemetryController;
 import org.strykeforce.telemetry.TelemetryService;
-import frc.robot.Constants.IntakeConstants;
-import frc.robot.commands.intake.IntakeExtendCommand;
-import frc.robot.commands.intake.IntakeOpenLoopCommand;
-import frc.robot.commands.intake.ToggleIntakeExtendedCommand;
-import frc.robot.subsystems.IntakeSubsystem;
 
 public class RobotContainer {
   private ShoulderSubsystem shoulderSubsystem;
@@ -125,18 +125,14 @@ public class RobotContainer {
     new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
         .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
         .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
-    configurePitDashboard();
-  }
 
-  private void configureBindings() {
     // intake buttons
-    new JoystickButton(xboxController, 3) // FIXME: correct button id
-        .onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem));
-    new JoystickButton(xboxController, 2)
+    // new JoystickButton(xboxController, 3).onTrue(new
+    // ToggleIntakeExtendedCommand(intakeSubsystem));
+    new JoystickButton(driveJoystick, Shoulder.RIGHT_DOWN.id)
         .onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem))
         .onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));
   }
-
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
@@ -155,26 +151,23 @@ public class RobotContainer {
     ShuffleboardTab pitTab = Shuffleboard.getTab("Pit");
 
     ShuffleboardLayout intakeCommands =
-        pitTab.getLayout("Intake", BuiltInLayouts.kGrid).withPosition(3, 0).withSize(1, 2);
+        pitTab.getLayout("Intake", BuiltInLayouts.kGrid).withPosition(3, 0).withSize(1, 4);
     intakeCommands
-        .add("STOP", new IntakeOpenLoopCommand(intakeSubsystem, 0))
-        .withSize(1, 1)
-        .withPosition(0, 0);
+        .add("Intake Stop", new IntakeOpenLoopCommand(intakeSubsystem, 0))
+        .withPosition(0, 5);
     intakeCommands
-        .add("FWD", new IntakeOpenLoopCommand(intakeSubsystem, IntakeConstants.kIntakeSpeed))
-        .withSize(1, 1)
+        .add("Intake Fwd", new IntakeOpenLoopCommand(intakeSubsystem, IntakeConstants.kIntakeSpeed))
         .withPosition(0, 1);
     intakeCommands
-        .add("REV", new IntakeOpenLoopCommand(intakeSubsystem, IntakeConstants.kIntakeEjectSpeed))
-        .withSize(1, 1)
+        .add(
+            "Intake Rev",
+            new IntakeOpenLoopCommand(intakeSubsystem, IntakeConstants.kIntakeEjectSpeed))
         .withPosition(0, 2);
     intakeCommands
-        .add("EXTEND", new IntakeExtendCommand(intakeSubsystem, true))
-        .withSize(1, 1)
+        .add("Intake Ext", new IntakeExtendCommand(intakeSubsystem, true))
         .withPosition(0, 3);
     intakeCommands
-        .add("RETRACT", new IntakeExtendCommand(intakeSubsystem, false))
-        .withSize(1, 1)
+        .add("Intake Ret", new IntakeExtendCommand(intakeSubsystem, false))
         .withPosition(0, 4);
 
     // Shoulder Commands
