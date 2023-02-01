@@ -64,7 +64,7 @@ public class RobotContainer {
 
   // Path Configuration For Robot Container
   private void configurePaths() {
-    testPath = new DriveAutonCommand(driveSubsystem, "pieceTwoFetchPath", true, true);
+    testPath = new DriveAutonCommand(driveSubsystem, "pieceFourFetchPath", true, true);
     CommandScheduler.getInstance()
         .onCommandInitialize(
             command ->
@@ -118,7 +118,7 @@ public class RobotContainer {
             "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
     robotStateSubsystem.setAllianceColor(alliance);
     testPath.generateTrajectory();
-    // Flips gyro angle if Red team so driver doesn't need to do it manually
+    // Flips gyro angle if alliance is red team
     if (robotStateSubsystem.getAllianceColor() == Alliance.Red) {
       driveSubsystem.setGyroOffset(Rotation2d.fromDegrees(180));
     } else {
