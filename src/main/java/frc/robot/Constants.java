@@ -297,4 +297,65 @@ public class Constants {
       return shoulderSupplyConfig;
     }
   }
+
+  public static final class IntakeConstants {
+    // FIXME: need correct values
+
+    public static final int kIntakeFalconID = 20;
+    public static final int kExtendTalonID = 21;
+
+    public static final int kCloseEnoughTicks = 150;
+    public static final int kExtendPosTicks = 1100;
+    public static final int kRetractPosTicks = 10;
+
+    public static final double kIntakeSpeed = -0.5;
+    public static final double kIntakeEjectSpeed = 0.5;
+    public static final double kEjectTimerDelaySec = 3;
+
+    public static final int kIntakeZeroTicks = 2800;
+    public static final int kZeroStableBand = 20;
+
+    public static TalonSRXConfiguration getExtendTalonConfig() {
+      TalonSRXConfiguration talonConfig = new TalonSRXConfiguration();
+
+      talonConfig.forwardSoftLimitEnable = true;
+      talonConfig.forwardSoftLimitThreshold = 1140;
+      talonConfig.reverseSoftLimitEnable = true;
+      talonConfig.reverseSoftLimitThreshold = 0;
+      talonConfig.neutralDeadband = 0.01;
+      talonConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
+      talonConfig.velocityMeasurementWindow = 64;
+      talonConfig.voltageCompSaturation = 12;
+      talonConfig.voltageMeasurementFilter = 32;
+
+      return talonConfig;
+    }
+
+    public static SupplyCurrentLimitConfiguration getTalonSupplyLimitConfig() {
+      SupplyCurrentLimitConfiguration extendSupplyConfig = new SupplyCurrentLimitConfiguration();
+
+      extendSupplyConfig.currentLimit = 20;
+      extendSupplyConfig.triggerThresholdCurrent = 45;
+      extendSupplyConfig.triggerThresholdTime = 0.04;
+      extendSupplyConfig.enable = true;
+
+      return extendSupplyConfig;
+    }
+
+    public static TalonFXConfiguration getIntakeFalconConfig() {
+      TalonFXConfiguration falconConfig = new TalonFXConfiguration();
+
+      falconConfig.neutralDeadband = 0.01;
+      falconConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
+      falconConfig.velocityMeasurementWindow = 64;
+      falconConfig.voltageCompSaturation = 12;
+      falconConfig.voltageMeasurementFilter = 32;
+      falconConfig.supplyCurrLimit.currentLimit = 20;
+      falconConfig.supplyCurrLimit.triggerThresholdCurrent = 45;
+      falconConfig.supplyCurrLimit.triggerThresholdTime = 0.04;
+      falconConfig.supplyCurrLimit.enable = true;
+
+      return falconConfig;
+    }
+  }
 }
