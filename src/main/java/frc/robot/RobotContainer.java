@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.RGBlights.RGBsetPieceCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
@@ -68,6 +69,7 @@ public class RobotContainer {
     elevatorSubsystem = new ElevatorSubsystem();
     elbowSubsystem = new ElbowSubsystem();
     shoulderSubsystem = new ShoulderSubsystem();
+    rgblightsSubsystem = new RGBlightsSubsystem();
 
     driveSubsystem.registerWith(telemetryService);
     robotStateSubsystem.registerWith(telemetryService);
@@ -123,7 +125,13 @@ public class RobotContainer {
         .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
   }
 
-  private void configureOperatorButtonBindings() {}
+  private void configureOperatorButtonBindings() {
+    new JoystickButton(xboxController, XboxController.Button.kBack.value)
+        .onTrue(new RGBsetPieceCommand(rgblightsSubsystem, GamePiece.CUBE));
+
+    new JoystickButton(xboxController, XboxController.Button.kStart.value)
+        .onTrue(new RGBsetPieceCommand(rgblightsSubsystem, GamePiece.CONE));
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
