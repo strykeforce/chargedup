@@ -16,7 +16,7 @@ import org.strykeforce.telemetry.measurable.CanifierMeasurable;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
 import org.strykeforce.telemetry.measurable.Measure;
 
-public class ElbowSubsystem extends MeasurableSubsystem {
+public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent {
   private TalonFX elbowFalcon;
   private int setPointTicks = 0;
   private CANifier remoteEncoder;
@@ -81,6 +81,15 @@ public class ElbowSubsystem extends MeasurableSubsystem {
   @Override
   public void periodic() {
     // nothing here yet :)
+  }
+
+  public double getPos() {
+    return elbowFalcon.getSelectedSensorPosition();
+  }
+
+  public void setSoftLimits(double minTicks, double maxTicks) {
+    elbowFalcon.configForwardSoftLimitThreshold(maxTicks);
+    elbowFalcon.configReverseSoftLimitThreshold(minTicks);
   }
 
   @Override

@@ -64,17 +64,35 @@ public class ArmSubsystem extends MeasurableSubsystem {
     logger.info("Setting armState to {}", newArmState.name());
   }
 
+  public HandRegion getHandRegion() {
+    Translation2d handPos = getHandPosition();
+
+    if (handPos.getX() >= 0.45 && handPos.getY() < 0.16) {
+      return HandRegion.BUMPER;
+    } else if ((handPos.getX() >= 0 && handPos.getX() <= Constants.ArmConstants.kFrontBumperX)
+        && (handPos.getY()
+            <= Constants.ArmConstants.kHouseLineSlope * handPos.getX()
+                + Constants.ArmConstants.kCamY)) {
+      return HandRegion.HOUSE;
+    }
+
+    return HandRegion.FRONT; // Assume arm is free
+  }
+
   public Translation2d getHandPosition() {
+    final double f = Constants.ShoulderConstants.kElevatorBaseToPivot;
+
     double elbowAngleWithGround =
         Math.toRadians(shoulderSubsystem.getDegs() - (90.0 - elbowSubsystem.getRelativeDegs()));
+    double shoulderAngle = Math.toRadians(shoulderSubsystem.getDegs());
 
     double x =
-        elevatorSubsystem.getExtensionMeters()
-                * Math.cos(Math.toRadians(shoulderSubsystem.getDegs()))
+        elevatorSubsystem.getExtensionMeters() * Math.cos(shoulderAngle)
+            - f / Math.sin(shoulderAngle)
             + Constants.ElbowConstants.kLength * Math.cos(elbowAngleWithGround);
     double y =
-        elevatorSubsystem.getExtensionMeters()
-                * Math.sin(Math.toRadians(shoulderSubsystem.getDegs()))
+        (elevatorSubsystem.getExtensionMeters() + f / Math.tan(shoulderAngle))
+                * Math.sin(shoulderAngle)
             + Constants.ElbowConstants.kLength * Math.sin(elbowAngleWithGround);
 
     return new Translation2d(x, y);
@@ -126,6 +144,41 @@ public class ArmSubsystem extends MeasurableSubsystem {
       this.shoulderPos = shoulderPos;
       this.elevatorPos = elevatorPos;
       this.elbowPos = elbowPos;
+    }
+  }
+
+  public enum HandRegion {
+    BUMPER(
+        0,
+        Constants.ShoulderConstants.kMaxFwd,
+        0,
+        Constants.ElevatorConstants.kMaxFwd,
+        0,
+        Constants.ElbowConstants.kForwardSoftLimit),
+    FRONT(0, 0, 0, 0, 0, 0),
+    HOUSE(0, 0, 0, 0, 0, 0),
+    INTAKE(0, 0, 0, 0, 0, 0),
+    UNKNOWN(0, 0, 0, 0, 0, 0);
+    public final double minTicksShoulder,
+        maxTicksShoulder,
+        minTicksElevator,
+        maxTicksElevator,
+        minTicksElbow,
+        maxTicksElbow;
+
+    HandRegion(
+        double minTicksShoulder,
+        double maxTicksShoulder,
+        double minTicksElevator,
+        double maxTicksElevator,
+        double minTicksElbow,
+        double maxTicksElbow) {
+      this.minTicksShoulder = minTicksShoulder;
+      this.maxTicksShoulder = maxTicksShoulder;
+      this.minTicksElevator = minTicksElevator;
+      this.maxTicksElevator = maxTicksElevator;
+      this.minTicksElbow = minTicksElbow;
+      this.maxTicksElbow = maxTicksElbow;
     }
   }
 }

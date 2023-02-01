@@ -121,7 +121,7 @@ public class RobotContainer {
     new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
         .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, 0.2))
         .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
-    new JoystickButton(driveJoystick, InterlinkButton.DOWN.id)
+    new JoystickButton(driveJoystick, InterlinkButton.UP.id)
         .onTrue(new ZeroElevatorCommand(elevatorSubsystem));
 
     // Elbow testing

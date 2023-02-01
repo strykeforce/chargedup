@@ -11,7 +11,7 @@ import org.strykeforce.telemetry.TelemetryService;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
 import org.strykeforce.telemetry.measurable.Measure;
 
-public class ElevatorSubsystem extends MeasurableSubsystem {
+public class ElevatorSubsystem extends MeasurableSubsystem implements ArmComponent {
   private static final Logger logger = LoggerFactory.getLogger(ElevatorSubsystem.class);
   private TalonFX elevatorFalcon;
   private double desiredPosition;
@@ -48,8 +48,10 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
   }
 
   public double getExtensionMeters() {
-    return Constants.ElevatorConstants.kMaxExtension
-        + getPos() / Constants.ElevatorConstants.kTicksPerMeter;
+    double unadjusted =
+        Constants.ElevatorConstants.kMaxExtension
+            + getPos() / Constants.ElevatorConstants.kTicksPerMeter;
+    return Math.hypot(Constants.ShoulderConstants.kElevatorBaseToPivot, unadjusted);
   }
 
   public boolean isFinished() {
@@ -68,6 +70,11 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
 
     logger.info("Elevator is zeroing");
     elevatorState = ElevatorState.ZEROING;
+  }
+
+  public void setSoftLimits(double minTicks, double maxTicks) {
+    elevatorFalcon.configForwardSoftLimitThreshold(maxTicks);
+    elevatorFalcon.configReverseSoftLimitThreshold(minTicks);
   }
 
   @Override

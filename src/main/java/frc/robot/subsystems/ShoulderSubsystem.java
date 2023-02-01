@@ -10,7 +10,7 @@ import org.strykeforce.telemetry.TelemetryService;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
 import org.strykeforce.telemetry.measurable.Measure;
 
-public class ShoulderSubsystem extends MeasurableSubsystem {
+public class ShoulderSubsystem extends MeasurableSubsystem implements ArmComponent {
   private TalonSRX shoulderTalon;
   private double desiredPosition;
 
@@ -38,7 +38,7 @@ public class ShoulderSubsystem extends MeasurableSubsystem {
     setPos(Constants.ShoulderConstants.kZeroDegs + degs * Constants.ShoulderConstants.kTicksPerDeg);
   }
 
-  public double getShoulderAngle(){
+  public double getShoulderAngle() {
     return 90.0 + getPos() / Constants.ShoulderConstants.kTicksPerDeg;
   }
 
@@ -81,6 +81,11 @@ public class ShoulderSubsystem extends MeasurableSubsystem {
         offset);
   }
 
+  public void setSoftLimits(double minTicks, double maxTicks) {
+    shoulderTalon.configForwardSoftLimitThreshold(maxTicks);
+    shoulderTalon.configReverseSoftLimitThreshold(minTicks);
+  }
+
   @Override
   public void registerWith(TelemetryService telemetryService) {
     super.registerWith(telemetryService);
@@ -89,7 +94,8 @@ public class ShoulderSubsystem extends MeasurableSubsystem {
 
   @Override
   public Set<Measure> getMeasures() {
-    return Set.of(new Measure("Degrees", () -> getDegs()),
-    new Measure("Shoulder Degrees", () -> getShoulderAngle()));
+    return Set.of(
+        new Measure("Degrees", () -> getDegs()),
+        new Measure("Shoulder Degrees", () -> getShoulderAngle()));
   }
 }

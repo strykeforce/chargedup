@@ -27,7 +27,11 @@ public class Constants {
 
   public static final class RobotStateConstants {}
 
-  public static final class ArmConstants {}
+  public static final class ArmConstants {
+    public static final double kFrontBumperX = 0;
+    public static final double kCamY = 0;
+    public static final double kHouseLineSlope = 0;
+  }
 
   public static final class DriveConstants {
     // Drive Constants
@@ -269,9 +273,9 @@ public class Constants {
 
     public static final double kAllowedError = 100; // FIXME
 
-    public static final double kShoulderLen = 0.2; // a
+    public static final double kShoulderLen = 0.21; // a
     public static final double kShoulderLowerToElevatorLowerPivotDist = 0.245; // d
-    public static final double kShoulderUpperToElevatorUpperPivotDist = 0.2; // b
+    public static final double kShoulderUpperToElevatorUpperPivotDist = 0.1975; // b
     public static final double kElevatorPivotDist = 0.27; // c
     public static final double kElevatorBaseToPivot = 0.065; // f
     public static final double kElevatorBaseToElevatorUpperPivot = 0.23; // g
