@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants;
+import frc.robot.Constants.ArmConstants;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,13 +68,15 @@ public class ArmSubsystem extends MeasurableSubsystem {
   public HandRegion getHandRegion() {
     Translation2d handPos = getHandPosition();
 
-    if (handPos.getX() >= 0.45 && handPos.getY() < 0.16) {
+    if (handPos.getX() >= ArmConstants.kFrontBumperX && handPos.getY() < ArmConstants.kCamY) {
       return HandRegion.BUMPER;
     } else if ((handPos.getX() >= 0 && handPos.getX() <= Constants.ArmConstants.kFrontBumperX)
         && (handPos.getY()
             <= Constants.ArmConstants.kHouseLineSlope * handPos.getX()
-                + Constants.ArmConstants.kCamY)) {
+                + Constants.ArmConstants.kHouseIntercept)) {
       return HandRegion.HOUSE;
+    } else if (handPos.getX() <= 0 && handPos.getY() <= ArmConstants.kIntakeMaxY) {
+      return HandRegion.INTAKE;
     }
 
     return HandRegion.FRONT; // Assume arm is free
@@ -107,6 +110,14 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
   @Override
   public void periodic() {
+    HandRegion currHandRegion = getHandRegion();
+
+    shoulderSubsystem.setSoftLimits(
+        currHandRegion.minTicksShoulder, currHandRegion.maxTicksShoulder);
+    elevatorSubsystem.setSoftLimits(
+        currHandRegion.minTicksElevator, currHandRegion.maxTicksElevator);
+    elbowSubsystem.setSoftLimits(currHandRegion.minTicksElbow, currHandRegion.maxTicksElbow);
+
     switch (armState) {
       case STOWED:
         break;
@@ -149,15 +160,33 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
   public enum HandRegion {
     BUMPER(
-        0,
-        Constants.ShoulderConstants.kMaxFwd,
-        0,
-        Constants.ElevatorConstants.kMaxFwd,
-        0,
-        Constants.ElbowConstants.kForwardSoftLimit),
-    FRONT(0, 0, 0, 0, 0, 0),
-    HOUSE(0, 0, 0, 0, 0, 0),
-    INTAKE(0, 0, 0, 0, 0, 0),
+        ArmConstants.kShoulderPhysicalMin,
+        ArmConstants.kShoulderPhysicalMax,
+        ArmConstants.kElevatorBumperMin,
+        ArmConstants.kElevatorBumperMax,
+        ArmConstants.kElbowBumperMin,
+        ArmConstants.kElbowBumperMax),
+    FRONT(
+        ArmConstants.kShoulderPhysicalMin,
+        ArmConstants.kShoulderPhysicalMax,
+        ArmConstants.kElevatorPhysicalMin,
+        ArmConstants.kElevatorPhysicalMax,
+        ArmConstants.kElbowPhysicalMin,
+        ArmConstants.kElbowPhysicalMax),
+    HOUSE(
+        ArmConstants.kShoulderVerticalMin,
+        ArmConstants.kShoulderVerticalMax,
+        ArmConstants.kElevatorHouseMin,
+        ArmConstants.kElevatorHouseMax,
+        ArmConstants.kElbowPhysicalMin,
+        ArmConstants.kElbowPhysicalMax),
+    INTAKE(
+        ArmConstants.kShoulderPhysicalMin,
+        ArmConstants.kShoulderPhysicalMax,
+        ArmConstants.kElevatorPhysicalMin,
+        ArmConstants.kElevatorPhysicalMax,
+        ArmConstants.kElbowIntakeMin,
+        ArmConstants.kElbowIntakeMax),
     UNKNOWN(0, 0, 0, 0, 0, 0);
     public final double minTicksShoulder,
         maxTicksShoulder,

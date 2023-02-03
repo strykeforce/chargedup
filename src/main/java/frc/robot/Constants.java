@@ -28,9 +28,41 @@ public class Constants {
   public static final class RobotStateConstants {}
 
   public static final class ArmConstants {
-    public static final double kFrontBumperX = 0;
-    public static final double kCamY = 0;
-    public static final double kHouseLineSlope = 0;
+    public static final double kFrontBumperX = 0.25;
+    public static final double kCamY = 0.21;
+    public static final double kHouseLineSlope = -2.125;
+    public static final double kHouseIntercept = 1.06;
+    public static final double kIntakeMaxY = 0.37;
+
+    // house limits
+    public static final double kShoulderVerticalMin = -1580;
+    public static final double kShoulderVerticalMax = -1290;
+
+    public static final double kElevatorHouseMin = -27_295;
+    public static final double kElevatorHouseMax = ElevatorConstants.kMaxFwd;
+
+    public static final double kElbowPhysicalMin = ElbowConstants.kReverseSoftLimit;
+    public static final double kElbowPhysicalMax = ElbowConstants.kForwardSoftLimit;
+
+    // bumper limits
+    public static final double kShoulderPhysicalMin = ShoulderConstants.kMaxRev;
+    public static final double kShoulderPhysicalMax = ShoulderConstants.kMaxFwd;
+
+    public static final double kElevatorBumperMin = -46_258;
+    public static final double kElevatorBumperMax = ElevatorConstants.kMaxFwd;
+
+    public static final double kElbowBumperMin = 260;
+    public static final double kElbowBumperMax = ElbowConstants.kForwardSoftLimit;
+
+    // intake limits
+    // Shoulder Physical Min
+    // Shoulder Physical Max
+
+    public static final double kElevatorPhysicalMin = ElevatorConstants.kMaxRev;
+    public static final double kElevatorPhysicalMax = ElevatorConstants.kMaxFwd;
+
+    public static final double kElbowIntakeMin = ElbowConstants.kReverseSoftLimit;
+    public static final double kElbowIntakeMax = -450;
   }
 
   public static final class DriveConstants {
@@ -176,7 +208,7 @@ public class Constants {
     public static final int kZeroStableCounts = 10; // old 25
 
     public static final double kMaxFwd = -500;
-    public static final double kMaxRev = -62_000;
+    public static final double kMaxRev = -49_047;
 
     public static final double kTicksPerMeter = 62000.0 / 0.4; // FIXME
     public static final double kMaxExtension = 1.23; // FIXME meters
@@ -264,8 +296,8 @@ public class Constants {
 
     public static final double kShoulderZeroTicks = 1990; // FIXME old: 1836
 
-    public static final double kMaxFwd = -43; // FIXME
-    public static final double kMaxRev = -1490; // FIXME
+    public static final double kMaxFwd = 887; // FIXME
+    public static final double kMaxRev = -1580; // FIXME
 
     public static final double kZeroDegs = 0; // FIXME
 
@@ -276,9 +308,9 @@ public class Constants {
     public static final double kShoulderLen = 0.21; // a
     public static final double kShoulderLowerToElevatorLowerPivotDist = 0.245; // d
     public static final double kShoulderUpperToElevatorUpperPivotDist = 0.1975; // b
-    public static final double kElevatorPivotDist = 0.27; // c
-    public static final double kElevatorBaseToPivot = 0.065; // f
-    public static final double kElevatorBaseToElevatorUpperPivot = 0.23; // g
+    public static final double kElevatorPivotDist = 0.342; // c (old 0.27)
+    public static final double kElevatorBaseToPivot = 0.03; // f (old 0.065)
+    public static final double kElevatorBaseToElevatorUpperPivot = 0.3325; // g (old 0.23)
 
     public static TalonSRXConfiguration getShoulderTalonConfig() {
       TalonSRXConfiguration shoulderConfig = new TalonSRXConfiguration();
