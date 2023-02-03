@@ -19,6 +19,9 @@ import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import java.nio.file.Paths;
@@ -31,6 +34,7 @@ import net.consensys.cava.toml.TomlTable;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.strykeforce.swerve.PoseEstimatorOdometryStrategy;
 import org.strykeforce.swerve.SwerveDrive;
 import org.strykeforce.swerve.SwerveModule;
 import org.strykeforce.swerve.TalonSwerveModule;
@@ -52,6 +56,11 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private Rotation2d holoContAngle = new Rotation2d();
   private Double trajectoryActive = 0.0;
   private double[] lastVelocity = new double[3];
+  private PoseEstimatorOdometryStrategy odometryStrategy;
+  private TimestampedPose timestampedPose =
+      new TimestampedPose(RobotController.getFPGATime(), new Pose2d());
+  public VisionSubsystem visionSubsystem;
+  private double distanceVisionWheelOdom = 0.0;
 
   public DriveSubsystem() {
     var moduleBuilder =
@@ -112,12 +121,40 @@ public class DriveSubsystem extends MeasurableSubsystem {
     // Disabling the holonomic controller makes the robot directly follow the trajectory output (no
     // closing the loop on x,y,theta errors)
     holonomicController.setEnabled(true);
+    odometryStrategy =
+        new PoseEstimatorOdometryStrategy(
+            swerveDrive.getHeading(),
+            new Pose2d(),
+            swerveDrive.getKinematics(),
+            Constants.VisionConstants.kStateStdDevs,
+            Constants.VisionConstants.kLocalMeasurementStdDevs,
+            Constants.VisionConstants.kVisionMeasurementStdDevs);
+    swerveDrive.setOdometry(odometryStrategy);
+  }
+
+  public double distancePose(Pose2d a, Pose2d b) {
+    return a.getTranslation().getDistance(b.getTranslation());
   }
 
   @Override
   public void periodic() {
     // Update swerve module states every robot loop
     swerveDrive.periodic();
+    TimestampedPose pose = visionSubsystem.odomNewPoseViaVision();
+    if (!DriverStation.isAutonomous()) {
+      distanceVisionWheelOdom = distancePose(pose.getPose(), swerveDrive.getPoseMeters());
+      timestampedPose.setPose(pose.getPose());
+      timestampedPose.setTimestamp(pose.getTimestamp());
+      // updateOdometryWithVision(pose.getPose(), pose.getTimestamp());
+    }
+    if (distancePose(pose.getPose(), swerveDrive.getPoseMeters())
+        < DriveConstants.kUpdateThreshold) {
+      updateOdometryWithVision(pose.getPose(), pose.getTimestamp());
+    }
+  }
+
+  public void setVisionSubsystem(VisionSubsystem visionSubsystem) {
+    this.visionSubsystem = visionSubsystem;
   }
 
   public void setOdometry(Rotation2d Odom) {
@@ -278,6 +315,14 @@ public class DriveSubsystem extends MeasurableSubsystem {
     return swerveDrive.getPoseMeters();
   }
 
+  public void updateOdometryWithVision(Pose2d calculatedPose) {
+    odometryStrategy.addVisionMeasurement(calculatedPose, Timer.getFPGATimestamp());
+  }
+
+  public void updateOdometryWithVision(Pose2d calculatedPose, long timestamp) {
+    odometryStrategy.addVisionMeasurement(calculatedPose, timestamp);
+  }
+
   // Holonomic Controller
   public void calculateController(State desiredState, Rotation2d desiredAngle) {
     holoContInput = desiredState;
@@ -332,6 +377,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("Holonomic Cont Vy", () -> holoContOutput.vyMetersPerSecond),
         new Measure("Holonomic Cont Vomega", () -> holoContOutput.omegaRadiansPerSecond),
         new Measure("Trajectory Active", () -> trajectoryActive),
+        new Measure("Timestamp X", () -> timestampedPose.getPose().getX()),
+        new Measure("Timestamp Y", () -> timestampedPose.getPose().getY()),
         new Measure("Wheel 0 Angle", () -> getSwerveModuleStates()[0].angle.getDegrees()),
         new Measure("Wheel 0 Speed", () -> getSwerveModuleStates()[0].speedMetersPerSecond),
         new Measure("Wheel 1 Angle", () -> getSwerveModuleStates()[1].angle.getDegrees()),

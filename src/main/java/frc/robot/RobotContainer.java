@@ -25,10 +25,12 @@ public class RobotContainer {
 
   public RobotContainer() {
     driveSubsystem = new DriveSubsystem();
-    visionSubsystem = new VisionSubsystem();
+    visionSubsystem = new VisionSubsystem(driveSubsystem);
 
     configureTelemetry();
     configureDriverButtonBindings();
+    driveSubsystem.setVisionSubsystem(visionSubsystem);
+    visionSubsystem.setFillBuffers(true);
   }
 
   private void configureTelemetry() {

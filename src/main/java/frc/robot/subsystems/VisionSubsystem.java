@@ -1,11 +1,16 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.util.CircularBuffer;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotController;
+import frc.robot.Constants.VisionConstants;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -23,15 +28,21 @@ import org.strykeforce.telemetry.measurable.Measure;
 public class VisionSubsystem extends MeasurableSubsystem {
   PhotonCamera cam1 = new PhotonCamera("OV9281");
   private static final Logger logger = LoggerFactory.getLogger(VisionSubsystem.class);
+  public static DriveSubsystem driveSubsystem;
+  private CircularBuffer gyroBuffer;
+  private CircularBuffer timestampBuffer;
+  private boolean canFillBuffers = false;
   List<PhotonTrackedTarget> targets;
   PhotonTrackedTarget bestTarget;
   PhotonPipelineResult result;
   double timeStamp;
   AprilTagFieldLayout aprilTagFieldLayout;
   PhotonPoseEstimator photonPoseEstimator;
+  private boolean buffersFull = false;
   Translation2d robotPose = new Translation2d(2767, 2767);
 
-  public VisionSubsystem() {
+  public VisionSubsystem(DriveSubsystem driveSubsystem) {
+    this.driveSubsystem = driveSubsystem;
     try {
       aprilTagFieldLayout =
           new AprilTagFieldLayout(
@@ -94,10 +105,38 @@ public class VisionSubsystem extends MeasurableSubsystem {
     return robotPose;
   }
 
+  public TimestampedPose odomNewPoseViaVision() {
+    // List<PhotonTrackedTarget> gyroBuffer;
+    if (buffersFull) {
+      Rotation2d gyroAngle =
+          new Rotation2d(
+              gyroBuffer.get(
+                  VisionConstants.kBufferLookupOffset)); // driveSubsystem.getGyroRotation2d();
+      // List<PhotonTrackedTarget> timestampBuffer;
+      double timestamp = timestampBuffer.get(VisionConstants.kBufferLookupOffset);
+
+      Pose2d odomPose = new Pose2d(robotPose, gyroAngle);
+      return new TimestampedPose((long) timestamp, odomPose);
+    } else {
+      return new TimestampedPose((long) 2767, new Pose2d());
+    }
+  }
+
+  public void fillBuffers() {
+    gyroBuffer.addFirst(driveSubsystem.getGyroRotation2d().getRadians());
+    timestampBuffer.addFirst(RobotController.getFPGATime());
+    buffersFull = true;
+  }
+
+  public void setFillBuffers(boolean set) {
+    canFillBuffers = set;
+  }
+
   @Override
   public void periodic() {
     try {
       result = cam1.getLatestResult();
+      if (canFillBuffers) fillBuffers();
     } catch (Exception e) {
       logger.info("VISION : GET LATEST FAILED");
     }
