@@ -28,15 +28,18 @@ public class Constants {
   public static final class RobotStateConstants {}
 
   public static final class ArmConstants {
-    public static final double kFrontBumperX = 0.25;
-    public static final double kCamY = 0.21;
+    public static final double kFrontBumperX = 0.30; // old: 0.25
+    public static final double kCamY = 0.26; // Old: 0.21
     public static final double kHouseLineSlope = -2.125;
     public static final double kHouseIntercept = 1.06;
-    public static final double kIntakeMaxY = 0.37;
+    public static final double kIntakeMaxY = 0.52; // 0.45
+    public static final double kHouseMinX = -0.3;
+    public static final double kIntakeX = -0.40;
+    // public static final double kIntakeY = 0.32;
 
     // house limits
     public static final double kShoulderVerticalMin = -1580;
-    public static final double kShoulderVerticalMax = -1290;
+    public static final double kShoulderVerticalMax = -1200; // old: -1290
 
     public static final double kElevatorHouseMin = -27_295;
     public static final double kElevatorHouseMax = ElevatorConstants.kMaxFwd;
@@ -61,7 +64,11 @@ public class Constants {
     public static final double kElevatorPhysicalMin = ElevatorConstants.kMaxRev;
     public static final double kElevatorPhysicalMax = ElevatorConstants.kMaxFwd;
 
-    public static final double kElbowIntakeMin = ElbowConstants.kReverseSoftLimit;
+    // public static final double kElevatorAboveIntakeMin = 0;
+    // public static final double kElevatorBelowIntakeMax = 0;
+
+    public static final double kElbowInsideIntakeMin = ElbowConstants.kReverseSoftLimit;
+    public static final double kElbowIntakeMin = -513;
     public static final double kElbowIntakeMax = -450;
   }
 
@@ -292,7 +299,6 @@ public class Constants {
 
   public static final class ShoulderConstants {
     public static final int kShoulderId = 30; // FIXME
-    public static final int kZeroId = 0; // FIXME
 
     public static final double kShoulderZeroTicks = 1990; // FIXME old: 1836
 
