@@ -71,19 +71,23 @@ public class ArmSubsystem extends MeasurableSubsystem {
     if (handPos.getX() >= ArmConstants.kFrontBumperX && handPos.getY() < ArmConstants.kCamY) {
       return HandRegion.BUMPER;
     } else if ((handPos.getX() >= Constants.ArmConstants.kHouseMinX
-        && handPos.getX() <= Constants.ArmConstants.kFrontBumperX)
-        && (handPos.getY() <= Constants.ArmConstants.kHouseLineSlope * handPos.getX()
-            + Constants.ArmConstants.kHouseIntercept)) {
+            && handPos.getX() <= Constants.ArmConstants.kFrontBumperX)
+        && (handPos.getY()
+            <= Constants.ArmConstants.kHouseLineSlope * handPos.getX()
+                + Constants.ArmConstants.kHouseIntercept)) {
       return HandRegion.HOUSE;
-    } else if (handPos.getX() <= 0 && handPos.getY() <= ArmConstants.kIntakeMaxY) {
+    } else if (handPos.getX() <= Constants.ArmConstants.kHouseMinX
+        && handPos.getY() <= ArmConstants.kIntakeMaxY) {
       if (handPos.getX() <= Constants.ArmConstants.kIntakeX) {
         return HandRegion.INSIDE_INTAKE;
       } else {
         return HandRegion.INTAKE;
       }
-    } else if (handPos.getY() >= ArmConstants.kIntakeMaxY && handPos.getX() <= 0) {
+    } else if (handPos.getY() >= ArmConstants.kIntakeMaxY
+        && handPos.getX() <= Constants.ArmConstants.kHouseMinX) {
       if (shoulderSubsystem.getPos() <= Constants.ArmConstants.kShoulderVerticalMax) {
-        return HandRegion.FRONT;
+        // return HandRegion.FRONT;
+        return HandRegion.ABOVE_INTAKE;
       } else {
         return HandRegion.INTAKE;
       }
@@ -95,16 +99,18 @@ public class ArmSubsystem extends MeasurableSubsystem {
   public Translation2d getHandPosition() {
     final double f = Constants.ShoulderConstants.kElevatorBaseToPivot;
 
-    double elbowAngleWithGround = Math
-        .toRadians(shoulderSubsystem.getDegs() - (90.0 - elbowSubsystem.getRelativeDegs()));
+    double elbowAngleWithGround =
+        Math.toRadians(shoulderSubsystem.getDegs() - (90.0 - elbowSubsystem.getRelativeDegs()));
     double shoulderAngle = Math.toRadians(shoulderSubsystem.getDegs());
 
-    double x = elevatorSubsystem.getExtensionMeters() * Math.cos(shoulderAngle)
-        - f / Math.sin(shoulderAngle)
-        + Constants.ElbowConstants.kLength * Math.cos(elbowAngleWithGround);
-    double y = (elevatorSubsystem.getExtensionMeters() + f / Math.tan(shoulderAngle))
-        * Math.sin(shoulderAngle)
-        + Constants.ElbowConstants.kLength * Math.sin(elbowAngleWithGround);
+    double x =
+        elevatorSubsystem.getExtensionMeters() * Math.cos(shoulderAngle)
+            - f / Math.sin(shoulderAngle)
+            + Constants.ElbowConstants.kLength * Math.cos(elbowAngleWithGround);
+    double y =
+        (elevatorSubsystem.getExtensionMeters() + f / Math.tan(shoulderAngle))
+                * Math.sin(shoulderAngle)
+            + Constants.ElbowConstants.kLength * Math.sin(elbowAngleWithGround);
 
     return new Translation2d(x, y);
   }
@@ -182,13 +188,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ArmConstants.kElevatorPhysicalMax,
         ArmConstants.kElbowPhysicalMin,
         ArmConstants.kElbowPhysicalMax),
-    BACK(
-        ArmConstants.kShoulderPhysicalMin,
-        ArmConstants.kShoulderPhysicalMax,
-        ArmConstants.kElevatorPhysicalMin,
-        ArmConstants.kElevatorPhysicalMax,
-        ArmConstants.kElbowPhysicalMin,
-        ArmConstants.kElbowPhysicalMax),
     HOUSE(
         ArmConstants.kShoulderVerticalMin,
         ArmConstants.kShoulderVerticalMax,
@@ -203,16 +202,22 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ArmConstants.kElevatorPhysicalMax,
         ArmConstants.kElbowIntakeMin,
         ArmConstants.kElbowIntakeMax),
-    INSIDE_INTAKE(
+    ABOVE_INTAKE(
         ArmConstants.kShoulderPhysicalMin,
         ArmConstants.kShoulderPhysicalMax,
         ArmConstants.kElevatorPhysicalMin,
         ArmConstants.kElevatorPhysicalMax,
+        ArmConstants.kElbowAboveIntakeMin,
+        ArmConstants.kElbowPhysicalMax),
+    INSIDE_INTAKE(
+        ArmConstants.kShoulderPhysicalMin,
+        ArmConstants.kShoulderPhysicalMax,
+        ArmConstants.kElevatorPhysicalMin,
+        ArmConstants.kElevatorBelowIntakeMax,
         ArmConstants.kElbowInsideIntakeMin,
         ArmConstants.kElbowIntakeMax),
 
     UNKNOWN(0, 0, 0, 0, 0, 0);
-
     public final double minTicksShoulder,
         maxTicksShoulder,
         minTicksElevator,

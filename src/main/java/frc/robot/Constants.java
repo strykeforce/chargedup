@@ -64,11 +64,11 @@ public class Constants {
     public static final double kElevatorPhysicalMin = ElevatorConstants.kMaxRev;
     public static final double kElevatorPhysicalMax = ElevatorConstants.kMaxFwd;
 
-    // public static final double kElevatorAboveIntakeMin = 0;
-    // public static final double kElevatorBelowIntakeMax = 0;
+    public static final double kElevatorBelowIntakeMax = -41300;
 
     public static final double kElbowInsideIntakeMin = ElbowConstants.kReverseSoftLimit;
-    public static final double kElbowIntakeMin = -513;
+    public static final double kElbowAboveIntakeMin = -440;
+    public static final double kElbowIntakeMin = ElbowConstants.kReverseSoftLimit;
     public static final double kElbowIntakeMax = -450;
   }
 
@@ -311,12 +311,15 @@ public class Constants {
 
     public static final double kAllowedError = 100; // FIXME
 
-    public static final double kShoulderLen = 0.21; // a
-    public static final double kShoulderLowerToElevatorLowerPivotDist = 0.245; // d
+    public static final double kShoulderLen = 0.20; // a 0.21
+    public static final double kShoulderLowerToElevatorLowerPivotDist = 0.242; // d 0.245
     public static final double kShoulderUpperToElevatorUpperPivotDist = 0.1975; // b
     public static final double kElevatorPivotDist = 0.342; // c (old 0.27)
-    public static final double kElevatorBaseToPivot = 0.03; // f (old 0.065)
-    public static final double kElevatorBaseToElevatorUpperPivot = 0.3325; // g (old 0.23)
+    public static final double kElevatorBaseToPivot = 0.05; // f (old 0.065)
+    public static final double kElevatorBaseToElevatorUpperPivot = 0.35; // g (old 0.23
+
+    public static final double kOffsetDegs =
+        Math.toDegrees(Math.asin(0.06 / kShoulderLowerToElevatorLowerPivotDist));
 
     public static TalonSRXConfiguration getShoulderTalonConfig() {
       TalonSRXConfiguration shoulderConfig = new TalonSRXConfiguration();
