@@ -39,13 +39,25 @@ public class RobotContainer {
     // Hand Commands
     ShuffleboardLayout handCommands =
         pitTab.getLayout("Hand", BuiltInLayouts.kGrid).withPosition(0, 0).withSize(1, 9);
-    handCommands.add("Hand Left Stop", new HandLeftSpeedCommand(handSubsystem, 0)).withPosition(0, 0);
-    handCommands.add("Hand Right Stop", new HandRightSpeedCommand(handSubsystem, 0)).withPosition(0, 1);
+    handCommands
+        .add("Hand Left Stop", new HandLeftSpeedCommand(handSubsystem, 0))
+        .withPosition(0, 0);
+    handCommands
+        .add("Hand Right Stop", new HandRightSpeedCommand(handSubsystem, 0))
+        .withPosition(0, 1);
     handCommands.add("Hand Zero", new ZeroHandCommand(handSubsystem)).withPosition(0, 2);
-    handCommands.add("Hand Left In", new HandLeftSpeedCommand(handSubsystem, 0.1)).withPosition(0, 3);
-    handCommands.add("Hand Right In", new HandRightSpeedCommand(handSubsystem, 0.1)).withPosition(0, 4);
-    handCommands.add("Hand Left Out", new HandLeftSpeedCommand(handSubsystem, -0.1)).withPosition(0, 5);
-    handCommands.add("Hand Right Out", new HandRightSpeedCommand(handSubsystem, -0.1)).withPosition(0, 6);
+    handCommands
+        .add("Hand Left In", new HandLeftSpeedCommand(handSubsystem, 0.1))
+        .withPosition(0, 3);
+    handCommands
+        .add("Hand Right In", new HandRightSpeedCommand(handSubsystem, 0.1))
+        .withPosition(0, 4);
+    handCommands
+        .add("Hand Left Out", new HandLeftSpeedCommand(handSubsystem, -0.1))
+        .withPosition(0, 5);
+    handCommands
+        .add("Hand Right Out", new HandRightSpeedCommand(handSubsystem, -0.1))
+        .withPosition(0, 6);
     handCommands.add("Grab Cube", new GrabCubeCommand(handSubsystem)).withPosition(0, 7);
     handCommands.add("Grab Cone", new GrabConeCommand(handSubsystem)).withPosition(0, 8);
   }
