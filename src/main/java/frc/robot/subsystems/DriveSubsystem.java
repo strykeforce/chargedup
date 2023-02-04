@@ -13,13 +13,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
@@ -128,8 +128,18 @@ public class DriveSubsystem extends MeasurableSubsystem {
             swerveDrive.getKinematics(),
             Constants.VisionConstants.kStateStdDevs,
             Constants.VisionConstants.kLocalMeasurementStdDevs,
-            Constants.VisionConstants.kVisionMeasurementStdDevs);
+            Constants.VisionConstants.kVisionMeasurementStdDevs,
+            getSwerveModulePositions());
     swerveDrive.setOdometry(odometryStrategy);
+  }
+
+  public SwerveModulePosition[] getSwerveModulePositions() {
+    SwerveModule[] swerveModules = getSwerveModules();
+    SwerveModulePosition[] temp = {null, null, null, null};
+    for (int i = 0; i < 4; ++i) {
+      temp[i] = swerveModules[i].getPosition();
+    }
+    return temp;
   }
 
   public double distancePose(Pose2d a, Pose2d b) {
@@ -140,17 +150,21 @@ public class DriveSubsystem extends MeasurableSubsystem {
   public void periodic() {
     // Update swerve module states every robot loop
     swerveDrive.periodic();
-    TimestampedPose pose = visionSubsystem.odomNewPoseViaVision();
-    if (!DriverStation.isAutonomous()) {
-      distanceVisionWheelOdom = distancePose(pose.getPose(), swerveDrive.getPoseMeters());
-      timestampedPose.setPose(pose.getPose());
-      timestampedPose.setTimestamp(pose.getTimestamp());
-      // updateOdometryWithVision(pose.getPose(), pose.getTimestamp());
-    }
-    if (distancePose(pose.getPose(), swerveDrive.getPoseMeters())
-        < DriveConstants.kUpdateThreshold) {
-      updateOdometryWithVision(pose.getPose(), pose.getTimestamp());
-    }
+    // TimestampedPose pose = visionSubsystem.odomNewPoseViaVision();
+    // if (!DriverStation.isAutonomous()) {
+    //   distanceVisionWheelOdom = distancePose(pose.getPose(), swerveDrive.getPoseMeters());
+    //   timestampedPose.setPose(pose.getPose());
+    //   timestampedPose.setTimestamp(pose.getTimestamp());
+    //   // updateOdometryWithVision(pose.getPose(), pose.getTimestamp());
+    // }
+    // if (distancePose(pose.getPose(), swerveDrive.getPoseMeters())
+    //     < DriveConstants.kUpdateThreshold) {
+    //   updateOdometryWithVision(pose.getPose(), pose.getTimestamp());
+    // }
+  }
+
+  public double distanceOdometryVision(Pose2d vision) {
+    return distancePose(vision, swerveDrive.getPoseMeters());
   }
 
   public void setVisionSubsystem(VisionSubsystem visionSubsystem) {

@@ -32,7 +32,9 @@ public class Constants {
 
   public static final class DriveConstants {
     // Drive Constants
-    public static final double kWheelDiameterInches = 3.0 * (571.0 / 500.0); // Actual/Odometry
+    public static final Pose2d kOdometryZeroPos =
+        new Pose2d(new Translation2d(1.77, 5.12), new Rotation2d());
+    public static final double kWheelDiameterInches = 3.0 * (563.5 / 500.0); // Actual/Odometry
     public static final double kUpdateThreshold = 0.35;
     public static final double kResetThreshold = 0.005;
     public static final double kPutOdomResetThreshold = 0.35;
@@ -195,6 +197,6 @@ public class Constants {
     // form [x, y, theta]ᵀ, with units in meters and radians.
     // Vision Odometry Standard devs
     public static Matrix<N3, N1> kVisionMeasurementStdDevs =
-        VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5));
+        VecBuilder.fill(.25, .25, Units.degreesToRadians(5));
   }
 }

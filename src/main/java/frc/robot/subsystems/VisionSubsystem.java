@@ -7,9 +7,11 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.CircularBuffer;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotController;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import java.io.IOException;
 import java.util.List;
@@ -55,7 +57,20 @@ public class VisionSubsystem extends MeasurableSubsystem {
             aprilTagFieldLayout,
             PoseStrategy.LOWEST_AMBIGUITY,
             cam1,
-            new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0, 0)));
+            // -.25, .11,0 // 0,10, 187
+            new Transform3d(
+                new Translation3d(0, 0, 0),
+                new Rotation3d(0, Units.degreesToRadians(0), Units.degreesToRadians(0))));
+  }
+
+  public Translation2d cameraOffset() {
+    return new Translation2d(
+        0.273
+            * Math.cos(
+                Units.degreesToRadians(24 - driveSubsystem.getGyroRotation2d().getDegrees())),
+        -0.273
+            * Math.sin(
+                Units.degreesToRadians(24 - driveSubsystem.getGyroRotation2d().getDegrees())));
   }
 
   public double targetDist(int ID) {
@@ -150,6 +165,12 @@ public class VisionSubsystem extends MeasurableSubsystem {
       if (result.hasTargets() && result.getBestTarget().getPoseAmbiguity() <= 0.15) {
         x = photonPoseEstimator.update().get().estimatedPose.getX();
         y = photonPoseEstimator.update().get().estimatedPose.getY();
+        if (driveSubsystem.distanceOdometryVision(
+                new Pose2d(new Translation2d(x, y), new Rotation2d()))
+            <= DriveConstants.kUpdateThreshold)
+          driveSubsystem.updateOdometryWithVision(
+              new Pose2d(new Translation2d(x, y).plus(cameraOffset()), new Rotation2d()),
+              (long) timeStamp);
       }
     } catch (Exception e) {
       logger.error("VISION : ODOMETRY FAIL");
@@ -180,6 +201,8 @@ public class VisionSubsystem extends MeasurableSubsystem {
         new Measure("Time Stamp", () -> timeStamp),
         new Measure("Position From Robot X", () -> getOdometry().getX()),
         new Measure("Position From Robot Y", () -> getOdometry().getY()),
-        new Measure("Has Targets", () -> getHasTargets()));
+        new Measure("Has Targets", () -> getHasTargets()),
+        new Measure("Camera Offset X", () -> cameraOffset().getX()),
+        new Measure("Camera Offset Y", () -> cameraOffset().getY()));
   }
 }
