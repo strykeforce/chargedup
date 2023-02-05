@@ -27,10 +27,11 @@
 | Elevator   | FX       | elevator              | 31 | 5   | falcon |         |
 | Elbow      | FX       | elbow                 | 33 |  4  | falcon |         |
 | Elbow      | Canifier | canifier              | 15 |  23 | -      |         |
-| Hand       | SRX      | hand                  | 40 |     | ??     |         |
+| Hand       | SRX      | hand                  | 40 |  3  | ??     |         |
 
 * elbow uses remote encoder attached to canifier
 * forward limit switch on extend talon = beam break for intake
+* analog input on hand talon = proximity sensor on hand
 
 
 ## Roborio
@@ -49,3 +50,11 @@
 | Auto      | autoSwitch | 4  |
 | Auto      | autoSwitch | 5  |
 | Robot     | BNC        | 6  |
+
+
+## PWM
+| Subsystem | name  | ID |
+| --------- | ----- | -- | 
+| RGB       | red   | 0  |
+| RGB       | green | 1  |
+| RGB       | blue  | 2  | 
