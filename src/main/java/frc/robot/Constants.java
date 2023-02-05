@@ -181,8 +181,8 @@ public class Constants {
     public static final double kApTag7y = 2.748;
     public static final double kApTag8y = 1.072;
 
-    public static final double kYCameraOffset = .09;
-    public static final double kXCameraOffset = .28;
+    public static final double kCameraOffset = .273;
+    public static final double kCameraAngleOffset = 24; // DEGREES
     public static int kBufferLookupOffset = 2;
 
     public static Matrix<N3, N1> kStateStdDevs =

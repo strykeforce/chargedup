@@ -65,12 +65,16 @@ public class VisionSubsystem extends MeasurableSubsystem {
 
   public Translation2d cameraOffset() {
     return new Translation2d(
-        0.273
+        VisionConstants.kCameraOffset
             * Math.cos(
-                Units.degreesToRadians(24 - driveSubsystem.getGyroRotation2d().getDegrees())),
-        -0.273
+                Units.degreesToRadians(
+                    VisionConstants.kCameraAngleOffset
+                        - driveSubsystem.getGyroRotation2d().getDegrees())),
+        -VisionConstants.kCameraOffset
             * Math.sin(
-                Units.degreesToRadians(24 - driveSubsystem.getGyroRotation2d().getDegrees())));
+                Units.degreesToRadians(
+                    VisionConstants.kCameraAngleOffset
+                        - driveSubsystem.getGyroRotation2d().getDegrees())));
   }
 
   public double targetDist(int ID) {
@@ -199,10 +203,14 @@ public class VisionSubsystem extends MeasurableSubsystem {
         new Measure("Num Targets", () -> getNumTargets()),
         new Measure("BestTarget Ambiguity", () -> getAmbiguity()),
         new Measure("Time Stamp", () -> timeStamp),
-        new Measure("Position From Robot X", () -> getOdometry().getX()),
-        new Measure("Position From Robot Y", () -> getOdometry().getY()),
+        new Measure(
+            "Position From Robot X(Offset)", () -> (getOdometry().getX() + cameraOffset().getX())),
+        new Measure(
+            "Position From Robot Y(Offset)", () -> (getOdometry().getY() + cameraOffset().getY())),
         new Measure("Has Targets", () -> getHasTargets()),
         new Measure("Camera Offset X", () -> cameraOffset().getX()),
-        new Measure("Camera Offset Y", () -> cameraOffset().getY()));
+        new Measure("Camera Offset Y", () -> cameraOffset().getY()),
+        new Measure("Camera Odometry X (NO OFFSET)", () -> getOdometry().getX()),
+        new Measure("Camera Odometry Y (NO OFFSET)", () -> getOdometry().getY()));
   }
 }
