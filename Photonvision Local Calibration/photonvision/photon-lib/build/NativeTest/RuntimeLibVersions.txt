@@ -1,0 +1,5 @@
+ntcore-cpp-2023.2-windowsx86-64.1-windowsx86-64 (edu.wpi.first.ntcore:ntcore-cpp:2023.2.1)
+wpinet-cpp-2023.2-windowsx86-64.1-windowsx86-64 (edu.wpi.first.wpinet:wpinet-cpp:2023.2.1)
+hal-cpp-2023.2-windowsx86-64.1-windowsx86-64 (edu.wpi.first.hal:hal-cpp:2023.2.1)
+wpiutil-cpp-2023.2-windowsx86-64.1-windowsx86-64 (edu.wpi.first.wpiutil:wpiutil-cpp:2023.2.1)
+wpimath-cpp-2023.2-windowsx86-64.1-windowsx86-64 (edu.wpi.first.wpimath:wpimath-cpp:2023.2.1)

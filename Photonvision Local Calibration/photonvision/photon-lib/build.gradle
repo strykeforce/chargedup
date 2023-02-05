@@ -1,0 +1,149 @@
+plugins {
+    id 'edu.wpi.first.WpilibTools' version '1.0.0'
+}
+
+import java.nio.file.Path
+
+apply plugin: "cpp"
+apply plugin: "java"
+apply plugin: "google-test-test-suite"
+apply plugin: "edu.wpi.first.NativeUtils"
+
+apply from: "${rootDir}/shared/config.gradle"
+apply from: "${rootDir}/versioningHelper.gradle"
+
+test {
+    useJUnitPlatform()
+}
+
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
+wpilibTools.deps.wpilibVersion = wpilibVersion
+println("Buidling for wpilib ${wpilibTools.deps.wpilibVersion}")
+
+// Apply Java configuration
+dependencies {
+    implementation project(":photon-targeting")
+
+    implementation wpilibTools.deps.wpilibJava("wpiutil")
+    implementation wpilibTools.deps.wpilibJava("wpimath")
+    implementation wpilibTools.deps.wpilibJava("wpinet")
+    implementation wpilibTools.deps.wpilibJava("hal")
+    implementation wpilibTools.deps.wpilibJava("ntcore")
+    implementation wpilibTools.deps.wpilibJava("wpilibj")
+    implementation wpilibTools.deps.wpilibJava("apriltag")
+
+    // Junit
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+}
+
+// Set up exports properly
+nativeUtils {
+    exportsConfigs {
+        // Main library is just default empty. This will export everything
+        Photon {
+        }
+    }
+}
+
+model {
+    components {
+        Photon(NativeLibrarySpec) {
+            sources {
+                cpp {
+                    source {
+                        srcDirs "src/main/native/cpp"
+                        include "**/*.cpp"
+                    }
+                    exportedHeaders {
+                        srcDirs "src/main/native/include"
+                        srcDirs "src/generate/native/include"
+                    }
+                }
+            }
+            nativeUtils.useRequiredLibrary(it, "wpilib_shared")
+            nativeUtils.useRequiredLibrary(it, "apriltag_shared")
+        }
+    }
+    testSuites {
+        cppTest(GoogleTestTestSuiteSpec) {
+            testing $.components.Photon
+
+            sources.cpp {
+                source {
+                    srcDir "src/test/native/cpp"
+                    include "**/*.cpp"
+                }
+            }
+
+            nativeUtils.useRequiredLibrary(it, "wpilib_executable_shared")
+            nativeUtils.useRequiredLibrary(it, "apriltag_shared")
+            nativeUtils.useRequiredLibrary(it, "googletest_static")
+        }
+    }
+}
+
+def photonlibFileInput = file("src/generate/photonlib.json.in")
+ext.photonlibFileOutput = file("$buildDir/generated/vendordeps/photonlib.json")
+
+task generateVendorJson() {
+    description = "Generates the vendor JSON file"
+    group = "PhotonVision"
+
+    outputs.file photonlibFileOutput
+    inputs.file photonlibFileInput
+
+    doLast {
+        println "Writing version ${pubVersion} to $photonlibFileOutput"
+
+        if (photonlibFileOutput.exists()) {
+            photonlibFileOutput.delete()
+        }
+        def read = photonlibFileInput.text.replace('${photon_version}', pubVersion)
+        photonlibFileOutput.write(read)
+    }
+
+    outputs.upToDateWhen { false }
+}
+
+build.dependsOn generateVendorJson
+
+
+task writeCurrentVersion {
+    def versionFileIn = file("${rootDir}/shared/PhotonVersion.java.in")
+    writePhotonVersionFile(versionFileIn, Path.of("$projectDir", "src", "main", "java", "org", "photonvision", "PhotonVersion.java"),
+            versionString)
+    versionFileIn = file("${rootDir}/shared/PhotonVersion.h.in")
+    writePhotonVersionFile(versionFileIn, Path.of("$projectDir", "src", "generate", "native", "include", "PhotonVersion.h"),
+            versionString)
+}
+
+build.dependsOn writeCurrentVersion
+
+tasks.withType(Javadoc) {
+    options.encoding = 'UTF-8'
+}
+
+apply from: "publish.gradle"
+
+def testNativeConfigName = 'wpilibTestNatives'
+def testNativeConfig = configurations.create(testNativeConfigName)
+
+def folder = project.layout.buildDirectory.dir('NativeTest')
+
+def testNativeTasks = wpilibTools.createExtractionTasks {
+    taskPostfix = "Test"
+    configurationName = testNativeConfigName
+    rootTaskFolder.set(folder)
+}
+
+testNativeTasks.addToSourceSetResources(sourceSets.test)
+
+testNativeConfig.dependencies.add wpilibTools.deps.wpilib("ntcore")
+testNativeConfig.dependencies.add wpilibTools.deps.wpilib("wpinet")
+testNativeConfig.dependencies.add wpilibTools.deps.wpilib("hal")
+testNativeConfig.dependencies.add wpilibTools.deps.wpilib("wpiutil")
+testNativeConfig.dependencies.add wpilibTools.deps.wpilib("wpimath")
