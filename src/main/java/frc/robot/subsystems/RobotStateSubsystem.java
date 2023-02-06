@@ -1,7 +1,11 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.Constants;
+
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +63,30 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   public Alliance getAllianceColor() {
     return allianceColor;
+  }
+
+  public Pose2d getAutoPlaceDriveTarget(double yCoord) {
+    int gridIndex =
+        ((yCoord > Constants.RobotStateConstants.kBound1Y) ? 1 : 0)
+            + ((yCoord > Constants.RobotStateConstants.kBound2Y) ? 1 : 0);
+    double targetX = Constants.RobotStateConstants.kAutoPlaceX;
+    double rotation = Math.PI;
+    int offsetCoefficent = getTargetCol().ordinal() - TargetCol.MID.ordinal();
+
+    if (!isBlueAlliance()) {
+      targetX = Constants.RobotStateConstants.kFieldMaxX - targetX;
+      rotation = 0;
+    }
+
+    return new Pose2d(
+        targetX,
+        Constants.RobotStateConstants.kGridY[gridIndex]
+            + Constants.RobotStateConstants.kPoleToCenterOffset * offsetCoefficent,
+        new Rotation2d(rotation));
+  }
+
+  private boolean isBlueAlliance() {
+    return getAllianceColor() == Alliance.Blue;
   }
 
   public enum TargetLevel {
