@@ -36,7 +36,8 @@ public class Constants {
     // Drive Constants
     public static final Pose2d kOdometryZeroPos =
         new Pose2d(new Translation2d(1.77, 5.12), new Rotation2d());
-    public static final double kWheelDiameterInches = 3.0 * (563.5 / 500.0); // Actual/Odometry //575 old number
+    public static final double kWheelDiameterInches =
+        3.0 * (563.5 / 500.0); // Actual/Odometry //575 old number
     public static final double kUpdateThreshold = 0.35;
     public static final double kResetThreshold = 0.005;
     public static final double kPutOdomResetThreshold = 0.35;
@@ -200,6 +201,7 @@ public class Constants {
     public static Matrix<N3, N1> kVisionMeasurementStdDevs =
         VecBuilder.fill(.25, .25, Units.degreesToRadians(5));
   }
+
   public static final class FieldConstants {
     public static final double kFieldLength = 16.54;
   }
