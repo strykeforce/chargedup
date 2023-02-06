@@ -30,7 +30,6 @@ import frc.robot.commands.intake.ToggleIntakeExtendedCommand;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.ElbowSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -39,6 +38,7 @@ import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 import frc.robot.subsystems.ShoulderSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import java.util.Map;
 import org.strykeforce.telemetry.TelemetryController;
 import org.strykeforce.telemetry.TelemetryService;
@@ -57,20 +57,19 @@ public class RobotContainer {
   private final Joystick driveJoystick = new Joystick(0);
   private final TelemetryService telemetryService = new TelemetryService(TelemetryController::new);
 
-  
   private static final double kJoystickDeadband = Constants.kJoystickDeadband;
-  
+
   // Dashboard Widgets
   private SuppliedValueWidget<Boolean> allianceColor;
   private Alliance alliance = Alliance.Invalid;
-  
+
   // Paths
   private DriveAutonCommand testPath;
-  
+
   public RobotContainer() {
     intakeSubsystem = new IntakeSubsystem();
-    visionSubsystem = new VisionSubsystem(driveSubsystem);
     driveSubsystem = new DriveSubsystem();
+    visionSubsystem = new VisionSubsystem(driveSubsystem);
     robotStateSubsystem = new RobotStateSubsystem(TargetLevel.NONE, TargetCol.NONE, GamePiece.NONE);
     driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
     elevatorSubsystem = new ElevatorSubsystem();
@@ -84,21 +83,20 @@ public class RobotContainer {
     elbowSubsystem.registerWith(telemetryService);
     shoulderSubsystem.registerWith(telemetryService);
     visionSubsystem.setFillBuffers(true);
-    
+
     configureTelemetry();
     configurePaths();
     configureDriverButtonBindings();
     configureMatchDashboard();
     configurePitDashboard();
   }
-  
 
   private void configureTelemetry() {
     driveSubsystem.registerWith(telemetryService);
     visionSubsystem.registerWith(telemetryService);
     telemetryService.start();
   }
-  
+
   private void configurePaths() {
     testPath = new DriveAutonCommand(driveSubsystem, "mirrorTestPath", true, true);
 
