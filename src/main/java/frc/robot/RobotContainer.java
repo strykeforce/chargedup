@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
+import frc.robot.commands.drive.ResetOdometryCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elbow.ElbowOpenLoopCommand;
@@ -37,6 +38,7 @@ import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 import frc.robot.subsystems.ShoulderSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import java.util.Map;
 import org.strykeforce.telemetry.TelemetryController;
 import org.strykeforce.telemetry.TelemetryService;
@@ -46,13 +48,13 @@ public class RobotContainer {
 
   private RobotStateSubsystem robotStateSubsystem;
   private final DriveSubsystem driveSubsystem;
+  private final VisionSubsystem visionSubsystem;
   private final ElbowSubsystem elbowSubsystem;
   private final ElevatorSubsystem elevatorSubsystem;
   private final IntakeSubsystem intakeSubsystem;
 
   private final XboxController xboxController = new XboxController(1);
   private final Joystick driveJoystick = new Joystick(0);
-
   private final TelemetryService telemetryService = new TelemetryService(TelemetryController::new);
 
   private static final double kJoystickDeadband = Constants.kJoystickDeadband;
@@ -66,26 +68,33 @@ public class RobotContainer {
 
   public RobotContainer() {
     intakeSubsystem = new IntakeSubsystem();
-
     driveSubsystem = new DriveSubsystem();
+    visionSubsystem = new VisionSubsystem(driveSubsystem);
     robotStateSubsystem = new RobotStateSubsystem(TargetLevel.NONE, TargetCol.NONE, GamePiece.NONE);
     driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
     elevatorSubsystem = new ElevatorSubsystem();
     elbowSubsystem = new ElbowSubsystem();
     shoulderSubsystem = new ShoulderSubsystem();
 
+    driveSubsystem.setVisionSubsystem(visionSubsystem);
     driveSubsystem.registerWith(telemetryService);
     robotStateSubsystem.registerWith(telemetryService);
     elevatorSubsystem.registerWith(telemetryService);
     elbowSubsystem.registerWith(telemetryService);
     shoulderSubsystem.registerWith(telemetryService);
+    visionSubsystem.setFillBuffers(true);
 
-    telemetryService.start();
-
+    configureTelemetry();
     configurePaths();
     configureDriverButtonBindings();
     configureMatchDashboard();
     configurePitDashboard();
+  }
+
+  private void configureTelemetry() {
+    driveSubsystem.registerWith(telemetryService);
+    visionSubsystem.registerWith(telemetryService);
+    telemetryService.start();
   }
 
   private void configurePaths() {
@@ -106,6 +115,11 @@ public class RobotContainer {
         .onTrue(new ZeroGyroCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+        .onTrue(new ResetOdometryCommand(driveSubsystem));
+    // Requires swerve migration to new Pose2D
+    // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
+    // {driveSubsystem.resetOdometry(new Pose2d());},driveSubsystem);
     new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(testPath);
 
     // Elevator testing

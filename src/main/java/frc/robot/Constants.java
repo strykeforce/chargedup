@@ -6,10 +6,15 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.util.Units;
 import java.util.ArrayList;
 
 /**
@@ -29,7 +34,10 @@ public class Constants {
 
   public static final class DriveConstants {
     // Drive Constants
-    public static final double kWheelDiameterInches = 3.0 * (575.0 / 500.0); // Actual/Odometry
+    public static final Pose2d kOdometryZeroPos =
+        new Pose2d(new Translation2d(1.77, 5.12), new Rotation2d());
+    public static final double kWheelDiameterInches =
+        3.0 * (563.5 / 500.0); // Actual/Odometry //575 old number
     public static final double kUpdateThreshold = 0.35;
     public static final double kResetThreshold = 0.005;
     public static final double kPutOdomResetThreshold = 0.35;
@@ -154,6 +162,44 @@ public class Constants {
     public static SupplyCurrentLimitConfiguration getAzimuthSupplyCurrentLimit() {
       return new SupplyCurrentLimitConfiguration(true, 10, 15, 0.04);
     }
+  }
+
+  public static final class VisionConstants {
+    public static final double kApTag1x = 15.514;
+    public static final double kApTag2x = 15.514;
+    public static final double kApTag3x = 15.514;
+    public static final double kApTag4x = 16.179;
+    public static final double kApTag5x = 0.362;
+    public static final double kApTag6x = 1.027;
+    public static final double kApTag7x = 1.027;
+    public static final double kApTag8x = 1.027;
+
+    public static final double kApTag1y = 1.072;
+    public static final double kApTag2y = 2.748;
+    public static final double kApTag3y = 4.424;
+    public static final double kApTag4y = 6.750;
+    public static final double kApTag5y = 6.750;
+    public static final double kApTag6y = 4.424;
+    public static final double kApTag7y = 2.748;
+    public static final double kApTag8y = 1.072;
+
+    public static final double kCameraOffset = .273;
+    public static final double kCameraAngleOffset = 24; // DEGREES
+    public static int kBufferLookupOffset = 2;
+
+    public static Matrix<N3, N1> kStateStdDevs =
+        VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5));
+
+    // Increase these numbers to trust sensor readings from encoders and gyros less. This matrix is
+    // in the form [theta], with units in radians.
+    public static Matrix<N1, N1> kLocalMeasurementStdDevs =
+        VecBuilder.fill(Units.degreesToRadians(0.01));
+
+    // Increase these numbers to trust global measurements from vision less. This matrix is in the
+    // form [x, y, theta]ᵀ, with units in meters and radians.
+    // Vision Odometry Standard devs
+    public static Matrix<N3, N1> kVisionMeasurementStdDevs =
+        VecBuilder.fill(.25, .25, Units.degreesToRadians(5));
   }
 
   public static final class FieldConstants {
