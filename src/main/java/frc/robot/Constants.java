@@ -26,30 +26,31 @@ import java.util.ArrayList;
  * constants are needed, to reduce verbosity.
  */
 public class Constants {
-
   public static final int kTalonConfigTimeout = 10; // ms
   public static final double kDeadeyePowerCycleTimeout = 5; // s
+  public static final double kJoystickDeadband = 0.1;
+
+  public static final class RobotStateConstants {}
 
   public static final class DriveConstants {
     // Drive Constants
     public static final Pose2d kOdometryZeroPos =
         new Pose2d(new Translation2d(1.77, 5.12), new Rotation2d());
-    public static final double kWheelDiameterInches = 3.0 * (563.5 / 500.0); // Actual/Odometry
+    public static final double kWheelDiameterInches = 3.0 * (563.5 / 500.0); // Actual/Odometry //575 old number
     public static final double kUpdateThreshold = 0.35;
     public static final double kResetThreshold = 0.005;
     public static final double kPutOdomResetThreshold = 0.35;
 
-    // From: https://github.com/strykeforce/axis-config/
-    public static final double kMaxSpeedMetersPerSecond = 3.889;
-    public static final double kRobotWidth = 0.625;
-    public static final double kRobotLength = 0.625;
+    // Drive Base Size and Gearing
+    public static final double kMaxSpeedMetersPerSecond = 5.121; // practice bot 3.889
+    public static final double kRobotWidth = 0.5; // practice bot: 0.625
+    public static final double kRobotLength = 0.615; // practice bot: 0.625
 
     public static final double kMaxOmega =
         (kMaxSpeedMetersPerSecond / Math.hypot(kRobotWidth / 2.0, kRobotLength / 2.0))
             / 2.0; // wheel locations below
 
-    // From: https://github.com/strykeforce/axis-config/
-    static final double kDriveMotorOutputGear = 22;
+    static final double kDriveMotorOutputGear = 30; // practice bot: 22
     static final double kDriveInputGear = 48;
     static final double kBevelInputGear = 15;
     static final double kBevelOutputGear = 45;
@@ -149,8 +150,8 @@ public class Constants {
     }
 
     public static TrajectoryConfig getDefaultTrajectoryConfig() {
-      TrajectoryConfig trajectoryConfig = new TrajectoryConfig(1, 1);
-      trajectoryConfig.setReversed(true);
+      TrajectoryConfig trajectoryConfig = new TrajectoryConfig(0.5, 0.5);
+      trajectoryConfig.setReversed(false);
       trajectoryConfig.setStartVelocity(0.0);
       trajectoryConfig.setEndVelocity(0.0);
       return trajectoryConfig;
@@ -198,5 +199,207 @@ public class Constants {
     // Vision Odometry Standard devs
     public static Matrix<N3, N1> kVisionMeasurementStdDevs =
         VecBuilder.fill(.25, .25, Units.degreesToRadians(5));
+  }
+  public static final class FieldConstants {
+    public static final double kFieldLength = 16.54;
+  }
+
+  public static class ElevatorConstants {
+    public static final int kLeftMainId = 31;
+
+    public static final double kAllowedError = 100; // FIXME
+
+    public static final double kElevatorZeroSpeed = 0.1;
+    public static final double kZeroTargetSpeedTicksPer100ms = 5;
+    public static final int kZeroStableCounts = 25;
+
+    public static final double kMaxFwd = -500;
+    public static final double kMaxRev = -62_000;
+
+    public static TalonFXConfiguration getElevatorFalconConfig() {
+      TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
+
+      elevatorConfig.supplyCurrLimit.currentLimit = 80;
+      elevatorConfig.supplyCurrLimit.triggerThresholdCurrent = 90;
+      elevatorConfig.supplyCurrLimit.triggerThresholdTime = 0.1;
+      elevatorConfig.supplyCurrLimit.enable = true;
+
+      elevatorConfig.statorCurrLimit.currentLimit = 100.0;
+      elevatorConfig.statorCurrLimit.triggerThresholdCurrent = 120.0;
+      elevatorConfig.statorCurrLimit.triggerThresholdTime = 0.1;
+      elevatorConfig.statorCurrLimit.enable = true;
+
+      // elevatorConfig.slot0.kP = 1.0;
+      // elevatorConfig.slot0.kI = 0.0;
+      // elevatorConfig.slot0.kD = 0.0;
+      // elevatorConfig.slot0.kF = 0.065;
+      // elevatorConfig.slot0.integralZone = 0;
+      // elevatorConfig.slot0.maxIntegralAccumulator = 0;
+      // elevatorConfig.slot0.allowableClosedloopError = 0;
+      // elevatorConfig.motionCruiseVelocity = 5_000;
+      // elevatorConfig.motionAcceleration = 30_000;
+
+      elevatorConfig.forwardSoftLimitEnable = true;
+      elevatorConfig.forwardSoftLimitThreshold = kMaxFwd;
+      elevatorConfig.reverseSoftLimitEnable = true;
+      elevatorConfig.reverseSoftLimitThreshold = kMaxRev;
+      elevatorConfig.neutralDeadband = 0.01;
+      elevatorConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
+      elevatorConfig.velocityMeasurementWindow = 64;
+      elevatorConfig.voltageCompSaturation = 12;
+      elevatorConfig.voltageMeasurementFilter = 32;
+
+      return elevatorConfig;
+    }
+
+    public static SupplyCurrentLimitConfiguration getElevatorSupplyLimitConfig() {
+      return new SupplyCurrentLimitConfiguration(true, 40, 45, .04);
+    }
+
+    public static SupplyCurrentLimitConfiguration getElevatorZeroSupplyCurrentLimit() {
+      return new SupplyCurrentLimitConfiguration(true, 5, 5, 0.1);
+    }
+  }
+
+  public static final class ElbowConstants {
+    public static final int kElbowFalconID = 33; // 33
+    public static final int kRemoteEncoderID = 15; // 15
+
+    // zero=up&slightly towards the elevator
+    public static final int kZeroTicks = 1878; // FIXME needs real tick values
+    public static final int kForwardSoftLimit = 1905;
+    public static final int kReverseSoftLimit = -506;
+
+    public static final int kCloseEnoughTicks = 20;
+
+    public static TalonFXConfiguration getElbowFalonConfig() {
+
+      TalonFXConfiguration elbowConfig = new TalonFXConfiguration();
+
+      elbowConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 40, 40, 0.5);
+      elbowConfig.voltageMeasurementFilter = 32;
+      elbowConfig.voltageCompSaturation = 12;
+      elbowConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
+      elbowConfig.velocityMeasurementWindow = 64;
+      elbowConfig.neutralDeadband = 0.01;
+
+      return elbowConfig;
+    }
+  }
+
+  public static final double kCanConfigTimeout = 10; // ms
+
+  public static final class ShoulderConstants {
+    public static final int kShoulderId = 30; // FIXME
+    public static final int kZeroId = 0; // FIXME
+
+    public static final double kShoulderZeroTicks = 1836; // FIXME
+
+    public static final double kMaxFwd = -43; // FIXME
+    public static final double kMaxRev = -1490; // FIXME
+
+    public static final double kZeroRads = 0; // FIXME
+
+    public static final double kTicksPerDeg = 0; // FIXME
+
+    public static final double kAllowedError = 0; // FIXME
+
+    public static TalonSRXConfiguration getShoulderTalonConfig() {
+      TalonSRXConfiguration shoulderConfig = new TalonSRXConfiguration();
+
+      // shoulderConfig.slot0.kP = 0.0;
+      // shoulderConfig.slot0.kI = 0.0;
+      // shoulderConfig.slot0.kD = 0.0;
+      // shoulderConfig.slot0.kF = 0.0;
+      // shoulderConfig.slot0.integralZone = 0;
+      // shoulderConfig.slot0.maxIntegralAccumulator = 0;
+      // shoulderConfig.slot0.allowableClosedloopError = 0;
+      // shoulderConfig.motionCruiseVelocity = 0;
+      // shoulderConfig.motionAcceleration = 0;
+
+      shoulderConfig.forwardSoftLimitEnable = true;
+      shoulderConfig.forwardSoftLimitThreshold = kMaxFwd;
+      shoulderConfig.reverseSoftLimitEnable = true;
+      shoulderConfig.reverseSoftLimitThreshold = kMaxRev;
+      shoulderConfig.neutralDeadband = 0.01;
+      shoulderConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
+      shoulderConfig.velocityMeasurementWindow = 64;
+      shoulderConfig.voltageCompSaturation = 12;
+      shoulderConfig.voltageMeasurementFilter = 32;
+
+      return shoulderConfig;
+    }
+
+    public static SupplyCurrentLimitConfiguration getShoulderTalonSupplyLimitConfig() {
+      SupplyCurrentLimitConfiguration shoulderSupplyConfig = new SupplyCurrentLimitConfiguration();
+
+      shoulderSupplyConfig.currentLimit = 40;
+      shoulderSupplyConfig.triggerThresholdCurrent = 45;
+      shoulderSupplyConfig.triggerThresholdTime = .04;
+      shoulderSupplyConfig.enable = true;
+
+      return shoulderSupplyConfig;
+    }
+  }
+
+  public static final class IntakeConstants {
+    // FIXME: need correct values
+
+    public static final int kIntakeFalconID = 20;
+    public static final int kExtendTalonID = 21;
+
+    public static final int kCloseEnoughTicks = 150;
+    public static final int kExtendPosTicks = 1100;
+    public static final int kRetractPosTicks = 10;
+
+    public static final double kIntakeSpeed = -0.5;
+    public static final double kIntakeEjectSpeed = 0.5;
+    public static final double kEjectTimerDelaySec = 3;
+
+    public static final int kIntakeZeroTicks = 2800;
+    public static final int kZeroStableBand = 20;
+
+    public static TalonSRXConfiguration getExtendTalonConfig() {
+      TalonSRXConfiguration talonConfig = new TalonSRXConfiguration();
+
+      talonConfig.forwardSoftLimitEnable = true;
+      talonConfig.forwardSoftLimitThreshold = 1140;
+      talonConfig.reverseSoftLimitEnable = true;
+      talonConfig.reverseSoftLimitThreshold = 0;
+      talonConfig.neutralDeadband = 0.01;
+      talonConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
+      talonConfig.velocityMeasurementWindow = 64;
+      talonConfig.voltageCompSaturation = 12;
+      talonConfig.voltageMeasurementFilter = 32;
+
+      return talonConfig;
+    }
+
+    public static SupplyCurrentLimitConfiguration getTalonSupplyLimitConfig() {
+      SupplyCurrentLimitConfiguration extendSupplyConfig = new SupplyCurrentLimitConfiguration();
+
+      extendSupplyConfig.currentLimit = 20;
+      extendSupplyConfig.triggerThresholdCurrent = 45;
+      extendSupplyConfig.triggerThresholdTime = 0.04;
+      extendSupplyConfig.enable = true;
+
+      return extendSupplyConfig;
+    }
+
+    public static TalonFXConfiguration getIntakeFalconConfig() {
+      TalonFXConfiguration falconConfig = new TalonFXConfiguration();
+
+      falconConfig.neutralDeadband = 0.01;
+      falconConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
+      falconConfig.velocityMeasurementWindow = 64;
+      falconConfig.voltageCompSaturation = 12;
+      falconConfig.voltageMeasurementFilter = 32;
+      falconConfig.supplyCurrLimit.currentLimit = 20;
+      falconConfig.supplyCurrLimit.triggerThresholdCurrent = 45;
+      falconConfig.supplyCurrLimit.triggerThresholdTime = 0.04;
+      falconConfig.supplyCurrLimit.enable = true;
+
+      return falconConfig;
+    }
   }
 }
