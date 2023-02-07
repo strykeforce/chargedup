@@ -1,6 +1,8 @@
 package frc.robot.commands.drive;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -44,11 +46,13 @@ public class DriveToPlaceCommand extends CommandBase {
     // PUT IN CONSTANTS
     State autoDrive =
         new State(
-            3.0,
-            1.0,
-            0.1,
+            100.0,
+            0.8,
+            0.5,
             robotStateSubsystem.getAutoPlaceDriveTarget(driveSubsystem.getPoseMeters().getY()),
             1);
+    
+    Trajectory place = TrajectoryGenerator.generateTrajectory(driveSubsystem.getPoseMeters(), null, robotStateSubsystem.getAutoPlaceDriveTarget(driveSubsystem.getPoseMeters().getY()), null);
     logger.info(
         "Going to ( " + autoDrive.poseMeters.getX() + " , " + autoDrive.poseMeters.getY() + " )");
     driveSubsystem.calculateController(autoDrive, robotHeading);

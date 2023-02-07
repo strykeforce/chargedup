@@ -204,9 +204,9 @@ public class VisionSubsystem extends MeasurableSubsystem {
         new Measure("BestTarget Ambiguity", () -> getAmbiguity()),
         new Measure("Time Stamp", () -> timeStamp),
         new Measure(
-            "Position From Robot X(Offset)", () -> (getOdometry().getX() + cameraOffset().getX())),
+            "Vision Odometry Y(Offset)", () -> (getOdometry().getX() + cameraOffset().getX())),
         new Measure(
-            "Position From Robot Y(Offset)", () -> (getOdometry().getY() + cameraOffset().getY())),
+            "Vision Odometry X(Offset)", () -> (getOdometry().getY() + cameraOffset().getY())),
         new Measure("Has Targets", () -> getHasTargets()),
         new Measure("Camera Offset X", () -> cameraOffset().getX()),
         new Measure("Camera Offset Y", () -> cameraOffset().getY()),
