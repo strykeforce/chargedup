@@ -157,7 +157,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
       result = cam1.getLatestResult();
       if (canFillBuffers) fillBuffers();
     } catch (Exception e) {
-      logger.info("VISION : GET LATEST FAILED");
+      // logger.info("VISION : GET LATEST FAILED");
     }
     if (result.hasTargets()) {
       targets = result.getTargets();
@@ -177,7 +177,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
               (long) timeStamp);
       }
     } catch (Exception e) {
-      logger.error("VISION : ODOMETRY FAIL");
+      // logger.error("VISION : ODOMETRY FAIL");
     }
     robotPose = new Translation2d(x, y);
     // result.setTimestampSeconds(timeStamp);

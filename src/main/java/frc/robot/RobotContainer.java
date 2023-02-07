@@ -18,15 +18,14 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
+import frc.robot.commands.drive.DriveToPlaceCommand;
 import frc.robot.commands.drive.ResetOdometryCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
-import frc.robot.commands.elbow.ElbowOpenLoopCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
-import frc.robot.commands.intake.ToggleIntakeExtendedCommand;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.subsystems.DriveSubsystem;
@@ -99,13 +98,6 @@ public class RobotContainer {
 
   private void configurePaths() {
     testPath = new DriveAutonCommand(driveSubsystem, "mirrorTestPath", true, true);
-
-    new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
-        .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
-        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, -0.45));
-    new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
-        .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
-        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, 0.4));
   }
 
   private void configureDriverButtonBindings() {
@@ -113,6 +105,8 @@ public class RobotContainer {
         new DriveTeleopCommand(driveJoystick, driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.RESET.id)
         .onTrue(new ZeroGyroCommand(driveSubsystem));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+        .onTrue(new DriveToPlaceCommand(driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
@@ -120,32 +114,38 @@ public class RobotContainer {
     // Requires swerve migration to new Pose2D
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
     // {driveSubsystem.resetOdometry(new Pose2d());},driveSubsystem);
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(testPath);
 
-    // Elevator testing
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
-        .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, -0.2))
-        .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-        .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, 0.2))
-        .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
-    new JoystickButton(driveJoystick, InterlinkButton.DOWN.id)
-        .onTrue(new ZeroElevatorCommand(elevatorSubsystem));
+    //   // Shoulder Testing
+    //   new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
+    //       .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
+    //       .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, -0.45));
+    //   new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
+    //       .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
+    //       .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, 0.4));
+    //   // Elevator testing
+    //   new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
+    //       .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, -0.2))
+    //       .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
+    //   new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+    //     .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, 0.2))
+    //     .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
+    // new JoystickButton(driveJoystick, InterlinkButton.DOWN.id)
+    //     .onTrue(new ZeroElevatorCommand(elevatorSubsystem));
 
-    // Elbow testing
-    new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
-        .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.1));
-    new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
-        .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
+    // // Elbow testing
+    // new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
+    //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
+    //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.1));
+    // new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
+    //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
+    //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
 
-    // intake buttons
-    // new JoystickButton(xboxController, 3).onTrue(new
-    // ToggleIntakeExtendedCommand(intakeSubsystem));
-    new JoystickButton(driveJoystick, Shoulder.RIGHT_DOWN.id)
-        .onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem))
-        .onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));
+    // // intake buttons
+    // // new JoystickButton(xboxController, 3).onTrue(new
+    // // ToggleIntakeExtendedCommand(intakeSubsystem));
+    // new JoystickButton(driveJoystick, Shoulder.RIGHT_DOWN.id)
+    //     .onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem))
+    //     .onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));
   }
 
   public Command getAutonomousCommand() {
