@@ -76,22 +76,36 @@ public class ArmSubsystem extends MeasurableSubsystem {
             <= Constants.ArmConstants.kHouseLineSlope * handPos.getX()
                 + Constants.ArmConstants.kHouseIntercept)) {
       return HandRegion.HOUSE;
-    } else if (handPos.getX() <= Constants.ArmConstants.kHouseMinX
-        && handPos.getY() <= ArmConstants.kIntakeMaxY) {
-      if (handPos.getX() <= Constants.ArmConstants.kIntakeX) {
-        return HandRegion.INSIDE_INTAKE;
-      } else {
-        return HandRegion.INTAKE;
-      }
-    } else if (handPos.getY() >= ArmConstants.kIntakeMaxY
-        && handPos.getX() <= Constants.ArmConstants.kHouseMinX) {
-      if (shoulderSubsystem.getPos() <= Constants.ArmConstants.kShoulderVerticalMax) {
-        // return HandRegion.FRONT;
-        return HandRegion.ABOVE_INTAKE;
-      } else {
-        return HandRegion.INTAKE;
-      }
-    }
+      } else if (handPos.getX() <= ArmConstants.kIntakeX) 
+        {if (handPos.getY() <= ArmConstants.kIntakeMaxY) {
+            return HandRegion.INSIDE_INTAKE;
+          } else {
+            return HandRegion.ABOVE_INTAKE;
+          }
+        } else if(handPos.getX() < ArmConstants.kHouseMinX 
+            && handPos.getX() > ArmConstants.kIntakeX) {
+          if (shoulderSubsystem.getPos() <= Constants.ArmConstants.kShoulderVerticalMax) {
+          return HandRegion.HOUSE;
+        } else {
+          return HandRegion.INTAKE;
+        }}
+          
+    // } else if (handPos.getX() <= Constants.ArmConstants.kHouseMinX
+    //     && handPos.getY() <= ArmConstants.kIntakeMaxY) {
+    //   if (handPos.getX() <= Constants.ArmConstants.kIntakeX) {
+    //     return HandRegion.INSIDE_INTAKE;
+    //   } else {
+    //     return HandRegion.INTAKE;
+    //   }
+    // } else if (handPos.getY() >= ArmConstants.kIntakeMaxY
+    //     && handPos.getX() <= Constants.ArmConstants.kHouseMinX) {
+    //   if (shoulderSubsystem.getPos() <= Constants.ArmConstants.kShoulderVerticalMax) {
+    //     // return HandRegion.FRONT;
+    //     return HandRegion.ABOVE_INTAKE;
+    //   } else {
+    //     return HandRegion.INTAKE;
+    //   }
+    // }
 
     return HandRegion.FRONT; // Assume arm is free
   }
@@ -104,13 +118,15 @@ public class ArmSubsystem extends MeasurableSubsystem {
     double shoulderAngle = Math.toRadians(shoulderSubsystem.getDegs());
 
     double x =
-        elevatorSubsystem.getExtensionMeters() * Math.cos(shoulderAngle)
-            - f / Math.sin(shoulderAngle)
-            + Constants.ElbowConstants.kLength * Math.cos(elbowAngleWithGround);
+        (elevatorSubsystem.getExtensionMeters()) * Math.cos(shoulderAngle)
+            - f * Math.cos(Math.PI/2 - shoulderAngle)
+            + Constants.ElbowConstants.kLength * Math.cos(elbowAngleWithGround)
+            + ArmConstants.kelevatorToElbowPivot * Math.cos(Math.PI/2 - shoulderAngle);
     double y =
         (elevatorSubsystem.getExtensionMeters() + f / Math.tan(shoulderAngle))
                 * Math.sin(shoulderAngle)
-            + Constants.ElbowConstants.kLength * Math.sin(elbowAngleWithGround);
+            + Constants.ElbowConstants.kLength * Math.sin(elbowAngleWithGround)
+            - ArmConstants.kelevatorToElbowPivot * Math.sin(Math.PI/2 - shoulderAngle);
 
     return new Translation2d(x, y);
   }

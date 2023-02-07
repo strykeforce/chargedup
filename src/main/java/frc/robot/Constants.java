@@ -32,9 +32,10 @@ public class Constants {
     public static final double kCamY = 0.26; // Old: 0.21
     public static final double kHouseLineSlope = -2.125;
     public static final double kHouseIntercept = 1.06;
-    public static final double kIntakeMaxY = 0.52; // 0.45
-    public static final double kHouseMinX = -0.3;
-    public static final double kIntakeX = -0.40;
+    public static final double kIntakeMaxY = 0.35; // 0.45
+    public static final double kHouseMinX = -0.10; //-0.3 
+    public static final double kIntakeX = -0.35;
+    public static final double kelevatorToElbowPivot = 0.075;
     // public static final double kIntakeY = 0.32;
 
     // house limits
@@ -215,7 +216,7 @@ public class Constants {
     public static final int kZeroStableCounts = 10; // old 25
 
     public static final double kMaxFwd = -500;
-    public static final double kMaxRev = -49_047;
+    public static final double kMaxRev = -49_325;
 
     public static final double kTicksPerMeter = 62000.0 / 0.4; // FIXME
     public static final double kMaxExtension = 1.23; // FIXME meters
