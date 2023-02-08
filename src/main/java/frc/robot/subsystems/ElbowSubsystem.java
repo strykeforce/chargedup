@@ -87,6 +87,10 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
     return elbowFalcon.getSelectedSensorPosition();
   }
 
+  public boolean isFinished() {
+    return Math.abs(setPointTicks - getPos()) <= Constants.ElbowConstants.kCloseEnoughTicks;
+  }
+
   public void setSoftLimits(double minTicks, double maxTicks) {
     elbowFalcon.configForwardSoftLimitThreshold(maxTicks);
     elbowFalcon.configReverseSoftLimitThreshold(minTicks);

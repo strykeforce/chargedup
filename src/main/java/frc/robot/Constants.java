@@ -33,7 +33,7 @@ public class Constants {
     public static final double kHouseLineSlope = -2.125;
     public static final double kHouseIntercept = 1.06;
     public static final double kIntakeMaxY = 0.35; // 0.45
-    public static final double kHouseMinX = -0.10; //-0.3 
+    public static final double kHouseMinX = -0.10; // -0.3
     public static final double kIntakeX = -0.35;
     public static final double kelevatorToElbowPivot = 0.075;
     // public static final double kIntakeY = 0.32;
