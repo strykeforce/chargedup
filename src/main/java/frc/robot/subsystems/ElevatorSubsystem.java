@@ -35,7 +35,6 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
     rightFollowFalcon.setNeutralMode(NeutralMode.Brake);
     rightFollowFalcon.follow(leftMainFalcon);
 
-
     elevatorZeroStableCounts = 0;
     desiredPosition = getPos();
     elevatorState = ElevatorState.IDLE;
