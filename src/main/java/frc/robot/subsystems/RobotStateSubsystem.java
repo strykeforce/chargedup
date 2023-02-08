@@ -9,16 +9,18 @@ import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
 import org.strykeforce.telemetry.measurable.Measure;
 
 public class RobotStateSubsystem extends MeasurableSubsystem {
-  private TargetLevel targetLevel;
-  private TargetCol targetCol;
-  private GamePiece gamePiece;
+  private IntakeSubsystem intakeSubsystem;
+  // private ArmSubsystem armSubsystem;
+  private TargetLevel targetLevel = TargetLevel.NONE;
+  private TargetCol targetCol = TargetCol.NONE;
+  private GamePiece gamePiece = GamePiece.NONE;
+  private RobotState currRobotState;
+  private RobotState nextRobotState;
   private Logger logger = LoggerFactory.getLogger(RobotStateSubsystem.class);
   private Alliance allianceColor = DriverStation.getAlliance();
 
-  public RobotStateSubsystem(TargetLevel targetLevel, TargetCol targetCol, GamePiece gamePiece) {
-    this.targetLevel = targetLevel;
-    this.targetCol = targetCol;
-    this.gamePiece = gamePiece;
+  public RobotStateSubsystem(IntakeSubsystem intakeSubsystem) {
+    this.intakeSubsystem = intakeSubsystem;
   }
 
   public void setTargetLevel(TargetLevel targetLevel) {
@@ -61,6 +63,35 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     return allianceColor;
   }
 
+  @Override
+  public void periodic() {
+    switch (currRobotState) {
+      case STOW:
+        intakeSubsystem.retractIntake();
+        if (intakeSubsystem.isIntakeAtPos()) {
+          // armSubsystem.setArmState(ArmState.STOW);
+        }
+        break;
+      case SHELF_PICKUP:
+        break;
+      case FLOOR_PICKUP:
+        break;
+      case LVL_1_SCORE:
+        break;
+      case LVL_2_SCORE:
+        break;
+      case LVL_3_SCORE:
+        break;
+      case INTAKE:
+        intakeSubsystem.startIntaking();
+        break;
+      case AUTO_BALANCE:
+        break;
+      case AUTO_ALIGN:
+        break;
+    }
+  }
+
   public enum TargetLevel {
     NONE,
     LOW,
@@ -80,4 +111,16 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     CUBE,
     CONE
   };
+
+  private enum RobotState {
+    STOW,
+    SHELF_PICKUP,
+    FLOOR_PICKUP,
+    LVL_1_SCORE,
+    LVL_2_SCORE,
+    LVL_3_SCORE,
+    INTAKE,
+    AUTO_BALANCE,
+    AUTO_ALIGN
+  }
 }
