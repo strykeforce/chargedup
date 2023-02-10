@@ -3,8 +3,6 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.CANifier;
 import com.ctre.phoenix.CANifier.PWMChannel;
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.RemoteFeedbackDevice;
-import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import frc.robot.Constants.ElbowConstants;
 import java.util.Set;
@@ -27,10 +25,6 @@ public class ElbowSubsystem extends MeasurableSubsystem {
 
     remoteEncoder = new CANifier(ElbowConstants.kRemoteEncoderID);
 
-    elbowFalcon.configSelectedFeedbackSensor(RemoteFeedbackDevice.RemoteSensor0);
-    elbowFalcon.configRemoteFeedbackFilter(
-        ElbowConstants.kRemoteEncoderID, RemoteSensorSource.CANifier_Quadrature, 0);
-
     elbowFalcon.configForwardSoftLimitThreshold(ElbowConstants.kForwardSoftLimit);
     elbowFalcon.configForwardSoftLimitEnable(true);
     elbowFalcon.configReverseSoftLimitThreshold(ElbowConstants.kReverseSoftLimit);
@@ -48,7 +42,7 @@ public class ElbowSubsystem extends MeasurableSubsystem {
   private void zeroElbow() {
     int absoluteTicks = getPulseWidthFor(PWMChannel.PWMChannel0);
     int offset = absoluteTicks - ElbowConstants.kZeroTicks;
-    // elbowFalcon.setSelectedSensorPosition(offset);
+    elbowFalcon.setSelectedSensorPosition(offset);
     remoteEncoder.setQuadraturePosition(offset, 10);
     logger.info(
         "Zeroed elbow, absolute: {}, offset: {}, zero ticks: {}",
@@ -65,6 +59,11 @@ public class ElbowSubsystem extends MeasurableSubsystem {
   public void rotateClosedLoop(int posTicks) {
     elbowFalcon.set(ControlMode.MotionMagic, posTicks);
     setPointTicks = posTicks;
+  }
+
+  public double getRelativeDegs() {
+    return ElbowConstants.kZeroDegs
+        + getPulseWidthFor(PWMChannel.PWMChannel0) / ElbowConstants.kTicksPerDeg;
   }
 
   public boolean isElbowAtPos() {

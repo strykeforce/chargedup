@@ -273,6 +273,10 @@ public class Constants {
     public static final int kForwardSoftLimit = 1905;
     public static final int kReverseSoftLimit = -506;
 
+    public static final double kZeroDegs = -90; // FIXME
+    public static final double kTicksPerDeg = 4096.0 / 360.0; // FIXME
+    public static final double kLength = 0.7855; // m
+
     public static final int kCloseEnoughTicks = 20;
 
     public static TalonFXConfiguration getElbowFalonConfig() {
