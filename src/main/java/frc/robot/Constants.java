@@ -208,6 +208,7 @@ public class Constants {
 
   public static class ElevatorConstants {
     public static final int kLeftMainId = 31;
+    public static final int kRightFollowId = 32;
 
     public static final double kAllowedError = 100; // FIXME
 
