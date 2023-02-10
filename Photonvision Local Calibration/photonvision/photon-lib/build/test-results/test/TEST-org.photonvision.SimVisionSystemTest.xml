@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.photonvision.SimVisionSystemTest" tests="42" skipped="0" failures="0" errors="0" timestamp="2023-02-05T20:54:18" hostname="DESKTOP-G1E6HPG" time="0.311">
+  <properties/>
+  <testcase name="testNotVisibleVert1()" classname="org.photonvision.SimVisionSystemTest" time="0.033"/>
+  <testcase name="testNotVisibleVert2()" classname="org.photonvision.SimVisionSystemTest" time="0.001"/>
+  <testcase name="[1] -10.0" classname="org.photonvision.SimVisionSystemTest" time="0.04"/>
+  <testcase name="[2] -5.0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[3] 0.0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[4] -1.0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[5] -2.0" classname="org.photonvision.SimVisionSystemTest" time="0.001"/>
+  <testcase name="[6] 5.0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[7] 7.0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[8] 10.23" classname="org.photonvision.SimVisionSystemTest" time="0.003"/>
+  <testcase name="testEmpty()" classname="org.photonvision.SimVisionSystemTest" time="0.02"/>
+  <testcase name="testNotVisibleTgtSize()" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[1] 5, 15.98, 0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[2] 6, 15.98, 1" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[3] 10, 15.98, 0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[4] 15, 15.98, 2" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[5] 19.95, 15.98, 0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[6] 20, 15.98, 0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[7] 5, 42, 1" classname="org.photonvision.SimVisionSystemTest" time="0.001"/>
+  <testcase name="[8] 6, 42, 0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[9] 10, 42, 2" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[10] 15, 42, 0.5" classname="org.photonvision.SimVisionSystemTest" time="0.001"/>
+  <testcase name="[11] 19.42, 15.98, 0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[12] 20, 42, 0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[13] 5, 55, 2" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[14] 6, 55, 0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[15] 10, 54, 2.2" classname="org.photonvision.SimVisionSystemTest" time="0.001"/>
+  <testcase name="[16] 15, 53, 0" classname="org.photonvision.SimVisionSystemTest" time="0.003"/>
+  <testcase name="[17] 19.52, 15.98, 1.1" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="testMultipleTargets()" classname="org.photonvision.SimVisionSystemTest" time="0.003"/>
+  <testcase name="testVisibilityCupidShuffle()" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[1] -10.0" classname="org.photonvision.SimVisionSystemTest" time="0.003"/>
+  <testcase name="[2] -5.0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[3] 0.0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[4] -1.0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[5] -2.0" classname="org.photonvision.SimVisionSystemTest" time="0.001"/>
+  <testcase name="[6] 5.0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[7] 7.0" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[8] 10.23" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[9] 20.21" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <testcase name="[10] -19.999" classname="org.photonvision.SimVisionSystemTest" time="0.003"/>
+  <testcase name="testNotVisibleTooFarForLEDs()" classname="org.photonvision.SimVisionSystemTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

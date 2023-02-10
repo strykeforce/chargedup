@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.photonvision.PhotonPoseEstimatorTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2023-02-05T20:54:18" hostname="DESKTOP-G1E6HPG" time="0.072">
+  <properties/>
+  <testcase name="testLowestAmbiguityStrategy()" classname="org.photonvision.PhotonPoseEstimatorTest" time="0.048"/>
+  <testcase name="closestToLastPose()" classname="org.photonvision.PhotonPoseEstimatorTest" time="0.009"/>
+  <testcase name="averageBestPoses()" classname="org.photonvision.PhotonPoseEstimatorTest" time="0.005"/>
+  <testcase name="testClosestToCameraHeightStrategy()" classname="org.photonvision.PhotonPoseEstimatorTest" time="0.003"/>
+  <testcase name="closestToReferencePoseStrategy()" classname="org.photonvision.PhotonPoseEstimatorTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
