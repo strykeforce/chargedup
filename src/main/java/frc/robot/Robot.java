@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -18,10 +19,12 @@ public class Robot extends TimedRobot {
   private static final Logger logger = LoggerFactory.getLogger(Robot.class);
 
   private RobotContainer m_robotContainer;
+  private boolean haveAlliance;
 
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
+    haveAlliance = false;
 
     Shuffleboard.getTab("Match")
         .add("SetAllianceRed", new SetAllianceCommand(Alliance.Red, m_robotContainer))
@@ -39,6 +42,14 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
     // CommandScheduler.getInstance()
     //     .onCommandInitialize(command -> logger.info("{} initialized", command.getName()));
+    if (!haveAlliance) {
+      Alliance alliance = DriverStation.getAlliance();
+      if (alliance != Alliance.Invalid) {
+        haveAlliance = true;
+        m_robotContainer.setAllianceColor(alliance);
+        logger.info("Set Alliance {}", alliance);
+      }
+    }
   }
 
   @Override
