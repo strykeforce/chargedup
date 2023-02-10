@@ -67,7 +67,8 @@ public class Constants {
 
     public static final double kElevatorBelowIntakeMax = -41300;
 
-    public static final double kElbowInsideIntakeMin = ElbowConstants.kReverseSoftLimit;
+    public static final double kElbowInsideIntakeMin = ElbowConstants.kReverseSoftLimit - 100;
+    public static final double kElbowInsideIntakeMax = -450;
     public static final double kElbowAboveIntakeMin = -440;
     public static final double kElbowIntakeMin = ElbowConstants.kReverseSoftLimit;
     public static final double kElbowIntakeMax = -450;
@@ -303,8 +304,8 @@ public class Constants {
 
     public static final double kShoulderZeroTicks = 1990; // FIXME old: 1836
 
-    public static final double kMaxFwd = 887; // FIXME
-    public static final double kMaxRev = -1580; // FIXME
+    public static final double kMaxFwd = 500; // FIXME 887
+    public static final double kMaxRev = -1700; // FIXME -1580
 
     public static final double kZeroDegs = 0; // FIXME
 
@@ -325,15 +326,15 @@ public class Constants {
     public static TalonSRXConfiguration getShoulderTalonConfig() {
       TalonSRXConfiguration shoulderConfig = new TalonSRXConfiguration();
 
-      // shoulderConfig.slot0.kP = 0.0;
-      // shoulderConfig.slot0.kI = 0.0;
-      // shoulderConfig.slot0.kD = 0.0;
-      // shoulderConfig.slot0.kF = 0.0;
-      // shoulderConfig.slot0.integralZone = 0;
-      // shoulderConfig.slot0.maxIntegralAccumulator = 0;
-      // shoulderConfig.slot0.allowableClosedloopError = 0;
-      // shoulderConfig.motionCruiseVelocity = 0;
-      // shoulderConfig.motionAcceleration = 0;
+      shoulderConfig.slot0.kP = 2.0;
+      shoulderConfig.slot0.kI = 0.0;
+      shoulderConfig.slot0.kD = 60.0;
+      shoulderConfig.slot0.kF = 2.0;
+      shoulderConfig.slot0.integralZone = 0;
+      shoulderConfig.slot0.maxIntegralAccumulator = 0;
+      shoulderConfig.slot0.allowableClosedloopError = 0;
+      shoulderConfig.motionCruiseVelocity = 200.0;
+      shoulderConfig.motionAcceleration = 200.0;
 
       shoulderConfig.forwardSoftLimitEnable = true;
       shoulderConfig.forwardSoftLimitThreshold = kMaxFwd;
@@ -351,9 +352,9 @@ public class Constants {
     public static SupplyCurrentLimitConfiguration getShoulderTalonSupplyLimitConfig() {
       SupplyCurrentLimitConfiguration shoulderSupplyConfig = new SupplyCurrentLimitConfiguration();
 
-      shoulderSupplyConfig.currentLimit = 40;
-      shoulderSupplyConfig.triggerThresholdCurrent = 45;
-      shoulderSupplyConfig.triggerThresholdTime = .04;
+      shoulderSupplyConfig.currentLimit = 5;
+      shoulderSupplyConfig.triggerThresholdCurrent = 5;
+      shoulderSupplyConfig.triggerThresholdTime = .1;
       shoulderSupplyConfig.enable = true;
 
       return shoulderSupplyConfig;

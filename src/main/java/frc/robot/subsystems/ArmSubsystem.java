@@ -200,7 +200,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
       case MANUAL:
         break;
 
-      // Transitional states
+        // Transitional states
       case LOW_ELBOW:
         if (desiredState == ArmState.LOW) {
           attemptSetArmState(ArmState.LOW_SHOULDER);
@@ -316,7 +316,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ArmConstants.kElevatorPhysicalMin,
         ArmConstants.kElevatorBelowIntakeMax,
         ArmConstants.kElbowInsideIntakeMin,
-        ArmConstants.kElbowIntakeMax),
+        ArmConstants.kElbowInsideIntakeMax),
 
     UNKNOWN(0, 0, 0, 0, 0, 0);
     public final double minTicksShoulder,
