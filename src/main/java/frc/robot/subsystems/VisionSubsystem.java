@@ -11,7 +11,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.CircularBuffer;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import java.io.IOException;
 import java.util.List;
@@ -169,12 +168,9 @@ public class VisionSubsystem extends MeasurableSubsystem {
       if (result.hasTargets() && result.getBestTarget().getPoseAmbiguity() <= 0.15) {
         x = photonPoseEstimator.update().get().estimatedPose.getX();
         y = photonPoseEstimator.update().get().estimatedPose.getY();
-        if (driveSubsystem.distanceOdometryVision(
-                new Pose2d(new Translation2d(x, y), new Rotation2d()))
-            <= DriveConstants.kUpdateThreshold)
-          driveSubsystem.updateOdometryWithVision(
-              new Pose2d(new Translation2d(x, y).plus(cameraOffset()), new Rotation2d()),
-              (long) timeStamp);
+        // driveSubsystem.updateOdometryWithVision(
+        //     new Pose2d(new Translation2d(x, y).plus(cameraOffset()), new Rotation2d()),
+        //     (long) timeStamp);
       }
     } catch (Exception e) {
       // logger.error("VISION : ODOMETRY FAIL");
@@ -204,9 +200,9 @@ public class VisionSubsystem extends MeasurableSubsystem {
         new Measure("BestTarget Ambiguity", () -> getAmbiguity()),
         new Measure("Time Stamp", () -> timeStamp),
         new Measure(
-            "Vision Odometry Y(Offset)", () -> (getOdometry().getX() + cameraOffset().getX())),
+            "Vision Odometry X(Offset)", () -> (getOdometry().getX() + cameraOffset().getX())),
         new Measure(
-            "Vision Odometry X(Offset)", () -> (getOdometry().getY() + cameraOffset().getY())),
+            "Vision Odometry Y(Offset)", () -> (getOdometry().getY() + cameraOffset().getY())),
         new Measure("Has Targets", () -> getHasTargets()),
         new Measure("Camera Offset X", () -> cameraOffset().getX()),
         new Measure("Camera Offset Y", () -> cameraOffset().getY()),

@@ -83,6 +83,9 @@ public class RobotContainer {
     shoulderSubsystem.registerWith(telemetryService);
     visionSubsystem.setFillBuffers(true);
 
+    // FIX ME
+    robotStateSubsystem.setAllianceColor(Alliance.Blue);
+
     configureTelemetry();
     configurePaths();
     configureDriverButtonBindings();
@@ -223,7 +226,6 @@ public class RobotContainer {
         Map.of(
             "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
     robotStateSubsystem.setAllianceColor(alliance);
-    testPath.generateTrajectory();
   }
 
   // Interlink Controller Mapping
