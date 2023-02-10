@@ -6,10 +6,15 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.util.Units;
 import java.util.ArrayList;
 
 /**
@@ -76,7 +81,10 @@ public class Constants {
 
   public static final class DriveConstants {
     // Drive Constants
-    public static final double kWheelDiameterInches = 3.0 * (575.0 / 500.0); // Actual/Odometry
+    public static final Pose2d kOdometryZeroPos =
+        new Pose2d(new Translation2d(1.77, 5.12), new Rotation2d());
+    public static final double kWheelDiameterInches =
+        3.0 * (563.5 / 500.0); // Actual/Odometry //575 old number
     public static final double kUpdateThreshold = 0.35;
     public static final double kResetThreshold = 0.005;
     public static final double kPutOdomResetThreshold = 0.35;
@@ -203,12 +211,51 @@ public class Constants {
     }
   }
 
+  public static final class VisionConstants {
+    public static final double kApTag1x = 15.514;
+    public static final double kApTag2x = 15.514;
+    public static final double kApTag3x = 15.514;
+    public static final double kApTag4x = 16.179;
+    public static final double kApTag5x = 0.362;
+    public static final double kApTag6x = 1.027;
+    public static final double kApTag7x = 1.027;
+    public static final double kApTag8x = 1.027;
+
+    public static final double kApTag1y = 1.072;
+    public static final double kApTag2y = 2.748;
+    public static final double kApTag3y = 4.424;
+    public static final double kApTag4y = 6.750;
+    public static final double kApTag5y = 6.750;
+    public static final double kApTag6y = 4.424;
+    public static final double kApTag7y = 2.748;
+    public static final double kApTag8y = 1.072;
+
+    public static final double kCameraOffset = .273;
+    public static final double kCameraAngleOffset = 24; // DEGREES
+    public static int kBufferLookupOffset = 2;
+
+    public static Matrix<N3, N1> kStateStdDevs =
+        VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5));
+
+    // Increase these numbers to trust sensor readings from encoders and gyros less. This matrix is
+    // in the form [theta], with units in radians.
+    public static Matrix<N1, N1> kLocalMeasurementStdDevs =
+        VecBuilder.fill(Units.degreesToRadians(0.01));
+
+    // Increase these numbers to trust global measurements from vision less. This matrix is in the
+    // form [x, y, theta]ᵀ, with units in meters and radians.
+    // Vision Odometry Standard devs
+    public static Matrix<N3, N1> kVisionMeasurementStdDevs =
+        VecBuilder.fill(.25, .25, Units.degreesToRadians(5));
+  }
+
   public static final class FieldConstants {
     public static final double kFieldLength = 16.54;
   }
 
   public static class ElevatorConstants {
     public static final int kLeftMainId = 31;
+    public static final int kRightFollowId = 32;
 
     public static final double kAllowedError = 100; // FIXME
 
@@ -276,11 +323,11 @@ public class Constants {
     public static final int kForwardSoftLimit = 1905;
     public static final int kReverseSoftLimit = -506;
 
-    public static final int kCloseEnoughTicks = 20;
-
     public static final double kZeroDegs = -90; // FIXME
     public static final double kTicksPerDeg = 4096.0 / 360.0; // FIXME
     public static final double kLength = 0.7855; // m
+
+    public static final int kCloseEnoughTicks = 20;
 
     public static TalonFXConfiguration getElbowFalonConfig() {
 
@@ -358,6 +405,120 @@ public class Constants {
       shoulderSupplyConfig.enable = true;
 
       return shoulderSupplyConfig;
+    }
+  }
+
+  public static final class IntakeConstants {
+    // FIXME: need correct values
+
+    public static final int kIntakeFalconID = 20;
+    public static final int kExtendTalonID = 21;
+
+    public static final int kCloseEnoughTicks = 150;
+    public static final int kExtendPosTicks = 1100;
+    public static final int kRetractPosTicks = 10;
+
+    public static final double kIntakeSpeed = -0.5;
+    public static final double kIntakeEjectSpeed = 0.5;
+    public static final double kEjectTimerDelaySec = 3;
+
+    public static final int kIntakeZeroTicks = 2800;
+    public static final int kZeroStableBand = 20;
+
+    public static TalonSRXConfiguration getExtendTalonConfig() {
+      TalonSRXConfiguration talonConfig = new TalonSRXConfiguration();
+
+      talonConfig.forwardSoftLimitEnable = true;
+      talonConfig.forwardSoftLimitThreshold = 1140;
+      talonConfig.reverseSoftLimitEnable = true;
+      talonConfig.reverseSoftLimitThreshold = 0;
+      talonConfig.neutralDeadband = 0.01;
+      talonConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
+      talonConfig.velocityMeasurementWindow = 64;
+      talonConfig.voltageCompSaturation = 12;
+      talonConfig.voltageMeasurementFilter = 32;
+
+      return talonConfig;
+    }
+
+    public static SupplyCurrentLimitConfiguration getTalonSupplyLimitConfig() {
+      SupplyCurrentLimitConfiguration extendSupplyConfig = new SupplyCurrentLimitConfiguration();
+
+      extendSupplyConfig.currentLimit = 20;
+      extendSupplyConfig.triggerThresholdCurrent = 45;
+      extendSupplyConfig.triggerThresholdTime = 0.04;
+      extendSupplyConfig.enable = true;
+
+      return extendSupplyConfig;
+    }
+
+    public static TalonFXConfiguration getIntakeFalconConfig() {
+      TalonFXConfiguration falconConfig = new TalonFXConfiguration();
+
+      falconConfig.neutralDeadband = 0.01;
+      falconConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
+      falconConfig.velocityMeasurementWindow = 64;
+      falconConfig.voltageCompSaturation = 12;
+      falconConfig.voltageMeasurementFilter = 32;
+      falconConfig.supplyCurrLimit.currentLimit = 20;
+      falconConfig.supplyCurrLimit.triggerThresholdCurrent = 45;
+      falconConfig.supplyCurrLimit.triggerThresholdTime = 0.04;
+      falconConfig.supplyCurrLimit.enable = true;
+
+      return falconConfig;
+    }
+  }
+
+  public static class HandConstants {
+    public static int kHandTalonId = 40;
+    public static int kWristTalonId = 0; // FIXME
+
+    public static final double kMaxFwd = 1100.0; // subject to change
+    public static final double kMaxRev = -1000.0; // subject to change
+
+    public static final double kHandZeroSpeed = 0.1;
+    public static final double kZeroTargetSpeedTicksPer100ms = 5;
+    public static final int kZeroStableCounts = 1592;
+
+    public static final double kAllowedError = 0; // FIXME
+
+    public static final double kCubeGrabbingPositionLeft = 0; // FIXME
+    public static final double kConeGrabbingPositionLeft = 0; // FIXME
+    public static final double kCubeGrabbingPositionRight = 0; // FIXME
+    public static final double kConeGrabbingPositionRight = 0; // FIXME
+
+    public static TalonSRXConfiguration getHandTalonConfig() {
+      TalonSRXConfiguration handConfig = new TalonSRXConfiguration();
+
+      // handConfig.slot0.kP = 0.0;
+      // handConfig.slot0.kI = 0.0;
+      // handConfig.slot0.kD = 0.0;
+      // handConfig.slot0.kF = 0.0;
+      // handConfig.slot0.integralZone = 0;
+      // handConfig.slot0.maxIntegralAccumulator = 0;
+      // handConfig.slot0.allowableClosedloopError = 0;
+      // handConfig.motionCruiseVelocity = 0;
+      // handConfig.motionAcceleration = 0;
+
+      handConfig.forwardSoftLimitEnable = true;
+      handConfig.forwardSoftLimitThreshold = kMaxFwd;
+      handConfig.reverseSoftLimitEnable = true;
+      handConfig.reverseSoftLimitThreshold = kMaxRev;
+      handConfig.neutralDeadband = 0.01;
+      handConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
+      handConfig.velocityMeasurementWindow = 64;
+      handConfig.voltageCompSaturation = 12;
+      handConfig.voltageMeasurementFilter = 32;
+
+      return handConfig;
+    }
+
+    public static SupplyCurrentLimitConfiguration getHandSupplyLimitConfig() {
+      return new SupplyCurrentLimitConfiguration(true, 40, 45, .04);
+    }
+
+    public static SupplyCurrentLimitConfiguration getHandZeroSupplyCurrentLimit() {
+      return new SupplyCurrentLimitConfiguration(true, 5, 5, 0.1);
     }
   }
 }

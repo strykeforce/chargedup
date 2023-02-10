@@ -1,0 +1,11 @@
+bin/*
+.settings/*
+.project
+.classpath
+*.prefs
+.gradle
+.gradle/*
+build
+build/*
+photonvision/*
+photonvision_config/*

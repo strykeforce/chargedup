@@ -13,19 +13,28 @@ import org.strykeforce.telemetry.measurable.Measure;
 
 public class ElevatorSubsystem extends MeasurableSubsystem implements ArmComponent {
   private static final Logger logger = LoggerFactory.getLogger(ElevatorSubsystem.class);
-  private TalonFX elevatorFalcon;
+  private TalonFX leftMainFalcon;
+  private TalonFX rightFollowFalcon;
   private double desiredPosition;
   private ElevatorState elevatorState;
 
   private int elevatorZeroStableCounts;
 
   public ElevatorSubsystem() {
-    elevatorFalcon = new TalonFX(Constants.ElevatorConstants.kLeftMainId);
-    elevatorFalcon.configFactoryDefault();
-    elevatorFalcon.configAllSettings(Constants.ElevatorConstants.getElevatorFalconConfig());
-    elevatorFalcon.configSupplyCurrentLimit(
+    leftMainFalcon = new TalonFX(Constants.ElevatorConstants.kLeftMainId);
+    rightFollowFalcon = new TalonFX(Constants.ElevatorConstants.kRightFollowId);
+    leftMainFalcon.configFactoryDefault();
+    leftMainFalcon.configAllSettings(Constants.ElevatorConstants.getElevatorFalconConfig());
+    leftMainFalcon.configSupplyCurrentLimit(
         Constants.ElevatorConstants.getElevatorSupplyLimitConfig());
-    elevatorFalcon.setNeutralMode(NeutralMode.Brake);
+    leftMainFalcon.setNeutralMode(NeutralMode.Brake);
+    rightFollowFalcon.configFactoryDefault();
+    rightFollowFalcon.configAllSettings(Constants.ElevatorConstants.getElevatorFalconConfig());
+    rightFollowFalcon.configSupplyCurrentLimit(
+        Constants.ElevatorConstants.getElevatorSupplyLimitConfig());
+    rightFollowFalcon.setNeutralMode(NeutralMode.Brake);
+    rightFollowFalcon.follow(leftMainFalcon);
+    rightFollowFalcon.setInverted(true);
 
     elevatorZeroStableCounts = 0;
     desiredPosition = getPos();
@@ -35,16 +44,16 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   public void setPos(double location) {
     logger.info("Elevator moving to {}", location);
     desiredPosition = location;
-    elevatorFalcon.set(TalonFXControlMode.MotionMagic, location);
+    leftMainFalcon.set(TalonFXControlMode.MotionMagic, location);
   }
 
   public void setPct(double pct) {
     logger.info("Elevator moving at {}% speed", pct);
-    elevatorFalcon.set(TalonFXControlMode.PercentOutput, pct);
+    leftMainFalcon.set(TalonFXControlMode.PercentOutput, pct);
   }
 
   public double getPos() {
-    return elevatorFalcon.getSelectedSensorPosition();
+    return leftMainFalcon.getSelectedSensorPosition();
   }
 
   public double getExtensionMeters() {
@@ -59,10 +68,10 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   }
 
   public void zeroElevator() {
-    elevatorFalcon.configForwardSoftLimitEnable(false);
-    elevatorFalcon.configReverseSoftLimitEnable(false);
+    leftMainFalcon.configForwardSoftLimitEnable(false);
+    leftMainFalcon.configReverseSoftLimitEnable(false);
 
-    elevatorFalcon.configSupplyCurrentLimit(
+    leftMainFalcon.configSupplyCurrentLimit(
         Constants.ElevatorConstants.getElevatorZeroSupplyCurrentLimit(),
         Constants.kTalonConfigTimeout);
 
@@ -73,14 +82,16 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   }
 
   public void setSoftLimits(double minTicks, double maxTicks) {
-    elevatorFalcon.configForwardSoftLimitThreshold(maxTicks);
-    elevatorFalcon.configReverseSoftLimitThreshold(minTicks);
+    leftMainFalcon.configForwardSoftLimitThreshold(maxTicks);
+    leftMainFalcon.configReverseSoftLimitThreshold(minTicks);
+    rightFollowFalcon.configForwardSoftLimitThreshold(maxTicks);
+    rightFollowFalcon.configReverseSoftLimitThreshold(minTicks);
   }
 
   @Override
   public void registerWith(TelemetryService telemetryService) {
     super.registerWith(telemetryService);
-    telemetryService.register(elevatorFalcon);
+    telemetryService.register(leftMainFalcon);
   }
 
   @Override
@@ -94,7 +105,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
       case IDLE:
         break;
       case ZEROING:
-        if (Math.abs(elevatorFalcon.getSelectedSensorVelocity())
+        if (Math.abs(leftMainFalcon.getSelectedSensorVelocity())
             < Constants.ElevatorConstants.kZeroTargetSpeedTicksPer100ms) {
           elevatorZeroStableCounts++;
         } else {
@@ -102,13 +113,13 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
         }
 
         if (elevatorZeroStableCounts > Constants.ElevatorConstants.kZeroStableCounts) {
-          elevatorFalcon.setSelectedSensorPosition(0.0);
-          elevatorFalcon.configSupplyCurrentLimit(
+          leftMainFalcon.setSelectedSensorPosition(0.0);
+          leftMainFalcon.configSupplyCurrentLimit(
               Constants.ElevatorConstants.getElevatorSupplyLimitConfig(),
               Constants.kTalonConfigTimeout);
 
-          elevatorFalcon.configForwardSoftLimitEnable(true);
-          elevatorFalcon.configReverseSoftLimitEnable(true);
+          leftMainFalcon.configForwardSoftLimitEnable(true);
+          leftMainFalcon.configReverseSoftLimitEnable(true);
 
           setPct(0);
           desiredPosition = 0;
