@@ -409,4 +409,57 @@ public class Constants {
       return falconConfig;
     }
   }
+
+  public static class HandConstants {
+    public static int kHandTalonId = 40;
+    public static int kWristTalonId = 0; // FIXME
+
+    public static final double kMaxFwd = 1100.0; // subject to change
+    public static final double kMaxRev = -1000.0; // subject to change
+
+    public static final double kHandZeroSpeed = 0.1;
+    public static final double kZeroTargetSpeedTicksPer100ms = 5;
+    public static final int kZeroStableCounts = 1592;
+
+    public static final double kAllowedError = 0; // FIXME
+
+    public static final double kCubeGrabbingPositionLeft = 0; // FIXME
+    public static final double kConeGrabbingPositionLeft = 0; // FIXME
+    public static final double kCubeGrabbingPositionRight = 0; // FIXME
+    public static final double kConeGrabbingPositionRight = 0; // FIXME
+
+    public static TalonSRXConfiguration getHandTalonConfig() {
+      TalonSRXConfiguration handConfig = new TalonSRXConfiguration();
+
+      // handConfig.slot0.kP = 0.0;
+      // handConfig.slot0.kI = 0.0;
+      // handConfig.slot0.kD = 0.0;
+      // handConfig.slot0.kF = 0.0;
+      // handConfig.slot0.integralZone = 0;
+      // handConfig.slot0.maxIntegralAccumulator = 0;
+      // handConfig.slot0.allowableClosedloopError = 0;
+      // handConfig.motionCruiseVelocity = 0;
+      // handConfig.motionAcceleration = 0;
+
+      handConfig.forwardSoftLimitEnable = true;
+      handConfig.forwardSoftLimitThreshold = kMaxFwd;
+      handConfig.reverseSoftLimitEnable = true;
+      handConfig.reverseSoftLimitThreshold = kMaxRev;
+      handConfig.neutralDeadband = 0.01;
+      handConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
+      handConfig.velocityMeasurementWindow = 64;
+      handConfig.voltageCompSaturation = 12;
+      handConfig.voltageMeasurementFilter = 32;
+
+      return handConfig;
+    }
+
+    public static SupplyCurrentLimitConfiguration getHandSupplyLimitConfig() {
+      return new SupplyCurrentLimitConfiguration(true, 40, 45, .04);
+    }
+
+    public static SupplyCurrentLimitConfiguration getHandZeroSupplyCurrentLimit() {
+      return new SupplyCurrentLimitConfiguration(true, 5, 5, 0.1);
+    }
+  }
 }
