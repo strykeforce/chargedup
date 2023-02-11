@@ -33,7 +33,7 @@ public class Constants {
   public static final class RobotStateConstants {
     public static final double kRobotLength = 1.5; // FIXME m
     public static final double kPoleToCenterOffset = 1.38 + kRobotLength / 2.0; // m
-    public static final double kAutoPlaceX = 2.5; // FIXME m
+    public static final double kAutoPlaceX = 2.5; // FIXME m 2.5
 
     public static final double[] kGridY = {1.071626, 2.748026, 4.424426}; // m
     public static final double kBound1Y = 1.908175; // m

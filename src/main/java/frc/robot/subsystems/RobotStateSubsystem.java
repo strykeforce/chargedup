@@ -80,8 +80,6 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         targetX, Constants.RobotStateConstants.kGridY[gridIndex], new Rotation2d(rotation));
   }
 
-  
-
   private boolean isBlueAlliance() {
     return getAllianceColor() == Alliance.Blue;
   }

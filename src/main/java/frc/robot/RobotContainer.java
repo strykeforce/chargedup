@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
-import frc.robot.commands.drive.DriveToPlaceCommand;
+import frc.robot.commands.drive.DriveToPlaceNotPathCommand;
 import frc.robot.commands.drive.ResetOdometryCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
@@ -108,8 +108,11 @@ public class RobotContainer {
         new DriveTeleopCommand(driveJoystick, driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.RESET.id)
         .onTrue(new ZeroGyroCommand(driveSubsystem));
+
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+    // .onTrue(new DriveToPlaceCommand(driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-        .onTrue(new DriveToPlaceCommand(driveSubsystem, robotStateSubsystem));
+        .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)

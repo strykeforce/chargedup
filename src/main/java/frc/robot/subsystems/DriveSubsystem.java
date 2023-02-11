@@ -64,7 +64,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
       new TimestampedPose(RobotController.getFPGATime(), new Pose2d());
   public VisionSubsystem visionSubsystem;
   private double distanceVisionWheelOdom = 0.0;
-  private boolean autoDriving = false;
+  public boolean autoDriving = false;
   private Pose2d endAutoDrivePose;
 
   public DriveSubsystem() {
@@ -154,44 +154,85 @@ public class DriveSubsystem extends MeasurableSubsystem {
   public void setRobotStateSubsystem(RobotStateSubsystem robotStateSubsystem) {
     this.robotStateSubsystem = robotStateSubsystem;
   }
+
   public void driveToPose() {
-    endAutoDrivePose = robotStateSubsystem.getAutoPlaceDriveTarget(kTalonConfigTimeout);
+    endAutoDrivePose = robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY());
     autoDriving = true;
   }
 
-  public double autoAcceleration(double distance, double speed)
-  {
-    double accel = 1.5/2;
-    double distDecel = -2*2 / (-2*1.5);
-    if (distance < distDecel && speed < 2)
-      return speed += accel;
+  public double autoAcceleration(double distance, double speed) {
+    double accel = 1.5 / 2;
+    double distDecel = -2 * 2 / (-2 * 1.5);
+    if (distance < distDecel && speed < 2) return speed += accel;
     if (distance < distDecel)
-      if (speed < 2*1.5*distance)
-        return speed += accel;
-      else 
-        return 2*1.5*distance;
+      if (speed < 2 * 1.5 * distance) return speed += accel;
+      else return 2 * 1.5 * distance;
     return speed;
   }
 
-  //public double autoDriveVector(double xMps, double yMps)
-  //{
+  // public double autoDriveVector(double xMps, double yMps)
+  // {
 
-  //}
+  // }
 
   @Override
   public void periodic() {
     // Update swerve module states every robot loop
     swerveDrive.periodic();
     if (autoDriving) {
-      // Pose2d currentPose = getPoseMeters();
-      // Transform2d poseDifference = currentPose.minus(endAutoDrivePose);
-      // Translation2d moveTranslation = new Translation2d(poseDifference.getX() * 0.05, poseDifference.getY() * 0.05);
-      double xSpeed = getFieldRelSpeed().vxMetersPerSecond;
-      double ySpeed = getFieldRelSpeed().vyMetersPerSecond;
-      Pose2d endPoint = new Pose2d();
+      Pose2d currentPose = getPoseMeters();
+      Transform2d poseDifference = currentPose.minus(endAutoDrivePose);
+      double abitraryKp = 0.35;
 
+      double straightDist =
+          Math.sqrt(
+              poseDifference.getX() * poseDifference.getX()
+                  + poseDifference.getY() * poseDifference.getY());
+      double angle = Math.atan2(poseDifference.getY(), poseDifference.getX());
+      double newKp = Math.sqrt(straightDist / 0.2) * abitraryKp;
+      if (abitraryKp < newKp) newKp = abitraryKp;
 
+      // TO DO add X Y seperate Stop
 
+      Translation2d moveTranslation =
+          new Translation2d(
+              (straightDist * Math.cos(angle) * newKp), (straightDist * Math.sin(angle) * newKp));
+
+      if (Math.abs(getPoseMeters().minus(endAutoDrivePose).getX()) < 0.2)
+        moveTranslation = new Translation2d(0, moveTranslation.getY());
+      if (Math.abs(getPoseMeters().minus(endAutoDrivePose).getY()) < 0.2)
+        moveTranslation = new Translation2d(moveTranslation.getX(), 0.0);
+
+      // Translation2d moveTranslation =
+      // new Translation2d(poseDifference.getX() * 0.25, poseDifference.getY() * 0.25);
+      if (((moveTranslation.getX() <= 1)
+          && (moveTranslation.getY() <= 1)
+          && ((moveTranslation.getX() >= -1) && (moveTranslation.getY() >= -1)))) {
+        move(moveTranslation.getX(), moveTranslation.getY(), 0, true);
+      } else {
+          // Set accel limit to 1 x/|x| = 1 or -1
+          //1 *copysign
+          move(
+              (moveTranslation.getX() / Math.abs(moveTranslation.getX())),
+              (moveTranslation.getY() / Math.abs(moveTranslation.getY())),
+              0,
+              true);
+        }
+      logger.info("X accel {}, Y accel", moveTranslation.getX(), moveTranslation.getY());
+      logger.info(
+          " X Dif: {}, Y Dif: {}",
+          getPoseMeters().minus(endAutoDrivePose).getX(),
+          getPoseMeters().minus(endAutoDrivePose).getY());
+      if (((getPoseMeters().minus(endAutoDrivePose).getX() <= 0.2)
+              && ((getPoseMeters().minus(endAutoDrivePose).getX() >= -0.2)))
+          && ((getPoseMeters().minus(endAutoDrivePose).getY() <= 0.2)
+              && ((getPoseMeters().minus(endAutoDrivePose).getY() >= -0.2)))) {
+        autoDriving = false;
+        logger.info("Autodrive Finished");
+      }
+      // double xSpeed = getFieldRelSpeed().vxMetersPerSecond;
+      // double ySpeed = getFieldRelSpeed().vyMetersPerSecond;
+      // Pose2d endPoint = new Pose2d();
 
     }
     // TimestampedPose pose = visionSubsystem.odomNewPoseViaVision();
