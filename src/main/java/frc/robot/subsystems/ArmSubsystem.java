@@ -84,15 +84,9 @@ public class ArmSubsystem extends MeasurableSubsystem {
             <= Constants.ArmConstants.kHouseLineSlope * handPos.getX()
                 + Constants.ArmConstants.kHouseIntercept)) {
       return HandRegion.HOUSE;
-    } else if (handPos.getX() <= ArmConstants.kIntakeX) {
-      if (handPos.getY() <= ArmConstants.kIntakeMaxY) {
+    } else if (handPos.getX() < ArmConstants.kHouseMinX) {
+      if (elevatorSubsystem.getPos() <= ArmConstants.kElevatorHouseMin) {
         return HandRegion.INSIDE_INTAKE;
-      } else {
-        return HandRegion.ABOVE_INTAKE;
-      }
-    } else if (handPos.getX() < ArmConstants.kHouseMinX && handPos.getX() > ArmConstants.kIntakeX) {
-      if (shoulderSubsystem.getPos() <= Constants.ArmConstants.kShoulderVerticalMax) {
-        return HandRegion.HOUSE;
       } else {
         return HandRegion.INTAKE;
       }
@@ -130,12 +124,12 @@ public class ArmSubsystem extends MeasurableSubsystem {
         (elevatorSubsystem.getExtensionMeters()) * Math.cos(shoulderAngle)
             - f * Math.cos(Math.PI / 2 - shoulderAngle)
             + Constants.ElbowConstants.kLength * Math.cos(elbowAngleWithGround)
-            + ArmConstants.kelevatorToElbowPivot * Math.cos(Math.PI / 2 - shoulderAngle);
+            + ArmConstants.kElevatorToElbowPivot * Math.cos(Math.PI / 2 - shoulderAngle);
     double y =
         (elevatorSubsystem.getExtensionMeters() + f / Math.tan(shoulderAngle))
                 * Math.sin(shoulderAngle)
             + Constants.ElbowConstants.kLength * Math.sin(elbowAngleWithGround)
-            - ArmConstants.kelevatorToElbowPivot * Math.sin(Math.PI / 2 - shoulderAngle);
+            - ArmConstants.kElevatorToElbowPivot * Math.sin(Math.PI / 2 - shoulderAngle);
 
     return new Translation2d(x, y);
   }
@@ -152,11 +146,11 @@ public class ArmSubsystem extends MeasurableSubsystem {
   public void periodic() {
     HandRegion currHandRegion = getHandRegion();
 
-    // shoulderSubsystem.setSoftLimits(
-    //     currHandRegion.minTicksShoulder, currHandRegion.maxTicksShoulder);
-    // elevatorSubsystem.setSoftLimits(
-    //     currHandRegion.minTicksElevator, currHandRegion.maxTicksElevator);
-    // elbowSubsystem.setSoftLimits(currHandRegion.minTicksElbow, currHandRegion.maxTicksElbow);
+    shoulderSubsystem.setSoftLimits(
+        currHandRegion.minTicksShoulder, currHandRegion.maxTicksShoulder);
+    elevatorSubsystem.setSoftLimits(
+        currHandRegion.minTicksElevator, currHandRegion.maxTicksElevator);
+    elbowSubsystem.setSoftLimits(currHandRegion.minTicksElbow, currHandRegion.maxTicksElbow);
 
     switch (armState) {
       case STOW:
@@ -313,8 +307,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
     INSIDE_INTAKE(
         ArmConstants.kShoulderPhysicalMin,
         ArmConstants.kShoulderPhysicalMax,
-        ArmConstants.kElevatorPhysicalMin,
-        ArmConstants.kElevatorBelowIntakeMax,
+        ArmConstants.kInsideIntakeElevatorMin,
+        ArmConstants.kInsideIntakeElevatorMax,
         ArmConstants.kElbowInsideIntakeMin,
         ArmConstants.kElbowInsideIntakeMax),
 

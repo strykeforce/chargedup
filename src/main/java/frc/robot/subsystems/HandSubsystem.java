@@ -122,13 +122,13 @@ public class HandSubsystem extends MeasurableSubsystem {
 
   public void grabCube() {
     logger.info("Grabbing cube");
-    setPos(Constants.HandConstants.kCubeGrabbingPositionLeft /*,
+    setPos(Constants.HandConstants.kCubeGrabbingPosition /*,
         Constants.HandConstants.kCubeGrabbingPositionRight*/);
   }
 
   public void grabCone() {
     logger.info("Grabbing cone");
-    setPos(Constants.HandConstants.kConeGrabbingPositionLeft /*,
+    setPos(Constants.HandConstants.kConeGrabbingPosition /*,
         Constants.HandConstants.kConeGrabbingPositionRight*/);
   }
 

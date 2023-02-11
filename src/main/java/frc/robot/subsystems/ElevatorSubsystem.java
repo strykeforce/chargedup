@@ -28,6 +28,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
     leftMainFalcon.configSupplyCurrentLimit(
         Constants.ElevatorConstants.getElevatorSupplyLimitConfig());
     leftMainFalcon.setNeutralMode(NeutralMode.Brake);
+    leftMainFalcon.setInverted(false);
 
     rightFollowFalcon.configFactoryDefault();
     rightFollowFalcon.configAllSettings(Constants.ElevatorConstants.getElevatorFalconConfig());
@@ -71,8 +72,14 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   public void zeroElevator() {
     leftMainFalcon.configForwardSoftLimitEnable(false);
     leftMainFalcon.configReverseSoftLimitEnable(false);
+    rightFollowFalcon.configForwardSoftLimitEnable(false);
+    rightFollowFalcon.configReverseSoftLimitEnable(false);
 
     leftMainFalcon.configSupplyCurrentLimit(
+        Constants.ElevatorConstants.getElevatorZeroSupplyCurrentLimit(),
+        Constants.kTalonConfigTimeout);
+
+    rightFollowFalcon.configSupplyCurrentLimit(
         Constants.ElevatorConstants.getElevatorZeroSupplyCurrentLimit(),
         Constants.kTalonConfigTimeout);
 
@@ -85,14 +92,15 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   public void setSoftLimits(double minTicks, double maxTicks) {
     leftMainFalcon.configForwardSoftLimitThreshold(maxTicks);
     leftMainFalcon.configReverseSoftLimitThreshold(minTicks);
-    rightFollowFalcon.configForwardSoftLimitThreshold(maxTicks);
-    rightFollowFalcon.configReverseSoftLimitThreshold(minTicks);
+    // rightFollowFalcon.configForwardSoftLimitThreshold(maxTicks);
+    // rightFollowFalcon.configReverseSoftLimitThreshold(minTicks);
   }
 
   @Override
   public void registerWith(TelemetryService telemetryService) {
     super.registerWith(telemetryService);
     telemetryService.register(leftMainFalcon);
+    telemetryService.register(rightFollowFalcon);
   }
 
   @Override
@@ -115,7 +123,12 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
 
         if (elevatorZeroStableCounts > Constants.ElevatorConstants.kZeroStableCounts) {
           leftMainFalcon.setSelectedSensorPosition(0.0);
+          rightFollowFalcon.setSelectedSensorPosition(0.0);
           leftMainFalcon.configSupplyCurrentLimit(
+              Constants.ElevatorConstants.getElevatorSupplyLimitConfig(),
+              Constants.kTalonConfigTimeout);
+
+          rightFollowFalcon.configSupplyCurrentLimit(
               Constants.ElevatorConstants.getElevatorSupplyLimitConfig(),
               Constants.kTalonConfigTimeout);
 

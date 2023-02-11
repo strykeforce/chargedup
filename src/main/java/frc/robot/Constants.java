@@ -40,14 +40,14 @@ public class Constants {
     public static final double kIntakeMaxY = 0.35; // 0.45
     public static final double kHouseMinX = -0.10; // -0.3
     public static final double kIntakeX = -0.35;
-    public static final double kelevatorToElbowPivot = 0.075;
+    public static final double kElevatorToElbowPivot = 0.075;
     // public static final double kIntakeY = 0.32;
 
     // house limits
     public static final double kShoulderVerticalMin = -1580;
     public static final double kShoulderVerticalMax = -1200; // old: -1290
 
-    public static final double kElevatorHouseMin = -27_295;
+    public static final double kElevatorHouseMin = -10_306;
     public static final double kElevatorHouseMax = ElevatorConstants.kMaxFwd;
 
     public static final double kElbowPhysicalMin = ElbowConstants.kReverseSoftLimit;
@@ -57,10 +57,10 @@ public class Constants {
     public static final double kShoulderPhysicalMin = ShoulderConstants.kMaxRev;
     public static final double kShoulderPhysicalMax = ShoulderConstants.kMaxFwd;
 
-    public static final double kElevatorBumperMin = -46_258;
+    public static final double kElevatorBumperMin = -40_000; // -46_258
     public static final double kElevatorBumperMax = ElevatorConstants.kMaxFwd;
 
-    public static final double kElbowBumperMin = 260;
+    public static final double kElbowBumperMin = ElbowConstants.kReverseSoftLimit;
     public static final double kElbowBumperMax = ElbowConstants.kForwardSoftLimit;
 
     // intake limits
@@ -70,13 +70,16 @@ public class Constants {
     public static final double kElevatorPhysicalMin = ElevatorConstants.kMaxRev;
     public static final double kElevatorPhysicalMax = ElevatorConstants.kMaxFwd;
 
-    public static final double kElevatorBelowIntakeMax = -41300;
+    // public static final double kElevatorBelowIntakeMax = -41300;
 
-    public static final double kElbowInsideIntakeMin = ElbowConstants.kReverseSoftLimit - 100;
-    public static final double kElbowInsideIntakeMax = -450;
-    public static final double kElbowAboveIntakeMin = -440;
+    public static final double kInsideIntakeElevatorMax = ElevatorConstants.kMaxFwd;
+    public static final double kInsideIntakeElevatorMin = -15_585;
+
+    public static final double kElbowInsideIntakeMin = ElbowConstants.kReverseSoftLimit;
+    public static final double kElbowInsideIntakeMax = -7644;
+    public static final double kElbowAboveIntakeMin = ElbowConstants.kReverseSoftLimit;
     public static final double kElbowIntakeMin = ElbowConstants.kReverseSoftLimit;
-    public static final double kElbowIntakeMax = -450;
+    public static final double kElbowIntakeMax = ElbowConstants.kForwardSoftLimit;
   }
 
   public static final class DriveConstants {
@@ -264,10 +267,19 @@ public class Constants {
     public static final int kZeroStableCounts = 10; // old 25
 
     public static final double kMaxFwd = -1000; // -500
-    public static final double kMaxRev = -50_000; // -49_325
+    public static final double kMaxRev = -25_000; // -49_325
 
-    public static final double kTicksPerMeter = 62000.0 / 0.4; // FIXME
+    public static final double kTicksPerMeter = 125_424.3; // 62000.0 / 0.4 meters
     public static final double kMaxExtension = 1.23; // FIXME meters
+
+    // Elevator Positions
+    public static final double kIntakeElevator = -2_000;
+    public static final double kStowElevator = -2_000;
+    public static final double kFloorElevator = -24_065;
+    public static final double kLevelOneElevator = -1_500;
+    public static final double kLevelTwoElevator = -11_674;
+    public static final double kLevelThreeElevator = -1_500;
+    public static final double kShelfElevator = -26_106;
 
     public static TalonFXConfiguration getElevatorFalconConfig() {
       TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
@@ -316,16 +328,25 @@ public class Constants {
     // zero=up&slightly towards the elevator
     public static final int kZeroTicks = 1820; // FIXME needs real tick values
 
-    public static final int kForwardSoftLimit = 70_000; // 1905
-    public static final int kReverseSoftLimit = -25_000; // -506
+    public static final int kForwardSoftLimit = 100_000; // 1905
+    public static final int kReverseSoftLimit = -13_375; // -506
 
     public static final double kZeroDegs = -90; // FIXME
     public static final double kTicksPerDeg = 4096.0 / 360.0; // FIXME
-    public static final double kLength = 0.7855; // m
+    public static final double kLength = 1; // 0.7855 m
 
     public static final double kOffsetFactor = 103.5 / 2;
 
     public static final int kCloseEnoughTicks = 20;
+
+    // Elbow Positions
+    public static final double kIntakeElbow = -8_137;
+    public static final double kStowElbow = 3_100;
+    public static final double kFloorElbow = 20_726;
+    public static final double kLevelOneElbow = 24_375;
+    public static final double kLevelTwoElbow = 58_581;
+    public static final double kLevelThreeElbow = 78_346;
+    public static final double kShelfElbow = 58_581;
 
     public static TalonFXConfiguration getElbowFalonConfig() {
 
@@ -382,6 +403,15 @@ public class Constants {
 
     public static final double kOffsetDegs =
         Math.toDegrees(Math.asin(0.06 / kShoulderLowerToElevatorLowerPivotDist));
+
+    // Shoulder Positions
+    public static final double kIntakeShoulder = -1_700;
+    public static final double kStowShoulder = -1_700;
+    public static final double kFloorShoulder = 300;
+    public static final double kLevelOneShoulder = 300;
+    public static final double kLevelTwoShoulder = -700;
+    public static final double kLevelThreeShoulder = 300;
+    public static final double kShelfShoulder = -1_950;
 
     public static TalonSRXConfiguration getShoulderTalonConfig() {
       TalonSRXConfiguration shoulderConfig = new TalonSRXConfiguration();
@@ -511,10 +541,8 @@ public class Constants {
 
     public static final double kAllowedError = 0; // FIXME
 
-    public static final double kCubeGrabbingPositionLeft = 671; // FIXME
-    public static final double kConeGrabbingPositionLeft = 0; // FIXME
-    public static final double kCubeGrabbingPositionRight = 0; // FIXME
-    public static final double kConeGrabbingPositionRight = 0; // FIXME
+    public static final double kCubeGrabbingPosition = 700; // FIXME
+    public static final double kConeGrabbingPosition = 1_500; // FIXME
 
     public static TalonSRXConfiguration getHandTalonConfig() {
       TalonSRXConfiguration handConfig = new TalonSRXConfiguration();

@@ -17,7 +17,7 @@ import org.strykeforce.telemetry.measurable.Measure;
 
 public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent {
   private TalonFX elbowFalcon;
-  private int setPointTicks = 0;
+  private double setPointTicks = 0;
   private CANifier remoteEncoder;
   private Logger logger = LoggerFactory.getLogger(ElbowSubsystem.class);
 
@@ -61,14 +61,14 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
     logger.info("elbow openloop percentOutput: {}", percentOutput);
   }
 
-  public void rotateClosedLoop(int posTicks) {
+  public void rotateClosedLoop(double posTicks) {
     elbowFalcon.set(ControlMode.MotionMagic, posTicks);
     setPointTicks = posTicks;
   }
 
   public double getRelativeDegs() {
     return ElbowConstants.kZeroDegs
-        + getPulseWidthFor(PWMChannel.PWMChannel0) / ElbowConstants.kTicksPerDeg;
+        + remoteEncoder.getQuadraturePosition() / ElbowConstants.kTicksPerDeg;
   }
 
   public boolean isElbowAtPos() {
