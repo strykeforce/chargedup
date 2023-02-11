@@ -27,12 +27,10 @@ import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.commands.hand.GrabConeCommand;
 import frc.robot.commands.hand.GrabCubeCommand;
 import frc.robot.commands.hand.HandLeftSpeedCommand;
-import frc.robot.commands.hand.HandRightSpeedCommand;
+import frc.robot.commands.hand.HandToPositionCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
-import frc.robot.commands.intake.ToggleIntakeExtendedCommand;
-import frc.robot.commands.robotState.SetAutoStagingCommand;
 import frc.robot.commands.robotState.SetLevelAndColCommandGroup;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
@@ -47,7 +45,6 @@ import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 import frc.robot.subsystems.ShoulderSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
 import java.util.Map;
 import org.strykeforce.telemetry.TelemetryController;
 import org.strykeforce.telemetry.TelemetryService;
@@ -56,7 +53,7 @@ public class RobotContainer {
   private final ShoulderSubsystem shoulderSubsystem;
   private final RobotStateSubsystem robotStateSubsystem;
   private final DriveSubsystem driveSubsystem;
-  private final VisionSubsystem visionSubsystem;
+  // private final VisionSubsystem visionSubsystem;
   private final ElbowSubsystem elbowSubsystem;
   private final ElevatorSubsystem elevatorSubsystem;
   private final IntakeSubsystem intakeSubsystem;
@@ -81,7 +78,7 @@ public class RobotContainer {
     handSubsystem = new HandSubsystem();
     intakeSubsystem = new IntakeSubsystem();
     driveSubsystem = new DriveSubsystem();
-    visionSubsystem = new VisionSubsystem(driveSubsystem);
+    // visionSubsystem = new VisionSubsystem(driveSubsystem);
     robotStateSubsystem =
         new RobotStateSubsystem(
             TargetLevel.NONE,
@@ -96,8 +93,8 @@ public class RobotContainer {
     shoulderSubsystem = new ShoulderSubsystem();
     armSubsystem = new ArmSubsystem(shoulderSubsystem, elevatorSubsystem, elbowSubsystem);
 
-    driveSubsystem.setVisionSubsystem(visionSubsystem);
-    visionSubsystem.setFillBuffers(true);
+    // driveSubsystem.setVisionSubsystem(visionSubsystem);
+    // visionSubsystem.setFillBuffers(true);
 
     configureTelemetry();
     configurePaths();
@@ -108,24 +105,19 @@ public class RobotContainer {
 
   private void configureTelemetry() {
     driveSubsystem.registerWith(telemetryService);
-    visionSubsystem.registerWith(telemetryService);
+    // visionSubsystem.registerWith(telemetryService);
     robotStateSubsystem.registerWith(telemetryService);
     elevatorSubsystem.registerWith(telemetryService);
     elbowSubsystem.registerWith(telemetryService);
     shoulderSubsystem.registerWith(telemetryService);
     armSubsystem.registerWith(telemetryService);
+    handSubsystem.registerWith(telemetryService);
+    intakeSubsystem.registerWith(telemetryService);
     telemetryService.start();
   }
 
   private void configurePaths() {
     testPath = new DriveAutonCommand(driveSubsystem, "mirrorTestPath", true, true);
-
-    new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
-        .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
-        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, -0.35));
-    new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
-        .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
-        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, 0.3));
   }
 
   private void configureDriverButtonBindings() {
@@ -140,7 +132,22 @@ public class RobotContainer {
     // Requires swerve migration to new Pose2D
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
     // {driveSubsystem.resetOdometry(new Pose2d());},driveSubsystem);
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(testPath);
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(testPath);
+
+    // Hand
+    new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
+        .onTrue(
+            new HandToPositionCommand(
+                handSubsystem, Constants.HandConstants.kCubeGrabbingPositionLeft))
+        .onFalse(new HandToPositionCommand(handSubsystem, Constants.HandConstants.kMaxRev));
+
+    // Shoulder
+    new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
+        .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
+        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, -0.35));
+    new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
+        .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
+        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, 0.3));
 
     // Elevator testing
     new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
@@ -163,19 +170,19 @@ public class RobotContainer {
     // intake buttons
     // new JoystickButton(xboxController, 3).onTrue(new
     // ToggleIntakeExtendedCommand(intakeSubsystem));
-    new JoystickButton(driveJoystick, Shoulder.RIGHT_DOWN.id)
-        .onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem))
-        .onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));
+    // new JoystickButton(driveJoystick, Shoulder.RIGHT_DOWN.id)
+    //     .onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem))
+    //     .onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));
 
     // Toggle auto staging
-    new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
-        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, false));
-    new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
-        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, false));
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
-        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
+    // new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
+    //     .onTrue(new SetAutoStagingCommand(robotStateSubsystem, false));
+    // new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
+    //     .onTrue(new SetAutoStagingCommand(robotStateSubsystem, false));
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+    //     .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
+    //     .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
   }
 
   public void configureOperatorButtonBindings() {
@@ -270,22 +277,13 @@ public class RobotContainer {
     handCommands
         .add("Hand Left Stop", new HandLeftSpeedCommand(handSubsystem, 0))
         .withPosition(0, 0);
-    handCommands
-        .add("Hand Right Stop", new HandRightSpeedCommand(handSubsystem, 0))
-        .withPosition(0, 1);
     handCommands.add("Hand Zero", new ZeroHandCommand(handSubsystem)).withPosition(0, 2);
     handCommands
         .add("Hand Left In", new HandLeftSpeedCommand(handSubsystem, 0.1))
         .withPosition(0, 3);
     handCommands
-        .add("Hand Right In", new HandRightSpeedCommand(handSubsystem, 0.1))
-        .withPosition(0, 4);
-    handCommands
         .add("Hand Left Out", new HandLeftSpeedCommand(handSubsystem, -0.1))
         .withPosition(0, 5);
-    handCommands
-        .add("Hand Right Out", new HandRightSpeedCommand(handSubsystem, -0.1))
-        .withPosition(0, 6);
     handCommands.add("Grab Cube", new GrabCubeCommand(handSubsystem)).withPosition(0, 7);
     handCommands.add("Grab Cone", new GrabConeCommand(handSubsystem)).withPosition(0, 8);
   }

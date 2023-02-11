@@ -314,13 +314,16 @@ public class Constants {
     public static final int kRemoteEncoderID = 15; // 15
 
     // zero=up&slightly towards the elevator
-    public static final int kZeroTicks = 1878; // FIXME needs real tick values
+    public static final int kZeroTicks = 1820; // FIXME needs real tick values
+
     public static final int kForwardSoftLimit = 70_000; // 1905
     public static final int kReverseSoftLimit = -25_000; // -506
 
     public static final double kZeroDegs = -90; // FIXME
     public static final double kTicksPerDeg = 4096.0 / 360.0; // FIXME
     public static final double kLength = 0.7855; // m
+
+    public static final double kOffsetFactor = 103.5 / 2;
 
     public static final int kCloseEnoughTicks = 20;
 
@@ -425,8 +428,8 @@ public class Constants {
     public static final int kExtendTalonID = 21;
 
     public static final int kCloseEnoughTicks = 150;
-    public static final int kExtendPosTicks = 1100;
-    public static final int kRetractPosTicks = 10;
+    public static final int kExtendPosTicks = -1100;
+    public static final int kRetractPosTicks = -10;
 
     public static final double kIntakeSpeed = -0.5;
     public static final double kIntakeEjectSpeed = 0.5;
@@ -439,14 +442,24 @@ public class Constants {
       TalonSRXConfiguration talonConfig = new TalonSRXConfiguration();
 
       talonConfig.forwardSoftLimitEnable = true;
-      talonConfig.forwardSoftLimitThreshold = 1140;
+      talonConfig.forwardSoftLimitThreshold = 0;
       talonConfig.reverseSoftLimitEnable = true;
-      talonConfig.reverseSoftLimitThreshold = 0;
+      talonConfig.reverseSoftLimitThreshold = -2500;
       talonConfig.neutralDeadband = 0.01;
       talonConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
       talonConfig.velocityMeasurementWindow = 64;
       talonConfig.voltageCompSaturation = 12;
       talonConfig.voltageMeasurementFilter = 32;
+
+      talonConfig.slot0.kP = 1.2;
+      talonConfig.slot0.kI = 0.0;
+      talonConfig.slot0.kD = 20;
+      talonConfig.slot0.kF = 1.2;
+      talonConfig.slot0.integralZone = 0.0;
+      talonConfig.slot0.maxIntegralAccumulator = 0.0;
+      talonConfig.slot0.allowableClosedloopError = 0.0;
+      talonConfig.motionCruiseVelocity = 400;
+      talonConfig.motionAcceleration = 10_000;
 
       return talonConfig;
     }
@@ -454,9 +467,9 @@ public class Constants {
     public static SupplyCurrentLimitConfiguration getTalonSupplyLimitConfig() {
       SupplyCurrentLimitConfiguration extendSupplyConfig = new SupplyCurrentLimitConfiguration();
 
-      extendSupplyConfig.currentLimit = 20;
-      extendSupplyConfig.triggerThresholdCurrent = 45;
-      extendSupplyConfig.triggerThresholdTime = 0.04;
+      extendSupplyConfig.currentLimit = 5.0;
+      extendSupplyConfig.triggerThresholdCurrent = 20.0;
+      extendSupplyConfig.triggerThresholdTime = 1.0;
       extendSupplyConfig.enable = true;
 
       return extendSupplyConfig;
@@ -465,7 +478,7 @@ public class Constants {
     public static TalonFXConfiguration getIntakeFalconConfig() {
       TalonFXConfiguration falconConfig = new TalonFXConfiguration();
 
-      falconConfig.neutralDeadband = 0.01;
+      falconConfig.neutralDeadband = 0.04;
       falconConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
       falconConfig.velocityMeasurementWindow = 64;
       falconConfig.voltageCompSaturation = 12;
@@ -473,7 +486,12 @@ public class Constants {
       falconConfig.supplyCurrLimit.currentLimit = 20;
       falconConfig.supplyCurrLimit.triggerThresholdCurrent = 45;
       falconConfig.supplyCurrLimit.triggerThresholdTime = 0.04;
-      falconConfig.supplyCurrLimit.enable = true;
+      falconConfig.supplyCurrLimit.enable = false;
+
+      falconConfig.statorCurrLimit.currentLimit = 30;
+      falconConfig.statorCurrLimit.triggerThresholdCurrent = 30;
+      falconConfig.statorCurrLimit.triggerThresholdTime = 0.1;
+      falconConfig.statorCurrLimit.enable = true;
 
       return falconConfig;
     }
@@ -482,16 +500,18 @@ public class Constants {
   public static class HandConstants {
     public static int kHandTalonId = 40;
 
-    public static final double kMaxFwd = 2800.0; // 1100
-    public static final double kMaxRev = 0.0; // -1000
+    public static final double kMaxFwd = 2312; // 1100
+    public static final double kMaxRev = -740; // -1000
 
     public static final double kHandZeroSpeed = 0.1;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
     public static final int kZeroStableCounts = 1592;
 
+    public static final double kHandZeroTicks = 855;
+
     public static final double kAllowedError = 0; // FIXME
 
-    public static final double kCubeGrabbingPositionLeft = 0; // FIXME
+    public static final double kCubeGrabbingPositionLeft = 671; // FIXME
     public static final double kConeGrabbingPositionLeft = 0; // FIXME
     public static final double kCubeGrabbingPositionRight = 0; // FIXME
     public static final double kConeGrabbingPositionRight = 0; // FIXME

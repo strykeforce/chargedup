@@ -152,11 +152,11 @@ public class ArmSubsystem extends MeasurableSubsystem {
   public void periodic() {
     HandRegion currHandRegion = getHandRegion();
 
-    shoulderSubsystem.setSoftLimits(
-        currHandRegion.minTicksShoulder, currHandRegion.maxTicksShoulder);
-    elevatorSubsystem.setSoftLimits(
-        currHandRegion.minTicksElevator, currHandRegion.maxTicksElevator);
-    elbowSubsystem.setSoftLimits(currHandRegion.minTicksElbow, currHandRegion.maxTicksElbow);
+    // shoulderSubsystem.setSoftLimits(
+    //     currHandRegion.minTicksShoulder, currHandRegion.maxTicksShoulder);
+    // elevatorSubsystem.setSoftLimits(
+    //     currHandRegion.minTicksElevator, currHandRegion.maxTicksElevator);
+    // elbowSubsystem.setSoftLimits(currHandRegion.minTicksElbow, currHandRegion.maxTicksElbow);
 
     switch (armState) {
       case STOW:

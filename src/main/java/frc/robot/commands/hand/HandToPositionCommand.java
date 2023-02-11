@@ -9,7 +9,7 @@ public class HandToPositionCommand extends InstantCommand {
   private double rightPosition;
 
   public HandToPositionCommand(
-      HandSubsystem handSubsystem, double leftPosition, double rightPosition) {
+      HandSubsystem handSubsystem, double leftPosition /*, double rightPosition*/) {
     this.handSubsystem = handSubsystem;
     this.leftPosition = leftPosition;
     this.rightPosition = rightPosition;
@@ -19,6 +19,6 @@ public class HandToPositionCommand extends InstantCommand {
 
   @Override
   public void initialize() {
-    handSubsystem.setPos(leftPosition, rightPosition);
+    handSubsystem.setPos(leftPosition /*, rightPosition*/);
   }
 }

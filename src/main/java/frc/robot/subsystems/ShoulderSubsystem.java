@@ -24,7 +24,7 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
     shoulderTalon.configSupplyCurrentLimit(
         Constants.ShoulderConstants.getShoulderTalonSupplyLimitConfig());
     shoulderTalon.setNeutralMode(NeutralMode.Coast);
-    
+
     zeroShoulder();
     desiredPosition = getPos();
   }

@@ -28,7 +28,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
     leftMainFalcon.configSupplyCurrentLimit(
         Constants.ElevatorConstants.getElevatorSupplyLimitConfig());
     leftMainFalcon.setNeutralMode(NeutralMode.Brake);
-    
+
     rightFollowFalcon.configFactoryDefault();
     rightFollowFalcon.configAllSettings(Constants.ElevatorConstants.getElevatorFalconConfig());
     rightFollowFalcon.configSupplyCurrentLimit(

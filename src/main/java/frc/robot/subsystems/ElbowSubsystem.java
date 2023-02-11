@@ -47,7 +47,7 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
   private void zeroElbow() {
     int absoluteTicks = getPulseWidthFor(PWMChannel.PWMChannel0);
     int offset = absoluteTicks - ElbowConstants.kZeroTicks;
-    elbowFalcon.setSelectedSensorPosition(offset);
+    elbowFalcon.setSelectedSensorPosition(offset * Constants.ElbowConstants.kOffsetFactor);
     remoteEncoder.setQuadraturePosition(offset, 10);
     logger.info(
         "Zeroed elbow, absolute: {}, offset: {}, zero ticks: {}",

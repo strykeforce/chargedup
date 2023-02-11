@@ -43,6 +43,7 @@ public class HandSubsystem extends MeasurableSubsystem {
 
     handState = HandStates.IDLE;
     handLeftZeroStableCounts = 0;
+    zeroHand();
     // handRightZeroStableCounts = 0;
   }
 
@@ -58,7 +59,7 @@ public class HandSubsystem extends MeasurableSubsystem {
   //   handRightTalon.set(ControlMode.MotionMagic, location);
   // }
 
-  public void setPos(double leftLocation/*, double rightLocation*/) {
+  public void setPos(double leftLocation /*, double rightLocation*/) {
     setLeftPos(leftLocation);
     // setRightPos(rightLocation);
   }
@@ -83,42 +84,51 @@ public class HandSubsystem extends MeasurableSubsystem {
 
   public boolean isFinished() {
     return Math.abs(leftDesiredPosition - getLeftPos()) <= Constants.HandConstants.kAllowedError
-        /*&& Math.abs(rightDesiredPosition - getRightPos()) <= Constants.HandConstants.kAllowedError*/;
+    /*&& Math.abs(rightDesiredPosition - getRightPos()) <= Constants.HandConstants.kAllowedError*/ ;
   }
 
   public void zeroHand() {
-    leftZeroDone = false;
-    // rightZeroDone = false;
+    // leftZeroDone = false;
+    // // rightZeroDone = false;
 
-    handLeftTalon.configForwardSoftLimitEnable(false);
-    handLeftTalon.configReverseSoftLimitEnable(false);
+    // handLeftTalon.configForwardSoftLimitEnable(false);
+    // handLeftTalon.configReverseSoftLimitEnable(false);
 
-    // handRightTalon.configForwardSoftLimitEnable(false);
-    // handRightTalon.configReverseSoftLimitEnable(false);
+    // // handRightTalon.configForwardSoftLimitEnable(false);
+    // // handRightTalon.configReverseSoftLimitEnable(false);
 
-    handLeftTalon.configSupplyCurrentLimit(
-        Constants.HandConstants.getHandZeroSupplyCurrentLimit(), Constants.kTalonConfigTimeout);
-    // handRightTalon.configSupplyCurrentLimit(
+    // handLeftTalon.configSupplyCurrentLimit(
     //     Constants.HandConstants.getHandZeroSupplyCurrentLimit(), Constants.kTalonConfigTimeout);
+    // // handRightTalon.configSupplyCurrentLimit(
+    // //     Constants.HandConstants.getHandZeroSupplyCurrentLimit(),
+    // Constants.kTalonConfigTimeout);
 
-    setLeftPct(Constants.HandConstants.kHandZeroSpeed);
-    // setRightPct(Constants.HandConstants.kHandZeroSpeed);
+    // setLeftPct(Constants.HandConstants.kHandZeroSpeed);
+    // // setRightPct(Constants.HandConstants.kHandZeroSpeed);
 
-    logger.info("Hand is zeroing");
-    handState = HandStates.ZEROING;
+    double absolute = handLeftTalon.getSensorCollection().getPulseWidthPosition() & 0xFFF;
+    double offset = absolute - Constants.HandConstants.kHandZeroTicks;
+    handLeftTalon.setSelectedSensorPosition(offset);
+
+    logger.info(
+        "Absolute: {}, Zero pos: {}, Offset: {}",
+        absolute,
+        Constants.HandConstants.kHandZeroTicks,
+        offset);
+
+    // logger.info("Hand is zeroing");
+    // handState = HandStates.ZEROING;
   }
 
   public void grabCube() {
     logger.info("Grabbing cube");
-    setPos(
-        Constants.HandConstants.kCubeGrabbingPositionLeft/*,
+    setPos(Constants.HandConstants.kCubeGrabbingPositionLeft /*,
         Constants.HandConstants.kCubeGrabbingPositionRight*/);
   }
 
   public void grabCone() {
     logger.info("Grabbing cone");
-    setPos(
-        Constants.HandConstants.kConeGrabbingPositionLeft/*,
+    setPos(Constants.HandConstants.kConeGrabbingPositionLeft /*,
         Constants.HandConstants.kConeGrabbingPositionRight*/);
   }
 
@@ -182,7 +192,7 @@ public class HandSubsystem extends MeasurableSubsystem {
         // }
 
         if (handLeftZeroStableCounts > Constants.HandConstants.kZeroStableCounts
-            /*&& handRightZeroStableCounts > Constants.HandConstants.kZeroStableCounts*/) {
+        /*&& handRightZeroStableCounts > Constants.HandConstants.kZeroStableCounts*/ ) {
           handState = HandStates.ZEROED;
         }
 

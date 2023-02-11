@@ -7,12 +7,15 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.strykeforce.telemetry.TelemetryService;
+import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
+import org.strykeforce.telemetry.measurable.Measure;
 
-public class IntakeSubsystem extends SubsystemBase {
+public class IntakeSubsystem extends MeasurableSubsystem {
   private IntakeState currIntakeState = IntakeState.RETRACTED;
   private TalonFX intakeFalcon;
   private TalonSRX extendTalon;
@@ -137,6 +140,18 @@ public class IntakeSubsystem extends SubsystemBase {
       default:
         break;
     }
+  }
+
+  @Override
+  public Set<Measure> getMeasures() {
+    return Set.of();
+  }
+
+  @Override
+  public void registerWith(TelemetryService telemetryService) {
+    super.registerWith(telemetryService);
+    telemetryService.register(extendTalon);
+    telemetryService.register(intakeFalcon);
   }
 
   public enum IntakeState {
