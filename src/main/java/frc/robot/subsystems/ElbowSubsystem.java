@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.CANifier;
 import com.ctre.phoenix.CANifier.PWMChannel;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import frc.robot.Constants;
 import frc.robot.Constants.ElbowConstants;
@@ -22,6 +23,7 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
 
   public ElbowSubsystem() {
     elbowFalcon = new TalonFX(ElbowConstants.kElbowFalconID);
+    elbowFalcon.configFactoryDefault();
     elbowFalcon.configAllSettings(ElbowConstants.getElbowFalonConfig());
 
     remoteEncoder = new CANifier(ElbowConstants.kRemoteEncoderID);
@@ -30,6 +32,8 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
     elbowFalcon.configForwardSoftLimitEnable(true);
     elbowFalcon.configReverseSoftLimitThreshold(ElbowConstants.kReverseSoftLimit);
     elbowFalcon.configReverseSoftLimitEnable(true);
+
+    elbowFalcon.setNeutralMode(NeutralMode.Brake);
 
     zeroElbow();
   }

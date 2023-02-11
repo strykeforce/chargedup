@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import frc.robot.Constants;
 import java.util.Set;
@@ -18,9 +19,12 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
 
   public ShoulderSubsystem() {
     shoulderTalon = new TalonSRX(Constants.ShoulderConstants.kShoulderId);
+    shoulderTalon.configFactoryDefault();
     shoulderTalon.configAllSettings(Constants.ShoulderConstants.getShoulderTalonConfig());
     shoulderTalon.configSupplyCurrentLimit(
         Constants.ShoulderConstants.getShoulderTalonSupplyLimitConfig());
+    shoulderTalon.setNeutralMode(NeutralMode.Coast);
+    
     zeroShoulder();
     desiredPosition = getPos();
   }

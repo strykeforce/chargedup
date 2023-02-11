@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.Timer;
@@ -24,13 +25,17 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public IntakeSubsystem() {
     intakeFalcon = new TalonFX(IntakeConstants.kIntakeFalconID);
+    intakeFalcon.configFactoryDefault();
     intakeFalcon.configAllSettings(IntakeConstants.getIntakeFalconConfig());
+    intakeFalcon.setNeutralMode(NeutralMode.Coast);
 
     extendTalon = new TalonSRX(IntakeConstants.kExtendTalonID);
+    extendTalon.configFactoryDefault();
     extendTalon.configAllSettings(IntakeConstants.getExtendTalonConfig());
     extendTalon.configSupplyCurrentLimit(IntakeConstants.getTalonSupplyLimitConfig());
     extendTalon.configForwardLimitSwitchSource(
         LimitSwitchSource.Deactivated, LimitSwitchNormal.NormallyOpen);
+    extendTalon.setNeutralMode(NeutralMode.Brake);
 
     zeroIntake();
   }
