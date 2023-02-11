@@ -15,9 +15,9 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private TargetCol targetCol = TargetCol.NONE;
   private GamePiece gamePiece = GamePiece.NONE;
   private RobotState currRobotState;
-  private RobotState nextRobotState;
   private Logger logger = LoggerFactory.getLogger(RobotStateSubsystem.class);
   private Alliance allianceColor = DriverStation.getAlliance();
+  private boolean isAutoStage;
 
   public RobotStateSubsystem(IntakeSubsystem intakeSubsystem) {
     this.intakeSubsystem = intakeSubsystem;
@@ -63,6 +63,30 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     return allianceColor;
   }
 
+  public void maunalStage() {
+    // if we do have a game piece
+    isAutoStage  = false;
+    if (targetLevel == TargetLevel.HIGH) {
+      currRobotState = RobotState.LVL_3_SCORE;
+    } else if (targetLevel == TargetLevel.MID) {
+      currRobotState = RobotState.LVL_2_SCORE;
+    } else if (targetLevel == TargetLevel.LOW) {
+      currRobotState = RobotState.LVL_1_SCORE;
+    }
+  }
+
+  public void autoStage() {
+    // if we do have a game piece
+    isAutoStage = true;
+    if (targetLevel == TargetLevel.HIGH) {
+      currRobotState = RobotState.LVL_3_SCORE;
+    } else if (targetLevel == TargetLevel.MID) {
+      currRobotState = RobotState.LVL_2_SCORE;
+    } else if (targetLevel == TargetLevel.LOW) {
+      currRobotState = RobotState.LVL_1_SCORE;
+    }
+  }
+
   @Override
   public void periodic() {
     switch (currRobotState) {
@@ -77,6 +101,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       case FLOOR_PICKUP:
         break;
       case LVL_1_SCORE:
+        if (isAutoStage) {
+          // goto position
+        }
+        // armsubsystem: goto lvl 1 position
+        intakeSubsystem.retractIntake();
         break;
       case LVL_2_SCORE:
         break;
