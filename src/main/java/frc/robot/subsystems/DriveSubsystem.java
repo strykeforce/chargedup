@@ -10,6 +10,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -63,6 +64,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
       new TimestampedPose(RobotController.getFPGATime(), new Pose2d());
   public VisionSubsystem visionSubsystem;
   private double distanceVisionWheelOdom = 0.0;
+  private boolean autoDriving = false;
+  private Pose2d endAutoDrivePose;
 
   public DriveSubsystem() {
     var moduleBuilder =
@@ -151,11 +154,46 @@ public class DriveSubsystem extends MeasurableSubsystem {
   public void setRobotStateSubsystem(RobotStateSubsystem robotStateSubsystem) {
     this.robotStateSubsystem = robotStateSubsystem;
   }
+  public void driveToPose() {
+    endAutoDrivePose = robotStateSubsystem.getAutoPlaceDriveTarget(kTalonConfigTimeout);
+    autoDriving = true;
+  }
+
+  public double autoAcceleration(double distance, double speed)
+  {
+    double accel = 1.5/2;
+    double distDecel = -2*2 / (-2*1.5);
+    if (distance < distDecel && speed < 2)
+      return speed += accel;
+    if (distance < distDecel)
+      if (speed < 2*1.5*distance)
+        return speed += accel;
+      else 
+        return 2*1.5*distance;
+    return speed;
+  }
+
+  //public double autoDriveVector(double xMps, double yMps)
+  //{
+
+  //}
 
   @Override
   public void periodic() {
     // Update swerve module states every robot loop
     swerveDrive.periodic();
+    if (autoDriving) {
+      // Pose2d currentPose = getPoseMeters();
+      // Transform2d poseDifference = currentPose.minus(endAutoDrivePose);
+      // Translation2d moveTranslation = new Translation2d(poseDifference.getX() * 0.05, poseDifference.getY() * 0.05);
+      double xSpeed = getFieldRelSpeed().vxMetersPerSecond;
+      double ySpeed = getFieldRelSpeed().vyMetersPerSecond;
+      Pose2d endPoint = new Pose2d();
+
+
+
+
+    }
     // TimestampedPose pose = visionSubsystem.odomNewPoseViaVision();
     // if (!DriverStation.isAutonomous()) {
     //   distanceVisionWheelOdom = distancePose(pose.getPose(), swerveDrive.getPoseMeters());
