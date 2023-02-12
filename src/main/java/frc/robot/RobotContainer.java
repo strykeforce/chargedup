@@ -33,6 +33,7 @@ import frc.robot.commands.hand.HandToPositionCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
+import frc.robot.commands.intake.ToggleIntakeExtendedCommand;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
 import frc.robot.commands.shoulder.ShoulderToPositionCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
@@ -176,9 +177,9 @@ public class RobotContainer {
     // intake buttons
     // new JoystickButton(xboxController, 3).onTrue(new
     // ToggleIntakeExtendedCommand(intakeSubsystem));
-    // new JoystickButton(driveJoystick, Shoulder.RIGHT_DOWN.id)
-    //     .onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem))
-    //     .onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));
+    new JoystickButton(driveJoystick, Shoulder.RIGHT_DOWN.id)
+        .onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem))
+        .onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));
 
     // Toggle auto staging
     // new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
@@ -195,18 +196,21 @@ public class RobotContainer {
     new JoystickButton(xboxController, XboxController.Button.kY.value)
         .onTrue(
             new ShoulderToPositionCommand(
-                shoulderSubsystem, Constants.ShoulderConstants.kShelfShoulder));
+                shoulderSubsystem, Constants.ShoulderConstants.kIntakeShoulder));
     new JoystickButton(xboxController, XboxController.Button.kB.value)
-        .onTrue(new ElbowToPositionCommand(elbowSubsystem, Constants.ElbowConstants.kShelfElbow));
+        .onTrue(new ElbowToPositionCommand(elbowSubsystem, Constants.ElbowConstants.kIntakeElbow));
     new JoystickButton(xboxController, XboxController.Button.kA.value)
         .onTrue(
             new ElevatorToPositionCommand(
-                elevatorSubsystem, Constants.ElevatorConstants.kShelfElevator));
+                elevatorSubsystem, Constants.ElevatorConstants.kIntakeElevator));
 
     new JoystickButton(xboxController, XboxController.Button.kX.value)
         .onTrue(
-            new ShoulderToPositionCommand(
-                shoulderSubsystem, Constants.ShoulderConstants.kIntakeShoulder));
+            new ElevatorToPositionCommand(
+                elevatorSubsystem, Constants.ElevatorConstants.kStowElevator));
+
+    new JoystickButton(xboxController, XboxController.Button.kStart.value)
+        .onTrue(new ElbowToPositionCommand(elbowSubsystem, Constants.ElbowConstants.kStowElbow));
     // Set auto staging target
     // Left column
     // new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value)
