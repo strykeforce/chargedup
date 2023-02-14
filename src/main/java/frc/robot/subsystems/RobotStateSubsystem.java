@@ -50,6 +50,14 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     return gamePiece;
   }
 
+  public boolean isAutoStaging() {
+    return autoStaging;
+  }
+
+  public void setAutoStaging(boolean enable) {
+    this.autoStaging = enable;
+  }
+
   @Override
   public Set<Measure> getMeasures() {
     return Set.of();
