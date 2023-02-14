@@ -32,6 +32,7 @@ public class DriveAutonCommand extends CommandBase {
     this.lastPath = lastPath;
     this.resetOdometry = resetOdometry;
     this.trajectoryName = trajectoryName;
+    generateTrajectory();
     timer.start();
   }
 

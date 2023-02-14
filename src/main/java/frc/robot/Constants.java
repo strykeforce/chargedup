@@ -33,7 +33,7 @@ public class Constants {
   public static final class RobotStateConstants {
     public static final double kRobotLength = 1.5; // FIXME m
     public static final double kPoleToCenterOffset = 1.38 + kRobotLength / 2.0; // m
-    public static final double kAutoPlaceX = 2.5; // FIXME m 2.5
+    public static final double kAutoPlaceX = 2.2; // FIXME m 2.5
 
     public static final double[] kGridY = {1.071626, 2.748026, 4.424426}; // m
     public static final double kBound1Y = 1.908175; // m
@@ -47,7 +47,7 @@ public class Constants {
     public static final Pose2d kOdometryZeroPos =
         new Pose2d(new Translation2d(1.77, 5.12), new Rotation2d());
     public static final double kWheelDiameterInches =
-        3.0 * (563.5 / 500.0); // Actual/Odometry //575 old number
+        3.0 * (417 / 500.0); // Actual/Odometry //563.5 old number
     public static final double kUpdateThreshold = 0.35;
     public static final double kResetThreshold = 0.005;
     public static final double kPutOdomResetThreshold = 0.35;

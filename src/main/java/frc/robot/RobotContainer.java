@@ -117,6 +117,8 @@ public class RobotContainer {
         .onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
         .onTrue(new ResetOdometryCommand(driveSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+    //     .onTrue(new DriveAutonCommand(driveSubsystem, "straightPathX", true, true));
     // Requires swerve migration to new Pose2D
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
     // {driveSubsystem.resetOdometry(new Pose2d());},driveSubsystem);
