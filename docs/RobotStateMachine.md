@@ -36,7 +36,7 @@ stateDiagram-v2
 
     state releaseGamepiece {
         [*] --> waitScore
-        startDelay --> [*]: delayElapsed
+        waitScore --> [*]: delayElapsed
     }
 
 
@@ -65,7 +65,7 @@ stateDiagram-v2
 
     state grabGamepiece {
         [*] --> waitShelf
-        startDelay2 --> [*]: delayElapsed
+        waitShelf --> [*]: delayElapsed
     }
 
     stow --> manualShelf
