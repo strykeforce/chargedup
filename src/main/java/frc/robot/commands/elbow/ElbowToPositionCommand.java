@@ -16,7 +16,7 @@ public class ElbowToPositionCommand extends CommandBase {
 
   @Override
   public void initialize() {
-    elbowSubsystem.rotateClosedLoop(position);
+    elbowSubsystem.setPos(position);
   }
 
   @Override

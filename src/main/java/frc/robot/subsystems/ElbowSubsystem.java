@@ -61,7 +61,7 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
     logger.info("elbow openloop percentOutput: {}", percentOutput);
   }
 
-  public void rotateClosedLoop(double posTicks) {
+  public void setPos(double posTicks) {
     elbowFalcon.set(ControlMode.MotionMagic, posTicks);
     setPointTicks = posTicks;
   }
