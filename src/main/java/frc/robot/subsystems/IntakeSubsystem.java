@@ -60,7 +60,7 @@ public class IntakeSubsystem extends MeasurableSubsystem {
     // logger.info("Intake is retracting to {}", IntakeConstants.kRetractPosTicks);
   }
 
-  public boolean isIntakeAtPos() {
+  public boolean isFinished() {
     return Math.abs(intakeSetPointTicks - extendTalon.getSelectedSensorPosition())
         < IntakeConstants.kCloseEnoughTicks;
   }

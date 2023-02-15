@@ -452,7 +452,6 @@ public class Constants {
   }
 
   public static final class IntakeConstants {
-    // FIXME: need correct values
 
     public static final int kIntakeFalconID = 20;
     public static final int kExtendTalonID = 21;
@@ -464,6 +463,7 @@ public class Constants {
     public static final double kIntakeSpeed = -0.35;
     public static final double kIntakeEjectSpeed = 0.3;
     public static final double kEjectTimerDelaySec = 3;
+    public static final double kIntakePickupDelaySec = 1;
 
     public static final int kIntakeZeroTicks = 3806;
 

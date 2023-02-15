@@ -1,7 +1,11 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.Constants.HandConstants;
+import frc.robot.Constants.IntakeConstants;
+
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +20,12 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private TargetCol targetCol = TargetCol.NONE;
   private GamePiece gamePiece = GamePiece.NONE;
   private RobotState currRobotState = RobotState.STOW;
+  private RobotState nextRobotState = RobotState.STOW;
   private Logger logger = LoggerFactory.getLogger(RobotStateSubsystem.class);
   private Alliance allianceColor = DriverStation.getAlliance();
   private boolean isAutoStage;
+  private Timer intakeDelayTimer = new Timer();
+  private boolean isIntakeTimerRunning = false;
 
   public RobotStateSubsystem(IntakeSubsystem intakeSubsystem, ArmSubsystem armSubsystem, HandSubsystem handSubsystem) {
     this.intakeSubsystem = intakeSubsystem;
@@ -82,60 +89,84 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     
   }
 
+  public void toStow() {
+    toStow(RobotState.STOW);
+  }
+
+  public void toStow(RobotState nextState) {
+    currRobotState = RobotState.STOW;
+    nextRobotState = nextState;
+  }
+
   @Override
   public void periodic() {
     switch (currRobotState) {
       case STOW:
-        // intake off
-        // close hand
-        // pull arm in
-        // retract intake
+        // retract itnake
+        // (wait) close hand
+        // (wait) pull arm in
+
+        intakeSubsystem.retractIntake();
+
+        handSubsystem.setPos(HandConstants.kCubeGrabbingPosition); // FIXME need hand closed position
+        if (!handSubsystem.isFinished()) break;
+
+        armSubsystem.toStowPos();
+        if (!armSubsystem.isFinished()) break;
+
+        currRobotState = nextRobotState;
+
         break;
       case TO_INTAKE_STAGE:
         // (from) STOW
-        // extend intake
-        // turn on intake
-        // elbow to position
-        // open hand
+        // start intaking
+        // (wait) elbow to position
+        // (wait) open hand
         // (to) INTAKE_STAGE
 
         intakeSubsystem.startIntaking();
-        if (!intakeSubsystem.isIntakeAtPos()) break;
 
         armSubsystem.toIntakeStagePos();
         if (!armSubsystem.isFinished()) break;
 
-        handSubsystem.s
-        // if (!armSubsystem.isFinished()) break;
+        handSubsystem.setPos(HandConstants.kHandZeroTicks); // FIXME need hand open position
+        if (!handSubsystem.isFinished()) break;
       case INTAKE_STAGE:
         // (from) TO_INTAKE_STAGE
-        // beam break
+        // (wait) beam break
         // (to) INTAKE
 
         if (!intakeSubsystem.getIsBeamBreakActive()) break;
       case INTAKE:
         // (from) INTAKE_STAGE
-        // intake off
-        // intake in
-        // elevator down
-        // hand close
-        // small delay
+        // (wait) intake retract
+        // (wait) elevator down
+        // (wait) hand close
+        // (wait) small delay
         // set game piece cube
         // (to) STOW
 
         intakeSubsystem.retractIntake();
-        if (!intakeSubsystem.isIntakeAtPos()) break;
+        if (!intakeSubsystem.isFinished()) break;
 
         armSubsystem.toIntakePos();
         if (!armSubsystem.isFinished()) break;
 
-        // close hand
+        handSubsystem.grabCube();
+        if (!handSubsystem.isFinished()) break;
 
-        // delay
+        if (!isIntakeTimerRunning) {
+          isIntakeTimerRunning = true;
+          intakeDelayTimer.reset();
+          intakeDelayTimer.start();
+        }
+        if (!intakeDelayTimer.hasElapsed(IntakeConstants.kIntakePickupDelaySec)) break;
+        intakeDelayTimer.stop();
+        isIntakeTimerRunning = false;
 
         setGamePiece(GamePiece.CUBE);
 
-        currRobotState = RobotState.STOW;
+        toStow();
 
         break;
       default:
