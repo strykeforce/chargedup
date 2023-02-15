@@ -7,9 +7,6 @@ import frc.robot.Constants.ElbowConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ShoulderConstants;
 import java.util.Set;
-
-import javax.lang.model.element.ElementKind;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
@@ -35,7 +32,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
     this.elevatorSubsystem = elevatorSubsystem;
     this.elbowSubsystem = elbowSubsystem;
   }
-
 
   public void toStowPos() {
     toStowPos(ArmState.STOW);
@@ -427,7 +423,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
           default:
             break;
         }
-      break;
+        break;
       case STOW_TO_FLOOR:
         switch (currAxis) {
           case ELBOW:
@@ -452,7 +448,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
           default:
             break;
         }
-      break;
+        break;
       case FLOOR_TO_STOW:
         switch (currAxis) {
           case SHOULDER:
@@ -479,7 +475,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
           default:
             break;
         }
-      break;
+        break;
       case SCORE_TO_STOW:
         switch (currAxis) {
           case SHOULDER:
@@ -506,83 +502,82 @@ public class ArmSubsystem extends MeasurableSubsystem {
           default:
             break;
         }
-      break;
-        
-        case INTAKE_STAGE_TO_INTAKE:
-          switch (currAxis) {
-            case ELEVATOR:
-              if (elevatorSubsystem.isFinished()) {
-                currAxis = CurrentAxis.ELBOW;
-                elbowSubsystem.setPos(ArmState.INTAKE.elbowPos);
-              }
-              break;
-            case ELBOW:
-              if (elbowSubsystem.isFinished()) {
-                currAxis = CurrentAxis.SHOULDER;
-                shoulderSubsystem.setPos(ArmState.INTAKE.shoulderPos);
-              }
-              break;
-            case SHOULDER:
-              if (shoulderSubsystem.isFinished()) {
-                logger.info("{} -> INTAKE", currState);
-                currState = ArmState.INTAKE;
-                currAxis = CurrentAxis.NONE;
-              }
-              break;
-              default:
-                break;
-          } 
         break;
-        case INTAKE_TO_STOW:
-          switch (currAxis) {
-            case ELEVATOR:
-            case SHOULDER: // Fall through
+
+      case INTAKE_STAGE_TO_INTAKE:
+        switch (currAxis) {
+          case ELEVATOR:
+            if (elevatorSubsystem.isFinished()) {
+              currAxis = CurrentAxis.ELBOW;
+              elbowSubsystem.setPos(ArmState.INTAKE.elbowPos);
+            }
+            break;
+          case ELBOW:
+            if (elbowSubsystem.isFinished()) {
+              currAxis = CurrentAxis.SHOULDER;
+              shoulderSubsystem.setPos(ArmState.INTAKE.shoulderPos);
+            }
+            break;
+          case SHOULDER:
+            if (shoulderSubsystem.isFinished()) {
+              logger.info("{} -> INTAKE", currState);
+              currState = ArmState.INTAKE;
+              currAxis = CurrentAxis.NONE;
+            }
+            break;
+          default:
+            break;
+        }
+        break;
+      case INTAKE_TO_STOW:
+        switch (currAxis) {
+          case ELEVATOR:
+          case SHOULDER: // Fall through
             if (elevatorSubsystem.isFinished() && shoulderSubsystem.isFinished()) {
               elbowSubsystem.setPos(ArmState.STOW.elbowPos);
               currAxis = CurrentAxis.ELBOW;
-            } 
+            }
             break;
-            case ELBOW:
+          case ELBOW:
             if (elbowSubsystem.isFinished()) {
-              logger.info("{} -> STOW",currState);
+              logger.info("{} -> STOW", currState);
               currState = ArmState.STOW;
               currAxis = CurrentAxis.NONE;
             }
             break;
-            default:
-              break;
-          }
+          default:
+            break;
+        }
         break;
-        
-        case SHELF_TO_STOW:
-          switch (currAxis) {
-            case SHOULDER:
-              if (shoulderSubsystem.isFinished()) {
-                currAxis = CurrentAxis.ELEVATOR;
-                elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
-              }
-              break;
-            case ELEVATOR:
-              if (elevatorSubsystem.isFinished()) {
-                currAxis = CurrentAxis.ELBOW;
-                elbowSubsystem.setPos(ArmState.STOW.elbowPos);
-              }
-              break;
-            case ELBOW:
-              if (elbowSubsystem.isFinished()) {
-  
-                logger.info("{} -> STOW", currState);
-                currState = ArmState.STOW;
-                currAxis = CurrentAxis.NONE;
-              }
-              break;
-  
-            default:
-              break;
-          }
+
+      case SHELF_TO_STOW:
+        switch (currAxis) {
+          case SHOULDER:
+            if (shoulderSubsystem.isFinished()) {
+              currAxis = CurrentAxis.ELEVATOR;
+              elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+            }
+            break;
+          case ELEVATOR:
+            if (elevatorSubsystem.isFinished()) {
+              currAxis = CurrentAxis.ELBOW;
+              elbowSubsystem.setPos(ArmState.STOW.elbowPos);
+            }
+            break;
+          case ELBOW:
+            if (elbowSubsystem.isFinished()) {
+
+              logger.info("{} -> STOW", currState);
+              currState = ArmState.STOW;
+              currAxis = CurrentAxis.NONE;
+            }
+            break;
+
+          default:
+            break;
+        }
         break;
-        default:
-        
+      default:
         break;
     }
   }
@@ -644,6 +639,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
       this.elevatorPos = elevatorPos;
       this.elbowPos = elbowPos;
     }
+
     ArmState(ArmState armState) {
       this.shoulderPos = armState.shoulderPos;
       this.elbowPos = armState.elbowPos;
