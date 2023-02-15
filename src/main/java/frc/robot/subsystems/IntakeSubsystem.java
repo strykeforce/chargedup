@@ -22,7 +22,6 @@ public class IntakeSubsystem extends MeasurableSubsystem {
   private double intakeSetPointTicks;
   private boolean isIntakeExtended = false;
   private Timer ejectTimer = new Timer();
-  private int lastAbsPos = Integer.MAX_VALUE;
   private boolean doHolding = false;
   private final Logger logger = LoggerFactory.getLogger(IntakeSubsystem.class);
 
@@ -113,6 +112,10 @@ public class IntakeSubsystem extends MeasurableSubsystem {
     return currIntakeState;
   }
 
+  public boolean getIsBeamBreakActive() {
+    return extendTalon.isFwdLimitSwitchClosed() == 1;
+  }
+
   @Override
   public void periodic() {
 
@@ -122,7 +125,7 @@ public class IntakeSubsystem extends MeasurableSubsystem {
         break;
       case INTAKING:
         // if we want to hold, check for beam break
-        if (doHolding && extendTalon.isFwdLimitSwitchClosed() == 1) {
+        if (doHolding && getIsBeamBreakActive()) {
           logger.info("INTAKING -> HOLDING");
           intakeOpenLoop(0);
           currIntakeState = IntakeState.HOLDING;

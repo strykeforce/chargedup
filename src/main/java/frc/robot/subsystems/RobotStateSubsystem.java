@@ -10,17 +10,20 @@ import org.strykeforce.telemetry.measurable.Measure;
 
 public class RobotStateSubsystem extends MeasurableSubsystem {
   private IntakeSubsystem intakeSubsystem;
-  // private ArmSubsystem armSubsystem;
+  private ArmSubsystem armSubsystem;
+  private HandSubsystem handSubsystem;
   private TargetLevel targetLevel = TargetLevel.NONE;
   private TargetCol targetCol = TargetCol.NONE;
   private GamePiece gamePiece = GamePiece.NONE;
-  private RobotState currRobotState;
+  private RobotState currRobotState = RobotState.STOW;
   private Logger logger = LoggerFactory.getLogger(RobotStateSubsystem.class);
   private Alliance allianceColor = DriverStation.getAlliance();
   private boolean isAutoStage;
 
-  public RobotStateSubsystem(IntakeSubsystem intakeSubsystem) {
+  public RobotStateSubsystem(IntakeSubsystem intakeSubsystem, ArmSubsystem armSubsystem, HandSubsystem handSubsystem) {
     this.intakeSubsystem = intakeSubsystem;
+    this.armSubsystem = armSubsystem;
+    this.handSubsystem = handSubsystem;
   }
 
   public void setTargetLevel(TargetLevel targetLevel) {
@@ -51,11 +54,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public boolean isAutoStaging() {
-    return autoStaging;
+    return isAutoStage;
   }
 
   public void setAutoStaging(boolean enable) {
-    this.autoStaging = enable;
+    this.isAutoStage = enable;
   }
 
   @Override
@@ -72,59 +75,70 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public void maunalStage() {
-    // if we do have a game piece
-    isAutoStage  = false;
-    if (targetLevel == TargetLevel.HIGH) {
-      currRobotState = RobotState.LVL_3_SCORE;
-    } else if (targetLevel == TargetLevel.MID) {
-      currRobotState = RobotState.LVL_2_SCORE;
-    } else if (targetLevel == TargetLevel.LOW) {
-      currRobotState = RobotState.LVL_1_SCORE;
-    }
+    
   }
 
   public void autoStage() {
-    // if we do have a game piece
-    isAutoStage = true;
-    if (targetLevel == TargetLevel.HIGH) {
-      currRobotState = RobotState.LVL_3_SCORE;
-    } else if (targetLevel == TargetLevel.MID) {
-      currRobotState = RobotState.LVL_2_SCORE;
-    } else if (targetLevel == TargetLevel.LOW) {
-      currRobotState = RobotState.LVL_1_SCORE;
-    }
+    
   }
 
   @Override
   public void periodic() {
     switch (currRobotState) {
       case STOW:
-        intakeSubsystem.retractIntake();
-        if (intakeSubsystem.isIntakeAtPos()) {
-          // armSubsystem.setArmState(ArmState.STOW);
-        }
+        // intake off
+        // close hand
+        // pull arm in
+        // retract intake
         break;
-      case SHELF_PICKUP:
-        break;
-      case FLOOR_PICKUP:
-        break;
-      case LVL_1_SCORE:
-        if (isAutoStage) {
-          // goto position
-        }
-        // armsubsystem: goto lvl 1 position
-        intakeSubsystem.retractIntake();
-        break;
-      case LVL_2_SCORE:
-        break;
-      case LVL_3_SCORE:
-        break;
-      case INTAKE:
+      case TO_INTAKE_STAGE:
+        // (from) STOW
+        // extend intake
+        // turn on intake
+        // elbow to position
+        // open hand
+        // (to) INTAKE_STAGE
+
         intakeSubsystem.startIntaking();
+        if (!intakeSubsystem.isIntakeAtPos()) break;
+
+        armSubsystem.toIntakeStagePos();
+        if (!armSubsystem.isFinished()) break;
+
+        handSubsystem.s
+        // if (!armSubsystem.isFinished()) break;
+      case INTAKE_STAGE:
+        // (from) TO_INTAKE_STAGE
+        // beam break
+        // (to) INTAKE
+
+        if (!intakeSubsystem.getIsBeamBreakActive()) break;
+      case INTAKE:
+        // (from) INTAKE_STAGE
+        // intake off
+        // intake in
+        // elevator down
+        // hand close
+        // small delay
+        // set game piece cube
+        // (to) STOW
+
+        intakeSubsystem.retractIntake();
+        if (!intakeSubsystem.isIntakeAtPos()) break;
+
+        armSubsystem.toIntakePos();
+        if (!armSubsystem.isFinished()) break;
+
+        // close hand
+
+        // delay
+
+        setGamePiece(GamePiece.CUBE);
+
+        currRobotState = RobotState.STOW;
+
         break;
-      case AUTO_BALANCE:
-        break;
-      case AUTO_ALIGN:
+      default:
         break;
     }
   }
@@ -151,13 +165,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   private enum RobotState {
     STOW,
-    SHELF_PICKUP,
-    FLOOR_PICKUP,
-    LVL_1_SCORE,
-    LVL_2_SCORE,
-    LVL_3_SCORE,
+    TO_INTAKE_STAGE,
+    INTAKE_STAGE,
     INTAKE,
-    AUTO_BALANCE,
-    AUTO_ALIGN
   }
 }

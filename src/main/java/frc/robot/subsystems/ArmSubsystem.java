@@ -272,6 +272,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
         new Measure("Hand region", () -> getHandRegion().ordinal()));
   }
 
+  public ArmState getCurrState() {
+    return currState;
+  }
+
   @Override
   public void periodic() {
     HandRegion currHandRegion = getHandRegion();
