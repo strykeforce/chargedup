@@ -417,9 +417,12 @@ public class Constants {
     public static final double kMaxFwd = 1100.0; // subject to change
     public static final double kMaxRev = -1000.0; // subject to change
 
+    public static final double kHasPieceMinTicks = 1000;
+
     public static final double kHandZeroSpeed = 0.1;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
     public static final int kZeroStableCounts = 1592;
+    public static final int kHasPieceStableCounts = 2;
 
     public static final double kAllowedError = 0; // FIXME
 
