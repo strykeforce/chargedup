@@ -6,7 +6,8 @@ import frc.robot.subsystems.RGBlightsSubsystem;
 public class RGBsetColorCommand extends InstantCommand {
   private RGBlightsSubsystem rgblightsSubsystem;
 
-  public RGBsetColorCommand(RGBlightsSubsystem rgblightsSubsystem, int red, int green, int blue) {
+  public RGBsetColorCommand(
+      RGBlightsSubsystem rgblightsSubsystem, Double red, Double green, Double blue) {
     this.rgblightsSubsystem = rgblightsSubsystem;
     this.rgblightsSubsystem.setColor(red, green, blue);
   }
