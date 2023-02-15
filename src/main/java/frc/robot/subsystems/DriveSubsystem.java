@@ -167,9 +167,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
     swerveDrive.periodic();
     if (autoDriving) {
       Pose2d currentPose = getPoseMeters();
+      Rotation2d robotRotation = getGyroRotation2d();
       Transform2d poseDifference = currentPose.minus(endAutoDrivePose);
       double abitraryKp = 0.60;
+      double rotationKp = 0.2;
 
+      Rotation2d rotationDifference = robotRotation.minus(new Rotation2d(0.0));
       double straightDist =
           Math.sqrt(
               poseDifference.getX() * poseDifference.getX()
@@ -197,14 +200,14 @@ public class DriveSubsystem extends MeasurableSubsystem {
       // Translation2d moveTranslation =
       // new Translation2d(poseDifference.getX() * 0.25, poseDifference.getY() * 0.25);
       if (Math.abs(moveTranslation.getX()) <= 1 && Math.abs(moveTranslation.getY()) <= 1) {
-        move(moveTranslation.getX(), moveTranslation.getY(), 0, true);
+        move(moveTranslation.getX(), moveTranslation.getY(), rotationDifference.getRadians() * rotationKp, true);
       } else {
         // Set accel limit to 1 x/|x| = 1 or -1
         // 1 *copysign
         move(
             (Math.copySign(1.0, moveTranslation.getX())),
             (Math.copySign(1.0, moveTranslation.getY())),
-            0,
+            rotationDifference.getRadians() * rotationKp,
             true);
       }
       logger.info("X accel {}, Y accel", moveTranslation.getX(), moveTranslation.getY());
