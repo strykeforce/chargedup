@@ -19,7 +19,6 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.DriveToPlaceNotPathCommand;
-import frc.robot.commands.drive.ResetOdometryCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
