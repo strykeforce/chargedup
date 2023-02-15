@@ -81,11 +81,14 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     return allianceColor;
   }
 
-  public void maunalStage() {
-    
+  public void toMaunalStage() {
+    // if (handSubsystem.hasGamePiece()) (aka. manual score)
+    toStow(RobotState.MANUAL_SCORE);
+    // else (aka. manual shelf)
+    toStow(RobotState.MANUAL_SHELF);
   }
 
-  public void autoStage() {
+  public void toAutoStage() {
     
   }
 
@@ -102,14 +105,16 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void periodic() {
     switch (currRobotState) {
       case STOW:
-        // retract itnake
+        // retract intake
         // (wait) close hand
         // (wait) pull arm in
 
         intakeSubsystem.retractIntake();
 
-        handSubsystem.setPos(HandConstants.kCubeGrabbingPosition); // FIXME need hand closed position
-        if (!handSubsystem.isFinished()) break;
+        if (gamePiece == GamePiece.NONE) {
+          handSubsystem.setPos(HandConstants.kCubeGrabbingPosition); // FIXME need hand closed position
+          if (!handSubsystem.isFinished()) break;
+        }
 
         armSubsystem.toStowPos();
         if (!armSubsystem.isFinished()) break;
@@ -131,12 +136,16 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
         handSubsystem.setPos(HandConstants.kHandZeroTicks); // FIXME need hand open position
         if (!handSubsystem.isFinished()) break;
+
+        currRobotState = RobotState.INTAKE_STAGE;
       case INTAKE_STAGE:
         // (from) TO_INTAKE_STAGE
         // (wait) beam break
         // (to) INTAKE
 
         if (!intakeSubsystem.getIsBeamBreakActive()) break;
+
+        currRobotState = RobotState.INTAKE;
       case INTAKE:
         // (from) INTAKE_STAGE
         // (wait) intake retract
@@ -169,6 +178,40 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         toStow();
 
         break;
+      case MANUAL_SCORE:
+        // (from) STOW
+        // arm to correct height
+        // (break) button to RELEASE_GAME_PIECE
+
+        switch (targetLevel) {
+          case NONE:
+            break;
+          case LOW:
+            armSubsystem.toLowPos();
+            break;
+          case MID:
+            armSubsystem.toMidPos();
+            break;
+          case HIGH:
+            armSubsystem.toHighPos();
+            break;
+        }
+
+        break;
+      case MANUAL_SHELF:
+        break;
+      case AUTO_SCORE:
+        break;
+      case AUTO_SHELF:
+        break;
+      case RELEASE_GAME_PIECE:
+        // (from) MANUAL_SCORE or AUTO_SCORE
+        // open hand
+        // (break)
+
+        handSubsystem.setPos(0); // FIXME needs open position
+
+        break;
       default:
         break;
     }
@@ -199,5 +242,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     TO_INTAKE_STAGE,
     INTAKE_STAGE,
     INTAKE,
+    MANUAL_SCORE,
+    MANUAL_SHELF,
+    AUTO_SCORE,
+    AUTO_SHELF,
+    RELEASE_GAME_PIECE
   }
 }
