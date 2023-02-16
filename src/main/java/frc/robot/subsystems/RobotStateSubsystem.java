@@ -81,6 +81,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     return allianceColor;
   }
 
+  public void toIntake(){
+    logger.info("{} -->  TO_INTAKE_STAGE", currRobotState);
+      currRobotState = RobotState.TO_INTAKE_STAGE;
+        intakeSubsystem.startIntaking();
+          armSubsystem.toIntakeStagePos();
+  }
+
   public void toMaunalStage() {
     // if (handSubsystem.hasGamePiece()) (aka. manual score)
     toStow(RobotState.MANUAL_SCORE);
@@ -132,7 +139,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         intakeSubsystem.startIntaking();
 
         armSubsystem.toIntakeStagePos();
-        if (!armSubsystem.isFinished()) break;
+        if (!armSubsystem.isFinished()) break; //FIXME
 
         handSubsystem.setPos(HandConstants.kHandZeroTicks); // FIXME need hand open position
         if (!handSubsystem.isFinished()) break;
