@@ -160,16 +160,19 @@ public class DriveSubsystem extends MeasurableSubsystem {
     endAutoDrivePose = robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY());
     autoDriving = true;
   }
-
+  
   @Override
   public void periodic() {
     // Update swerve module states every robot loop
     swerveDrive.periodic();
     if (autoDriving) {
       Pose2d currentPose = getPoseMeters();
+      Rotation2d robotRotation = getGyroRotation2d();
       Transform2d poseDifference = currentPose.minus(endAutoDrivePose);
       double abitraryKp = 0.60;
+      double rotationKp = 0.2;
 
+      Rotation2d rotationDifference = robotRotation.minus(new Rotation2d(0.0));
       double straightDist =
           Math.sqrt(
               poseDifference.getX() * poseDifference.getX()
@@ -216,7 +219,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
       // Translation2d moveTranslation =
       // new Translation2d(poseDifference.getX() * 0.25, poseDifference.getY() * 0.25);
-      move(moveTranslation.getX(), moveTranslation.getY(), 0, true);
+      move(moveTranslation.getX(), moveTranslation.getY(),  rotationDifference.getRadians() * rotationKp, true);
 
       logger.info("X accel {}, Y accel", moveTranslation.getX(), moveTranslation.getY());
       logger.info(" X Dif: {}, Y Dif: {}", poseDifference.getX(), poseDifference.getY());
