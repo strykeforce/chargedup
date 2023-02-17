@@ -534,9 +534,12 @@ public class Constants {
     public static final double kMaxFwd = 2312; // 1100
     public static final double kMaxRev = -740; // -1000
 
+    public static final double kHasPieceMinTicks = 1000;
+
     public static final double kHandZeroSpeed = 0.1;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
     public static final int kZeroStableCounts = 1592;
+    public static final int kHasPieceStableCounts = 2;
 
     public static final double kHandZeroTicks = 855;
 

@@ -23,7 +23,7 @@
 | Drive      | FX       | drive                 | 13 | 14  | falcon |         |
 | Intake     | FX       | intake                | 20 | 16  | falcon |         |
 | Intake     | SRX      | extend                | 21 | 13  | bag    |         |
-| Shoulder   | SRX      | left follow           | 30 | 2   | 550    |         |
+| Shoulder   | SRX      | left main             | 30 | 2   | 550    |         |
 | Shoulder   | SRX      | right follow          | 34 | 19  | 550    |         |
 | Elevator   | FX       | left main             | 31 | 5   | falcon |         |
 | Elevator   | FX       | right follow          | 32 | 17  | falcon |         |
