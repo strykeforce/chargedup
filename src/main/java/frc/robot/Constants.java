@@ -382,15 +382,17 @@ public class Constants {
 
   public static final class ShoulderConstants {
     public static final int kShoulderId = 30; // FIXME
+    public static final int kFollowerShoulderId = 34; // FIXME
 
-    public static final double kShoulderZeroTicks = 1990; // FIXME old: 1836
+    public static final double kShoulderMainZeroTicks = 1990; // FIXME old: 1836
+    public static final double kShoulderFollowerZeroTicks = 1990; // FIXME old: 1836
 
-    public static final double kMaxFwd = 500; // FIXME 887
-    public static final double kMaxRev = -1700; // FIXME -1580
+    public static final double kMaxFwd = 5000; //FIXME 500 // FIXME 887
+    public static final double kMaxRev = 0; // FIXME -1700 // FIXME -1580
 
     public static final double kZeroDegs = 0; // FIXME
 
-    public static final double kTicksPerDeg = 35.55556; // FIXME old: 70.0 / 20.0 * 4096.0 / 360.0
+    public static final double kTicksPerDeg = 142.2; //35.55556; // FIXME old: 70.0 / 20.0 * 4096.0 / 360.0
 
     public static final double kAllowedError = 100; // FIXME
 
@@ -405,32 +407,32 @@ public class Constants {
         Math.toDegrees(Math.asin(0.06 / kShoulderLowerToElevatorLowerPivotDist));
 
     // Shoulder Positions
-    public static final double kIntakeShoulder = -1_700;
-    public static final double kStowShoulder = -1_700;
-    public static final double kFloorShoulder = 300;
-    public static final double kLevelOneShoulder = 300;
-    public static final double kLevelTwoShoulder = -700;
-    public static final double kLevelThreeShoulder = 300;
-    public static final double kShelfShoulder = -1_950;
+    public static final double kIntakeShoulder = 0;
+    public static final double kStowShoulder = 0;
+    public static final double kFloorShoulder = 3000;
+    public static final double kLevelOneShoulder = 3000;
+    public static final double kLevelTwoShoulder = 200;
+    public static final double kLevelThreeShoulder = 3000;
+    public static final double kShelfShoulder = 0;
 
     public static TalonSRXConfiguration getShoulderTalonConfig() {
       TalonSRXConfiguration shoulderConfig = new TalonSRXConfiguration();
 
-      shoulderConfig.slot0.kP = 2.0;
+      shoulderConfig.slot0.kP = 5.0; //OLD 2.0
       shoulderConfig.slot0.kI = 0.0;
-      shoulderConfig.slot0.kD = 60.0;
-      shoulderConfig.slot0.kF = 2.0;
+      shoulderConfig.slot0.kD = 0.0; // OLD 60.0
+      shoulderConfig.slot0.kF = 2.5; // OLD 2.0
       shoulderConfig.slot0.integralZone = 0;
       shoulderConfig.slot0.maxIntegralAccumulator = 0;
       shoulderConfig.slot0.allowableClosedloopError = 0;
-      shoulderConfig.motionCruiseVelocity = 200.0;
-      shoulderConfig.motionAcceleration = 200.0;
+      shoulderConfig.motionCruiseVelocity = 250.0; // 200
+      shoulderConfig.motionAcceleration = 300.0; // 200
 
       shoulderConfig.forwardSoftLimitEnable = true;
       shoulderConfig.forwardSoftLimitThreshold = kMaxFwd;
       shoulderConfig.reverseSoftLimitEnable = true;
       shoulderConfig.reverseSoftLimitThreshold = kMaxRev;
-      shoulderConfig.neutralDeadband = 0.01;
+      shoulderConfig.neutralDeadband = 0.04; // 0.01
       shoulderConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
       shoulderConfig.velocityMeasurementWindow = 64;
       shoulderConfig.voltageCompSaturation = 12;
@@ -442,9 +444,9 @@ public class Constants {
     public static SupplyCurrentLimitConfiguration getShoulderTalonSupplyLimitConfig() {
       SupplyCurrentLimitConfiguration shoulderSupplyConfig = new SupplyCurrentLimitConfiguration();
 
-      shoulderSupplyConfig.currentLimit = 5;
-      shoulderSupplyConfig.triggerThresholdCurrent = 5;
-      shoulderSupplyConfig.triggerThresholdTime = .1;
+      shoulderSupplyConfig.currentLimit = 7; //5;
+      shoulderSupplyConfig.triggerThresholdCurrent = 7; //5;
+      shoulderSupplyConfig.triggerThresholdTime = 0.04; // .1;
       shoulderSupplyConfig.enable = true;
 
       return shoulderSupplyConfig;
