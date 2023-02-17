@@ -23,6 +23,7 @@ public class HandSubsystem extends MeasurableSubsystem {
 
   private int handLeftZeroStableCounts;
   // private int handRightZeroStableCounts;
+  private int hasPieceStableCounts;
 
   private boolean leftZeroDone;
   // private boolean rightZeroDone;
@@ -118,6 +119,19 @@ public class HandSubsystem extends MeasurableSubsystem {
 
     // logger.info("Hand is zeroing");
     // handState = HandStates.ZEROING;
+  }
+
+  public double getSensor() {
+    return handLeftTalon.getSensorCollection().getAnalogInRaw();
+  }
+
+  public boolean hasPiece() {
+    if (handLeftTalon.getSensorCollection().getAnalogInRaw()
+        > Constants.HandConstants.kHasPieceMinTicks) {
+      hasPieceStableCounts++;
+    } else hasPieceStableCounts = 0;
+
+    return hasPieceStableCounts > Constants.HandConstants.kHasPieceStableCounts;
   }
 
   public void grabCube() {
