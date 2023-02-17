@@ -80,6 +80,8 @@ public class Constants {
     public static final double kElbowAboveIntakeMin = ElbowConstants.kReverseSoftLimit;
     public static final double kElbowIntakeMin = ElbowConstants.kReverseSoftLimit;
     public static final double kElbowIntakeMax = ElbowConstants.kForwardSoftLimit;
+
+    public static final double kShelfMove = 1; // FIXME put in real number
   }
 
   public static final class DriveConstants {
@@ -540,6 +542,7 @@ public class Constants {
 
     public static final double kAllowedError = 0; // FIXME
 
+    public static final double kHandOpenPosition = -740;
     public static final double kCubeGrabbingPosition = 800; // FIXME
     public static final double kConeGrabbingPosition = 1_500; // FIXME
 
