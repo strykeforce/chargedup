@@ -44,8 +44,11 @@ public class Constants {
 
   public static final class DriveConstants {
     // Drive Constants
-    public static final Pose2d kOdometryZeroPos =
+    public static final Pose2d kOdometryZeroPosBlue =
         new Pose2d(new Translation2d(1.77, 5.12), new Rotation2d());
+    public static final Pose2d kOdometryZeroPosRed =
+        new Pose2d(
+            new Translation2d(RobotStateConstants.kFieldMaxX - 1.77, 0.44), new Rotation2d());
     public static final double kWheelDiameterInches =
         3.0 * (417 / 500.0); // Actual/Odometry //563.5 old number
     public static final double kUpdateThreshold = 0.35;
