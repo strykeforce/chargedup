@@ -47,7 +47,6 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
 
   public void setPct(double pct) {
     leftMainShoulderTalon.set(ControlMode.PercentOutput, pct);
-
   }
 
   public void setDegs(double degs) {
@@ -59,8 +58,7 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
   }
 
   public double getDegs() {
-    return 90.0
-        - (getPos() / Constants.ShoulderConstants.kTicksPerDeg);
+    return 90.0 - (getPos() / Constants.ShoulderConstants.kTicksPerDeg);
   }
 
   public double getPos() {

@@ -387,12 +387,13 @@ public class Constants {
     public static final double kShoulderMainZeroTicks = 1990; // FIXME old: 1836
     public static final double kShoulderFollowerZeroTicks = 1990; // FIXME old: 1836
 
-    public static final double kMaxFwd = 5000; //FIXME 500 // FIXME 887
+    public static final double kMaxFwd = 5000; // FIXME 500 // FIXME 887
     public static final double kMaxRev = 0; // FIXME -1700 // FIXME -1580
 
     public static final double kZeroDegs = 0; // FIXME
 
-    public static final double kTicksPerDeg = 142.2; //35.55556; // FIXME old: 70.0 / 20.0 * 4096.0 / 360.0
+    public static final double kTicksPerDeg =
+        142.2; // 35.55556; // FIXME old: 70.0 / 20.0 * 4096.0 / 360.0
 
     public static final double kAllowedError = 100; // FIXME
 
@@ -418,7 +419,7 @@ public class Constants {
     public static TalonSRXConfiguration getShoulderTalonConfig() {
       TalonSRXConfiguration shoulderConfig = new TalonSRXConfiguration();
 
-      shoulderConfig.slot0.kP = 5.0; //OLD 2.0
+      shoulderConfig.slot0.kP = 5.0; // OLD 2.0
       shoulderConfig.slot0.kI = 0.0;
       shoulderConfig.slot0.kD = 0.0; // OLD 60.0
       shoulderConfig.slot0.kF = 2.5; // OLD 2.0
@@ -444,8 +445,8 @@ public class Constants {
     public static SupplyCurrentLimitConfiguration getShoulderTalonSupplyLimitConfig() {
       SupplyCurrentLimitConfiguration shoulderSupplyConfig = new SupplyCurrentLimitConfiguration();
 
-      shoulderSupplyConfig.currentLimit = 7; //5;
-      shoulderSupplyConfig.triggerThresholdCurrent = 7; //5;
+      shoulderSupplyConfig.currentLimit = 7; // 5;
+      shoulderSupplyConfig.triggerThresholdCurrent = 7; // 5;
       shoulderSupplyConfig.triggerThresholdTime = 0.04; // .1;
       shoulderSupplyConfig.enable = true;
 
