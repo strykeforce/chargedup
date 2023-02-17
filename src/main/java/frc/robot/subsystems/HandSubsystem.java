@@ -43,6 +43,7 @@ public class HandSubsystem extends MeasurableSubsystem {
 
     handState = HandStates.IDLE;
     handLeftZeroStableCounts = 0;
+    isGrabbing = false;
     zeroHand();
     // handRightZeroStableCounts = 0;
   }
@@ -67,6 +68,10 @@ public class HandSubsystem extends MeasurableSubsystem {
   public void setLeftPct(double pct) {
     logger.info("Hand (left) speed: {}", pct);
     handLeftTalon.set(ControlMode.PercentOutput, pct);
+  }
+
+  public void toggleHandPos() {
+    
   }
 
   // public void setRightPct(double pct) {

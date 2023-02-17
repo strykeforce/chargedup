@@ -34,6 +34,8 @@ import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
 import frc.robot.commands.intake.ToggleIntakeExtendedCommand;
+import frc.robot.commands.robotState.SetAutoStagingCommand;
+import frc.robot.commands.robotState.SetLevelAndColCommandGroup;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
 import frc.robot.commands.shoulder.ShoulderToPositionCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
@@ -82,19 +84,19 @@ public class RobotContainer {
     intakeSubsystem = new IntakeSubsystem();
     driveSubsystem = new DriveSubsystem();
     // visionSubsystem = new VisionSubsystem(driveSubsystem);
-    robotStateSubsystem =
-        new RobotStateSubsystem(
-            TargetLevel.NONE,
-            TargetCol.NONE,
-            GamePiece.NONE,
-            true); // TODO: choose correct settings
-
-    driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
-
     elevatorSubsystem = new ElevatorSubsystem();
     elbowSubsystem = new ElbowSubsystem();
     shoulderSubsystem = new ShoulderSubsystem();
     armSubsystem = new ArmSubsystem(shoulderSubsystem, elevatorSubsystem, elbowSubsystem);
+    robotStateSubsystem =
+        new RobotStateSubsystem(
+            intakeSubsystem,
+            armSubsystem,
+            handSubsystem); // TODO: choose correct settings
+
+    driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
+
+    
 
     // driveSubsystem.setVisionSubsystem(visionSubsystem);
     // visionSubsystem.setFillBuffers(true);
@@ -141,38 +143,37 @@ public class RobotContainer {
     // Hand
     new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
         .onTrue(
-            new HandToPositionCommand(handSubsystem, Constants.HandConstants.kCubeGrabbingPosition))
-        .onFalse(new HandToPositionCommand(handSubsystem, Constants.HandConstants.kMaxRev));
+            new HandToPositionCommand(handSubsystem, Constants.HandConstants.kMaxRev));
     new JoystickButton(driveJoystick, Shoulder.LEFT_UP.id)
         .onTrue(
             new HandToPositionCommand(handSubsystem, Constants.HandConstants.kConeGrabbingPosition))
         .onFalse(new HandToPositionCommand(handSubsystem, Constants.HandConstants.kMaxRev));
 
-    // Shoulder
-    new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
-        .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
-        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, -0.35));
-    new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
-        .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
-        .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, 0.3));
+    // // Shoulder
+    // new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
+    //     .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
+    //     .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, -0.35));
+    // new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
+    //     .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
+    //     .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, 0.3));
 
-    // Elevator testing
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
-        .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, -0.2))
-        .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-        .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, 0.2))
-        .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
-    new JoystickButton(driveJoystick, InterlinkButton.UP.id)
-        .onTrue(new ZeroElevatorCommand(elevatorSubsystem));
+    // // Elevator testing
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
+    //     .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, -0.2))
+    //     .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+    //     .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, 0.2))
+    //     .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
+    // new JoystickButton(driveJoystick, InterlinkButton.UP.id)
+    //     .onTrue(new ZeroElevatorCommand(elevatorSubsystem));
 
-    // Elbow testing
-    new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
-        .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.1));
-    new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
-        .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
+    // // Elbow testing
+    // new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
+    //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
+    //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.1));
+    // new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
+    //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
+    //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
 
     // intake buttons
     // new JoystickButton(xboxController, 3).onTrue(new
@@ -182,54 +183,57 @@ public class RobotContainer {
         .onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));
 
     // Toggle auto staging
-    // new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
-    //     .onTrue(new SetAutoStagingCommand(robotStateSubsystem, false));
-    // new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
-    //     .onTrue(new SetAutoStagingCommand(robotStateSubsystem, false));
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-    //     .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
-    //     .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
+    new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
+        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, false));
+    new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
+        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, false));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
+        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
   }
 
   public void configureOperatorButtonBindings() {
-    new JoystickButton(xboxController, XboxController.Button.kY.value)
-        .onTrue(
-            new ShoulderToPositionCommand(
-                shoulderSubsystem, Constants.ShoulderConstants.kIntakeShoulder));
-    new JoystickButton(xboxController, XboxController.Button.kB.value)
-        .onTrue(new ElbowToPositionCommand(elbowSubsystem, Constants.ElbowConstants.kIntakeElbow));
-    new JoystickButton(xboxController, XboxController.Button.kA.value)
-        .onTrue(
-            new ElevatorToPositionCommand(
-                elevatorSubsystem, Constants.ElevatorConstants.kIntakeElevator));
+    // new JoystickButton(xboxController, XboxController.Button.kY.value)
+    //     .onTrue(
+    //         new ShoulderToPositionCommand(
+    //             shoulderSubsystem, Constants.ShoulderConstants.kIntakeShoulder));
+    // new JoystickButton(xboxController, XboxController.Button.kB.value)
+    //     .onTrue(new ElbowToPositionCommand(elbowSubsystem, Constants.ElbowConstants.kIntakeElbow));
+    // new JoystickButton(xboxController, XboxController.Button.kA.value)
+    //     .onTrue(
+    //         new ElevatorToPositionCommand(
+    //             elevatorSubsystem, Constants.ElevatorConstants.kIntakeElevator));
 
-    new JoystickButton(xboxController, XboxController.Button.kX.value)
-        .onTrue(
-            new ElevatorToPositionCommand(
-                elevatorSubsystem, Constants.ElevatorConstants.kStowElevator));
+    // new JoystickButton(xboxController, XboxController.Button.kX.value)
+    //     .onTrue(
+    //         new ElevatorToPositionCommand(
+    //             elevatorSubsystem, Constants.ElevatorConstants.kStowElevator));
 
-    new JoystickButton(xboxController, XboxController.Button.kStart.value)
-        .onTrue(new ElbowToPositionCommand(elbowSubsystem, Constants.ElbowConstants.kStowElbow));
+    // new JoystickButton(xboxController, XboxController.Button.kStart.value)
+    //     .onTrue(new ElbowToPositionCommand(elbowSubsystem, Constants.ElbowConstants.kStowElbow));
     // Set auto staging target
     // Left column
-    // new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value)
-    //     .onTrue(
-    //         new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID,
-    // TargetCol.LEFT));
-    // new JoystickButton(xboxController, XboxController.Axis.kLeftTrigger.value)
-    //     .onTrue(
-    //         new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.HIGH,
-    // TargetCol.LEFT));
+    new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value)
+        .onTrue(
+            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID,
+    TargetCol.LEFT));
+    new JoystickButton(xboxController, XboxController.Axis.kLeftTrigger.value)
+        .onTrue(
+            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.HIGH,
+    TargetCol.LEFT));
     // Right column
-    // new JoystickButton(xboxController, XboxController.Button.kRightBumper.value)
-    //     .onTrue(
-    //         new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID,
-    // TargetCol.RIGHT));
-    // new JoystickButton(xboxController, XboxController.Axis.kRightTrigger.value)
-    //     .onTrue(
-    //         new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.HIGH,
-    // TargetCol.RIGHT));
+    new JoystickButton(xboxController, XboxController.Button.kRightBumper.value)
+        .onTrue(
+            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID,
+    TargetCol.RIGHT));
+    new JoystickButton(xboxController, XboxController.Axis.kRightTrigger.value)
+        .onTrue(
+            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.HIGH,
+    TargetCol.RIGHT));
+
+    // Hand
+    new JoystickButton(xboxController, XboxController.Button.kA.value).onTrue(new )
   }
 
   public Command getAutonomousCommand() {
