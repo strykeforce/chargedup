@@ -19,6 +19,6 @@ public class HandSpeedCommand extends InstantCommand {
   @Override
   public void initialize() {
     handSubsystem.setLeftPct(leftPct);
-    handSubsystem.setRightPct(rightPct);
+    // handSubsystem.setRightPct(rightPct);
   }
 }

@@ -22,13 +22,14 @@
 | Drive      | FX       | drive                 | 12 |  7  | falcon |         |
 | Drive      | FX       | drive                 | 13 | 14  | falcon |         |
 | Intake     | FX       | intake                | 20 | 16  | falcon |         |
-| Intake     | SRX      | extend                | 21 | 13  | bag x2 |         |
-| Shoulder   | SRX      | shoulder              | 30 | 10  | ??     |         |
+| Intake     | SRX      | extend                | 21 | 13  | bag    |         |
+| Shoulder   | SRX      | left main             | 30 | 2   | 550    |         |
+| Shoulder   | SRX      | right follow          | 34 | 19  | 550    |         |
 | Elevator   | FX       | left main             | 31 | 5   | falcon |         |
 | Elevator   | FX       | right follow          | 32 | 17  | falcon |         |
 | Elbow      | FX       | elbow                 | 33 |  4  | falcon |         |
 | Elbow      | Canifier | canifier              | 15 |  23 | -      |         |
-| Hand       | SRX      | hand                  | 40 |  3  | ??     |         |
+| Hand       | SRX      | hand                  | 40 |  3  | 550    |         |
 
 * elbow uses remote encoder attached to canifier
 * forward limit switch on extend talon = beam break for intake

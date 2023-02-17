@@ -11,7 +11,7 @@ import org.strykeforce.telemetry.TelemetryService;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
 import org.strykeforce.telemetry.measurable.Measure;
 
-public class ElevatorSubsystem extends MeasurableSubsystem {
+public class ElevatorSubsystem extends MeasurableSubsystem implements ArmComponent {
   private static final Logger logger = LoggerFactory.getLogger(ElevatorSubsystem.class);
   private TalonFX leftMainFalcon;
   private TalonFX rightFollowFalcon;
@@ -28,12 +28,15 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
     leftMainFalcon.configSupplyCurrentLimit(
         Constants.ElevatorConstants.getElevatorSupplyLimitConfig());
     leftMainFalcon.setNeutralMode(NeutralMode.Brake);
+    leftMainFalcon.setInverted(false);
+
     rightFollowFalcon.configFactoryDefault();
     rightFollowFalcon.configAllSettings(Constants.ElevatorConstants.getElevatorFalconConfig());
     rightFollowFalcon.configSupplyCurrentLimit(
         Constants.ElevatorConstants.getElevatorSupplyLimitConfig());
     rightFollowFalcon.setNeutralMode(NeutralMode.Brake);
     rightFollowFalcon.follow(leftMainFalcon);
+    rightFollowFalcon.setInverted(true);
 
     elevatorZeroStableCounts = 0;
     desiredPosition = getPos();
@@ -55,6 +58,13 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
     return leftMainFalcon.getSelectedSensorPosition();
   }
 
+  public double getExtensionMeters() {
+    double unadjusted =
+        Constants.ElevatorConstants.kMaxExtension
+            + getPos() / Constants.ElevatorConstants.kTicksPerMeter;
+    return Math.hypot(Constants.ShoulderConstants.kElevatorBaseToPivot, unadjusted);
+  }
+
   public boolean isFinished() {
     return Math.abs(desiredPosition - getPos()) <= Constants.ElevatorConstants.kAllowedError;
   }
@@ -62,8 +72,14 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
   public void zeroElevator() {
     leftMainFalcon.configForwardSoftLimitEnable(false);
     leftMainFalcon.configReverseSoftLimitEnable(false);
+    rightFollowFalcon.configForwardSoftLimitEnable(false);
+    rightFollowFalcon.configReverseSoftLimitEnable(false);
 
     leftMainFalcon.configSupplyCurrentLimit(
+        Constants.ElevatorConstants.getElevatorZeroSupplyCurrentLimit(),
+        Constants.kTalonConfigTimeout);
+
+    rightFollowFalcon.configSupplyCurrentLimit(
         Constants.ElevatorConstants.getElevatorZeroSupplyCurrentLimit(),
         Constants.kTalonConfigTimeout);
 
@@ -73,15 +89,23 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
     elevatorState = ElevatorState.ZEROING;
   }
 
+  public void setSoftLimits(double minTicks, double maxTicks) {
+    leftMainFalcon.configForwardSoftLimitThreshold(maxTicks);
+    leftMainFalcon.configReverseSoftLimitThreshold(minTicks);
+    // rightFollowFalcon.configForwardSoftLimitThreshold(maxTicks);
+    // rightFollowFalcon.configReverseSoftLimitThreshold(minTicks);
+  }
+
   @Override
   public void registerWith(TelemetryService telemetryService) {
     super.registerWith(telemetryService);
     telemetryService.register(leftMainFalcon);
+    telemetryService.register(rightFollowFalcon);
   }
 
   @Override
   public Set<Measure> getMeasures() {
-    return Set.of();
+    return Set.of(new Measure("Extension meters", () -> getExtensionMeters()));
   }
 
   @Override
@@ -99,7 +123,12 @@ public class ElevatorSubsystem extends MeasurableSubsystem {
 
         if (elevatorZeroStableCounts > Constants.ElevatorConstants.kZeroStableCounts) {
           leftMainFalcon.setSelectedSensorPosition(0.0);
+          rightFollowFalcon.setSelectedSensorPosition(0.0);
           leftMainFalcon.configSupplyCurrentLimit(
+              Constants.ElevatorConstants.getElevatorSupplyLimitConfig(),
+              Constants.kTalonConfigTimeout);
+
+          rightFollowFalcon.configSupplyCurrentLimit(
               Constants.ElevatorConstants.getElevatorSupplyLimitConfig(),
               Constants.kTalonConfigTimeout);
 
