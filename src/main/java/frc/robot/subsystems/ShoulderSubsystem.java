@@ -99,6 +99,8 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
   public Set<Measure> getMeasures() {
     return Set.of(
         new Measure("Degrees", () -> getDegs()),
-        new Measure("Shoulder Degrees", () -> getShoulderAngle()));
+        new Measure("Shoulder Degrees", () -> getShoulderAngle()),
+        new Measure("Shoulder Tick Position", () -> getPos())
+        );
   }
 }
