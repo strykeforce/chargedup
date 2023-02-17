@@ -126,7 +126,8 @@ public class HandSubsystem extends MeasurableSubsystem {
   }
 
   public boolean hasPiece() {
-    if (handLeftTalon.getSensorCollection().getAnalogInRaw() > Constants.HandConstants.kHasPieceMinTicks) {
+    if (handLeftTalon.getSensorCollection().getAnalogInRaw()
+        > Constants.HandConstants.kHasPieceMinTicks) {
       hasPieceStableCounts++;
     } else hasPieceStableCounts = 0;
 
