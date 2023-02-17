@@ -67,12 +67,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private double distanceVisionWheelOdom = 0.0;
   public boolean autoDriving = false;
   private Pose2d endAutoDrivePose;
-<<<<<<< HEAD
-  private double lastXSpeed = 0.0, lastYSpeed = 0.0;
-  private Rotation2d rotationDifference;
-=======
   private double lastXSpeed = 0.0, lastYSpeed = 0.0, speedMPSglobal = 0.0;
->>>>>>> 9c88f82f6759e18451a3f4f7ed55bcea06d831f9
 
   public DriveSubsystem() {
     var moduleBuilder =
@@ -254,7 +249,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
     // Update swerve module states every robot loop
     swerveDrive.periodic();
     if (autoDriving) {
-<<<<<<< HEAD
       Pose2d currentPose = getPoseMeters();
       Rotation2d robotRotation = getGyroRotation2d();
       Transform2d poseDifference = currentPose.minus(endAutoDrivePose);
@@ -264,7 +258,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
       // holoContInput =
       double result = omegaAutoDriveController.calculate(robotRotation.getRadians(), 0.0);
       // rotationDifference = robotRotation.minus(new Rotation2d(Math.PI));
-      rotationDifference = new Rotation2d(0.0);
       double straightDist =
           Math.sqrt(
               poseDifference.getX() * poseDifference.getX()
@@ -281,7 +274,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
       lastXSpeed = speedMPS * Math.cos(angle);
       lastYSpeed = speedMPS * Math.sin(angle);
 
-      double rotateTranslation = rotationDifference.getRadians() * rotationKp;
       Translation2d moveTranslation =
           new Translation2d((Math.cos(angle) * speedMPS), (Math.sin(angle) * speedMPS));
 
@@ -289,7 +281,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
         moveTranslation = new Translation2d(0, moveTranslation.getY());
       if (Math.abs(getPoseMeters().minus(endAutoDrivePose).getY()) < 0.05)
         moveTranslation = new Translation2d(moveTranslation.getX(), 0.0);
-      if (Math.abs(rotationDifference.getRadians()) < 0.1) rotateTranslation = 0.0;
 
       // Translation2d moveTranslation =
       // new Translation2d(poseDifference.getX() * 0.25, poseDifference.getY() * 0.25);
@@ -310,8 +301,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
           getPoseMeters().minus(endAutoDrivePose).getX(),
           getPoseMeters().minus(endAutoDrivePose).getY());
       if (Math.abs(getPoseMeters().minus(endAutoDrivePose).getX()) <= 0.05
-          && Math.abs(getPoseMeters().minus(endAutoDrivePose).getY()) <= 0.05
-          && rotationDifference.getRadians() <= 0.1) {
+          && Math.abs(getPoseMeters().minus(endAutoDrivePose).getY()) <= 0.05) {
         autoDriving = false;
         logger.info("Autodrive Finished");
         lastXSpeed = 0.0;
@@ -321,9 +311,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
       // double ySpeed = getFieldRelSpeed().vyMetersPerSecond;
       // Pose2d endPoint = new Pose2d();
 
-=======
-      autoDrive();
->>>>>>> 9c88f82f6759e18451a3f4f7ed55bcea06d831f9
     }
   }
 
@@ -333,10 +320,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
   public double getLastXSpeed() {
     return lastXSpeed;
-  }
-
-  public double getRotationDifferenceRadians() {
-    return rotationDifference.getRadians();
   }
 
   public double getLastYSpeed() {
@@ -629,12 +612,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("YAW Vel", () -> lastVelocity[2]),
         new Measure("Gyro Rate", () -> getGyroRate()),
         new Measure("Auto Drive Speed X", () -> getLastXSpeed()),
-<<<<<<< HEAD
-        new Measure("Auto Drive Rotation Difference Rads", () -> getRotationDifferenceRadians()),
-        new Measure("Auto Drive Speed Y", () -> getLastYSpeed()));
-=======
         new Measure("Auto Drive Speed Y", () -> getLastYSpeed()),
         new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()));
->>>>>>> 9c88f82f6759e18451a3f4f7ed55bcea06d831f9
   }
 }
