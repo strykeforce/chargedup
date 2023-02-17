@@ -20,9 +20,11 @@ public class HandSubsystem extends MeasurableSubsystem {
   // private double rightDesiredPosition;
 
   private HandStates handState;
+  private HandStates desiredState;
 
   private int handLeftZeroStableCounts;
   // private int handRightZeroStableCounts;
+  private int hasPieceStableCounts;
 
   private boolean leftZeroDone;
   // private boolean rightZeroDone;
@@ -125,16 +127,40 @@ public class HandSubsystem extends MeasurableSubsystem {
     // handState = HandStates.ZEROING;
   }
 
+  public void open() {
+    logger.info("Opening hand");
+    setPos(Constants.HandConstants.kHandOpenPosition);
+    desiredState = HandStates.OPEN;
+    handState = HandStates.TRANSITIONING;
+  }
+
+  public double getSensor() {
+    return handLeftTalon.getSensorCollection().getAnalogInRaw();
+  }
+
+  public boolean hasPiece() {
+    if (handLeftTalon.getSensorCollection().getAnalogInRaw()
+        > Constants.HandConstants.kHasPieceMinTicks) {
+      hasPieceStableCounts++;
+    } else hasPieceStableCounts = 0;
+
+    return hasPieceStableCounts > Constants.HandConstants.kHasPieceStableCounts;
+  }
+
   public void grabCube() {
     logger.info("Grabbing cube");
     setPos(Constants.HandConstants.kCubeGrabbingPosition /*,
         Constants.HandConstants.kCubeGrabbingPositionRight*/);
+    desiredState = HandStates.CUBE_CLOSED;
+    handState = HandStates.TRANSITIONING;
   }
 
   public void grabCone() {
     logger.info("Grabbing cone");
     setPos(Constants.HandConstants.kConeGrabbingPosition /*,
         Constants.HandConstants.kConeGrabbingPositionRight*/);
+        desiredState = HandStates.CONE_CLOSED;
+    handState = HandStates.TRANSITIONING;
   }
 
   @Override
@@ -148,6 +174,8 @@ public class HandSubsystem extends MeasurableSubsystem {
   public Set<Measure> getMeasures() {
     return Set.of();
   }
+
+  public 
 
   @Override
   public void periodic() {
@@ -207,12 +235,34 @@ public class HandSubsystem extends MeasurableSubsystem {
         break;
       default:
         break;
+
+      case OPEN:
+        logger.info("Hand is open");
+        break;
+
+      case CUBE_CLOSED:
+        logger.info("Hand is closed for cube");
+        break;
+
+      case CONE_CLOSED:
+        logger.info("Hand is closed for cone");
+        break;
+
+      case TRANSITIONING:
+        if (isFinished()) {
+          handState = desiredState;
+        }
+        break;
     }
   }
 
   public enum HandStates {
     IDLE,
     ZEROING,
-    ZEROED
+    ZEROED,
+    OPEN,
+    CUBE_CLOSED,
+    CONE_CLOSED,
+    TRANSITIONING
   }
 }
