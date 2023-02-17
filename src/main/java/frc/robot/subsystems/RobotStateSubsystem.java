@@ -222,8 +222,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // (to) SHELF_WAIT
 
         armSubsystem.toShelfPos();
-        // TODO check proximity sensor
+        if (armSubsystem.getCurrState() != ArmState.SHELF) break;
+        if (!handSubsystem.hasPiece()) break;
         handSubsystem.grabCone();
+        currPoseX = driveSubsystem.getPoseMeters().getX();
         currRobotState = RobotState.SHELF_WAIT;
 
         break;
@@ -262,7 +264,6 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // check if robot has moved enough
         // (to) STOW
 
-        currPoseX = driveSubsystem.getPoseMeters().getX();
         if (allianceColor == Alliance.Blue) {
           desiredPoseX = currPoseX + Constants.ArmConstants.kShelfMove;
           if (driveSubsystem.getPoseMeters().getX() >= desiredPoseX) {
