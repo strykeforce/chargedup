@@ -71,9 +71,7 @@ public class HandSubsystem extends MeasurableSubsystem {
     handLeftTalon.set(ControlMode.PercentOutput, pct);
   }
 
-  public void toggleHandPos() {
-    
-  }
+  public void toggleHandPos() {}
 
   // public void setRightPct(double pct) {
   //   logger.info("Hand (right) speed: {}", pct);
@@ -158,14 +156,14 @@ public class HandSubsystem extends MeasurableSubsystem {
     logger.info("Grabbing cone");
     setPos(Constants.HandConstants.kConeGrabbingPosition /*,
         Constants.HandConstants.kConeGrabbingPositionRight*/);
-        desiredState = HandStates.CONE_CLOSED;
+    desiredState = HandStates.CONE_CLOSED;
     handState = HandStates.TRANSITIONING;
   }
 
   public HandStates getHandState() {
     return handState;
   }
-  
+
   @Override
   public void registerWith(TelemetryService telemetryService) {
     super.registerWith(telemetryService);
@@ -176,7 +174,7 @@ public class HandSubsystem extends MeasurableSubsystem {
   @Override
   public Set<Measure> getMeasures() {
     return Set.of();
-  } 
+  }
 
   @Override
   public void periodic() {

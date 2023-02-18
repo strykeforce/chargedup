@@ -4,14 +4,14 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.RobotStateSubsystem;
 
 public class ShelfPickupCommand extends InstantCommand {
-    private RobotStateSubsystem robotStateSubsystem;
+  private RobotStateSubsystem robotStateSubsystem;
 
-    public ShelfPickupCommand(RobotStateSubsystem robotStateSubsystem) {
-        this.robotStateSubsystem = robotStateSubsystem;
-    }
+  public ShelfPickupCommand(RobotStateSubsystem robotStateSubsystem) {
+    this.robotStateSubsystem = robotStateSubsystem;
+  }
 
-    @Override
-    public void initialize() {
-        robotStateSubsystem.toMaunalStage();
-    }
+  @Override
+  public void initialize() {
+    robotStateSubsystem.toMaunalStage();
+  }
 }

@@ -22,10 +22,7 @@ import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ResetOdometryCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
-import frc.robot.commands.elbow.ElbowOpenLoopCommand;
-import frc.robot.commands.elbow.ElbowToPositionCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
-import frc.robot.commands.elevator.ElevatorToPositionCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.commands.hand.GrabConeCommand;
 import frc.robot.commands.hand.GrabCubeCommand;
@@ -42,7 +39,6 @@ import frc.robot.commands.robotState.SetAutoStagingCommand;
 import frc.robot.commands.robotState.SetLevelAndColCommandGroup;
 import frc.robot.commands.robotState.ShelfPickupCommand;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
-import frc.robot.commands.shoulder.ShoulderToPositionCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -51,7 +47,6 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.HandSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
-import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 import frc.robot.subsystems.ShoulderSubsystem;
@@ -97,12 +92,10 @@ public class RobotContainer {
         new RobotStateSubsystem(
             intakeSubsystem,
             armSubsystem,
-            handSubsystem, 
+            handSubsystem,
             driveSubsystem); // TODO: choose correct settings
 
     driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
-
-    
 
     // driveSubsystem.setVisionSubsystem(visionSubsystem);
     // visionSubsystem.setFillBuffers(true);
@@ -148,8 +141,7 @@ public class RobotContainer {
 
     // Hand
     new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
-        .onTrue(
-            new HandToPositionCommand(handSubsystem, Constants.HandConstants.kMaxRev));
+        .onTrue(new HandToPositionCommand(handSubsystem, Constants.HandConstants.kMaxRev));
     new JoystickButton(driveJoystick, Shoulder.LEFT_UP.id)
         .onTrue(
             new HandToPositionCommand(handSubsystem, Constants.HandConstants.kConeGrabbingPosition))
@@ -205,7 +197,8 @@ public class RobotContainer {
     //         new ShoulderToPositionCommand(
     //             shoulderSubsystem, Constants.ShoulderConstants.kIntakeShoulder));
     // new JoystickButton(xboxController, XboxController.Button.kB.value)
-    //     .onTrue(new ElbowToPositionCommand(elbowSubsystem, Constants.ElbowConstants.kIntakeElbow));
+    //     .onTrue(new ElbowToPositionCommand(elbowSubsystem,
+    // Constants.ElbowConstants.kIntakeElbow));
     // new JoystickButton(xboxController, XboxController.Button.kA.value)
     //     .onTrue(
     //         new ElevatorToPositionCommand(
@@ -222,31 +215,29 @@ public class RobotContainer {
     // Left column
     new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value)
         .onTrue(
-            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID,
-    TargetCol.LEFT));
+            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID, TargetCol.LEFT));
     new JoystickButton(xboxController, XboxController.Axis.kLeftTrigger.value)
         .onTrue(
-            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.HIGH,
-    TargetCol.LEFT));
+            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.HIGH, TargetCol.LEFT));
     // Right column
     new JoystickButton(xboxController, XboxController.Button.kRightBumper.value)
         .onTrue(
-            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID,
-    TargetCol.RIGHT));
+            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID, TargetCol.RIGHT));
     new JoystickButton(xboxController, XboxController.Axis.kRightTrigger.value)
         .onTrue(
-            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.HIGH,
-    TargetCol.RIGHT));
+            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.HIGH, TargetCol.RIGHT));
 
     // Hand
-    new JoystickButton(xboxController, XboxController.Button.kA.value).onTrue(new ToggleHandCommand(handSubsystem));
-    new JoystickButton(xboxController, XboxController.Button.kX.value).onTrue(new FloorIntakeCommand(robotStateSubsystem));
-    new JoystickButton(xboxController, XboxController.Button.kY.value).onTrue(new ShelfPickupCommand(robotStateSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kA.value)
+        .onTrue(new ToggleHandCommand(handSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kX.value)
+        .onTrue(new FloorIntakeCommand(robotStateSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kY.value)
+        .onTrue(new ShelfPickupCommand(robotStateSubsystem));
 
     // Floor pickup
     Trigger dPadPressed = new Trigger(() -> xboxController.getPOV() != -1);
     dPadPressed.onTrue(new FloorPickupCommand(robotStateSubsystem));
-
   }
 
   public Command getAutonomousCommand() {

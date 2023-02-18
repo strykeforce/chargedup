@@ -1,14 +1,12 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
-
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +31,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private double currPoseX;
   private double desiredPoseX;
 
-  public RobotStateSubsystem(IntakeSubsystem intakeSubsystem, ArmSubsystem armSubsystem, HandSubsystem handSubsystem,
+  public RobotStateSubsystem(
+      IntakeSubsystem intakeSubsystem,
+      ArmSubsystem armSubsystem,
+      HandSubsystem handSubsystem,
       DriveSubsystem driveSubsystem) {
     this.intakeSubsystem = intakeSubsystem;
     this.armSubsystem = armSubsystem;
@@ -104,14 +105,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     }
   }
 
-  public void toAutoStage() {
-
-  }
+  public void toAutoStage() {}
 
   public void toStow() {
     intakeSubsystem.retractIntake();
-    if (gamePiece == GamePiece.NONE)
-      handSubsystem.setPos(HandConstants.kConeGrabbingPosition);
+    if (gamePiece == GamePiece.NONE) handSubsystem.setPos(HandConstants.kConeGrabbingPosition);
     armSubsystem.toStowPos();
     toStow(RobotState.STOW);
   }
@@ -141,13 +139,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
         if (gamePiece == GamePiece.NONE) {
           handSubsystem.setPos(HandConstants.kConeGrabbingPosition);
-          if (!handSubsystem.isFinished())
-            break;
+          if (!handSubsystem.isFinished()) break;
         }
 
         armSubsystem.toStowPos();
-        if (armSubsystem.getCurrState() != ArmState.STOW)
-          break;
+        if (armSubsystem.getCurrState() != ArmState.STOW) break;
 
         currRobotState = nextRobotState;
 
@@ -159,12 +155,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // (wait) open hand
         // (to) INTAKE_STAGE
 
-        if (!armSubsystem.isFinished())
-          break; // FIXME
+        if (!armSubsystem.isFinished()) break; // FIXME
 
         handSubsystem.setPos(HandConstants.kHandOpenPosition);
-        if (!handSubsystem.isFinished())
-          break;
+        if (!handSubsystem.isFinished()) break;
 
         currRobotState = RobotState.INTAKE_STAGE;
       case INTAKE_STAGE:
@@ -172,8 +166,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // (wait) beam break
         // (to) INTAKE
 
-        if (!intakeSubsystem.getIsBeamBreakActive())
-          break;
+        if (!intakeSubsystem.getIsBeamBreakActive()) break;
 
         currRobotState = RobotState.INTAKE;
       case INTAKE:
@@ -186,24 +179,20 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // (to) STOW
 
         intakeSubsystem.retractIntake();
-        if (!intakeSubsystem.isFinished())
-          break;
+        if (!intakeSubsystem.isFinished()) break;
 
         armSubsystem.toIntakePos();
-        if (!armSubsystem.isFinished())
-          break;
+        if (!armSubsystem.isFinished()) break;
 
         handSubsystem.grabCube();
-        if (!handSubsystem.isFinished())
-          break;
+        if (!handSubsystem.isFinished()) break;
 
         if (!isIntakeTimerRunning) {
           isIntakeTimerRunning = true;
           intakeDelayTimer.reset();
           intakeDelayTimer.start();
         }
-        if (!intakeDelayTimer.hasElapsed(IntakeConstants.kIntakePickupDelaySec))
-          break;
+        if (!intakeDelayTimer.hasElapsed(IntakeConstants.kIntakePickupDelaySec)) break;
         intakeDelayTimer.stop();
         isIntakeTimerRunning = false;
 
@@ -239,10 +228,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // (to) SHELF_WAIT
 
         armSubsystem.toShelfPos();
-        if (armSubsystem.getCurrState() != ArmState.SHELF)
-          break;
-        if (!handSubsystem.hasPiece())
-          break;
+        if (armSubsystem.getCurrState() != ArmState.SHELF) break;
+        if (!handSubsystem.hasPiece()) break;
         handSubsystem.grabCone();
         currPoseX = driveSubsystem.getPoseMeters().getX();
         currRobotState = RobotState.SHELF_WAIT;
