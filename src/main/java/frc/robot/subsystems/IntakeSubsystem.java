@@ -24,6 +24,8 @@ public class IntakeSubsystem extends MeasurableSubsystem {
   private Timer ejectTimer = new Timer();
   private boolean doHolding = false;
   private final Logger logger = LoggerFactory.getLogger(IntakeSubsystem.class);
+  private int beamBreakStableCounts = 0;
+  private boolean beamBroken = false;
 
   public IntakeSubsystem() {
     intakeFalcon = new TalonFX(IntakeConstants.kIntakeFalconID);
@@ -112,8 +114,11 @@ public class IntakeSubsystem extends MeasurableSubsystem {
     return currIntakeState;
   }
 
-  public boolean getIsBeamBreakActive() {
-    return extendTalon.isFwdLimitSwitchClosed() == 1;
+  public boolean isBeamBroken() {
+    if (extendTalon.isFwdLimitSwitchClosed() > 0) beamBreakStableCounts++;
+    else beamBreakStableCounts = 0;
+    beamBroken = beamBreakStableCounts > IntakeConstants.kBeamBreakStableCounts;
+    return beamBreakStableCounts > IntakeConstants.kBeamBreakStableCounts;
   }
 
   @Override
@@ -125,7 +130,7 @@ public class IntakeSubsystem extends MeasurableSubsystem {
         break;
       case INTAKING:
         // if we want to hold, check for beam break
-        if (doHolding && getIsBeamBreakActive()) {
+        if (doHolding && isBeamBroken()) {
           logger.info("INTAKING -> HOLDING");
           intakeOpenLoop(0);
           currIntakeState = IntakeState.HOLDING;
@@ -147,7 +152,7 @@ public class IntakeSubsystem extends MeasurableSubsystem {
 
   @Override
   public Set<Measure> getMeasures() {
-    return Set.of();
+    return Set.of(new Measure("Beam Broken", () -> beamBroken ? 1.0 : 0.0));
   }
 
   @Override

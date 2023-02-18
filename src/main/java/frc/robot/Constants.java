@@ -469,6 +469,7 @@ public class Constants {
     public static final double kIntakeEjectSpeed = 0.3;
     public static final double kEjectTimerDelaySec = 3;
     public static final double kIntakePickupDelaySec = 1;
+    public static final int kBeamBreakStableCounts = 2;
 
     public static final int kIntakeZeroTicks = 3955;
 
@@ -546,9 +547,9 @@ public class Constants {
 
     public static final double kHandZeroTicks = 855;
 
-    public static final double kAllowedError = 0; // FIXME
+    public static final double kAllowedError = 100; // FIXME
 
-    public static final double kHandOpenPosition = -740;
+    public static final double kHandOpenPosition = 0;
     public static final double kCubeGrabbingPosition = 800; // FIXME
     public static final double kConeGrabbingPosition = 1_500; // FIXME
 

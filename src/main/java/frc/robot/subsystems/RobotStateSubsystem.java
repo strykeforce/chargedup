@@ -84,7 +84,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   @Override
   public Set<Measure> getMeasures() {
-    return Set.of();
+    return Set.of(new Measure("Current State", () -> currRobotState.ordinal()));
   }
 
   public void setAllianceColor(Alliance alliance) {
@@ -114,19 +114,18 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void toAutoStage() {}
 
   public void toStow() {
-    intakeSubsystem.retractIntake();
-
-    if (gamePiece == GamePiece.NONE) handSubsystem.setPos(HandConstants.kConeGrabbingPosition);
-    currentAxis = CurrentAxis.HAND;
-
     toStow(RobotState.STOW);
   }
 
   public void toStow(RobotState nextState) {
-    logger.info("{} --> STOW", currRobotState);
-
+    logger.info("{} --> TO_STOW", currRobotState);
     currRobotState = RobotState.TO_STOW;
     nextRobotState = nextState;
+
+    intakeSubsystem.retractIntake();
+
+    if (gamePiece == GamePiece.NONE) handSubsystem.setPos(HandConstants.kConeGrabbingPosition);
+    currentAxis = CurrentAxis.HAND;
   }
 
   public void toFloorPickup() {
@@ -138,7 +137,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public void toManualScore() {
-    logger.info("{} --> MANUAL_SCORE, currRobotState");
+    logger.info("{} --> TO_MANUAL_SCORE", currRobotState);
 
     switch (targetLevel) {
       case NONE:
@@ -157,7 +156,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public void toManualShelf() {
-    logger.info("{} --> TO_MANUAL_SHELF, currRobotState");
+    logger.info("{} --> TO_MANUAL_SHELF", currRobotState);
     armSubsystem.toShelfPos();
     currentAxis = CurrentAxis.ARM;
     currRobotState = RobotState.TO_MANUAL_SHELF;
@@ -167,7 +166,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void periodic() {
     switch (currRobotState) {
       case STOW:
-        currRobotState = nextRobotState;
+        if (currRobotState != nextRobotState) {
+          logger.info("{} -> {}", currRobotState, nextRobotState);
+          currRobotState = nextRobotState;
+        }
         break;
 
       case TO_STOW:
@@ -181,6 +183,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           case ARM:
             if (armSubsystem.getCurrState() == ArmState.STOW) {
               currentAxis = CurrentAxis.NONE;
+              logger.info("{} -> STOW", currRobotState);
               currRobotState = RobotState.STOW;
             }
           default:
@@ -195,11 +198,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
                 && armSubsystem.getCurrState() == ArmState.INTAKE_STAGE) {
               handSubsystem.open();
               currentAxis = CurrentAxis.HAND;
+              break;
             }
             break;
           case HAND:
             if (handSubsystem.isFinished()) {
               currentAxis = CurrentAxis.NONE;
+              logger.info("{} -> INTAKE_STAGE", currRobotState);
               currRobotState = RobotState.INTAKE_STAGE;
             }
             break;
@@ -213,9 +218,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // (wait) beam break
         // (to) PICKUP_FROM_INTAKE
 
-        if (intakeSubsystem.getIsBeamBreakActive()) {
+        if (intakeSubsystem.isBeamBroken()) {
+          logger.info("{} -> PICKUP_FROM_INTAKE", currRobotState);
           currRobotState = RobotState.PICKUP_FROM_INTAKE;
           intakeSubsystem.retractIntake();
+          currentAxis = CurrentAxis.INTAKE;
         }
 
         break;
@@ -268,6 +275,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         if (armSubsystem.getCurrState() == ArmState.LOW
             || armSubsystem.getCurrState() == ArmState.MID
             || armSubsystem.getCurrState() == ArmState.HIGH) {
+          logger.info("{} -> MANUAL_SCORE", currRobotState);
           currRobotState = RobotState.MANUAL_SCORE;
           currentAxis = CurrentAxis.NONE;
         }
@@ -287,6 +295,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           case HAND:
             if (handSubsystem.isFinished()) {
               currentAxis = CurrentAxis.NONE;
+              logger.info("{} -> MANUAL_SHELF", currRobotState);
               currRobotState = RobotState.MANUAL_SHELF;
             }
             break;
@@ -304,6 +313,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         if (handSubsystem.hasPiece()) {
           handSubsystem.grabCone();
           currPoseX = driveSubsystem.getPoseMeters().getX();
+          logger.info("{} -> SHELF_WAIT", currRobotState);
           currRobotState = RobotState.SHELF_WAIT;
         }
 
@@ -316,6 +326,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       case TO_FLOOR_PICKUP:
         if (armSubsystem.getCurrState() == ArmState.FLOOR) {
           currentAxis = CurrentAxis.NONE;
+          logger.info("{} -> FLOOR_PICKUP", currRobotState);
           currRobotState = RobotState.FLOOR_PICKUP;
         }
         break;

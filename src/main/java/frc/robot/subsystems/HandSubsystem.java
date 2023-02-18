@@ -205,7 +205,7 @@ public class HandSubsystem extends MeasurableSubsystem {
           handLeftTalon.configReverseSoftLimitEnable(true);
 
           setLeftPct(0);
-          leftDesiredPosition = 0;
+          // leftDesiredPosition = 0;
           leftZeroDone = true;
         }
 
@@ -230,21 +230,21 @@ public class HandSubsystem extends MeasurableSubsystem {
 
         break;
       case ZEROED:
-        logger.info("Hand is zeroed");
+        // logger.info("Hand is zeroed");
         break;
       default:
         break;
 
       case OPEN:
-        logger.info("Hand is open");
+        // logger.info("Hand is open");
         break;
 
       case CUBE_CLOSED:
-        logger.info("Hand is closed for cube");
+        // logger.info("Hand is closed for cube");
         break;
 
       case CONE_CLOSED:
-        logger.info("Hand is closed for cone");
+        // logger.info("Hand is closed for cone");
         break;
 
       case TRANSITIONING:

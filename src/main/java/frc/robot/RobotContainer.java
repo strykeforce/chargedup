@@ -33,7 +33,6 @@ import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
-import frc.robot.commands.robotState.FloorIntakeCommand;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.SetAutoStagingCommand;
 import frc.robot.commands.robotState.SetGamePieceCommand;
@@ -240,7 +239,7 @@ public class RobotContainer {
     new JoystickButton(xboxController, XboxController.Button.kA.value)
         .onTrue(new ToggleHandCommand(handSubsystem));
     new JoystickButton(xboxController, XboxController.Button.kX.value)
-        .onTrue(new FloorIntakeCommand(robotStateSubsystem));
+        .onTrue(new ToggleIntakeCommand(robotStateSubsystem));
     new JoystickButton(xboxController, XboxController.Button.kY.value)
         .onTrue(new ShelfPickupCommand(robotStateSubsystem));
 
