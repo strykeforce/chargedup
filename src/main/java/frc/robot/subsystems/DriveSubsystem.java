@@ -46,8 +46,7 @@ import org.strykeforce.telemetry.measurable.Measure;
 
 public class DriveSubsystem extends MeasurableSubsystem {
   private static final Logger logger = LoggerFactory.getLogger(DriveSubsystem.class);
-  @HealthCheck
-  private final SwerveDrive swerveDrive;
+  @HealthCheck private final SwerveDrive swerveDrive;
   private final HolonomicDriveController holonomicController;
   private final ProfiledPIDController omegaController;
   private final PIDController xController;
