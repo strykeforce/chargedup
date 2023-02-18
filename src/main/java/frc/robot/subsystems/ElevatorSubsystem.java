@@ -138,10 +138,10 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
           setPct(0);
           desiredPosition = 0;
           elevatorState = ElevatorState.ZEROED;
+          logger.info("Elevator is zeroed");
           break;
         }
       case ZEROED:
-        logger.info("Elevator is zeroed");
         break;
       default:
         break;

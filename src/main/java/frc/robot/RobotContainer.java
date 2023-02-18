@@ -16,8 +16,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.commands.arm.ArmFloorCommand;
 import frc.robot.commands.arm.ArmHighCommand;
 import frc.robot.commands.arm.ArmIntakeStageCommand;
+import frc.robot.commands.arm.ArmLowCommand;
+import frc.robot.commands.arm.ArmMidCommand;
+import frc.robot.commands.arm.ArmShelfCommand;
 import frc.robot.commands.arm.ArmToIntakeCommand;
 import frc.robot.commands.arm.StowArmCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
@@ -203,6 +207,14 @@ public class RobotContainer {
 
     new JoystickButton(xboxController, XboxController.Button.kX.value)
         .onTrue(new ArmHighCommand(armSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value)
+        .onTrue(new ArmLowCommand(armSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kBack.value)
+        .onTrue(new ArmMidCommand(armSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kStart.value)
+        .onTrue(new ArmFloorCommand(armSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kRightBumper.value)
+        .onTrue(new ArmShelfCommand(armSubsystem));
 
     // new JoystickButton(xboxController, XboxController.Button.kStart.value)
     //     .onTrue(new ElbowToPositionCommand(elbowSubsystem, Constants.ElbowConstants.kStowElbow));
