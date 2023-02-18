@@ -113,7 +113,8 @@ public class RobotContainer {
     configureOperatorButtonBindings();
     configureMatchDashboard();
     configurePitDashboard();
-    new Trigger(RobotController::getUserButton).onTrue(new HealthCheckCommand(driveSubsystem));
+    new Trigger(RobotController::getUserButton)
+        .onTrue(new HealthCheckCommand(driveSubsystem, intakeSubsystem));
   }
 
   private void configureTelemetry() {
