@@ -35,6 +35,7 @@ import net.consensys.cava.toml.TomlTable;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.strykeforce.healthcheck.HealthCheck;
 import org.strykeforce.swerve.PoseEstimatorOdometryStrategy;
 import org.strykeforce.swerve.SwerveDrive;
 import org.strykeforce.swerve.SwerveModule;
@@ -45,7 +46,7 @@ import org.strykeforce.telemetry.measurable.Measure;
 
 public class DriveSubsystem extends MeasurableSubsystem {
   private static final Logger logger = LoggerFactory.getLogger(DriveSubsystem.class);
-  private final SwerveDrive swerveDrive;
+  @HealthCheck private final SwerveDrive swerveDrive;
   private final HolonomicDriveController holonomicController;
   private final ProfiledPIDController omegaController;
   private final PIDController xController;
