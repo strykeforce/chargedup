@@ -45,7 +45,6 @@ public class HandSubsystem extends MeasurableSubsystem {
 
     handState = HandStates.IDLE;
     handLeftZeroStableCounts = 0;
-    isGrabbing = false;
     zeroHand();
     // handRightZeroStableCounts = 0;
   }
@@ -163,6 +162,10 @@ public class HandSubsystem extends MeasurableSubsystem {
     handState = HandStates.TRANSITIONING;
   }
 
+  public HandStates getHandState() {
+    return handState;
+  }
+  
   @Override
   public void registerWith(TelemetryService telemetryService) {
     super.registerWith(telemetryService);
@@ -173,9 +176,7 @@ public class HandSubsystem extends MeasurableSubsystem {
   @Override
   public Set<Measure> getMeasures() {
     return Set.of();
-  }
-
-  public 
+  } 
 
   @Override
   public void periodic() {

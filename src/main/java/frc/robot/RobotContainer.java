@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
@@ -30,12 +31,16 @@ import frc.robot.commands.hand.GrabConeCommand;
 import frc.robot.commands.hand.GrabCubeCommand;
 import frc.robot.commands.hand.HandLeftSpeedCommand;
 import frc.robot.commands.hand.HandToPositionCommand;
+import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
 import frc.robot.commands.intake.ToggleIntakeExtendedCommand;
+import frc.robot.commands.robotState.FloorIntakeCommand;
+import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.SetAutoStagingCommand;
 import frc.robot.commands.robotState.SetLevelAndColCommandGroup;
+import frc.robot.commands.robotState.ShelfPickupCommand;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
 import frc.robot.commands.shoulder.ShoulderToPositionCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
@@ -92,7 +97,8 @@ public class RobotContainer {
         new RobotStateSubsystem(
             intakeSubsystem,
             armSubsystem,
-            handSubsystem); // TODO: choose correct settings
+            handSubsystem, 
+            driveSubsystem); // TODO: choose correct settings
 
     driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
 
@@ -233,7 +239,14 @@ public class RobotContainer {
     TargetCol.RIGHT));
 
     // Hand
-    new JoystickButton(xboxController, XboxController.Button.kA.value).onTrue(new )
+    new JoystickButton(xboxController, XboxController.Button.kA.value).onTrue(new ToggleHandCommand(handSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kX.value).onTrue(new FloorIntakeCommand(robotStateSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kY.value).onTrue(new ShelfPickupCommand(robotStateSubsystem));
+
+    // Floor pickup
+    Trigger dPadPressed = new Trigger(() -> xboxController.getPOV() != -1);
+    dPadPressed.onTrue(new FloorPickupCommand(robotStateSubsystem));
+
   }
 
   public Command getAutonomousCommand() {
