@@ -18,15 +18,21 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.commands.arm.ArmFloorCommand;
+import frc.robot.commands.arm.ArmHighCommand;
+import frc.robot.commands.arm.ArmIntakeStageCommand;
+import frc.robot.commands.arm.ArmLowCommand;
+import frc.robot.commands.arm.ArmMidCommand;
+import frc.robot.commands.arm.ArmShelfCommand;
+import frc.robot.commands.arm.ArmToIntakeCommand;
+import frc.robot.commands.arm.StowArmCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ResetOdometryCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elbow.ElbowOpenLoopCommand;
-import frc.robot.commands.elbow.ElbowToPositionCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
-import frc.robot.commands.elevator.ElevatorToPositionCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.commands.hand.GrabConeCommand;
 import frc.robot.commands.hand.GrabCubeCommand;
@@ -37,7 +43,6 @@ import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
 import frc.robot.commands.intake.ToggleIntakeExtendedCommand;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
-import frc.robot.commands.shoulder.ShoulderToPositionCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -198,23 +203,25 @@ public class RobotContainer {
 
   public void configureOperatorButtonBindings() {
     new JoystickButton(xboxController, XboxController.Button.kY.value)
-        .onTrue(
-            new ShoulderToPositionCommand(
-                shoulderSubsystem, Constants.ShoulderConstants.kIntakeShoulder));
+        .onTrue(new StowArmCommand(armSubsystem));
     new JoystickButton(xboxController, XboxController.Button.kB.value)
-        .onTrue(new ElbowToPositionCommand(elbowSubsystem, Constants.ElbowConstants.kIntakeElbow));
+        .onTrue(new ArmToIntakeCommand(armSubsystem));
     new JoystickButton(xboxController, XboxController.Button.kA.value)
-        .onTrue(
-            new ElevatorToPositionCommand(
-                elevatorSubsystem, Constants.ElevatorConstants.kIntakeElevator));
+        .onTrue(new ArmIntakeStageCommand(armSubsystem));
 
     new JoystickButton(xboxController, XboxController.Button.kX.value)
-        .onTrue(
-            new ElevatorToPositionCommand(
-                elevatorSubsystem, Constants.ElevatorConstants.kStowElevator));
-
+        .onTrue(new ArmHighCommand(armSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value)
+        .onTrue(new ArmLowCommand(armSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kBack.value)
+        .onTrue(new ArmMidCommand(armSubsystem));
     new JoystickButton(xboxController, XboxController.Button.kStart.value)
-        .onTrue(new ElbowToPositionCommand(elbowSubsystem, Constants.ElbowConstants.kStowElbow));
+        .onTrue(new ArmFloorCommand(armSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kRightBumper.value)
+        .onTrue(new ArmShelfCommand(armSubsystem));
+
+    // new JoystickButton(xboxController, XboxController.Button.kStart.value)
+    //     .onTrue(new ElbowToPositionCommand(elbowSubsystem, Constants.ElbowConstants.kStowElbow));
     // Set auto staging target
     // Left column
     // new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value)
