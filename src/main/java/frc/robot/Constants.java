@@ -73,7 +73,7 @@ public class Constants {
     // public static final double kElevatorBelowIntakeMax = -41300;
 
     public static final double kInsideIntakeElevatorMax = ElevatorConstants.kMaxFwd;
-    public static final double kInsideIntakeElevatorMin = -15_585;
+    public static final double kInsideIntakeElevatorMin = kElevatorPhysicalMin;
 
     public static final double kElbowInsideIntakeMin = ElbowConstants.kReverseSoftLimit;
     public static final double kElbowInsideIntakeMax = -7644;
@@ -260,14 +260,14 @@ public class Constants {
     public static final int kLeftMainId = 31;
     public static final int kRightFollowId = 32;
 
-    public static final double kAllowedError = 100; // FIXME
+    public static final double kAllowedError = 1500;
 
     public static final double kElevatorZeroSpeed = 0.1;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
     public static final int kZeroStableCounts = 10; // old 25
 
     public static final double kMaxFwd = -1000; // -500
-    public static final double kMaxRev = -25_000; // -49_325
+    public static final double kMaxRev = -27_281; // -25000
 
     public static final double kTicksPerMeter = 125_424.3; // 62000.0 / 0.4 meters
     public static final double kMaxExtension = 1.23; // FIXME meters
@@ -329,24 +329,24 @@ public class Constants {
     public static final int kZeroTicks = 730; // FIXME needs real tick values
 
     public static final int kForwardSoftLimit = 150_000; // 1905
-    public static final int kReverseSoftLimit = -35_000; // -506
+    public static final int kReverseSoftLimit = -28_000; // -506
 
     public static final double kZeroDegs = -90; // FIXME
     public static final double kTicksPerDeg = 4096.0 / 360; // FIXME
-    public static final double kLength = 1; // 0.7855 m
+    public static final double kLength = 0.9; // 0.7855 m
 
     public static final double kOffsetFactor = 217.35 / 2;
 
-    public static final int kCloseEnoughTicks = 20;
+    public static final int kCloseEnoughTicks = 2000;
 
     // Elbow Positions
-    public static final double kIntakeElbow = -8_137;
-    public static final double kStowElbow = 3_100;
-    public static final double kFloorElbow = 20_726;
+    public static final double kIntakeElbow = -25_000;
+    public static final double kStowElbow = 0;
+    public static final double kFloorElbow = 130_000;
     public static final double kLevelOneElbow = 24_375;
-    public static final double kLevelTwoElbow = 58_581;
-    public static final double kLevelThreeElbow = 78_346;
-    public static final double kShelfElbow = 58_581;
+    public static final double kLevelTwoElbow = 120_000;
+    public static final double kLevelThreeElbow = 130_000;
+    public static final double kShelfElbow = 116_214;
 
     public static TalonFXConfiguration getElbowFalonConfig() {
 
@@ -384,7 +384,7 @@ public class Constants {
     public static final int kShoulderId = 30; // FIXME
     public static final int kFollowerShoulderId = 34; // FIXME
 
-    public static final double kShoulderMainZeroTicks = 1990; // FIXME old: 1836
+    public static final double kShoulderMainZeroTicks = 2158; // FIXME old: 1836
     public static final double kShoulderFollowerZeroTicks = 1990; // FIXME old: 1836
 
     public static final double kMaxFwd = 5000; // FIXME 500 // FIXME 887
@@ -395,7 +395,7 @@ public class Constants {
     public static final double kTicksPerDeg =
         142.2; // 35.55556; // FIXME old: 70.0 / 20.0 * 4096.0 / 360.0
 
-    public static final double kAllowedError = 100; // FIXME
+    public static final double kAllowedError = 300;
 
     public static final double kShoulderLen = 0.20; // a 0.21
     public static final double kShoulderLowerToElevatorLowerPivotDist = 0.242; // d 0.245
