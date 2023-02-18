@@ -13,10 +13,10 @@
 
 | Subsystem  | Type     | Talon                 | ID | Comp PDP | Proto PDP | Motor  | Breaker |
 | ---------- | -------- | --------------------- | -- | -------- | --------- | ------ | ------- |
-| Drive      | SRX      | azimuth               | 0  |          |  8        | 9015   |         |
-| Drive      | SRX      | azimuth               | 1  |          |  12       | 9015   |         |
-| Drive      | SRX      | azimuth               | 2  |          |  9        | 9015   |         |
-| Drive      | SRX      | azimuth               | 3  |          |  11       | 9015   |         |
+| Drive      | SRX      | azimuth               | 0  | 9        |  8        | 9015   |         |
+| Drive      | SRX      | azimuth               | 1  | 11       |  12       | 9015   |         |
+| Drive      | SRX      | azimuth               | 2  | 8        |  9        | 9015   |         |
+| Drive      | SRX      | azimuth               | 3  | 10       |  11       | 9015   |         |
 | Drive      | FX       | drive                 | 10 | 0        |  6        | falcon |         |
 | Drive      | FX       | drive                 | 11 | 19       |  15       | falcon |         |
 | Drive      | FX       | drive                 | 12 | 1        |  7        | falcon |         |
