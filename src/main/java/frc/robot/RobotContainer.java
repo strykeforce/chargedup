@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -16,12 +17,22 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.commands.arm.ArmFloorCommand;
+import frc.robot.commands.arm.ArmHighCommand;
+import frc.robot.commands.arm.ArmIntakeStageCommand;
+import frc.robot.commands.arm.ArmLowCommand;
+import frc.robot.commands.arm.ArmMidCommand;
+import frc.robot.commands.arm.ArmShelfCommand;
+import frc.robot.commands.arm.ArmToIntakeCommand;
+import frc.robot.commands.arm.StowArmCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ResetOdometryCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
+import frc.robot.commands.elbow.ElbowOpenLoopCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.commands.hand.GrabConeCommand;
@@ -51,6 +62,7 @@ import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 import frc.robot.subsystems.ShoulderSubsystem;
 import java.util.Map;
+import org.strykeforce.healthcheck.HealthCheckCommand;
 import org.strykeforce.telemetry.TelemetryController;
 import org.strykeforce.telemetry.TelemetryService;
 
@@ -106,6 +118,7 @@ public class RobotContainer {
     configureOperatorButtonBindings();
     configureMatchDashboard();
     configurePitDashboard();
+    new Trigger(RobotController::getUserButton).onTrue(new HealthCheckCommand(driveSubsystem));
   }
 
   private void configureTelemetry() {
