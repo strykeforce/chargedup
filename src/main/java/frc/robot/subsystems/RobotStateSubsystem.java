@@ -23,6 +23,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private GamePiece gamePiece = GamePiece.NONE;
   private RobotState currRobotState = RobotState.STOW;
   private RobotState nextRobotState = RobotState.STOW;
+  private CurrentAxis currentAxis = CurrentAxis.NONE;
   private Logger logger = LoggerFactory.getLogger(RobotStateSubsystem.class);
   private Alliance allianceColor = DriverStation.getAlliance();
   private boolean isAutoStage;
@@ -40,6 +41,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     this.armSubsystem = armSubsystem;
     this.handSubsystem = handSubsystem;
     this.driveSubsystem = driveSubsystem;
+  }
+
+  public RobotState getRobotState() {
+    return currRobotState;
   }
 
   public void setTargetLevel(TargetLevel targetLevel) {
@@ -93,6 +98,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void toIntake() {
     logger.info("{} -->  TO_INTAKE_STAGE", currRobotState);
     currRobotState = RobotState.TO_INTAKE_STAGE;
+    currentAxis = CurrentAxis.ARM_AND_INTAKE;
     intakeSubsystem.startIntaking();
     armSubsystem.toIntakeStagePos();
   }
@@ -109,67 +115,112 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   public void toStow() {
     intakeSubsystem.retractIntake();
+
     if (gamePiece == GamePiece.NONE) handSubsystem.setPos(HandConstants.kConeGrabbingPosition);
-    armSubsystem.toStowPos();
+    currentAxis = CurrentAxis.HAND;
+
     toStow(RobotState.STOW);
   }
 
   public void toStow(RobotState nextState) {
-    currRobotState = RobotState.STOW;
+    logger.info("{} --> STOW", currRobotState);
+
+    currRobotState = RobotState.TO_STOW;
     nextRobotState = nextState;
   }
 
   public void toFloorPickup() {
-    logger.info("{} --> ARM_TRANSITION (FLOOR_PICKUP)");
+    logger.info("{} --> TO_FLOOR_PICKUP", currRobotState);
 
     armSubsystem.toFloorPos();
-    nextRobotState = RobotState.FLOOR_PICKUP;
-    currRobotState = RobotState.ARM_TRANSITION;
+    currRobotState = RobotState.TO_FLOOR_PICKUP;
+    currentAxis = CurrentAxis.ARM;
+  }
+
+  public void toManualScore() {
+    logger.info("{} --> MANUAL_SCORE, currRobotState");
+
+    switch (targetLevel) {
+      case NONE:
+        break;
+      case LOW:
+        armSubsystem.toLowPos();
+        break;
+      case MID:
+        armSubsystem.toMidPos();
+        break;
+      case HIGH:
+        armSubsystem.toHighPos();
+        break;
+    }
+    currRobotState = RobotState.TO_MANUAL_SCORE;
+  }
+
+  public void toManualShelf() {
+    logger.info("{} --> TO_MANUAL_SHELF, currRobotState");
+    armSubsystem.toShelfPos();
+    currentAxis = CurrentAxis.ARM;
+    currRobotState = RobotState.TO_MANUAL_SHELF;
   }
 
   @Override
   public void periodic() {
     switch (currRobotState) {
       case STOW:
-        // retract intake
-        // (wait) close hand
-        // (wait) pull arm in
-
-        intakeSubsystem.retractIntake();
-
-        if (gamePiece == GamePiece.NONE) {
-          handSubsystem.setPos(HandConstants.kConeGrabbingPosition);
-          if (!handSubsystem.isFinished()) break;
-        }
-
-        armSubsystem.toStowPos();
-        if (armSubsystem.getCurrState() != ArmState.STOW) break;
-
         currRobotState = nextRobotState;
-
         break;
+
+      case TO_STOW:
+        switch (currentAxis) {
+          case HAND:
+            if (handSubsystem.isFinished()) {
+              currentAxis = CurrentAxis.ARM;
+              armSubsystem.toStowPos();
+            }
+            break;
+          case ARM:
+            if (armSubsystem.getCurrState() == ArmState.STOW) {
+              currentAxis = CurrentAxis.NONE;
+              currRobotState = RobotState.STOW;
+            }
+          default:
+            break;
+        }
+        break;
+
       case TO_INTAKE_STAGE:
-        // (from) STOW
-        // start intaking
-        // (wait) elbow to position
-        // (wait) open hand
-        // (to) INTAKE_STAGE
+        switch (currentAxis) {
+          case ARM_AND_INTAKE:
+            if (intakeSubsystem.isFinished()
+                && armSubsystem.getCurrState() == ArmState.INTAKE_STAGE) {
+              handSubsystem.open();
+              currentAxis = CurrentAxis.HAND;
+            }
+            break;
+          case HAND:
+            if (handSubsystem.isFinished()) {
+              currentAxis = CurrentAxis.NONE;
+              currRobotState = RobotState.INTAKE_STAGE;
+            }
+            break;
+          default:
+            break;
+        }
+        break;
 
-        if (!armSubsystem.isFinished()) break; // FIXME
-
-        handSubsystem.setPos(HandConstants.kHandOpenPosition);
-        if (!handSubsystem.isFinished()) break;
-
-        currRobotState = RobotState.INTAKE_STAGE;
       case INTAKE_STAGE:
         // (from) TO_INTAKE_STAGE
         // (wait) beam break
-        // (to) INTAKE
+        // (to) PICKUP_FROM_INTAKE
 
-        if (!intakeSubsystem.getIsBeamBreakActive()) break;
+        if (intakeSubsystem.getIsBeamBreakActive()) {
+          currRobotState = RobotState.PICKUP_FROM_INTAKE;
+          intakeSubsystem.retractIntake();
+        }
 
-        currRobotState = RobotState.INTAKE;
-      case INTAKE:
+        break;
+
+      case PICKUP_FROM_INTAKE:
         // (from) INTAKE_STAGE
         // (wait) intake retract
         // (wait) elevator down
@@ -178,61 +229,83 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // set game piece cube
         // (to) STOW
 
-        intakeSubsystem.retractIntake();
-        if (!intakeSubsystem.isFinished()) break;
+        switch (currentAxis) {
+          case INTAKE:
+            if (intakeSubsystem.isFinished()) {
+              armSubsystem.toIntakePos();
+              currentAxis = CurrentAxis.ARM;
+            }
+            break;
+          case ARM:
+            if (armSubsystem.getCurrState() == ArmState.INTAKE) {
+              handSubsystem.grabCube();
+              currentAxis = CurrentAxis.HAND;
+            }
+            break;
+          case HAND:
+            if (handSubsystem.isFinished()) {
+              currentAxis = CurrentAxis.NONE;
+              if (!isIntakeTimerRunning) {
+                isIntakeTimerRunning = true;
+                intakeDelayTimer.reset();
+                intakeDelayTimer.start();
+              }
+              if (!intakeDelayTimer.hasElapsed(IntakeConstants.kIntakePickupDelaySec)) break;
+              intakeDelayTimer.stop();
+              isIntakeTimerRunning = false;
 
-        armSubsystem.toIntakePos();
-        if (!armSubsystem.isFinished()) break;
+              setGamePiece(GamePiece.CUBE);
 
-        handSubsystem.grabCube();
-        if (!handSubsystem.isFinished()) break;
-
-        if (!isIntakeTimerRunning) {
-          isIntakeTimerRunning = true;
-          intakeDelayTimer.reset();
-          intakeDelayTimer.start();
+              toStow();
+            }
+            break;
+          default:
+            break;
         }
-        if (!intakeDelayTimer.hasElapsed(IntakeConstants.kIntakePickupDelaySec)) break;
-        intakeDelayTimer.stop();
-        isIntakeTimerRunning = false;
-
-        setGamePiece(GamePiece.CUBE);
-
-        toStow();
 
         break;
+      case TO_MANUAL_SCORE:
+        if (armSubsystem.getCurrState() == ArmState.LOW
+            || armSubsystem.getCurrState() == ArmState.MID
+            || armSubsystem.getCurrState() == ArmState.HIGH) {
+          currRobotState = RobotState.MANUAL_SCORE;
+          currentAxis = CurrentAxis.NONE;
+        }
+        break;
+
       case MANUAL_SCORE:
-        // (from) STOW
-        // arm to correct height
-        // (break) button to RELEASE_GAME_PIECE
+        break;
 
-        switch (targetLevel) {
-          case NONE:
+      case TO_MANUAL_SHELF:
+        switch (currentAxis) {
+          case ARM:
+            if (armSubsystem.getCurrState() == ArmState.SHELF) {
+              handSubsystem.open();
+              currentAxis = CurrentAxis.HAND;
+            }
             break;
-          case LOW:
-            armSubsystem.toLowPos();
+          case HAND:
+            if (handSubsystem.isFinished()) {
+              currentAxis = CurrentAxis.NONE;
+              currRobotState = RobotState.MANUAL_SHELF;
+            }
             break;
-          case MID:
-            armSubsystem.toMidPos();
-            break;
-          case HIGH:
-            armSubsystem.toHighPos();
+          default:
             break;
         }
 
         break;
+
       case MANUAL_SHELF:
-        // (from) STOW
-        // arm to correct height
+        // (from) TO_MANUAL_SHELF
         // grab game piece
         // (to) SHELF_WAIT
 
-        armSubsystem.toShelfPos();
-        if (armSubsystem.getCurrState() != ArmState.SHELF) break;
-        if (!handSubsystem.hasPiece()) break;
-        handSubsystem.grabCone();
-        currPoseX = driveSubsystem.getPoseMeters().getX();
-        currRobotState = RobotState.SHELF_WAIT;
+        if (handSubsystem.hasPiece()) {
+          handSubsystem.grabCone();
+          currPoseX = driveSubsystem.getPoseMeters().getX();
+          currRobotState = RobotState.SHELF_WAIT;
+        }
 
         break;
       case AUTO_SCORE:
@@ -240,13 +313,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       case AUTO_SHELF:
         break;
 
-      case ARM_TRANSITION:
-        if (armSubsystem.isFinished()) {
-          if (nextRobotState == RobotState.ARM_TRANSITION) {
-            handSubsystem.open();
-          }
-
-          currRobotState = nextRobotState;
+      case TO_FLOOR_PICKUP:
+        if (armSubsystem.getCurrState() == ArmState.FLOOR) {
+          currentAxis = CurrentAxis.NONE;
+          currRobotState = RobotState.FLOOR_PICKUP;
         }
         break;
 
@@ -306,11 +376,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     CONE
   };
 
-  private enum RobotState {
+  public enum RobotState {
     STOW,
     TO_INTAKE_STAGE,
     INTAKE_STAGE,
-    INTAKE,
+    PICKUP_FROM_INTAKE,
     MANUAL_SCORE,
     MANUAL_SHELF,
     AUTO_SCORE,
@@ -318,6 +388,18 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     FLOOR_PICKUP,
     RELEASE_GAME_PIECE,
     SHELF_WAIT,
-    ARM_TRANSITION
+    ARM_TRANSITION,
+    TO_MANUAL_SCORE,
+    TO_MANUAL_SHELF,
+    TO_FLOOR_PICKUP,
+    TO_STOW
+  }
+
+  public enum CurrentAxis {
+    HAND,
+    ARM,
+    INTAKE,
+    ARM_AND_INTAKE,
+    NONE;
   }
 }

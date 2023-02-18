@@ -17,22 +17,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.commands.arm.ArmFloorCommand;
-import frc.robot.commands.arm.ArmHighCommand;
-import frc.robot.commands.arm.ArmIntakeStageCommand;
-import frc.robot.commands.arm.ArmLowCommand;
-import frc.robot.commands.arm.ArmMidCommand;
-import frc.robot.commands.arm.ArmShelfCommand;
-import frc.robot.commands.arm.ArmToIntakeCommand;
-import frc.robot.commands.arm.StowArmCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ResetOdometryCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
-import frc.robot.commands.elbow.ElbowOpenLoopCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.commands.hand.GrabConeCommand;
@@ -43,12 +33,14 @@ import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
-import frc.robot.commands.intake.ToggleIntakeExtendedCommand;
 import frc.robot.commands.robotState.FloorIntakeCommand;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.SetAutoStagingCommand;
+import frc.robot.commands.robotState.SetGamePieceCommand;
 import frc.robot.commands.robotState.SetLevelAndColCommandGroup;
 import frc.robot.commands.robotState.ShelfPickupCommand;
+import frc.robot.commands.robotState.StowRobotCommand;
+import frc.robot.commands.robotState.ToggleIntakeCommand;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.subsystems.ArmSubsystem;
@@ -58,6 +50,7 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.HandSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
+import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 import frc.robot.subsystems.ShoulderSubsystem;
@@ -175,8 +168,8 @@ public class RobotContainer {
     // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
     //     .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, 0.2))
     //     .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
-    // new JoystickButton(driveJoystick, InterlinkButton.UP.id)
-    //     .onTrue(new ZeroElevatorCommand(elevatorSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.UP.id)
+        .onTrue(new ZeroElevatorCommand(elevatorSubsystem));
 
     // // Elbow testing
     // new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
@@ -190,8 +183,8 @@ public class RobotContainer {
     // new JoystickButton(xboxController, 3).onTrue(new
     // ToggleIntakeExtendedCommand(intakeSubsystem));
     new JoystickButton(driveJoystick, Shoulder.RIGHT_DOWN.id)
-        .onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem))
-        .onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));
+        .onTrue(new ToggleIntakeCommand(robotStateSubsystem))
+        .onFalse(new ToggleIntakeCommand(robotStateSubsystem));
 
     // Toggle auto staging
     new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
@@ -202,6 +195,9 @@ public class RobotContainer {
         .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
     new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
         .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
+
+    new JoystickButton(driveJoystick, InterlinkButton.DOWN.id)
+        .onTrue(new StowRobotCommand(robotStateSubsystem));
   }
 
   public void configureOperatorButtonBindings() {
@@ -251,6 +247,12 @@ public class RobotContainer {
     // Floor pickup
     Trigger dPadPressed = new Trigger(() -> xboxController.getPOV() != -1);
     dPadPressed.onTrue(new FloorPickupCommand(robotStateSubsystem));
+
+    // Set game piece
+    new JoystickButton(xboxController, XboxController.Button.kBack.value)
+        .onTrue(new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE));
+    new JoystickButton(xboxController, XboxController.Button.kStart.value)
+        .onTrue(new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE));
   }
 
   public Command getAutonomousCommand() {
