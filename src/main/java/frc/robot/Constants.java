@@ -326,16 +326,16 @@ public class Constants {
     public static final int kRemoteEncoderID = 15; // 15
 
     // zero=up&slightly towards the elevator
-    public static final int kZeroTicks = 1820; // FIXME needs real tick values
+    public static final int kZeroTicks = 730; // FIXME needs real tick values
 
-    public static final int kForwardSoftLimit = 100_000; // 1905
-    public static final int kReverseSoftLimit = -13_375; // -506
+    public static final int kForwardSoftLimit = 150_000; // 1905
+    public static final int kReverseSoftLimit = -35_000; // -506
 
     public static final double kZeroDegs = -90; // FIXME
-    public static final double kTicksPerDeg = 4096.0 / 360.0; // FIXME
+    public static final double kTicksPerDeg = 4096.0 / 360; // FIXME
     public static final double kLength = 1; // 0.7855 m
 
-    public static final double kOffsetFactor = 103.5 / 2;
+    public static final double kOffsetFactor = 217.35 / 2;
 
     public static final int kCloseEnoughTicks = 20;
 
@@ -359,16 +359,16 @@ public class Constants {
       elbowConfig.velocityMeasurementWindow = 64;
       elbowConfig.neutralDeadband = 0.01;
 
-      elbowConfig.slot0.kP = 0.8;
+      elbowConfig.slot0.kP = 0.9;
       elbowConfig.slot0.kI = 0.0;
-      elbowConfig.slot0.kD = 5.0;
-      elbowConfig.slot0.kF = 0.055;
+      elbowConfig.slot0.kD = 1.0;
+      elbowConfig.slot0.kF = 0.053;
       elbowConfig.slot0.integralZone = 0.0;
       elbowConfig.slot0.maxIntegralAccumulator = 0.0;
-      elbowConfig.slot0.allowableClosedloopError = 100.0;
+      elbowConfig.slot0.allowableClosedloopError = 150.0;
 
-      elbowConfig.motionAcceleration = 6_000;
-      elbowConfig.motionCruiseVelocity = 5_000;
+      elbowConfig.motionAcceleration = 10_000;
+      elbowConfig.motionCruiseVelocity = 8_000;
       elbowConfig.forwardSoftLimitEnable = true;
       elbowConfig.forwardSoftLimitThreshold = kForwardSoftLimit;
       elbowConfig.reverseSoftLimitEnable = true;
