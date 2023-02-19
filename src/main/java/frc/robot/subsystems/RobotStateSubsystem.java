@@ -18,11 +18,14 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private GamePiece gamePiece;
   private Logger logger = LoggerFactory.getLogger(RobotStateSubsystem.class);
   private Alliance allianceColor = DriverStation.getAlliance();
+  private boolean autoStaging;
 
-  public RobotStateSubsystem(TargetLevel targetLevel, TargetCol targetCol, GamePiece gamePiece) {
+  public RobotStateSubsystem(
+      TargetLevel targetLevel, TargetCol targetCol, GamePiece gamePiece, boolean autoStaging) {
     this.targetLevel = targetLevel;
     this.targetCol = targetCol;
     this.gamePiece = gamePiece;
+    this.autoStaging = autoStaging;
   }
 
   public void setTargetLevel(TargetLevel targetLevel) {
@@ -50,6 +53,14 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   public GamePiece getGamePiece() {
     return gamePiece;
+  }
+
+  public boolean isAutoStaging() {
+    return autoStaging;
+  }
+
+  public void setAutoStaging(boolean enable) {
+    this.autoStaging = enable;
   }
 
   @Override

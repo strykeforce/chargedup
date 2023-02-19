@@ -43,6 +43,56 @@ public class Constants {
     public static final double kFieldMaxX = 16.540988; // m
   }
 
+  public static final class ArmConstants {
+    public static final double kFrontBumperX = 0.30; // old: 0.25
+    public static final double kCamY = 0.26; // Old: 0.21
+    public static final double kHouseLineSlope = -2.125;
+    public static final double kHouseIntercept = 1.06;
+    public static final double kIntakeMaxY = 0.35; // 0.45
+    public static final double kHouseMinX = -0.10; // -0.3
+    public static final double kIntakeX = -0.35;
+    public static final double kElevatorToElbowPivot = 0.075;
+    // public static final double kIntakeY = 0.32;
+
+    // house limits
+    public static final double kShoulderVerticalMin = -1580;
+    public static final double kShoulderVerticalMax = -1200; // old: -1290
+
+    public static final double kElevatorHouseMin = -10_306;
+    public static final double kElevatorHouseMax = ElevatorConstants.kMaxFwd;
+
+    public static final double kElbowPhysicalMin = ElbowConstants.kReverseSoftLimit;
+    public static final double kElbowPhysicalMax = ElbowConstants.kForwardSoftLimit;
+
+    // bumper limits
+    public static final double kShoulderPhysicalMin = ShoulderConstants.kMaxRev;
+    public static final double kShoulderPhysicalMax = ShoulderConstants.kMaxFwd;
+
+    public static final double kElevatorBumperMin = -40_000; // -46_258
+    public static final double kElevatorBumperMax = ElevatorConstants.kMaxFwd;
+
+    public static final double kElbowBumperMin = ElbowConstants.kReverseSoftLimit;
+    public static final double kElbowBumperMax = ElbowConstants.kForwardSoftLimit;
+
+    // intake limits
+    // Shoulder Physical Min
+    // Shoulder Physical Max
+
+    public static final double kElevatorPhysicalMin = ElevatorConstants.kMaxRev;
+    public static final double kElevatorPhysicalMax = ElevatorConstants.kMaxFwd;
+
+    // public static final double kElevatorBelowIntakeMax = -41300;
+
+    public static final double kInsideIntakeElevatorMax = ElevatorConstants.kMaxFwd;
+    public static final double kInsideIntakeElevatorMin = kElevatorPhysicalMin;
+
+    public static final double kElbowInsideIntakeMin = ElbowConstants.kReverseSoftLimit;
+    public static final double kElbowInsideIntakeMax = -7644;
+    public static final double kElbowAboveIntakeMin = ElbowConstants.kReverseSoftLimit;
+    public static final double kElbowIntakeMin = ElbowConstants.kReverseSoftLimit;
+    public static final double kElbowIntakeMax = ElbowConstants.kForwardSoftLimit;
+  }
+
   public static final class DriveConstants {
     // Drive Constants
     public static final Pose2d kOdometryZeroPosBlue =
@@ -226,15 +276,28 @@ public class Constants {
 
   public static class ElevatorConstants {
     public static final int kLeftMainId = 31;
+    public static final int kRightFollowId = 32;
 
-    public static final double kAllowedError = 100; // FIXME
+    public static final double kAllowedError = 1500;
 
     public static final double kElevatorZeroSpeed = 0.1;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
-    public static final int kZeroStableCounts = 25;
+    public static final int kZeroStableCounts = 10; // old 25
 
-    public static final double kMaxFwd = -500;
-    public static final double kMaxRev = -62_000;
+    public static final double kMaxFwd = -1000; // -500
+    public static final double kMaxRev = -27_281; // -25000
+
+    public static final double kTicksPerMeter = 125_424.3; // 62000.0 / 0.4 meters
+    public static final double kMaxExtension = 1.23; // FIXME meters
+
+    // Elevator Positions
+    public static final double kIntakeElevator = -13_500;
+    public static final double kStowElevator = -2_000;
+    public static final double kFloorElevator = -37_915;
+    public static final double kLevelOneElevator = -1_500;
+    public static final double kLevelTwoElevator = -11_674;
+    public static final double kLevelThreeElevator = -1_500;
+    public static final double kShelfElevator = -26_106;
 
     public static TalonFXConfiguration getElevatorFalconConfig() {
       TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
@@ -244,20 +307,15 @@ public class Constants {
       elevatorConfig.supplyCurrLimit.triggerThresholdTime = 0.1;
       elevatorConfig.supplyCurrLimit.enable = true;
 
-      elevatorConfig.statorCurrLimit.currentLimit = 100.0;
-      elevatorConfig.statorCurrLimit.triggerThresholdCurrent = 120.0;
-      elevatorConfig.statorCurrLimit.triggerThresholdTime = 0.1;
-      elevatorConfig.statorCurrLimit.enable = true;
-
-      // elevatorConfig.slot0.kP = 1.0;
-      // elevatorConfig.slot0.kI = 0.0;
-      // elevatorConfig.slot0.kD = 0.0;
-      // elevatorConfig.slot0.kF = 0.065;
-      // elevatorConfig.slot0.integralZone = 0;
-      // elevatorConfig.slot0.maxIntegralAccumulator = 0;
-      // elevatorConfig.slot0.allowableClosedloopError = 0;
-      // elevatorConfig.motionCruiseVelocity = 5_000;
-      // elevatorConfig.motionAcceleration = 30_000;
+      elevatorConfig.slot0.kP = 0.3;
+      elevatorConfig.slot0.kI = 0.0;
+      elevatorConfig.slot0.kD = 0.0;
+      elevatorConfig.slot0.kF = 0.047;
+      elevatorConfig.slot0.integralZone = 0;
+      elevatorConfig.slot0.maxIntegralAccumulator = 0;
+      elevatorConfig.slot0.allowableClosedloopError = 0;
+      elevatorConfig.motionCruiseVelocity = 5_000;
+      elevatorConfig.motionAcceleration = 20_000;
 
       elevatorConfig.forwardSoftLimitEnable = true;
       elevatorConfig.forwardSoftLimitThreshold = kMaxFwd;
@@ -273,7 +331,7 @@ public class Constants {
     }
 
     public static SupplyCurrentLimitConfiguration getElevatorSupplyLimitConfig() {
-      return new SupplyCurrentLimitConfiguration(true, 40, 45, .04);
+      return new SupplyCurrentLimitConfiguration(true, 20, 20, .1);
     }
 
     public static SupplyCurrentLimitConfiguration getElevatorZeroSupplyCurrentLimit() {
@@ -286,22 +344,53 @@ public class Constants {
     public static final int kRemoteEncoderID = 15; // 15
 
     // zero=up&slightly towards the elevator
-    public static final int kZeroTicks = 1878; // FIXME needs real tick values
-    public static final int kForwardSoftLimit = 1905;
-    public static final int kReverseSoftLimit = -506;
+    public static final int kZeroTicks = 730; // FIXME needs real tick values
 
-    public static final int kCloseEnoughTicks = 20;
+    public static final int kForwardSoftLimit = 187_094; // 150_000
+    public static final int kReverseSoftLimit = -28_000; // -506
+
+    public static final double kZeroDegs = -90; // FIXME
+    public static final double kTicksPerDeg = 4096.0 / 360; // FIXME
+    public static final double kLength = 0.9; // 0.7855 m
+
+    public static final double kOffsetFactor = 217.35 / 2;
+
+    public static final int kCloseEnoughTicks = 2000;
+
+    // Elbow Positions
+    public static final double kIntakeElbow = -25_000;
+    public static final double kStowElbow = 0;
+    public static final double kFloorElbow = 43_214;
+    public static final double kLevelOneElbow = 44_462;
+    public static final double kLevelTwoElbow = 126_486;
+    public static final double kLevelThreeElbow = 179_280;
+    public static final double kShelfElbow = 116_214;
 
     public static TalonFXConfiguration getElbowFalonConfig() {
 
       TalonFXConfiguration elbowConfig = new TalonFXConfiguration();
 
-      elbowConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 40, 40, 0.5);
+      elbowConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 5, 5, 0.1);
       elbowConfig.voltageMeasurementFilter = 32;
       elbowConfig.voltageCompSaturation = 12;
       elbowConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
       elbowConfig.velocityMeasurementWindow = 64;
       elbowConfig.neutralDeadband = 0.01;
+
+      elbowConfig.slot0.kP = 0.9;
+      elbowConfig.slot0.kI = 0.0;
+      elbowConfig.slot0.kD = 1.0;
+      elbowConfig.slot0.kF = 0.053;
+      elbowConfig.slot0.integralZone = 0.0;
+      elbowConfig.slot0.maxIntegralAccumulator = 0.0;
+      elbowConfig.slot0.allowableClosedloopError = 150.0;
+
+      elbowConfig.motionAcceleration = 10_000;
+      elbowConfig.motionCruiseVelocity = 8_000;
+      elbowConfig.forwardSoftLimitEnable = true;
+      elbowConfig.forwardSoftLimitThreshold = kForwardSoftLimit;
+      elbowConfig.reverseSoftLimitEnable = true;
+      elbowConfig.reverseSoftLimitThreshold = kReverseSoftLimit;
 
       return elbowConfig;
     }
@@ -311,37 +400,58 @@ public class Constants {
 
   public static final class ShoulderConstants {
     public static final int kShoulderId = 30; // FIXME
-    public static final int kZeroId = 0; // FIXME
+    public static final int kFollowerShoulderId = 34; // FIXME
 
-    public static final double kShoulderZeroTicks = 1836; // FIXME
+    public static final double kShoulderMainZeroTicks = 2158; // FIXME old: 1836
+    public static final double kShoulderFollowerZeroTicks = 1990; // FIXME old: 1836
 
-    public static final double kMaxFwd = -43; // FIXME
-    public static final double kMaxRev = -1490; // FIXME
+    public static final double kMaxFwd = 5000; // FIXME 500 // FIXME 887
+    public static final double kMaxRev = 0; // FIXME -1700 // FIXME -1580
 
-    public static final double kZeroRads = 0; // FIXME
+    public static final double kZeroDegs = 0; // FIXME
 
-    public static final double kTicksPerDeg = 0; // FIXME
+    public static final double kTicksPerDeg =
+        142.2; // 35.55556; // FIXME old: 70.0 / 20.0 * 4096.0 / 360.0
 
-    public static final double kAllowedError = 0; // FIXME
+    public static final double kAllowedError = 300;
+
+    public static final double kShoulderLen = 0.20; // a 0.21
+    public static final double kShoulderLowerToElevatorLowerPivotDist = 0.242; // d 0.245
+    public static final double kShoulderUpperToElevatorUpperPivotDist = 0.1975; // b
+    public static final double kElevatorPivotDist = 0.342; // c (old 0.27)
+    public static final double kElevatorBaseToPivot = 0.05; // f (old 0.065)
+    public static final double kElevatorBaseToElevatorUpperPivot = 0.35; // g (old 0.23
+
+    public static final double kOffsetDegs =
+        Math.toDegrees(Math.asin(0.06 / kShoulderLowerToElevatorLowerPivotDist));
+
+    // Shoulder Positions
+    public static final double kIntakeShoulder = 0;
+    public static final double kStowShoulder = 0;
+    public static final double kFloorShoulder = 3000;
+    public static final double kLevelOneShoulder = 3000;
+    public static final double kLevelTwoShoulder = 723;
+    public static final double kLevelThreeShoulder = 3900; // old 3000
+    public static final double kShelfShoulder = 0;
 
     public static TalonSRXConfiguration getShoulderTalonConfig() {
       TalonSRXConfiguration shoulderConfig = new TalonSRXConfiguration();
 
-      // shoulderConfig.slot0.kP = 0.0;
-      // shoulderConfig.slot0.kI = 0.0;
-      // shoulderConfig.slot0.kD = 0.0;
-      // shoulderConfig.slot0.kF = 0.0;
-      // shoulderConfig.slot0.integralZone = 0;
-      // shoulderConfig.slot0.maxIntegralAccumulator = 0;
-      // shoulderConfig.slot0.allowableClosedloopError = 0;
-      // shoulderConfig.motionCruiseVelocity = 0;
-      // shoulderConfig.motionAcceleration = 0;
+      shoulderConfig.slot0.kP = 5.0; // OLD 2.0
+      shoulderConfig.slot0.kI = 0.0;
+      shoulderConfig.slot0.kD = 0.0; // OLD 60.0
+      shoulderConfig.slot0.kF = 2.5; // OLD 2.0
+      shoulderConfig.slot0.integralZone = 0;
+      shoulderConfig.slot0.maxIntegralAccumulator = 0;
+      shoulderConfig.slot0.allowableClosedloopError = 0;
+      shoulderConfig.motionCruiseVelocity = 250.0; // 200
+      shoulderConfig.motionAcceleration = 300.0; // 200
 
       shoulderConfig.forwardSoftLimitEnable = true;
       shoulderConfig.forwardSoftLimitThreshold = kMaxFwd;
       shoulderConfig.reverseSoftLimitEnable = true;
       shoulderConfig.reverseSoftLimitThreshold = kMaxRev;
-      shoulderConfig.neutralDeadband = 0.01;
+      shoulderConfig.neutralDeadband = 0.04; // 0.01
       shoulderConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
       shoulderConfig.velocityMeasurementWindow = 64;
       shoulderConfig.voltageCompSaturation = 12;
@@ -353,9 +463,9 @@ public class Constants {
     public static SupplyCurrentLimitConfiguration getShoulderTalonSupplyLimitConfig() {
       SupplyCurrentLimitConfiguration shoulderSupplyConfig = new SupplyCurrentLimitConfiguration();
 
-      shoulderSupplyConfig.currentLimit = 40;
-      shoulderSupplyConfig.triggerThresholdCurrent = 45;
-      shoulderSupplyConfig.triggerThresholdTime = .04;
+      shoulderSupplyConfig.currentLimit = 7; // 5;
+      shoulderSupplyConfig.triggerThresholdCurrent = 7; // 5;
+      shoulderSupplyConfig.triggerThresholdTime = 0.04; // .1;
       shoulderSupplyConfig.enable = true;
 
       return shoulderSupplyConfig;
@@ -369,28 +479,37 @@ public class Constants {
     public static final int kExtendTalonID = 21;
 
     public static final int kCloseEnoughTicks = 150;
-    public static final int kExtendPosTicks = 1100;
-    public static final int kRetractPosTicks = 10;
+    public static final int kExtendPosTicks = -1_800;
+    public static final int kRetractPosTicks = -200;
 
-    public static final double kIntakeSpeed = -0.5;
-    public static final double kIntakeEjectSpeed = 0.5;
+    public static final double kIntakeSpeed = -0.35;
+    public static final double kIntakeEjectSpeed = 0.3;
     public static final double kEjectTimerDelaySec = 3;
 
-    public static final int kIntakeZeroTicks = 2800;
-    public static final int kZeroStableBand = 20;
+    public static final int kIntakeZeroTicks = 3955;
 
     public static TalonSRXConfiguration getExtendTalonConfig() {
       TalonSRXConfiguration talonConfig = new TalonSRXConfiguration();
 
       talonConfig.forwardSoftLimitEnable = true;
-      talonConfig.forwardSoftLimitThreshold = 1140;
+      talonConfig.forwardSoftLimitThreshold = 0;
       talonConfig.reverseSoftLimitEnable = true;
-      talonConfig.reverseSoftLimitThreshold = 0;
+      talonConfig.reverseSoftLimitThreshold = -2500;
       talonConfig.neutralDeadband = 0.01;
       talonConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
       talonConfig.velocityMeasurementWindow = 64;
       talonConfig.voltageCompSaturation = 12;
       talonConfig.voltageMeasurementFilter = 32;
+
+      talonConfig.slot0.kP = 1.2;
+      talonConfig.slot0.kI = 0.0;
+      talonConfig.slot0.kD = 20;
+      talonConfig.slot0.kF = 1.2;
+      talonConfig.slot0.integralZone = 0.0;
+      talonConfig.slot0.maxIntegralAccumulator = 0.0;
+      talonConfig.slot0.allowableClosedloopError = 0.0;
+      talonConfig.motionCruiseVelocity = 400;
+      talonConfig.motionAcceleration = 10_000;
 
       return talonConfig;
     }
@@ -398,9 +517,9 @@ public class Constants {
     public static SupplyCurrentLimitConfiguration getTalonSupplyLimitConfig() {
       SupplyCurrentLimitConfiguration extendSupplyConfig = new SupplyCurrentLimitConfiguration();
 
-      extendSupplyConfig.currentLimit = 20;
-      extendSupplyConfig.triggerThresholdCurrent = 45;
-      extendSupplyConfig.triggerThresholdTime = 0.04;
+      extendSupplyConfig.currentLimit = 5.0;
+      extendSupplyConfig.triggerThresholdCurrent = 20.0;
+      extendSupplyConfig.triggerThresholdTime = 1.0;
       extendSupplyConfig.enable = true;
 
       return extendSupplyConfig;
@@ -409,7 +528,7 @@ public class Constants {
     public static TalonFXConfiguration getIntakeFalconConfig() {
       TalonFXConfiguration falconConfig = new TalonFXConfiguration();
 
-      falconConfig.neutralDeadband = 0.01;
+      falconConfig.neutralDeadband = 0.04;
       falconConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
       falconConfig.velocityMeasurementWindow = 64;
       falconConfig.voltageCompSaturation = 12;
@@ -417,9 +536,69 @@ public class Constants {
       falconConfig.supplyCurrLimit.currentLimit = 20;
       falconConfig.supplyCurrLimit.triggerThresholdCurrent = 45;
       falconConfig.supplyCurrLimit.triggerThresholdTime = 0.04;
-      falconConfig.supplyCurrLimit.enable = true;
+      falconConfig.supplyCurrLimit.enable = false;
+
+      falconConfig.statorCurrLimit.currentLimit = 30;
+      falconConfig.statorCurrLimit.triggerThresholdCurrent = 30;
+      falconConfig.statorCurrLimit.triggerThresholdTime = 0.1;
+      falconConfig.statorCurrLimit.enable = true;
 
       return falconConfig;
+    }
+  }
+
+  public static class HandConstants {
+    public static int kHandTalonId = 40;
+
+    public static final double kMaxFwd = 2312; // 1100
+    public static final double kMaxRev = -740; // -1000
+
+    public static final double kHasPieceMinTicks = 1000;
+
+    public static final double kHandZeroSpeed = 0.1;
+    public static final double kZeroTargetSpeedTicksPer100ms = 5;
+    public static final int kZeroStableCounts = 1592;
+    public static final int kHasPieceStableCounts = 2;
+
+    public static final double kHandZeroTicks = 855;
+
+    public static final double kAllowedError = 0; // FIXME
+
+    public static final double kCubeGrabbingPosition = 800; // FIXME
+    public static final double kConeGrabbingPosition = 1_500; // FIXME
+
+    public static TalonSRXConfiguration getHandTalonConfig() {
+      TalonSRXConfiguration handConfig = new TalonSRXConfiguration();
+
+      handConfig.slot0.kP = 0.0;
+      handConfig.slot0.kI = 0.0;
+      handConfig.slot0.kD = 0.0;
+      handConfig.slot0.kF = 0.85;
+      handConfig.slot0.integralZone = 0;
+      handConfig.slot0.maxIntegralAccumulator = 0;
+      handConfig.slot0.allowableClosedloopError = 0;
+      handConfig.motionCruiseVelocity = 500;
+      handConfig.motionAcceleration = 5_000;
+
+      handConfig.forwardSoftLimitEnable = true;
+      handConfig.forwardSoftLimitThreshold = kMaxFwd;
+      handConfig.reverseSoftLimitEnable = true;
+      handConfig.reverseSoftLimitThreshold = kMaxRev;
+      handConfig.neutralDeadband = 0.04;
+      handConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
+      handConfig.velocityMeasurementWindow = 64;
+      handConfig.voltageCompSaturation = 12;
+      handConfig.voltageMeasurementFilter = 32;
+
+      return handConfig;
+    }
+
+    public static SupplyCurrentLimitConfiguration getHandSupplyLimitConfig() {
+      return new SupplyCurrentLimitConfiguration(true, 10, 20, .5);
+    }
+
+    public static SupplyCurrentLimitConfiguration getHandZeroSupplyCurrentLimit() {
+      return new SupplyCurrentLimitConfiguration(true, 5, 5, 0.1);
     }
   }
 }
