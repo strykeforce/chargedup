@@ -24,7 +24,8 @@
 | Intake     | FX       | intake                | 20 | 16  | falcon |         |
 | Intake     | SRX      | extend                | 21 | 13  | bag x2 |         |
 | Shoulder   | SRX      | shoulder              | 30 | 10  | ??     |         |
-| Elevator   | FX       | elevator              | 31 | 5   | falcon |         |
+| Elevator   | FX       | left main             | 31 | 5   | falcon |         |
+| Elevator   | FX       | right follow          | 32 | 17  | falcon |         |
 | Elbow      | FX       | elbow                 | 33 |  4  | falcon |         |
 | Elbow      | Canifier | canifier              | 15 |  23 | -      |         |
 | Hand       | SRX      | hand                  | 40 |  3  | ??     |         |
