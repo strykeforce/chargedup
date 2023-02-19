@@ -33,7 +33,7 @@ public class Constants {
   public static final class RobotStateConstants {
     public static final double kRobotLength = 1.5; // FIXME m
     public static final double kPoleToCenterOffset = 1.38 + kRobotLength / 2.0; // m
-    public static final double kAutoPlaceX = 2.2; // FIXME m 2.5
+    public static final double kAutoPlaceX = 2.0; // FIXME m 2.5
     public static final double kPolePlaceOffset = 0.56;
 
     public static final double[] kGridY = {1.071626, 2.748026, 4.424426}; // m
@@ -96,12 +96,12 @@ public class Constants {
   public static final class DriveConstants {
     // Drive Constants
     public static final Pose2d kOdometryZeroPosBlue =
-        new Pose2d(new Translation2d(1.77, 5.12), new Rotation2d());
+        new Pose2d(new Translation2d(1.80, 5.097), new Rotation2d());
     public static final Pose2d kOdometryZeroPosRed =
         new Pose2d(
-            new Translation2d(RobotStateConstants.kFieldMaxX - 1.77, 0.44), new Rotation2d());
+            new Translation2d(RobotStateConstants.kFieldMaxX - 1.80, 0.39), new Rotation2d());
     public static final double kWheelDiameterInches =
-        3.0 * (417 / 500.0); // Actual/Odometry //563.5 old number
+        3.0 * (490 / 500.0); // Actual/Odometry //563.5 old number
     public static final double kUpdateThreshold = 0.35;
     public static final double kResetThreshold = 0.005;
     public static final double kPutOdomResetThreshold = 0.35;
@@ -111,18 +111,18 @@ public class Constants {
     public static final double kMaxAngleOff = 4.0;
 
     // Drive Base Size and Gearing
-    public static final double kMaxSpeedMetersPerSecond = 5.121; // practice bot 3.889
-    public static final double kRobotWidth = 0.5; // practice bot: 0.625
-    public static final double kRobotLength = 0.615; // practice bot: 0.625
+    public static final double kMaxSpeedMetersPerSecond = 5.44; // practice bot 3.889
+    public static final double kRobotWidth = 0.495; // practice bot: 0.625 //Old: .5
+    public static final double kRobotLength = 0.62; // practice bot: 0.625 //Old:.615
 
     public static final double kMaxOmega =
         (kMaxSpeedMetersPerSecond / Math.hypot(kRobotWidth / 2.0, kRobotLength / 2.0))
             / 2.0; // wheel locations below
 
     static final double kDriveMotorOutputGear = 30; // practice bot: 22
-    static final double kDriveInputGear = 48;
+    static final double kDriveInputGear = 44; // 48
     static final double kBevelInputGear = 15;
-    static final double kBevelOutputGear = 45;
+    static final double kBevelOutputGear = 45; // 45
     public static final double kDriveGearRatio =
         (kDriveMotorOutputGear / kDriveInputGear) * (kBevelInputGear / kBevelOutputGear);
 
@@ -180,15 +180,15 @@ public class Constants {
       TalonFXConfiguration driveConfig = new TalonFXConfiguration();
       driveConfig.supplyCurrLimit.currentLimit = 40;
       driveConfig.supplyCurrLimit.triggerThresholdCurrent = 45;
-      driveConfig.supplyCurrLimit.triggerThresholdTime = .04;
+      driveConfig.supplyCurrLimit.triggerThresholdTime = 1.0;
       driveConfig.supplyCurrLimit.enable = true;
       driveConfig.statorCurrLimit.enable = false;
-      driveConfig.slot0.kP = 0.045;
-      driveConfig.slot0.kI = 0.0005;
+      driveConfig.slot0.kP = 0.08;
+      driveConfig.slot0.kI = 0.0002;
       driveConfig.slot0.kD = 0.000;
       driveConfig.slot0.kF = 0.047;
       driveConfig.slot0.integralZone = 500;
-      driveConfig.slot0.maxIntegralAccumulator = 75_000;
+      driveConfig.slot0.maxIntegralAccumulator = 150_000;
       driveConfig.slot0.allowableClosedloopError = 0;
       driveConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
       driveConfig.velocityMeasurementWindow = 64;
@@ -206,7 +206,7 @@ public class Constants {
     public static final double kIOmega = 0.0;
     public static final double kDOmega = 0.0;
     //    public static final double kMaxVelOmega = kMaxOmega / 2.0;
-    public static final double kMaxAccelOmega = 3.14;
+    public static final double kMaxAccelOmega = 5.0; // 3.14
 
     // Default safety path constants
     public static final Pose2d startPose2d = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
@@ -251,8 +251,8 @@ public class Constants {
     public static final double kApTag7y = 2.748;
     public static final double kApTag8y = 1.072;
 
-    public static final double kCameraOffset = .273;
-    public static final double kCameraAngleOffset = 24; // DEGREES
+    public static final double kCameraOffset = .335; // was .273 on driveChasis
+    public static final double kCameraAngleOffset = 0; // DEGREES was 24 on driveChasis
     public static int kBufferLookupOffset = 2;
 
     public static Matrix<N3, N1> kStateStdDevs =

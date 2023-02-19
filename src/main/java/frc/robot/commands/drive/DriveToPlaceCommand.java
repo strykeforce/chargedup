@@ -37,12 +37,11 @@ public class DriveToPlaceCommand extends CommandBase {
 
   @Override
   public void initialize() {
-    driveSubsystem.grapherTrajectoryActive(true);
     driveSubsystem.setEnableHolo(true);
     driveSubsystem.resetHolonomicController();
     // driveSubsystem.grapherTrajectoryActive(true);
     // driveSubsystem.lockZero();
-    timer.reset();
+
     logger.info("Moving to place");
     TrajectoryConfig config = new TrajectoryConfig(2.5, 1.5);
     config.setEndVelocity(0);
@@ -61,6 +60,9 @@ public class DriveToPlaceCommand extends CommandBase {
             new Rotation2d(
                 robotStateSubsystem.getAllianceColor() == Alliance.Blue ? Math.toRadians(180) : 0));
     place = TrajectoryGenerator.generateTrajectory(start, points, endPose, config);
+    driveSubsystem.visionUpdates = false;
+    timer.reset();
+    driveSubsystem.grapherTrajectoryActive(true);
   }
 
   @Override
@@ -78,6 +80,7 @@ public class DriveToPlaceCommand extends CommandBase {
     driveSubsystem.grapherTrajectoryActive(false);
     driveSubsystem.setEnableHolo(false);
     driveSubsystem.drive(0, 0, 0);
+    // driveSubsystem.visionUpdates = true;
     // driveSubsystem.grapherTrajectoryActive(false);
     logger.info("End Trajectory {}", timer.get());
   }

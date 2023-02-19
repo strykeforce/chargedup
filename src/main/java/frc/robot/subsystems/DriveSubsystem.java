@@ -589,6 +589,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("Gyro Rate", () -> getGyroRate()),
         new Measure("Auto Drive Speed X", () -> getLastXSpeed()),
         new Measure("Auto Drive Speed Y", () -> getLastYSpeed()),
+        new Measure("Auto Drive End X", () -> endAutoDrivePose.getX()),
+        new Measure("Auto Drive End Y", () -> endAutoDrivePose.getY()),
         new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()));
   }
 }

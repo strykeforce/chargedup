@@ -23,7 +23,6 @@ public class DriveToPlaceNotPathCommand extends CommandBase {
 
   @Override
   public void initialize() {
-    driveSubsystem.resetHolonomicController();
     if (robotStateSubsystem.isBlueAlliance()) {
       if (driveSubsystem.getPoseMeters().getX() < RobotStateConstants.kFieldMaxX / 2)
         driveSubsystem.driveToPose(
@@ -46,7 +45,6 @@ public class DriveToPlaceNotPathCommand extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     driveSubsystem.autoDriving = false;
-    driveSubsystem.setEnableHolo(false);
     driveSubsystem.drive(0, 0, 0);
     // driveSubsystem.grapherTrajectoryActive(false);
     logger.info("End Trajectory {}"); // timer.get());

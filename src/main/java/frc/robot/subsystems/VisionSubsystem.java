@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -166,16 +167,22 @@ public class VisionSubsystem extends MeasurableSubsystem {
     double x = robotPose.getX(), y = robotPose.getY();
     try {
       if (result.hasTargets() && result.getBestTarget().getPoseAmbiguity() <= 0.15) {
-        x = photonPoseEstimator.update().get().estimatedPose.getX();
-        y = photonPoseEstimator.update().get().estimatedPose.getY();
+        Pose3d cameraPose = photonPoseEstimator.update().get().estimatedPose;
+        y = cameraPose.getY();
+        x = cameraPose.getX();
+        // y = photonPoseEstimator.update().get().estimatedPose.getY();
+        // x = photonPoseEstimator.update().get().estimatedPose.getX();
         if (driveSubsystem.canGetVisionUpdates())
           driveSubsystem.updateOdometryWithVision(
-              new Pose2d(new Translation2d(x, y).plus(cameraOffset()), new Rotation2d()),
+              new Pose2d(
+                  new Translation2d(x, y).plus(cameraOffset()), driveSubsystem.getGyroRotation2d()),
               (long) timeStamp);
 
         if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.autoDriving)
           driveSubsystem.resetOdometry(
-              new Pose2d(new Translation2d(x, y).plus(cameraOffset()), new Rotation2d()));
+              new Pose2d(
+                  new Translation2d(x, y).plus(cameraOffset()),
+                  driveSubsystem.getGyroRotation2d()));
       }
     } catch (Exception e) {
       // logger.error("VISION : ODOMETRY FAIL");
@@ -211,6 +218,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
         new Measure("Has Targets", () -> getHasTargets()),
         new Measure("Camera Offset X", () -> cameraOffset().getX()),
         new Measure("Camera Offset Y", () -> cameraOffset().getY()),
+        new Measure("Camera Latency", () -> result.getLatencyMillis()),
         new Measure("Camera Odometry X (NO OFFSET)", () -> getOdometry().getX()),
         new Measure("Camera Odometry Y (NO OFFSET)", () -> getOdometry().getY()));
   }
