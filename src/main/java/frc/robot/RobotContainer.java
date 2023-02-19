@@ -148,8 +148,8 @@ public class RobotContainer {
     // .onTrue(new DriveToPlaceCommand(driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
         .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
-    new JoystickButton(driveJoystick, InterlinkButton.X.id)
-        .onTrue(new xLockCommand(driveSubsystem));
+    //new JoystickButton(driveJoystick, InterlinkButton.X.id)
+        //.onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
         .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
 
@@ -168,7 +168,7 @@ public class RobotContainer {
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(testPath);
 
     // Hand
-    new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
+    /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
         .onTrue(
             new HandToPositionCommand(handSubsystem, Constants.HandConstants.kCubeGrabbingPosition))
         .onFalse(new HandToPositionCommand(handSubsystem, Constants.HandConstants.kMaxRev));
@@ -193,7 +193,7 @@ public class RobotContainer {
         .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, 0.2))
         .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
     new JoystickButton(driveJoystick, InterlinkButton.UP.id)
-        .onTrue(new ZeroElevatorCommand(elevatorSubsystem));
+        .onTrue(new ZeroElevatorCommand(elevatorSubsystem));*/
 
     // // Elbow testing
     // new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
@@ -206,9 +206,9 @@ public class RobotContainer {
     // intake buttons
     // new JoystickButton(xboxController, 3).onTrue(new
     // ToggleIntakeExtendedCommand(intakeSubsystem));
-    new JoystickButton(driveJoystick, Shoulder.RIGHT_DOWN.id)
-        .onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem))
-        .onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));
+    //new JoystickButton(driveJoystick, Shoulder.RIGHT_DOWN.id)
+        //.onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem))
+        //.onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));
 
     // Toggle auto staging
     // new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
@@ -222,7 +222,7 @@ public class RobotContainer {
   }
 
   public void configureOperatorButtonBindings() {
-    new JoystickButton(xboxController, XboxController.Button.kY.value)
+    /*new JoystickButton(xboxController, XboxController.Button.kY.value)
         .onTrue(new StowArmCommand(armSubsystem));
     new JoystickButton(xboxController, XboxController.Button.kB.value)
         .onTrue(new ArmToIntakeCommand(armSubsystem));
@@ -238,7 +238,7 @@ public class RobotContainer {
     new JoystickButton(xboxController, XboxController.Button.kStart.value)
         .onTrue(new ArmFloorCommand(armSubsystem));
     new JoystickButton(xboxController, XboxController.Button.kRightBumper.value)
-        .onTrue(new ArmShelfCommand(armSubsystem));
+        .onTrue(new ArmShelfCommand(armSubsystem));*/
 
     // new JoystickButton(xboxController, XboxController.Button.kStart.value)
     //     .onTrue(new ElbowToPositionCommand(elbowSubsystem, Constants.ElbowConstants.kStowElbow));
