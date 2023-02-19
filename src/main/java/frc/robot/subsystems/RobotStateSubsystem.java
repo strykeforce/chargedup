@@ -6,7 +6,9 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.RobotStateConstants;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
+import frc.robot.subsystems.HandSubsystem.HandStates;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +30,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private Alliance allianceColor = DriverStation.getAlliance();
   private boolean isAutoStage;
   private Timer intakeDelayTimer = new Timer();
-  private boolean isIntakeTimerRunning = false;
+  private Timer releaseDelayTimer = new Timer();
+  private boolean isReleaseDelayTimerRunning = false;
   private double currPoseX;
   private double desiredPoseX;
 
@@ -103,11 +106,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     armSubsystem.toIntakeStagePos();
   }
 
-  public void toMaunalStage() {
-    if (handSubsystem.hasPiece()) {
-      toStow(RobotState.MANUAL_SCORE);
+  public void toManualStage() {
+    if (gamePiece != GamePiece.NONE) {
+      if (currRobotState == RobotState.STOW) toManualScore();
+      else toStow(RobotState.MANUAL_SCORE);
     } else {
-      toStow(RobotState.MANUAL_SHELF);
+      if (currRobotState == RobotState.STOW) toManualShelf();
+      else toStow(RobotState.MANUAL_SHELF);
     }
   }
 
@@ -130,10 +135,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   public void toFloorPickup() {
     logger.info("{} --> TO_FLOOR_PICKUP", currRobotState);
-
-    armSubsystem.toFloorPos();
-    currRobotState = RobotState.TO_FLOOR_PICKUP;
-    currentAxis = CurrentAxis.ARM;
+    if (currRobotState == RobotState.STOW) {
+      handSubsystem.open();
+      currRobotState = RobotState.TO_FLOOR_PICKUP;
+      currentAxis = CurrentAxis.HAND;
+    } else {
+      toStow(RobotState.FLOOR_PICKUP);
+    }
   }
 
   public void toManualScore() {
@@ -162,13 +170,45 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     currRobotState = RobotState.TO_MANUAL_SHELF;
   }
 
+  public void toReleaseGamepiece() {
+    logger.info("{} -> RELEASE_GAME_PIECE", currRobotState);
+    currRobotState = RobotState.RELEASE_GAME_PIECE;
+    handSubsystem.open();
+  }
+
+  public void toGrabGamepiece(GamePiece gamePiece) {
+    logger.info("{} -> GRAB_GAME_PIECE", currRobotState);
+    currRobotState = RobotState.GRAB_GAME_PIECE;
+    if (gamePiece == GamePiece.CONE) handSubsystem.grabCone();
+    else handSubsystem.grabCube();
+  }
+
   @Override
   public void periodic() {
     switch (currRobotState) {
       case STOW:
         if (currRobotState != nextRobotState) {
-          logger.info("{} -> {}", currRobotState, nextRobotState);
-          currRobotState = nextRobotState;
+          switch (nextRobotState) {
+            case INTAKE_STAGE:
+              // fall-through
+            case PICKUP_FROM_INTAKE:
+              toIntake();
+              break;
+            case MANUAL_SCORE:
+              toManualScore();
+              break;
+            case MANUAL_SHELF:
+              toManualShelf();
+              break;
+            case FLOOR_PICKUP:
+              toFloorPickup();
+              break;
+            case AUTO_SCORE: // not implemented
+            case AUTO_SHELF: // not implemented
+              break;
+            default:
+              break;
+          }
         }
         break;
 
@@ -252,17 +292,15 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           case HAND:
             if (handSubsystem.isFinished()) {
               currentAxis = CurrentAxis.NONE;
-              if (!isIntakeTimerRunning) {
-                isIntakeTimerRunning = true;
-                intakeDelayTimer.reset();
-                intakeDelayTimer.start();
-              }
-              if (!intakeDelayTimer.hasElapsed(IntakeConstants.kIntakePickupDelaySec)) break;
+              logger.info("Starting Intake Timer");
+              intakeDelayTimer.reset();
+              intakeDelayTimer.start();
+            }
+            break;
+          case NONE:
+            if (intakeDelayTimer.hasElapsed(IntakeConstants.kIntakePickupDelaySec)) {
               intakeDelayTimer.stop();
-              isIntakeTimerRunning = false;
-
               setGamePiece(GamePiece.CUBE);
-
               toStow();
             }
             break;
@@ -324,10 +362,22 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         break;
 
       case TO_FLOOR_PICKUP:
-        if (armSubsystem.getCurrState() == ArmState.FLOOR) {
-          currentAxis = CurrentAxis.NONE;
-          logger.info("{} -> FLOOR_PICKUP", currRobotState);
-          currRobotState = RobotState.FLOOR_PICKUP;
+        switch (currentAxis) {
+          case HAND:
+            if (handSubsystem.isFinished()) {
+              armSubsystem.toFloorPos();
+              currentAxis = CurrentAxis.ARM;
+            }
+            break;
+          case ARM:
+            if (armSubsystem.getCurrState() == ArmState.FLOOR) {
+              currentAxis = CurrentAxis.NONE;
+              logger.info("{} -> FLOOR_PICKUP", currRobotState);
+              currRobotState = RobotState.FLOOR_PICKUP;
+            }
+            break;
+          default:
+            break;
         }
         break;
 
@@ -338,11 +388,26 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // (from) MANUAL_SCORE or AUTO_SCORE
         // open hand
         // (break)
-
-        handSubsystem.setPos(Constants.HandConstants.kHandOpenPosition);
+        if (handSubsystem.isFinished() && !isReleaseDelayTimerRunning) {
+          gamePiece = GamePiece.NONE;
+          releaseDelayTimer.reset();
+          releaseDelayTimer.start();
+          isReleaseDelayTimerRunning = true;
+        } else if (isReleaseDelayTimerRunning
+            && releaseDelayTimer.hasElapsed(RobotStateConstants.kReleaseDelayTime)) {
+          isReleaseDelayTimerRunning = false;
+          releaseDelayTimer.stop();
+          toStow();
+        }
 
         break;
-
+      case GRAB_GAME_PIECE:
+        if (handSubsystem.isFinished()) {
+          if (handSubsystem.getHandState() == HandStates.CONE_CLOSED) gamePiece = GamePiece.CONE;
+          else gamePiece = GamePiece.CUBE;
+          toStow();
+        }
+        break;
       case SHELF_WAIT:
         // (from) AUTO_SHELF or MANUAL_SHELF
         // check if robot has moved enough
@@ -403,6 +468,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     TO_MANUAL_SCORE,
     TO_MANUAL_SHELF,
     TO_FLOOR_PICKUP,
+    GRAB_GAME_PIECE,
     TO_STOW
   }
 

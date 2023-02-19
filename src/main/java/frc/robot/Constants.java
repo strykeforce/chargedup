@@ -30,7 +30,9 @@ public class Constants {
   public static final double kDeadeyePowerCycleTimeout = 5; // s
   public static final double kJoystickDeadband = 0.1;
 
-  public static final class RobotStateConstants {}
+  public static final class RobotStateConstants {
+    public static final double kReleaseDelayTime = 0.5;
+  }
 
   public static final class ArmConstants {
     public static final double kFrontBumperX = 0.30; // old: 0.25
@@ -468,7 +470,7 @@ public class Constants {
     public static final double kIntakeSpeed = -0.35;
     public static final double kIntakeEjectSpeed = 0.3;
     public static final double kEjectTimerDelaySec = 3;
-    public static final double kIntakePickupDelaySec = 1;
+    public static final double kIntakePickupDelaySec = 0.5;
     public static final int kBeamBreakStableCounts = 2;
 
     public static final int kIntakeZeroTicks = 3955;
@@ -538,14 +540,14 @@ public class Constants {
     public static final double kMaxFwd = 2312; // 1100
     public static final double kMaxRev = -740; // -1000
 
-    public static final double kHasPieceMinTicks = 1000;
+    public static final double kHasPieceMinTicks = 200;
 
     public static final double kHandZeroSpeed = 0.1;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
     public static final int kZeroStableCounts = 1592;
     public static final int kHasPieceStableCounts = 2;
 
-    public static final double kHandZeroTicks = 855;
+    public static final double kHandZeroTicks = 820;
 
     public static final double kAllowedError = 100; // FIXME
 
@@ -556,9 +558,9 @@ public class Constants {
     public static TalonSRXConfiguration getHandTalonConfig() {
       TalonSRXConfiguration handConfig = new TalonSRXConfiguration();
 
-      handConfig.slot0.kP = 0.0;
+      handConfig.slot0.kP = 1.5;
       handConfig.slot0.kI = 0.0;
-      handConfig.slot0.kD = 0.0;
+      handConfig.slot0.kD = 35.0;
       handConfig.slot0.kF = 0.85;
       handConfig.slot0.integralZone = 0;
       handConfig.slot0.maxIntegralAccumulator = 0;

@@ -28,13 +28,12 @@ import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.commands.hand.GrabConeCommand;
 import frc.robot.commands.hand.GrabCubeCommand;
 import frc.robot.commands.hand.HandLeftSpeedCommand;
-import frc.robot.commands.hand.HandToPositionCommand;
 import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
 import frc.robot.commands.robotState.FloorPickupCommand;
-import frc.robot.commands.robotState.SetAutoStagingCommand;
+import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.SetGamePieceCommand;
 import frc.robot.commands.robotState.SetLevelAndColCommandGroup;
 import frc.robot.commands.robotState.ShelfPickupCommand;
@@ -146,11 +145,10 @@ public class RobotContainer {
 
     // Hand
     new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
-        .onTrue(new HandToPositionCommand(handSubsystem, Constants.HandConstants.kMaxRev));
+        .onTrue(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem));
     new JoystickButton(driveJoystick, Shoulder.LEFT_UP.id)
-        .onTrue(
-            new HandToPositionCommand(handSubsystem, Constants.HandConstants.kConeGrabbingPosition))
-        .onFalse(new HandToPositionCommand(handSubsystem, Constants.HandConstants.kMaxRev));
+        .onTrue(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem))
+        .onFalse(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem));
 
     // // Shoulder
     // new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
@@ -187,13 +185,13 @@ public class RobotContainer {
 
     // Toggle auto staging
     new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
-        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, false));
+        .onTrue(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem));
     new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
-        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, false));
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
-        .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
+        .onTrue(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem));
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+    //     .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
+    //     .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
 
     new JoystickButton(driveJoystick, InterlinkButton.DOWN.id)
         .onTrue(new StowRobotCommand(robotStateSubsystem));
@@ -224,20 +222,25 @@ public class RobotContainer {
     new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value)
         .onTrue(
             new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID, TargetCol.LEFT));
-    new JoystickButton(xboxController, XboxController.Axis.kLeftTrigger.value)
-        .onTrue(
-            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.HIGH, TargetCol.LEFT));
+
+    Trigger leftTrigger =
+        new Trigger(() -> xboxController.getLeftTriggerAxis() >= 0.1)
+            .onTrue(
+                new SetLevelAndColCommandGroup(
+                    robotStateSubsystem, TargetLevel.HIGH, TargetCol.LEFT));
     // Right column
     new JoystickButton(xboxController, XboxController.Button.kRightBumper.value)
         .onTrue(
             new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID, TargetCol.RIGHT));
-    new JoystickButton(xboxController, XboxController.Axis.kRightTrigger.value)
-        .onTrue(
-            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.HIGH, TargetCol.RIGHT));
+    Trigger rightTrigger =
+        new Trigger(() -> xboxController.getRightTriggerAxis() >= 0.1)
+            .onTrue(
+                new SetLevelAndColCommandGroup(
+                    robotStateSubsystem, TargetLevel.HIGH, TargetCol.RIGHT));
 
     // Hand
     new JoystickButton(xboxController, XboxController.Button.kA.value)
-        .onTrue(new ToggleHandCommand(handSubsystem));
+        .onTrue(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem));
     new JoystickButton(xboxController, XboxController.Button.kX.value)
         .onTrue(new ToggleIntakeCommand(robotStateSubsystem));
     new JoystickButton(xboxController, XboxController.Button.kY.value)
