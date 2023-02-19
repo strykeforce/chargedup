@@ -34,12 +34,13 @@ public class Constants {
     public static final double kRobotLength = 1.5; // FIXME m
     public static final double kPoleToCenterOffset = 1.38 + kRobotLength / 2.0; // m
     public static final double kAutoPlaceX = 2.2; // FIXME m 2.5
+    public static final double kPolePlaceOffset = 0.56;
 
     public static final double[] kGridY = {1.071626, 2.748026, 4.424426}; // m
     public static final double kBound1Y = 1.908175; // m
     public static final double kBound2Y = 3.584575; // m
 
-    public static final double kFieldMaxX = 16.178784; // m
+    public static final double kFieldMaxX = 16.540988; // m
   }
 
   public static final class DriveConstants {
@@ -54,6 +55,10 @@ public class Constants {
     public static final double kUpdateThreshold = 0.35;
     public static final double kResetThreshold = 0.005;
     public static final double kPutOdomResetThreshold = 0.35;
+    public static final double kMaxAutoAccel = 0.50;
+    public static final double kAutoEquationOffset = 0.05;
+    public static final double kAutoDistanceLimit = 0.03;
+    public static final double kMaxAngleOff = 4.0;
 
     // Drive Base Size and Gearing
     public static final double kMaxSpeedMetersPerSecond = 5.121; // practice bot 3.889
@@ -201,7 +206,7 @@ public class Constants {
     public static int kBufferLookupOffset = 2;
 
     public static Matrix<N3, N1> kStateStdDevs =
-        VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5));
+        VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(5));
 
     // Increase these numbers to trust sensor readings from encoders and gyros less. This matrix is
     // in the form [theta], with units in radians.
@@ -212,7 +217,7 @@ public class Constants {
     // form [x, y, theta]ᵀ, with units in meters and radians.
     // Vision Odometry Standard devs
     public static Matrix<N3, N1> kVisionMeasurementStdDevs =
-        VecBuilder.fill(.25, .25, Units.degreesToRadians(5));
+        VecBuilder.fill(.10, .10, Units.degreesToRadians(5));
   }
 
   public static final class FieldConstants {

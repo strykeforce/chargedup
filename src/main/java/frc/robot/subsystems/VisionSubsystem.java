@@ -168,9 +168,14 @@ public class VisionSubsystem extends MeasurableSubsystem {
       if (result.hasTargets() && result.getBestTarget().getPoseAmbiguity() <= 0.15) {
         x = photonPoseEstimator.update().get().estimatedPose.getX();
         y = photonPoseEstimator.update().get().estimatedPose.getY();
-        // driveSubsystem.updateOdometryWithVision(
-        //     new Pose2d(new Translation2d(x, y).plus(cameraOffset()), new Rotation2d()),
-        //     (long) timeStamp);
+        if (driveSubsystem.canGetVisionUpdates())
+          driveSubsystem.updateOdometryWithVision(
+              new Pose2d(new Translation2d(x, y).plus(cameraOffset()), new Rotation2d()),
+              (long) timeStamp);
+
+        if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.autoDriving)
+          driveSubsystem.resetOdometry(
+              new Pose2d(new Translation2d(x, y).plus(cameraOffset()), new Rotation2d()));
       }
     } catch (Exception e) {
       // logger.error("VISION : ODOMETRY FAIL");

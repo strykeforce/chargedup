@@ -26,6 +26,7 @@ import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
+import frc.robot.commands.robotState.SetTargetColCommand;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.subsystems.DriveSubsystem;
@@ -117,6 +118,14 @@ public class RobotContainer {
         .onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
         .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
+
+    new JoystickButton(driveJoystick, InterlinkButton.UP.id)
+        .onTrue(new SetTargetColCommand(robotStateSubsystem, TargetCol.LEFT));
+    new JoystickButton(driveJoystick, InterlinkButton.DOWN.id)
+        .onTrue(new SetTargetColCommand(robotStateSubsystem, TargetCol.RIGHT));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
+        .onTrue(new SetTargetColCommand(robotStateSubsystem, TargetCol.MID));
+
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
     //     .onTrue(new DriveAutonCommand(driveSubsystem, "straightPathX", true, true));
     // Requires swerve migration to new Pose2D
@@ -167,6 +176,15 @@ public class RobotContainer {
             .withProperties(Map.of("colorWhenFalse", "black"))
             .withSize(2, 2)
             .withPosition(0, 0);
+
+    Shuffleboard.getTab("Match")
+        .addBoolean("IsRight", () -> robotStateSubsystem.getTargetCol() == TargetCol.RIGHT)
+        .withSize(1, 1)
+        .withPosition(3, 0);
+    Shuffleboard.getTab("Match")
+        .addBoolean("IsLeft", () -> robotStateSubsystem.getTargetCol() == TargetCol.LEFT)
+        .withSize(1, 1)
+        .withPosition(3, 1);
   }
 
   private void configurePitDashboard() {

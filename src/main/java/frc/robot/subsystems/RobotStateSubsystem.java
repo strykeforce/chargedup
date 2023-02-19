@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants;
+import frc.robot.Constants.RobotStateConstants;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,9 +76,15 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       targetX = Constants.RobotStateConstants.kFieldMaxX - targetX;
       rotation = 0;
     }
-
+    int multiplier = 0;
+    if (targetCol.equals(TargetCol.LEFT)) multiplier = 1;
+    if (targetCol.equals(TargetCol.RIGHT)) multiplier = -1;
+    if (!isBlueAlliance()) multiplier *= -1;
     return new Pose2d(
-        targetX, Constants.RobotStateConstants.kGridY[gridIndex], new Rotation2d(rotation));
+        targetX,
+        Constants.RobotStateConstants.kGridY[gridIndex]
+            + multiplier * RobotStateConstants.kPolePlaceOffset,
+        new Rotation2d(rotation));
   }
 
   public boolean isBlueAlliance() {

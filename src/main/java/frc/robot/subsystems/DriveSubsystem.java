@@ -5,6 +5,7 @@ import static frc.robot.Constants.kTalonConfigTimeout;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -65,9 +66,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
       new TimestampedPose(RobotController.getFPGATime(), new Pose2d());
   public VisionSubsystem visionSubsystem;
   private double distanceVisionWheelOdom = 0.0;
-  public boolean autoDriving = false;
+  public boolean autoDriving = false, visionUpdates = true;
   private Pose2d endAutoDrivePose;
   private double lastXSpeed = 0.0, lastYSpeed = 0.0, speedMPSglobal = 0.0;
+  private Timer autoDriveTimer = new Timer();
 
   public DriveSubsystem() {
     var moduleBuilder =
@@ -166,46 +168,66 @@ public class DriveSubsystem extends MeasurableSubsystem {
     this.robotStateSubsystem = robotStateSubsystem;
   }
 
-  public void driveToPose() {
-    endAutoDrivePose = robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY());
+  public boolean canGetVisionUpdates() {
+    return visionUpdates;
+  }
+
+  public void driveToPose(Pose2d endPose) {
+    endAutoDrivePose = endPose;
     omegaAutoDriveController.reset(getPoseMeters().getRotation().getRadians());
     autoDriving = true;
+    autoDriveTimer.reset();
+    autoDriveTimer.start();
   }
 
   private void autoDrive() {
     Pose2d currentPose = getPoseMeters();
     Rotation2d robotRotation = getGyroRotation2d();
     Transform2d poseDifference = currentPose.minus(endAutoDrivePose);
-    double abitraryKp = 0.60;
-    double rotationKp = 0.2;
 
-    Rotation2d rotationDifference = robotRotation.minus(new Rotation2d(0.0));
+    // holoContInput =
+    double result =
+        omegaAutoDriveController.calculate(
+            MathUtil.angleModulus(robotRotation.getRadians()),
+            robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
+    result = 0.0;
     double straightDist =
         Math.sqrt(
             poseDifference.getX() * poseDifference.getX()
                 + poseDifference.getY() * poseDifference.getY());
-    double newKp = Math.sqrt((straightDist + .1) * 3) * abitraryKp;
-    if (abitraryKp < newKp) newKp = abitraryKp;
 
     double angle = Math.atan2(poseDifference.getY(), poseDifference.getX());
     logger.info("Angle is {}", angle);
 
-    double speedMPS = Math.sqrt((straightDist + .05) * 3);
+    double speedMPS =
+        Math.sqrt(
+            (straightDist + DriveConstants.kAutoEquationOffset)
+                * (2 * DriveConstants.kMaxAutoAccel));
     logger.info("Predicted speed is {}", speedMPS);
     double currentXvel = speedMPS * Math.cos(angle);
     double currentYvel = speedMPS * Math.sin(angle);
 
     speedMPS =
         Math.sqrt(
-            Math.pow(lastXSpeed + Math.copySign(1.0 / 50, currentXvel - lastXSpeed), 2)
+            Math.pow(
+                    lastXSpeed
+                        + Math.copySign(
+                            DriveConstants.kMaxAutoAccel / 50, currentXvel - lastXSpeed),
+                    2)
                 + Math.pow(currentYvel, 2));
-    currentXvel = lastXSpeed + Math.copySign(1.0 / 50, currentXvel - lastXSpeed);
+    currentXvel =
+        lastXSpeed + Math.copySign(DriveConstants.kMaxAutoAccel / 50, currentXvel - lastXSpeed);
 
     speedMPS =
         Math.sqrt(
             Math.pow(currentXvel, 2)
-                + Math.pow(lastYSpeed + Math.copySign(1.0 / 50, currentYvel - lastYSpeed), 2));
-    currentYvel = lastYSpeed + Math.copySign(1.0 / 50, currentYvel - lastYSpeed);
+                + Math.pow(
+                    lastYSpeed
+                        + Math.copySign(
+                            DriveConstants.kMaxAutoAccel / 50, currentYvel - lastYSpeed),
+                    2));
+    currentYvel =
+        lastYSpeed + Math.copySign(DriveConstants.kMaxAutoAccel / 50, currentYvel - lastYSpeed);
 
     if (Math.abs(speedMPS) > 1) {
       speedMPS = Math.copySign(1, speedMPS);
@@ -219,24 +241,29 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
     Translation2d moveTranslation = new Translation2d(currentXvel, currentYvel);
 
-    if (Math.abs(poseDifference.getX()) < 0.05)
+    if (Math.abs(poseDifference.getX()) <= DriveConstants.kAutoDistanceLimit)
       moveTranslation = new Translation2d(0, moveTranslation.getY());
-    if (Math.abs(poseDifference.getY()) < 0.05)
+    if (Math.abs(poseDifference.getY()) <= DriveConstants.kAutoDistanceLimit)
       moveTranslation = new Translation2d(moveTranslation.getX(), 0.0);
 
     // Translation2d moveTranslation =
     // new Translation2d(poseDifference.getX() * 0.25, poseDifference.getY() * 0.25);
-    move(
-        moveTranslation.getX(),
-        moveTranslation.getY(),
-        rotationDifference.getRadians() * rotationKp,
-        true);
+    move(moveTranslation.getX(), moveTranslation.getY(), result, true);
 
     logger.info("X accel {}, Y accel", moveTranslation.getX(), moveTranslation.getY());
     logger.info(" X Dif: {}, Y Dif: {}", poseDifference.getX(), poseDifference.getY());
 
-    if (Math.abs(poseDifference.getX()) <= 0.05 && Math.abs(poseDifference.getY()) <= 0.05) {
+    if (Math.abs(poseDifference.getX()) <= DriveConstants.kAutoDistanceLimit
+        && Math.abs(poseDifference.getY()) <= DriveConstants.kAutoDistanceLimit
+    // && Math.abs(
+    //         robotRotation.getRadians()
+    //             - (robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI))
+    //     <= Math.toRadians(DriveConstants.kMaxAngleOff)
+    ) {
+      autoDriveTimer.stop();
+      autoDriveTimer.reset();
       autoDriving = false;
+      visionUpdates = true;
       logger.info("Autodrive Finished");
       lastXSpeed = 0.0;
       speedMPSglobal = 0.0;
@@ -244,69 +271,17 @@ public class DriveSubsystem extends MeasurableSubsystem {
     }
   }
 
+  public boolean isAutoDriving() {
+    return autoDriving;
+  }
+
   @Override
   public void periodic() {
     // Update swerve module states every robot loop
     swerveDrive.periodic();
-    if (autoDriving) {
-      Pose2d currentPose = getPoseMeters();
-      Rotation2d robotRotation = getGyroRotation2d();
-      Transform2d poseDifference = currentPose.minus(endAutoDrivePose);
-      double abitraryKp = 0.60;
-      double rotationKp = 0.4;
-
-      // holoContInput =
-      double result = omegaAutoDriveController.calculate(robotRotation.getRadians(), 0.0);
-      // rotationDifference = robotRotation.minus(new Rotation2d(Math.PI));
-      double straightDist =
-          Math.sqrt(
-              poseDifference.getX() * poseDifference.getX()
-                  + poseDifference.getY() * poseDifference.getY());
-      double angle = Math.atan2(poseDifference.getY(), poseDifference.getX());
-      double newKp = Math.sqrt((straightDist + .1) * 3) * abitraryKp;
-      if (abitraryKp < newKp) newKp = abitraryKp;
-
-      double speedMPS = Math.sqrt((straightDist + .1) * 3);
-      if (Math.abs(speedMPS) > 1) speedMPS = Math.copySign(1, speedMPS);
-      if (Math.abs(speedMPS) * Math.cos(angle) > lastXSpeed + 1 / 0.02)
-        speedMPS = lastXSpeed + Math.copySign(1 / 0.02, speedMPS - lastXSpeed);
-
-      lastXSpeed = speedMPS * Math.cos(angle);
-      lastYSpeed = speedMPS * Math.sin(angle);
-
-      Translation2d moveTranslation =
-          new Translation2d((Math.cos(angle) * speedMPS), (Math.sin(angle) * speedMPS));
-
-      if (Math.abs(getPoseMeters().minus(endAutoDrivePose).getX()) < 0.05)
-        moveTranslation = new Translation2d(0, moveTranslation.getY());
-      if (Math.abs(getPoseMeters().minus(endAutoDrivePose).getY()) < 0.05)
-        moveTranslation = new Translation2d(moveTranslation.getX(), 0.0);
-
-      // Translation2d moveTranslation =
-      // new Translation2d(poseDifference.getX() * 0.25, poseDifference.getY() * 0.25);
-      if (Math.abs(moveTranslation.getX()) <= 1 && Math.abs(moveTranslation.getY()) <= 1) {
-        move(moveTranslation.getX(), moveTranslation.getY(), result, true);
-      } else {
-        // Set accel limit to 1 x/|x| = 1 or -1
-        // 1 *copysign
-        move(
-            (Math.copySign(1.0, moveTranslation.getX())),
-            (Math.copySign(1.0, moveTranslation.getY())),
-            result,
-            true);
-      }
-      logger.info("X accel {}, Y accel", moveTranslation.getX(), moveTranslation.getY());
-      logger.info(
-          " X Dif: {}, Y Dif: {}",
-          getPoseMeters().minus(endAutoDrivePose).getX(),
-          getPoseMeters().minus(endAutoDrivePose).getY());
-      if (Math.abs(getPoseMeters().minus(endAutoDrivePose).getX()) <= 0.05
-          && Math.abs(getPoseMeters().minus(endAutoDrivePose).getY()) <= 0.05) {
-        autoDriving = false;
-        logger.info("Autodrive Finished");
-        lastXSpeed = 0.0;
-        lastYSpeed = 0.0;
-      }
+    if (autoDriving && autoDriveTimer.hasElapsed(5.0)) visionUpdates = false;
+    if (autoDriving && !visionUpdates) {
+      autoDrive();
       // double xSpeed = getFieldRelSpeed().vxMetersPerSecond;
       // double ySpeed = getFieldRelSpeed().vyMetersPerSecond;
       // Pose2d endPoint = new Pose2d();
