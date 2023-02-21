@@ -30,7 +30,9 @@ public class Constants {
   public static final double kDeadeyePowerCycleTimeout = 5; // s
   public static final double kJoystickDeadband = 0.1;
 
-  public static final class RobotStateConstants {}
+  public static final class RobotStateConstants {
+    public static final double kReleaseDelayTime = 0.5;
+  }
 
   public static final class ArmConstants {
     public static final double kFrontBumperX = 0.30; // old: 0.25
@@ -80,6 +82,8 @@ public class Constants {
     public static final double kElbowAboveIntakeMin = ElbowConstants.kReverseSoftLimit;
     public static final double kElbowIntakeMin = ElbowConstants.kReverseSoftLimit;
     public static final double kElbowIntakeMax = ElbowConstants.kForwardSoftLimit;
+
+    public static final double kShelfMove = 1; // FIXME put in real number
   }
 
   public static final class DriveConstants {
@@ -262,7 +266,7 @@ public class Constants {
 
     public static final double kAllowedError = 1500;
 
-    public static final double kElevatorZeroSpeed = 0.1;
+    public static final double kElevatorZeroSpeed = 0.08;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
     public static final int kZeroStableCounts = 10; // old 25
 
@@ -273,7 +277,7 @@ public class Constants {
     public static final double kMaxExtension = 1.23; // FIXME meters
 
     // Elevator Positions
-    public static final double kIntakeElevator = -13_500;
+    public static final double kIntakeElevator = -21_000;
     public static final double kStowElevator = -2_000;
     public static final double kFloorElevator = -37_915;
     public static final double kLevelOneElevator = -1_500;
@@ -384,8 +388,8 @@ public class Constants {
     public static final int kShoulderId = 30; // FIXME
     public static final int kFollowerShoulderId = 34; // FIXME
 
-    public static final double kShoulderMainZeroTicks = 2158; // FIXME old: 1836
-    public static final double kShoulderFollowerZeroTicks = 1990; // FIXME old: 1836
+    public static final double kShoulderMainZeroTicks = 2211; // FIXME old: 1836
+    public static final double kShoulderFollowerZeroTicks = 2211; // FIXME old: 1836
 
     public static final double kMaxFwd = 5000; // FIXME 500 // FIXME 887
     public static final double kMaxRev = 0; // FIXME -1700 // FIXME -1580
@@ -455,7 +459,6 @@ public class Constants {
   }
 
   public static final class IntakeConstants {
-    // FIXME: need correct values
 
     public static final int kIntakeFalconID = 20;
     public static final int kExtendTalonID = 21;
@@ -467,8 +470,10 @@ public class Constants {
     public static final double kIntakeSpeed = -0.35;
     public static final double kIntakeEjectSpeed = 0.3;
     public static final double kEjectTimerDelaySec = 3;
+    public static final double kIntakePickupDelaySec = 0.5;
+    public static final int kBeamBreakStableCounts = 2;
 
-    public static final int kIntakeZeroTicks = 3955;
+    public static final int kIntakeZeroTicks = 2800;
 
     public static TalonSRXConfiguration getExtendTalonConfig() {
       TalonSRXConfiguration talonConfig = new TalonSRXConfiguration();
@@ -500,8 +505,8 @@ public class Constants {
       SupplyCurrentLimitConfiguration extendSupplyConfig = new SupplyCurrentLimitConfiguration();
 
       extendSupplyConfig.currentLimit = 5.0;
-      extendSupplyConfig.triggerThresholdCurrent = 20.0;
-      extendSupplyConfig.triggerThresholdTime = 1.0;
+      extendSupplyConfig.triggerThresholdCurrent = 8.0;
+      extendSupplyConfig.triggerThresholdTime = 0.5;
       extendSupplyConfig.enable = true;
 
       return extendSupplyConfig;
@@ -535,26 +540,27 @@ public class Constants {
     public static final double kMaxFwd = 2312; // 1100
     public static final double kMaxRev = -740; // -1000
 
-    public static final double kHasPieceMinTicks = 1000;
+    public static final double kHasPieceMinTicks = 500;
 
     public static final double kHandZeroSpeed = 0.1;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
     public static final int kZeroStableCounts = 1592;
     public static final int kHasPieceStableCounts = 2;
 
-    public static final double kHandZeroTicks = 855;
+    public static final double kHandZeroTicks = 820;
 
-    public static final double kAllowedError = 0; // FIXME
+    public static final double kAllowedError = 150; // FIXME
 
-    public static final double kCubeGrabbingPosition = 800; // FIXME
-    public static final double kConeGrabbingPosition = 1_500; // FIXME
+    public static final double kHandOpenPosition = 0;
+    public static final double kCubeGrabbingPosition = 850; // FIXME
+    public static final double kConeGrabbingPosition = 1_650; // FIXME
 
     public static TalonSRXConfiguration getHandTalonConfig() {
       TalonSRXConfiguration handConfig = new TalonSRXConfiguration();
 
-      handConfig.slot0.kP = 0.0;
+      handConfig.slot0.kP = 1.5;
       handConfig.slot0.kI = 0.0;
-      handConfig.slot0.kD = 0.0;
+      handConfig.slot0.kD = 35.0;
       handConfig.slot0.kF = 0.85;
       handConfig.slot0.integralZone = 0;
       handConfig.slot0.maxIntegralAccumulator = 0;

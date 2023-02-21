@@ -30,9 +30,10 @@ public class IntakeSubsystem extends MeasurableSubsystem {
   private double intakeSetPointTicks;
   private boolean isIntakeExtended = false;
   private Timer ejectTimer = new Timer();
-  private int lastAbsPos = Integer.MAX_VALUE;
   private boolean doHolding = false;
   private final Logger logger = LoggerFactory.getLogger(IntakeSubsystem.class);
+  private int beamBreakStableCounts = 0;
+  private boolean beamBroken = false;
 
   public IntakeSubsystem() {
     intakeFalcon = new TalonFX(IntakeConstants.kIntakeFalconID);
@@ -69,7 +70,7 @@ public class IntakeSubsystem extends MeasurableSubsystem {
     // logger.info("Intake is retracting to {}", IntakeConstants.kRetractPosTicks);
   }
 
-  public boolean isIntakeAtPos() {
+  public boolean isFinished() {
     return Math.abs(intakeSetPointTicks - extendTalon.getSelectedSensorPosition())
         < IntakeConstants.kCloseEnoughTicks;
   }
@@ -121,6 +122,13 @@ public class IntakeSubsystem extends MeasurableSubsystem {
     return currIntakeState;
   }
 
+  public boolean isBeamBroken() {
+    if (extendTalon.isFwdLimitSwitchClosed() > 0) beamBreakStableCounts++;
+    else beamBreakStableCounts = 0;
+    beamBroken = beamBreakStableCounts > IntakeConstants.kBeamBreakStableCounts;
+    return beamBreakStableCounts > IntakeConstants.kBeamBreakStableCounts;
+  }
+
   @Override
   public void periodic() {
 
@@ -130,7 +138,7 @@ public class IntakeSubsystem extends MeasurableSubsystem {
         break;
       case INTAKING:
         // if we want to hold, check for beam break
-        if (doHolding && extendTalon.isFwdLimitSwitchClosed() == 1) {
+        if (doHolding && isBeamBroken()) {
           logger.info("INTAKING -> HOLDING");
           intakeOpenLoop(0);
           currIntakeState = IntakeState.HOLDING;
@@ -152,7 +160,7 @@ public class IntakeSubsystem extends MeasurableSubsystem {
 
   @Override
   public Set<Measure> getMeasures() {
-    return Set.of();
+    return Set.of(new Measure("Beam Broken", () -> beamBroken ? 1.0 : 0.0));
   }
 
   @Override
