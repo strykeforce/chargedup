@@ -350,6 +350,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
         if (handSubsystem.hasPiece()) {
           handSubsystem.grabCone();
+          gamePiece = GamePiece.CONE;
           currPoseX = driveSubsystem.getPoseMeters().getX();
           logger.info("{} -> SHELF_WAIT", currRobotState);
           currRobotState = RobotState.SHELF_WAIT;
@@ -414,13 +415,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // (to) STOW
 
         if (allianceColor == Alliance.Blue) {
-          desiredPoseX = currPoseX + Constants.ArmConstants.kShelfMove;
-          if (driveSubsystem.getPoseMeters().getX() >= desiredPoseX) {
+          desiredPoseX = currPoseX - Constants.ArmConstants.kShelfMove;
+          if (driveSubsystem.getPoseMeters().getX() <= desiredPoseX) {
             toStow();
           }
         } else if (allianceColor == Alliance.Red) {
-          desiredPoseX = currPoseX - Constants.ArmConstants.kShelfMove;
-          if (driveSubsystem.getPoseMeters().getX() <= desiredPoseX) {
+          desiredPoseX = currPoseX + Constants.ArmConstants.kShelfMove;
+          if (driveSubsystem.getPoseMeters().getX() >= desiredPoseX) {
             toStow();
           }
         }
