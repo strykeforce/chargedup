@@ -154,10 +154,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         armSubsystem.toLowPos();
         break;
       case MID:
-        armSubsystem.toMidPos();
+        armSubsystem.toMidPos(getGamePiece());
         break;
       case HIGH:
-        armSubsystem.toHighPos();
+        armSubsystem.toHighPos(getGamePiece());
         break;
     }
     currRobotState = RobotState.TO_MANUAL_SCORE;
@@ -311,8 +311,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         break;
       case TO_MANUAL_SCORE:
         if (armSubsystem.getCurrState() == ArmState.LOW
-            || armSubsystem.getCurrState() == ArmState.MID
-            || armSubsystem.getCurrState() == ArmState.HIGH) {
+            || armSubsystem.getCurrState() == ArmState.MID_CONE || armSubsystem.getCurrState() == ArmState.MID_CUBE || armSubsystem.getCurrState() == ArmState.HIGH_CONE
+            || armSubsystem.getCurrState() == ArmState.HIGH_CUBE) {
           logger.info("{} -> MANUAL_SCORE", currRobotState);
           currRobotState = RobotState.MANUAL_SCORE;
           currentAxis = CurrentAxis.NONE;

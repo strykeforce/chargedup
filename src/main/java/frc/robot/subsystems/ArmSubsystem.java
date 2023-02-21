@@ -6,6 +6,8 @@ import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElbowConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ShoulderConstants;
+import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
+
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +42,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
   public void toStowPos(ArmState desiredState) {
     switch (currState) {
       case LOW: // Fall through
-      case MID:
-      case HIGH:
+      case MID_CONE:
+      case MID_CUBE:
+      case HIGH_CONE:
+      case HIGH_CUBE:
         logger.info("{} -> SCORE_TO_STOW", currState);
         currState = ArmState.SCORE_TO_STOW;
         currAxis = CurrentAxis.SHOULDER;
@@ -122,34 +126,44 @@ public class ArmSubsystem extends MeasurableSubsystem {
     desiredState = ArmState.LOW;
   }
 
-  public void toMidPos() {
+  public void toMidPos(GamePiece currGamePiece) {
+    if (currGamePiece == GamePiece.NONE) {
+      logger.info("Game piece is unknown yet required (toMidPos())! Defaulting to CONE");
+    }
+
+    desiredState = currGamePiece == GamePiece.CUBE ? ArmState.MID_CUBE : ArmState.MID_CONE;
+
     switch (currState) {
       case STOW:
         logger.info("{} -> STOW_TO_MID", currState);
         currState = ArmState.STOW_TO_MID;
         currAxis = CurrentAxis.ELBOW;
-        elbowSubsystem.setPos(ArmState.MID.elbowPos);
+        elbowSubsystem.setPos(desiredState.elbowPos);
         break;
       default:
-        toStowPos(ArmState.MID);
+        toStowPos(desiredState);
         break;
     }
-    desiredState = ArmState.MID;
   }
 
-  public void toHighPos() {
+  public void toHighPos(GamePiece currGamePiece) {
+    if (currGamePiece == GamePiece.NONE) {
+      logger.info("Game piece is unknown yet required (toHighPos())! Defaulting to CONE");
+    }
+
+    desiredState = currGamePiece == GamePiece.CUBE ? ArmState.MID_CUBE : ArmState.MID_CONE;
+
     switch (currState) {
       case STOW:
         logger.info("{} -> STOW_TO_HIGH", currState);
         currState = ArmState.STOW_TO_HIGH;
         currAxis = CurrentAxis.ELBOW;
-        elbowSubsystem.setPos(ArmState.HIGH.elbowPos);
+        elbowSubsystem.setPos(desiredState.elbowPos);
         break;
       default:
-        toStowPos(ArmState.HIGH);
+        toStowPos(desiredState);
         break;
     }
-    desiredState = ArmState.HIGH;
   }
 
   public void toShelfPos() {
@@ -209,10 +223,9 @@ public class ArmSubsystem extends MeasurableSubsystem {
     if (handPos.getX() >= ArmConstants.kFrontBumperX && handPos.getY() < ArmConstants.kCamY) {
       return HandRegion.BUMPER;
     } else if ((handPos.getX() >= Constants.ArmConstants.kHouseMinX
-            && handPos.getX() <= Constants.ArmConstants.kFrontBumperX)
-        && (handPos.getY()
-            <= Constants.ArmConstants.kHouseLineSlope * handPos.getX()
-                + Constants.ArmConstants.kHouseIntercept)) {
+        && handPos.getX() <= Constants.ArmConstants.kFrontBumperX)
+        && (handPos.getY() <= Constants.ArmConstants.kHouseLineSlope * handPos.getX()
+            + Constants.ArmConstants.kHouseIntercept)) {
       return HandRegion.HOUSE;
     } else if (handPos.getX() < ArmConstants.kHouseMinX) {
       if (elevatorSubsystem.getPos() <= ArmConstants.kElevatorHouseMin) {
@@ -246,20 +259,18 @@ public class ArmSubsystem extends MeasurableSubsystem {
   public Translation2d getHandPosition() {
     final double f = Constants.ShoulderConstants.kElevatorBaseToPivot;
 
-    double elbowAngleWithGround =
-        Math.toRadians(shoulderSubsystem.getDegs() - (90.0 - elbowSubsystem.getRelativeDegs()));
+    double elbowAngleWithGround = Math
+        .toRadians(shoulderSubsystem.getDegs() - (90.0 - elbowSubsystem.getRelativeDegs()));
     double shoulderAngle = Math.toRadians(shoulderSubsystem.getDegs());
 
-    double x =
-        (elevatorSubsystem.getExtensionMeters()) * Math.cos(shoulderAngle)
-            - f * Math.cos(Math.PI / 2 - shoulderAngle)
-            + Constants.ElbowConstants.kLength * Math.cos(elbowAngleWithGround)
-            + ArmConstants.kElevatorToElbowPivot * Math.cos(Math.PI / 2 - shoulderAngle);
-    double y =
-        (elevatorSubsystem.getExtensionMeters() + f / Math.tan(shoulderAngle))
-                * Math.sin(shoulderAngle)
-            + Constants.ElbowConstants.kLength * Math.sin(elbowAngleWithGround)
-            - ArmConstants.kElevatorToElbowPivot * Math.sin(Math.PI / 2 - shoulderAngle);
+    double x = (elevatorSubsystem.getExtensionMeters()) * Math.cos(shoulderAngle)
+        - f * Math.cos(Math.PI / 2 - shoulderAngle)
+        + Constants.ElbowConstants.kLength * Math.cos(elbowAngleWithGround)
+        + ArmConstants.kElevatorToElbowPivot * Math.cos(Math.PI / 2 - shoulderAngle);
+    double y = (elevatorSubsystem.getExtensionMeters() + f / Math.tan(shoulderAngle))
+        * Math.sin(shoulderAngle)
+        + Constants.ElbowConstants.kLength * Math.sin(elbowAngleWithGround)
+        - ArmConstants.kElevatorToElbowPivot * Math.sin(Math.PI / 2 - shoulderAngle);
 
     return new Translation2d(x, y);
   }
@@ -292,11 +303,17 @@ public class ArmSubsystem extends MeasurableSubsystem {
           case LOW:
             toLowPos();
             break;
-          case MID:
-            toMidPos();
+          case MID_CONE:
+            toMidPos(GamePiece.CONE);
             break;
-          case HIGH:
-            toHighPos();
+          case MID_CUBE:
+            toMidPos(GamePiece.CUBE);
+            break;
+          case HIGH_CONE:
+            toHighPos(GamePiece.CONE);
+            break;
+          case HIGH_CUBE:
+            toHighPos(GamePiece.CUBE);
             break;
           case INTAKE_STAGE:
             toIntakePos();
@@ -317,9 +334,13 @@ public class ArmSubsystem extends MeasurableSubsystem {
         break;
       case LOW:
         break;
-      case MID:
+      case MID_CONE:
         break;
-      case HIGH:
+      case MID_CUBE:
+        break;
+      case HIGH_CONE:
+        break;
+      case HIGH_CUBE:
         break;
       case SHELF:
         break;
@@ -364,19 +385,20 @@ public class ArmSubsystem extends MeasurableSubsystem {
           case ELBOW:
             if (elbowSubsystem.isFinished()) {
               currAxis = CurrentAxis.ELEVATOR;
-              elevatorSubsystem.setPos(ArmState.MID.elevatorPos);
+              elevatorSubsystem.setPos(desiredState.elevatorPos);
             }
             break;
           case ELEVATOR:
             if (elevatorSubsystem.isFinished()) {
               currAxis = CurrentAxis.SHOULDER;
-              shoulderSubsystem.setPos(ArmState.MID.shoulderPos);
+              shoulderSubsystem.setPos(desiredState.shoulderPos);
             }
             break;
           case SHOULDER:
             if (shoulderSubsystem.isFinished()) {
               logger.info("{} -> MID", currState);
-              currState = ArmState.MID;
+
+              currState = desiredState;
               currAxis = CurrentAxis.NONE;
             }
             break;
@@ -389,19 +411,19 @@ public class ArmSubsystem extends MeasurableSubsystem {
           case ELBOW:
             if (elbowSubsystem.isFinished()) {
               currAxis = CurrentAxis.ELEVATOR;
-              elevatorSubsystem.setPos(ArmState.HIGH.elevatorPos);
+              elevatorSubsystem.setPos(desiredState.elevatorPos);
             }
             break;
           case ELEVATOR:
             if (elevatorSubsystem.isFinished()) {
               currAxis = CurrentAxis.SHOULDER;
-              shoulderSubsystem.setPos(ArmState.HIGH.shoulderPos);
+              shoulderSubsystem.setPos(desiredState.shoulderPos);
             }
             break;
           case SHOULDER:
             if (shoulderSubsystem.isFinished()) {
               logger.info("{} -> HIGH", currState);
-              currState = ArmState.HIGH;
+              currState = desiredState;
               currAxis = CurrentAxis.NONE;
             }
             break;
@@ -603,14 +625,22 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ShoulderConstants.kLevelOneShoulder,
         ElevatorConstants.kLevelOneElevator,
         ElbowConstants.kLevelOneElbow),
-    MID(
-        ShoulderConstants.kLevelTwoShoulder,
-        ElevatorConstants.kLevelTwoElevator,
-        ElbowConstants.kLevelTwoElbow),
-    HIGH(
-        ShoulderConstants.kLevelThreeShoulder,
-        ElevatorConstants.kLevelThreeElevator,
-        ElbowConstants.kLevelThreeElbow),
+    MID_CONE(
+        ShoulderConstants.kLevelTwoConeShoulder,
+        ElevatorConstants.kLevelTwoConeElevator,
+        ElbowConstants.kLevelTwoConeElbow),
+    MID_CUBE(
+        ShoulderConstants.kLevelTwoCubeShoulder,
+        ElevatorConstants.kLevelTwoCubeElevator,
+        ElbowConstants.kLevelTwoCubeElbow),
+    HIGH_CONE(
+        ShoulderConstants.kLevelThreeConeShoulder,
+        ElevatorConstants.kLevelThreeConeElevator,
+        ElbowConstants.kLevelThreeConeElbow),
+    HIGH_CUBE(
+      ShoulderConstants.kLevelThreeCubeShoulder,
+      ElevatorConstants.kLevelThreeCubeElevator,
+      ElbowConstants.kLevelThreeCubeElbow),
     SHELF(
         ShoulderConstants.kShelfShoulder,
         ElevatorConstants.kShelfElevator,
@@ -623,8 +653,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
     STOW_TO_INTAKE_STAGE(INTAKE_STAGE),
     STOW_TO_LOW(LOW),
-    STOW_TO_MID(MID),
-    STOW_TO_HIGH(HIGH),
+    STOW_TO_MID(MID_CONE), // Do not use for arm position
+    STOW_TO_HIGH(HIGH_CONE), // Do not use for arm position
     STOW_TO_SHELF(SHELF),
     STOW_TO_FLOOR(FLOOR),
     INTAKE_STAGE_TO_INTAKE(INTAKE),
@@ -656,8 +686,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
     ELEVATOR,
     SHOULDER,
     NONE;
-
-    CurrentAxis() {}
   }
 
   public enum HandRegion {
@@ -705,6 +733,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ArmConstants.kElbowInsideIntakeMax),
 
     UNKNOWN(0, 0, 0, 0, 0, 0);
+
     public final double minTicksShoulder,
         maxTicksShoulder,
         minTicksElevator,

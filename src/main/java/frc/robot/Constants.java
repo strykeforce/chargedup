@@ -281,8 +281,10 @@ public class Constants {
     public static final double kStowElevator = -2_000;
     public static final double kFloorElevator = -37_915;
     public static final double kLevelOneElevator = -1_500;
-    public static final double kLevelTwoElevator = -11_674;
-    public static final double kLevelThreeElevator = -1_500;
+    public static final double kLevelTwoConeElevator = -11_674;
+    public static final double kLevelTwoCubeElevator = -11_674;
+    public static final double kLevelThreeConeElevator = -1_500;
+    public static final double kLevelThreeCubeElevator = kLevelThreeConeElevator;
     public static final double kShelfElevator = -26_106;
 
     public static TalonFXConfiguration getElevatorFalconConfig() {
@@ -348,8 +350,10 @@ public class Constants {
     public static final double kStowElbow = 0;
     public static final double kFloorElbow = 43_214;
     public static final double kLevelOneElbow = 44_462;
-    public static final double kLevelTwoElbow = 126_486;
-    public static final double kLevelThreeElbow = 179_280;
+    public static final double kLevelTwoConeElbow = 126_486;
+    public static final double kLevelTwoCubeElbow = 126_486;
+    public static final double kLevelThreeConeElbow = 179_280;
+    public static final double kLevelThreeCubeElbow = kLevelThreeConeElbow;
     public static final double kShelfElbow = 116_214;
 
     public static TalonFXConfiguration getElbowFalonConfig() {
@@ -416,8 +420,10 @@ public class Constants {
     public static final double kStowShoulder = 0;
     public static final double kFloorShoulder = 3000;
     public static final double kLevelOneShoulder = 3000;
-    public static final double kLevelTwoShoulder = 723;
-    public static final double kLevelThreeShoulder = 3900; // old 3000
+    public static final double kLevelTwoConeShoulder = 723;
+    public static final double kLevelTwoCubeShoulder = 723;
+    public static final double kLevelThreeConeShoulder = 3900; // old 3000
+    public static final double kLevelThreeCubeShoulder = kLevelThreeConeShoulder;
     public static final double kShelfShoulder = 0;
 
     public static TalonSRXConfiguration getShoulderTalonConfig() {
