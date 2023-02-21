@@ -392,8 +392,8 @@ public class Constants {
     public static final int kShoulderId = 30; // FIXME
     public static final int kFollowerShoulderId = 34; // FIXME
 
-    public static final double kShoulderMainZeroTicks = 2211; // FIXME old: 1836
-    public static final double kShoulderFollowerZeroTicks = 2211; // FIXME old: 1836
+    public static final double kShoulderMainZeroTicks = 1000; // FIXME old: 1836
+    public static final double kShoulderFollowerZeroTicks = 3000; // FIXME old: 1836
 
     public static final double kMaxFwd = 5000; // FIXME 500 // FIXME 887
     public static final double kMaxRev = 0; // FIXME -1700 // FIXME -1580
@@ -471,7 +471,7 @@ public class Constants {
 
     public static final int kCloseEnoughTicks = 150;
     public static final int kExtendPosTicks = -1_800;
-    public static final int kRetractPosTicks = -200;
+    public static final int kRetractPosTicks = 0;
 
     public static final double kIntakeSpeed = -0.35;
     public static final double kIntakeEjectSpeed = 0.3;
@@ -479,7 +479,7 @@ public class Constants {
     public static final double kIntakePickupDelaySec = 0.5;
     public static final int kBeamBreakStableCounts = 2;
 
-    public static final int kIntakeZeroTicks = 3400;
+    public static final int kIntakeZeroTicks = 2_800;
 
     public static TalonSRXConfiguration getExtendTalonConfig() {
       TalonSRXConfiguration talonConfig = new TalonSRXConfiguration();
@@ -502,7 +502,7 @@ public class Constants {
       talonConfig.slot0.maxIntegralAccumulator = 0.0;
       talonConfig.slot0.allowableClosedloopError = 0.0;
       talonConfig.motionCruiseVelocity = 400;
-      talonConfig.motionAcceleration = 10_000;
+      talonConfig.motionAcceleration = 2_000;
 
       return talonConfig;
     }
