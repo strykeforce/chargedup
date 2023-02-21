@@ -1,0 +1,11 @@
+{
+  "baseName" : "Foo",
+  "uniqueName" : "Foo",
+  "nickname" : "Foo",
+  "FOV" : 70.0,
+  "path" : "Bar",
+  "cameraType" : "UsbCamera",
+  "currentPipelineIndex" : 0,
+  "calibrations" : [ ],
+  "streamIndex" : 0
+}

@@ -1,0 +1,192 @@
+plugins {
+    id 'edu.wpi.first.WpilibTools' version '1.0.0'
+}
+
+apply plugin: "application"
+apply plugin: "com.github.johnrengelman.shadow"
+apply plugin: "org.hidetake.ssh"
+
+evaluationDependsOn(':photon-core')
+
+mainClassName = 'org.photonvision.Main'
+
+group 'org.photonvision'
+version versionString + (project.hasProperty('pionly') ? "-raspi" : "")
+
+apply from: "${rootDir}/shared/common.gradle"
+
+def nativeConfigName = 'wpilibTestNative'
+def nativeConfig = configurations.create(nativeConfigName)
+
+def nativeTasks = wpilibTools.createExtractionTasks { configurationName = nativeConfigName }
+
+nativeTasks.addToSourceSetResources(sourceSets.main)
+
+nativeConfig.dependencies.add wpilibTools.deps.cscore()
+nativeConfig.dependencies.add wpilibTools.deps.wpilib("ntcore")
+nativeConfig.dependencies.add wpilibTools.deps.wpilib("wpinet")
+nativeConfig.dependencies.add wpilibTools.deps.wpilib("hal")
+nativeConfig.dependencies.add wpilibTools.deps.wpilib("wpiutil")
+nativeConfig.dependencies.add wpilibTools.deps.wpilib("apriltag")
+nativeConfig.dependencies.add wpilibTools.deps.wpilib("wpimath")
+
+dependencies {
+    implementation project(':photon-core')
+    implementation project(':photon-targeting')
+
+    implementation "io.javalin:javalin:4.2.0"
+
+    implementation wpilibTools.deps.wpilibJava("wpiutil")
+    implementation wpilibTools.deps.wpilibJava("wpimath")
+    implementation wpilibTools.deps.wpilibJava("wpinet")
+    implementation wpilibTools.deps.wpilibJava("hal")
+    implementation wpilibTools.deps.wpilibJava("ntcore")
+    implementation wpilibTools.deps.wpilibJava("wpilibj")
+
+    implementation "org.msgpack:msgpack-core:0.9.0"
+    implementation "org.msgpack:jackson-dataformat-msgpack:0.9.0"
+
+    implementation "org.slf4j:slf4j-simple:1.8.0-beta4"
+}
+
+shadowJar {
+    configurations = [project.configurations.runtimeClasspath]
+    String name = "photonvision-${project.version}"
+    archiveClassifier.set(wpilibTools.platformMapper.currentPlatform.platformName)
+    archiveBaseName = "photonvision"
+    archiveVersion = project.version
+    // archiveFileName.set("${name}.jar")
+}
+
+task runNpmOnClient(type: Exec) {
+    workingDir "${projectDir}/../photon-client"
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+        commandLine 'cmd', '/c', 'npm run build'
+    } else {
+        commandLine 'npm', 'run', 'build'
+    }
+}
+
+task copyClientUIToResources(type: Copy) {
+    from "${projectDir}/../photon-client/dist/"
+    into "${projectDir}/src/main/resources/web/"
+}
+
+task copyThinclientToResources(type: Copy) {
+    from "${projectDir}/../photon-thinclient/"
+    into "${projectDir}/src/main/resources/web/"
+}
+
+
+task buildAndCopyUI {}
+
+buildAndCopyUI.dependsOn copyClientUIToResources
+buildAndCopyUI.dependsOn copyThinclientToResources
+copyClientUIToResources.dependsOn runNpmOnClient
+copyClientUIToResources.shouldRunAfter runNpmOnClient
+
+run {
+    if (project.hasProperty("profile")) {
+        jvmArgs=[
+                "-Dcom.sun.management.jmxremote=true",
+                "-Dcom.sun.management.jmxremote.ssl=false",
+                "-Dcom.sun.management.jmxremote.authenticate=false",
+                "-Dcom.sun.management.jmxremote.port=5000",
+                "-Djava.rmi.server.hostname=0.0.0.0",
+        ]
+    }
+}
+
+
+remotes {
+    pi {
+        host = 'photonvision.local'
+        user = 'pi'
+        password = 'raspberry'
+        knownHosts = allowAnyHosts
+    }
+    gloworm {
+        host = 'gloworm.local'
+        user = 'pi'
+        password = 'raspberry'
+        knownHosts = allowAnyHosts
+    }
+}
+
+import java.io.*;
+import java.net.*;
+
+task findDeployTarget {
+    doLast {
+        if(project.hasProperty('tgtIP')){
+            //If user specificed IP, default to using the PI profile
+            // but adjust hostname to match the provided IP address
+            findDeployTarget.ext.rmt = remotes.pi
+            findDeployTarget.ext.rmt.host=tgtIP
+        } else {
+            findDeployTarget.ext.rmt = null
+            for(testRmt in remotes){
+                println "Checking for " + testRmt.host
+                boolean canContact = false;
+                try {
+                    InetAddress testAddr = InetAddress.getByName(testRmt.host)
+                    canContact = testAddr.isReachable(2000)
+                } catch(UnknownHostException e) {
+                    canContact = false;
+                }
+                if(canContact){
+                    println "Found!"
+                    findDeployTarget.ext.rmt = testRmt
+                    break
+                } else {
+                    println "Not Found."
+                }
+            }
+            if(findDeployTarget.ext.rmt == null ){
+                throw new GradleException("Could not find a supported target for deployment!")
+            }
+        }
+    }
+}
+
+run {
+  environment "PATH_PREFIX", "../"
+}
+
+// task overrideToPi {
+//     doLast {
+//         project.setProperty('ArchOverride', 'linuxarm32')
+//     }
+// }
+
+
+
+task deploy {
+    //dependsOn overrideToPi
+    dependsOn assemble
+    dependsOn findDeployTarget
+
+        doLast {
+        println 'Starting deployment to ' + findDeployTarget.rmt.host
+        println 'targetArch = ' + wpilibTools.platformMapper.currentPlatform.platformName
+        ssh.run{
+            session(findDeployTarget.rmt) {
+                //Stop photonvision before manipulating its files
+                execute 'sudo systemctl stop photonvision.service'
+                // gerth2 - I was having issues with the .jar being in use still - waiting a tiny bit here seems to get rid of it on a pi4
+                execute 'sleep 3'
+                // Copy into a folder owned by PI. Mostly because, as far as I can tell, the put command doesn't support sudo.
+                put from: "${projectDir}/build/libs/photonvision-${project.version}-${wpilibTools.platformMapper.currentPlatform.platformName}.jar", into: "/tmp/photonvision.jar"
+                 //belt-and-suspenders. Make sure the old jar is gone first.
+                execute 'sudo rm -f /opt/photonvision/photonvision.jar'
+                //Copy in the new .jar and make sure it's executable
+                execute 'sudo mv /tmp/photonvision.jar /opt/photonvision/photonvision.jar'
+                execute 'sudo chmod +x /opt/photonvision/photonvision.jar'
+                //Fire up photonvision again
+                execute 'sudo systemctl start photonvision.service'
+                //Cleanup
+                execute 'sudo rm -f /tmp/photonvision.jar'
+            }
+        }
+    }
+}

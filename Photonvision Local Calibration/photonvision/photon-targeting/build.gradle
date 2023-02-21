@@ -1,0 +1,22 @@
+apply plugin: "java"
+
+apply from: "${rootDir}/shared/common.gradle"
+
+dependencies {
+    implementation wpilibTools.deps.wpilibJava("wpimath")
+    implementation "org.ejml:ejml-simple:0.41"
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+tasks.withType(Javadoc) {
+    options.encoding = 'UTF-8'
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+apply from: "publish.gradle"

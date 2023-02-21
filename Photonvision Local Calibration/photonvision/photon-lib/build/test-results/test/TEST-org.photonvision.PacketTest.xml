@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.photonvision.PacketTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2023-02-05T20:54:17" hostname="DESKTOP-G1E6HPG" time="0.078">
+  <properties/>
+  <testcase name="testSimplePipelineResult()" classname="org.photonvision.PacketTest" time="0.075"/>
+  <testcase name="testSimpleTrackedTarget()" classname="org.photonvision.PacketTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
