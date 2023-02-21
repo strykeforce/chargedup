@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants;
@@ -76,12 +77,32 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     return allianceColor;
   }
 
-  public Pose2d getAutoPlaceDriveTarget(double yCoord) {
+  public Pose2d getShelfPosAutoDrive(TargetCol tempTargetCol, boolean isBlue) {
+    int multiplier = 0;
+    if (tempTargetCol.equals(TargetCol.LEFT)) multiplier = 1;
+    if (tempTargetCol.equals(TargetCol.RIGHT)) multiplier = -1;
+    if (isBlue) multiplier *= -1;
+
+    if (isBlue)
+      return new Pose2d(
+          new Translation2d(
+              RobotStateConstants.kShelfBlue.getX() + RobotStateConstants.kShelfOffset * multiplier,
+              RobotStateConstants.kShelfBlue.getY()),
+          new Rotation2d(Math.PI));
+    return new Pose2d(
+        new Translation2d(
+            RobotStateConstants.kShelfRed.getX() + RobotStateConstants.kShelfOffset * multiplier,
+            RobotStateConstants.kShelfRed.getY()),
+        new Rotation2d(0.0));
+  }
+
+  public Pose2d getAutoPlaceDriveTarget(double yCoord, TargetCol tempTargetCol) {
     int gridIndex =
         ((yCoord > Constants.RobotStateConstants.kBound1Y) ? 1 : 0)
             + ((yCoord > Constants.RobotStateConstants.kBound2Y) ? 1 : 0);
     double targetX = Constants.RobotStateConstants.kAutoPlaceX;
     double rotation = Math.PI;
+    if (!isBlueAlliance()) rotation = 0.0;
 
     if (!isBlueAlliance()) {
       targetX = Constants.RobotStateConstants.kFieldMaxX - targetX;

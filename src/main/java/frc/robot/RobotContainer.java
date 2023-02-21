@@ -140,7 +140,13 @@ public class RobotContainer {
     // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
     // .onTrue(new DriveToPlaceCommand(driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-        .onTrue(new DriveToPlacePathCommandGroup(driveSubsystem, robotStateSubsystem));
+        .onTrue(
+            new DriveToPlacePathCommandGroup(
+                driveSubsystem,
+                robotStateSubsystem,
+                false,
+                robotStateSubsystem.getTargetCol(),
+                true));
     // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
     // new JoystickButton(driveJoystick, InterlinkButton.X.id)
     // .onTrue(new xLockCommand(driveSubsystem));

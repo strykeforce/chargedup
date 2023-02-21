@@ -33,12 +33,17 @@ public class Constants {
   public static final class RobotStateConstants {
     public static final double kRobotLength = 1.5; // FIXME m
     public static final double kPoleToCenterOffset = 1.38 + kRobotLength / 2.0; // m
-    public static final double kAutoPlaceX = 2.0; // FIXME m 2.5
-    public static final double kPolePlaceOffset = 0.56;
+    public static final double kAutoPlaceX = 1.90; // FIXME m 2.5
 
+    public static final double kPolePlaceOffset = 0.56;
+    public static final double kShelfOffset = 0.60;
     public static final double[] kGridY = {1.071626, 2.748026, 4.424426}; // m
     public static final double kBound1Y = 1.908175; // m
     public static final double kBound2Y = 3.584575; // m
+    public static final Pose2d kShelfBlue =
+        new Pose2d(new Translation2d(15.6, 6.749796), new Rotation2d());
+    public static final Pose2d kShelfRed =
+        new Pose2d(new Translation2d(0.80, 6.749796), new Rotation2d());
 
     public static final double kFieldMaxX = 16.540988; // m
   }

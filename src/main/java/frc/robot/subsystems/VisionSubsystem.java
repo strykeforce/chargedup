@@ -178,7 +178,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
                   new Translation2d(x, y).plus(cameraOffset()), driveSubsystem.getGyroRotation2d()),
               (long) timeStamp);
 
-        if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.autoDriving)
+        if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.isAutoDriving())
           driveSubsystem.resetOdometry(
               new Pose2d(
                   new Translation2d(x, y).plus(cameraOffset()),
