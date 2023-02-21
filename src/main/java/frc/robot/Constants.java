@@ -473,7 +473,7 @@ public class Constants {
     public static final double kIntakePickupDelaySec = 0.5;
     public static final int kBeamBreakStableCounts = 2;
 
-    public static final int kIntakeZeroTicks = 2800;
+    public static final int kIntakeZeroTicks = 3400;
 
     public static TalonSRXConfiguration getExtendTalonConfig() {
       TalonSRXConfiguration talonConfig = new TalonSRXConfiguration();

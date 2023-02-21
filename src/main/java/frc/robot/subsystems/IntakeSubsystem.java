@@ -39,7 +39,7 @@ public class IntakeSubsystem extends MeasurableSubsystem {
     intakeFalcon = new TalonFX(IntakeConstants.kIntakeFalconID);
     intakeFalcon.configFactoryDefault();
     intakeFalcon.configAllSettings(IntakeConstants.getIntakeFalconConfig());
-    intakeFalcon.setNeutralMode(NeutralMode.Coast);
+    intakeFalcon.setNeutralMode(NeutralMode.Brake);
 
     extendTalon = new TalonSRX(IntakeConstants.kExtendTalonID);
     extendTalon.configFactoryDefault();
