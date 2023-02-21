@@ -1,0 +1,25 @@
+max_velocity = 2.0 #m/s
+max_acceleration = 2.0 #m/s
+start_velocity = 0.0 #m/s
+end_velocity = 0.0 #m/s
+is_reversed = false
+target_yaw = 0 #degrees
+
+[start_pose]
+    x = 2.02 
+    y = 4.42 
+    angle = 0
+[end_pose]
+    x = 4.51 
+    y = 6.10
+    angle = 0
+
+[[internal_points]]
+    x = 2.81
+    y = 5.3
+Footer
+© 2023 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Securi
