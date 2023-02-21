@@ -8,14 +8,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.auto.TwoPathSequentialCommandGroup;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
@@ -45,6 +44,7 @@ public class RobotContainer {
 
   // Paths
   private DriveAutonCommand testPath;
+  private TwoPathSequentialCommandGroup twoPathTest;
 
   public RobotContainer() {
     driveSubsystem = new DriveSubsystem();
@@ -65,21 +65,9 @@ public class RobotContainer {
   // Path Configuration For Robot Container
   private void configurePaths() {
     testPath = new DriveAutonCommand(driveSubsystem, "pieceFourFetchPath", true, true);
-    CommandScheduler.getInstance()
-        .onCommandInitialize(
-            command ->
-                Shuffleboard.addEventMarker(
-                    "Command initialized", command.getName(), EventImportance.kNormal));
-    CommandScheduler.getInstance()
-        .onCommandInterrupt(
-            command ->
-                Shuffleboard.addEventMarker(
-                    "Command interrupted", command.getName(), EventImportance.kNormal));
-    CommandScheduler.getInstance()
-        .onCommandFinish(
-            command ->
-                Shuffleboard.addEventMarker(
-                    "Command finished", command.getName(), EventImportance.kNormal));
+    twoPathTest =
+        new TwoPathSequentialCommandGroup(
+            driveSubsystem, "pieceFourFetchPath", "pieceFourPlacePath");
   }
 
   private void configureBindings() {}
@@ -91,7 +79,7 @@ public class RobotContainer {
         .onTrue(new ZeroGyroCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(testPath);
+    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(twoPathTest);
   }
 
   public Command getAutonomousCommand() {
