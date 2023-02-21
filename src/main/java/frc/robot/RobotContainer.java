@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.auto.TwoPathSequentialCommandGroup;
+import frc.robot.commands.auto.ThreePiecePathCommandGroup;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
@@ -44,7 +44,7 @@ public class RobotContainer {
 
   // Paths
   private DriveAutonCommand testPath;
-  private TwoPathSequentialCommandGroup twoPathTest;
+  private ThreePiecePathCommandGroup twoPathTest;
 
   public RobotContainer() {
     driveSubsystem = new DriveSubsystem();
@@ -66,7 +66,7 @@ public class RobotContainer {
   private void configurePaths() {
     testPath = new DriveAutonCommand(driveSubsystem, "pieceFourFetchPath", true, true);
     twoPathTest =
-        new TwoPathSequentialCommandGroup(
+        new ThreePiecePathCommandGroup(
             driveSubsystem, "pieceFourFetchPath", "pieceFourPlacePath");
   }
 
