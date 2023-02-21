@@ -20,6 +20,7 @@ public class HandSubsystem extends MeasurableSubsystem {
   // private double rightDesiredPosition;
 
   private HandStates handState;
+  private HandStates desiredState;
 
   private int handLeftZeroStableCounts;
   // private int handRightZeroStableCounts;
@@ -69,6 +70,8 @@ public class HandSubsystem extends MeasurableSubsystem {
     logger.info("Hand (left) speed: {}", pct);
     handLeftTalon.set(ControlMode.PercentOutput, pct);
   }
+
+  public void toggleHandPos() {}
 
   // public void setRightPct(double pct) {
   //   logger.info("Hand (right) speed: {}", pct);
@@ -121,6 +124,13 @@ public class HandSubsystem extends MeasurableSubsystem {
     // handState = HandStates.ZEROING;
   }
 
+  public void open() {
+    logger.info("Opening hand");
+    setPos(Constants.HandConstants.kHandOpenPosition);
+    desiredState = HandStates.OPEN;
+    handState = HandStates.TRANSITIONING;
+  }
+
   public double getSensor() {
     return handLeftTalon.getSensorCollection().getAnalogInRaw();
   }
@@ -138,12 +148,20 @@ public class HandSubsystem extends MeasurableSubsystem {
     logger.info("Grabbing cube");
     setPos(Constants.HandConstants.kCubeGrabbingPosition /*,
         Constants.HandConstants.kCubeGrabbingPositionRight*/);
+    desiredState = HandStates.CUBE_CLOSED;
+    handState = HandStates.TRANSITIONING;
   }
 
   public void grabCone() {
     logger.info("Grabbing cone");
     setPos(Constants.HandConstants.kConeGrabbingPosition /*,
         Constants.HandConstants.kConeGrabbingPositionRight*/);
+    desiredState = HandStates.CONE_CLOSED;
+    handState = HandStates.TRANSITIONING;
+  }
+
+  public HandStates getHandState() {
+    return handState;
   }
 
   @Override
@@ -187,7 +205,7 @@ public class HandSubsystem extends MeasurableSubsystem {
           handLeftTalon.configReverseSoftLimitEnable(true);
 
           setLeftPct(0);
-          leftDesiredPosition = 0;
+          // leftDesiredPosition = 0;
           leftZeroDone = true;
         }
 
@@ -212,9 +230,27 @@ public class HandSubsystem extends MeasurableSubsystem {
 
         break;
       case ZEROED:
-        logger.info("Hand is zeroed");
+        // logger.info("Hand is zeroed");
         break;
       default:
+        break;
+
+      case OPEN:
+        // logger.info("Hand is open");
+        break;
+
+      case CUBE_CLOSED:
+        // logger.info("Hand is closed for cube");
+        break;
+
+      case CONE_CLOSED:
+        // logger.info("Hand is closed for cone");
+        break;
+
+      case TRANSITIONING:
+        if (isFinished()) {
+          handState = desiredState;
+        }
         break;
     }
   }
@@ -222,6 +258,10 @@ public class HandSubsystem extends MeasurableSubsystem {
   public enum HandStates {
     IDLE,
     ZEROING,
-    ZEROED
+    ZEROED,
+    OPEN,
+    CUBE_CLOSED,
+    CONE_CLOSED,
+    TRANSITIONING
   }
 }
