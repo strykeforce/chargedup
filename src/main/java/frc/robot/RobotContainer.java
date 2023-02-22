@@ -8,7 +8,9 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -46,24 +48,27 @@ import frc.robot.subsystems.ElbowSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.HandSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RGBlightsSubsystem;
+import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
+import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
+import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
+import frc.robot.subsystems.ShoulderSubsystem;
 import java.util.Map;
 import org.strykeforce.healthcheck.HealthCheckCommand;
 import org.strykeforce.telemetry.TelemetryController;
 import org.strykeforce.telemetry.TelemetryService;
 
 public class RobotContainer {
-  // private final ShoulderSubsystem shoulderSubsystem;
-  // private final final RobotStateSubsystem robotStateSubsystem;
-  // private final DriveSubsystem driveSubsystem;
+  private final ShoulderSubsystem shoulderSubsystem;
+  private final RobotStateSubsystem robotStateSubsystem;
+  private final DriveSubsystem driveSubsystem;
   // private final VisionSubsystem visionSubsystem;
-  // private final ElbowSubsystem elbowSubsystem;
+  private final ElbowSubsystem elbowSubsystem;
   private final ElevatorSubsystem elevatorSubsystem;
   private final IntakeSubsystem intakeSubsystem;
   private final ArmSubsystem armSubsystem;
-  private final RGBlightsSubsystem rgblightsSubsystem;
+  private final RGBlightsSubsystem rgbLightsSubsystem;
 
   private final XboxController xboxController = new XboxController(1);
   private final Joystick driveJoystick = new Joystick(0);
@@ -89,12 +94,14 @@ public class RobotContainer {
     elbowSubsystem = new ElbowSubsystem();
     shoulderSubsystem = new ShoulderSubsystem();
     armSubsystem = new ArmSubsystem(shoulderSubsystem, elevatorSubsystem, elbowSubsystem);
+    rgbLightsSubsystem = new RGBlightsSubsystem();
     robotStateSubsystem =
         new RobotStateSubsystem(
             intakeSubsystem,
             armSubsystem,
             handSubsystem,
-            driveSubsystem); // TODO: choose correct settings
+            driveSubsystem,
+            rgbLightsSubsystem);
 
     driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
 
@@ -254,12 +261,12 @@ public class RobotContainer {
         .onTrue(new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE));
     new JoystickButton(xboxController, XboxController.Button.kStart.value)
         .onTrue(new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE));
-  
+
     new JoystickButton(xboxController, XboxController.Button.kBack.value)
-        .onTrue(new RGBsetPieceCommand(rgblightsSubsystem, GamePiece.CUBE));
+        .onTrue(new RGBsetPieceCommand(rgbLightsSubsystem, GamePiece.CUBE));
 
     new JoystickButton(xboxController, XboxController.Button.kStart.value)
-        .onTrue(new RGBsetPieceCommand(rgblightsSubsystem, GamePiece.CONE));
+        .onTrue(new RGBsetPieceCommand(rgbLightsSubsystem, GamePiece.CONE));
   }
 
   public Command getAutonomousCommand() {

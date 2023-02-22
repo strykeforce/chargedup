@@ -28,7 +28,7 @@ public class RGBlightsSubsystem extends MeasurableSubsystem {
     blue_channel.setPeriodMultiplier(PeriodMultiplier.k1X);
   }
 
-  public void setColor(Double red, Double green, Double blue) {
+  public void setColor(double red, double green, double blue) {
     double R = red * 5000 - 500;
     if (R < 0) {
       R = 0;
@@ -62,5 +62,9 @@ public class RGBlightsSubsystem extends MeasurableSubsystem {
 
   public void setConeColor() {
     this.setColor(0.78, 0.66, 0.06);
+  }
+
+  public void setOff() {
+    this.setColor(0, 0, 0);
   }
 }
