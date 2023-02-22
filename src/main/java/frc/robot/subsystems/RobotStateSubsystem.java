@@ -119,6 +119,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     }
   }
 
+  public void toShelf() {
+    if (currRobotState == RobotState.STOW) toManualShelf();
+    else toStow(RobotState.MANUAL_SHELF);
+  }
+
   public void toAutoStage() {}
 
   public void toStow() {

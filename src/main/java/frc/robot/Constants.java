@@ -283,7 +283,7 @@ public class Constants {
     public static final double kLevelOneElevator = -1_500;
     public static final double kLevelTwoElevator = -11_674;
     public static final double kLevelThreeElevator = -1_500;
-    public static final double kShelfElevator = -26_106;
+    public static final double kShelfElevator = -20_106;
 
     public static TalonFXConfiguration getElevatorFalconConfig() {
       TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
@@ -464,7 +464,7 @@ public class Constants {
     public static final int kExtendTalonID = 21;
 
     public static final int kCloseEnoughTicks = 150;
-    public static final int kExtendPosTicks = -1_800;
+    public static final int kExtendPosTicks = -2_000;
     public static final int kRetractPosTicks = 0;
 
     public static final double kIntakeSpeed = -0.35;
@@ -552,7 +552,7 @@ public class Constants {
     public static final double kAllowedError = 150; // FIXME
 
     public static final double kHandOpenPosition = 0;
-    public static final double kCubeGrabbingPosition = 850; // FIXME
+    public static final double kCubeGrabbingPosition = 900; // FIXME
     public static final double kConeGrabbingPosition = 1_650; // FIXME
 
     public static TalonSRXConfiguration getHandTalonConfig() {
@@ -565,7 +565,7 @@ public class Constants {
       handConfig.slot0.integralZone = 0;
       handConfig.slot0.maxIntegralAccumulator = 0;
       handConfig.slot0.allowableClosedloopError = 0;
-      handConfig.motionCruiseVelocity = 500;
+      handConfig.motionCruiseVelocity = 1_000;
       handConfig.motionAcceleration = 5_000;
 
       handConfig.forwardSoftLimitEnable = true;

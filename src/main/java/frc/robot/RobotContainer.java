@@ -253,10 +253,12 @@ public class RobotContainer {
     dPadPressed.onTrue(new FloorPickupCommand(robotStateSubsystem));
 
     // Set game piece
-    new JoystickButton(xboxController, XboxController.Button.kBack.value)
-        .onTrue(new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE));
-    new JoystickButton(xboxController, XboxController.Button.kStart.value)
-        .onTrue(new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE));
+    // new JoystickButton(xboxController, XboxController.Button.kBack.value)
+    //     .onTrue(new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE));
+    // new JoystickButton(xboxController, XboxController.Button.kStart.value)
+    //     .onTrue(new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE));
+    new JoystickButton(xboxController, XboxController.Button.kB.value)
+        .onTrue(new SetGamePieceCommand(robotStateSubsystem, GamePiece.NONE));
 
     new JoystickButton(xboxController, XboxController.Button.kBack.value)
         .onTrue(new RGBsetPieceCommand(rgbLightsSubsystem, GamePiece.CUBE));
