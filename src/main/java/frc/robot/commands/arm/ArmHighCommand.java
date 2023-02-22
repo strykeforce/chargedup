@@ -10,7 +10,7 @@ public class ArmHighCommand extends InstantCommand {
 
   public ArmHighCommand(ArmSubsystem armSubsystem, GamePiece gamePiece) {
     this.armSubsystem = armSubsystem;
-    this.gamePiece = gamePiece;
+    this.gamePiece = gamePiece; // Set game piece
   }
 
   @Override
