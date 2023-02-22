@@ -270,10 +270,12 @@ public class RobotContainer {
             .withProperties(Map.of("colorWhenFalse", "black"))
             .withSize(2, 2)
             .withPosition(0, 0);
-    currGamePiece = Shuffleboard.getTab("Match").addBoolean("Game Piece", () -> robotStateSubsystem.getGamePiece() != GamePiece.NONE)
-    .withProperties(Map.of("colorWhenFalse", "black"))
-    .withSize(2, 2)
-    .withPosition(3, 0);
+    currGamePiece =
+        Shuffleboard.getTab("Match")
+            .addBoolean("Game Piece", () -> robotStateSubsystem.getGamePiece() != GamePiece.NONE)
+            .withProperties(Map.of("colorWhenFalse", "black"))
+            .withSize(2, 2)
+            .withPosition(3, 0);
   }
 
   private void configurePitDashboard() {
@@ -360,7 +362,10 @@ public class RobotContainer {
   public void updateGamePiece() {
     currGamePiece.withProperties(
         Map.of(
-            "colorWhenTrue", robotStateSubsystem.getGamePiece() == GamePiece.CUBE ? "purple" : "yellow", "colorWhenFalse", "black"));
+            "colorWhenTrue",
+            robotStateSubsystem.getGamePiece() == GamePiece.CUBE ? "purple" : "yellow",
+            "colorWhenFalse",
+            "black"));
   }
 
   // Interlink Controller Mapping
