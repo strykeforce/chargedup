@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.commands.RGBlights.RGBsetPieceCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ResetOdometryCommand;
@@ -47,6 +48,7 @@ import frc.robot.subsystems.ElbowSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.HandSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.RGBlightsSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
@@ -66,6 +68,7 @@ public class RobotContainer {
   private final ElevatorSubsystem elevatorSubsystem;
   private final IntakeSubsystem intakeSubsystem;
   private final ArmSubsystem armSubsystem;
+  private final RGBlightsSubsystem rgbLightsSubsystem;
 
   private final XboxController xboxController = new XboxController(1);
   private final Joystick driveJoystick = new Joystick(0);
@@ -91,12 +94,10 @@ public class RobotContainer {
     elbowSubsystem = new ElbowSubsystem();
     shoulderSubsystem = new ShoulderSubsystem();
     armSubsystem = new ArmSubsystem(shoulderSubsystem, elevatorSubsystem, elbowSubsystem);
+    rgbLightsSubsystem = new RGBlightsSubsystem();
     robotStateSubsystem =
         new RobotStateSubsystem(
-            intakeSubsystem,
-            armSubsystem,
-            handSubsystem,
-            driveSubsystem); // TODO: choose correct settings
+            intakeSubsystem, armSubsystem, handSubsystem, driveSubsystem, rgbLightsSubsystem);
 
     driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
 
@@ -258,6 +259,12 @@ public class RobotContainer {
     //     .onTrue(new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE));
     new JoystickButton(xboxController, XboxController.Button.kB.value)
         .onTrue(new SetGamePieceCommand(robotStateSubsystem, GamePiece.NONE));
+
+    new JoystickButton(xboxController, XboxController.Button.kBack.value)
+        .onTrue(new RGBsetPieceCommand(rgbLightsSubsystem, GamePiece.CUBE));
+
+    new JoystickButton(xboxController, XboxController.Button.kStart.value)
+        .onTrue(new RGBsetPieceCommand(rgbLightsSubsystem, GamePiece.CONE));
   }
 
   public Command getAutonomousCommand() {
@@ -346,12 +353,13 @@ public class RobotContainer {
   }
 
   public void setAllianceColor(Alliance alliance) {
-    this.alliance = alliance;
-    allianceColor.withProperties(
-        Map.of(
-            "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
-    robotStateSubsystem.setAllianceColor(alliance);
-    testPath.generateTrajectory();
+    // this.alliance = alliance;
+    // allianceColor.withProperties(
+    //     Map.of(
+    //         "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse",
+    // "black"));
+    // robotStateSubsystem.setAllianceColor(alliance);
+    // testPath.generateTrajectory();
   }
 
   // Interlink Controller Mapping
