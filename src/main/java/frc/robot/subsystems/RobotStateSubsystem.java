@@ -311,7 +311,9 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         break;
       case TO_MANUAL_SCORE:
         if (armSubsystem.getCurrState() == ArmState.LOW
-            || armSubsystem.getCurrState() == ArmState.MID_CONE || armSubsystem.getCurrState() == ArmState.MID_CUBE || armSubsystem.getCurrState() == ArmState.HIGH_CONE
+            || armSubsystem.getCurrState() == ArmState.MID_CONE
+            || armSubsystem.getCurrState() == ArmState.MID_CUBE
+            || armSubsystem.getCurrState() == ArmState.HIGH_CONE
             || armSubsystem.getCurrState() == ArmState.HIGH_CUBE) {
           logger.info("{} -> MANUAL_SCORE", currRobotState);
           currRobotState = RobotState.MANUAL_SCORE;

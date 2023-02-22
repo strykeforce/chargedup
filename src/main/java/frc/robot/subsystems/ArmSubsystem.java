@@ -7,7 +7,6 @@ import frc.robot.Constants.ElbowConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ShoulderConstants;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
-
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -223,9 +222,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
     if (handPos.getX() >= ArmConstants.kFrontBumperX && handPos.getY() < ArmConstants.kCamY) {
       return HandRegion.BUMPER;
     } else if ((handPos.getX() >= Constants.ArmConstants.kHouseMinX
-        && handPos.getX() <= Constants.ArmConstants.kFrontBumperX)
-        && (handPos.getY() <= Constants.ArmConstants.kHouseLineSlope * handPos.getX()
-            + Constants.ArmConstants.kHouseIntercept)) {
+            && handPos.getX() <= Constants.ArmConstants.kFrontBumperX)
+        && (handPos.getY()
+            <= Constants.ArmConstants.kHouseLineSlope * handPos.getX()
+                + Constants.ArmConstants.kHouseIntercept)) {
       return HandRegion.HOUSE;
     } else if (handPos.getX() < ArmConstants.kHouseMinX) {
       if (elevatorSubsystem.getPos() <= ArmConstants.kElevatorHouseMin) {
@@ -259,18 +259,20 @@ public class ArmSubsystem extends MeasurableSubsystem {
   public Translation2d getHandPosition() {
     final double f = Constants.ShoulderConstants.kElevatorBaseToPivot;
 
-    double elbowAngleWithGround = Math
-        .toRadians(shoulderSubsystem.getDegs() - (90.0 - elbowSubsystem.getRelativeDegs()));
+    double elbowAngleWithGround =
+        Math.toRadians(shoulderSubsystem.getDegs() - (90.0 - elbowSubsystem.getRelativeDegs()));
     double shoulderAngle = Math.toRadians(shoulderSubsystem.getDegs());
 
-    double x = (elevatorSubsystem.getExtensionMeters()) * Math.cos(shoulderAngle)
-        - f * Math.cos(Math.PI / 2 - shoulderAngle)
-        + Constants.ElbowConstants.kLength * Math.cos(elbowAngleWithGround)
-        + ArmConstants.kElevatorToElbowPivot * Math.cos(Math.PI / 2 - shoulderAngle);
-    double y = (elevatorSubsystem.getExtensionMeters() + f / Math.tan(shoulderAngle))
-        * Math.sin(shoulderAngle)
-        + Constants.ElbowConstants.kLength * Math.sin(elbowAngleWithGround)
-        - ArmConstants.kElevatorToElbowPivot * Math.sin(Math.PI / 2 - shoulderAngle);
+    double x =
+        (elevatorSubsystem.getExtensionMeters()) * Math.cos(shoulderAngle)
+            - f * Math.cos(Math.PI / 2 - shoulderAngle)
+            + Constants.ElbowConstants.kLength * Math.cos(elbowAngleWithGround)
+            + ArmConstants.kElevatorToElbowPivot * Math.cos(Math.PI / 2 - shoulderAngle);
+    double y =
+        (elevatorSubsystem.getExtensionMeters() + f / Math.tan(shoulderAngle))
+                * Math.sin(shoulderAngle)
+            + Constants.ElbowConstants.kLength * Math.sin(elbowAngleWithGround)
+            - ArmConstants.kElevatorToElbowPivot * Math.sin(Math.PI / 2 - shoulderAngle);
 
     return new Translation2d(x, y);
   }
@@ -638,9 +640,9 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ElevatorConstants.kLevelThreeConeElevator,
         ElbowConstants.kLevelThreeConeElbow),
     HIGH_CUBE(
-      ShoulderConstants.kLevelThreeCubeShoulder,
-      ElevatorConstants.kLevelThreeCubeElevator,
-      ElbowConstants.kLevelThreeCubeElbow),
+        ShoulderConstants.kLevelThreeCubeShoulder,
+        ElevatorConstants.kLevelThreeCubeElevator,
+        ElbowConstants.kLevelThreeCubeElbow),
     SHELF(
         ShoulderConstants.kShelfShoulder,
         ElevatorConstants.kShelfElevator,
@@ -733,7 +735,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ArmConstants.kElbowInsideIntakeMax),
 
     UNKNOWN(0, 0, 0, 0, 0, 0);
-
     public final double minTicksShoulder,
         maxTicksShoulder,
         minTicksElevator,
