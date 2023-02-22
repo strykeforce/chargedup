@@ -44,7 +44,7 @@ public class RobotContainer {
 
   // Paths
   private DriveAutonCommand testPath;
-  private ThreePiecePathCommandGroup twoPathTest;
+  private ThreePiecePathCommandGroup threePiecePath;
 
   public RobotContainer() {
     driveSubsystem = new DriveSubsystem();
@@ -64,10 +64,14 @@ public class RobotContainer {
 
   // Path Configuration For Robot Container
   private void configurePaths() {
-    testPath = new DriveAutonCommand(driveSubsystem, "pieceFourFetchPath", true, true);
-    twoPathTest =
+    testPath = new DriveAutonCommand(driveSubsystem, "pieceOneFetchPath", true, true);
+    threePiecePath =
         new ThreePiecePathCommandGroup(
-            driveSubsystem, "pieceFourFetchPath", "pieceFourPlacePath");
+            driveSubsystem,
+            "pieceOneFetchPath",
+            "pieceOnePlacePath",
+            "pieceTwoFetchPath",
+            "pieceTwoPlacePath");
   }
 
   private void configureBindings() {}
@@ -79,7 +83,7 @@ public class RobotContainer {
         .onTrue(new ZeroGyroCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(twoPathTest);
+    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(threePiecePath);
   }
 
   public Command getAutonomousCommand() {
@@ -106,6 +110,7 @@ public class RobotContainer {
             "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
     robotStateSubsystem.setAllianceColor(alliance);
     testPath.generateTrajectory();
+    threePiecePath.generateTrajectory();
     // Flips gyro angle if alliance is red team
     if (robotStateSubsystem.getAllianceColor() == Alliance.Red) {
       driveSubsystem.setGyroOffset(Rotation2d.fromDegrees(180));
