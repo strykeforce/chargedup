@@ -76,6 +76,7 @@ public class RobotContainer {
   // Dashboard Widgets
   private SuppliedValueWidget<Boolean> allianceColor;
   private Alliance alliance = Alliance.Invalid;
+  private SuppliedValueWidget<Boolean> currGamePiece;
 
   // Paths
   private DriveAutonCommand testPath;
@@ -269,6 +270,10 @@ public class RobotContainer {
             .withProperties(Map.of("colorWhenFalse", "black"))
             .withSize(2, 2)
             .withPosition(0, 0);
+    currGamePiece = Shuffleboard.getTab("Match").addBoolean("Game Piece", () -> robotStateSubsystem.getGamePiece() != GamePiece.NONE)
+    .withProperties(Map.of("colorWhenFalse", "black"))
+    .withSize(2, 2)
+    .withPosition(3, 0);
   }
 
   private void configurePitDashboard() {
@@ -350,6 +355,12 @@ public class RobotContainer {
             "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
     robotStateSubsystem.setAllianceColor(alliance);
     testPath.generateTrajectory();
+  }
+
+  public void updateGamePiece() {
+    currGamePiece.withProperties(
+        Map.of(
+            "colorWhenTrue", robotStateSubsystem.getGamePiece() == GamePiece.CUBE ? "purple" : "yellow", "colorWhenFalse", "black"));
   }
 
   // Interlink Controller Mapping
