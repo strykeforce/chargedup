@@ -6,13 +6,16 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.Constants.RobotStateConstants;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotStateConstants;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
+import frc.robot.subsystems.DriveSubsystem.DriveStates;
 import frc.robot.subsystems.HandSubsystem.HandStates;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -187,6 +190,38 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     if (gamePiece == GamePiece.CONE) handSubsystem.grabCone();
     else handSubsystem.grabCube();
   }
+  public void toAutoDrive(boolean isShelf, TargetCol targetCol, boolean isBlue) {
+    logger.info("{} -> AUTO_DRIVE", currRobotState);
+    currRobotState = RobotState.AUTO_DRIVE;
+    if (Math.abs(driveSubsystem.getSpeedMPS()) <= DriveConstants.kMaxSpeedToAutoDrive) {
+      driveSubsystem.autoDrive(isShelf, targetCol, isBlue);
+    }
+  }
+  public void toAutoShelf() {
+    logger.info("{} --> TO_AUTO_SHELF", currRobotState);
+    armSubsystem.toShelfPos();
+    currentAxis = CurrentAxis.ARM;
+    currRobotState = RobotState.TO_AUTO_SHELF;
+  }
+
+  public void toAutoScore() {
+    logger.info("{} --> AUTO_SCORE", currRobotState);
+
+    switch (targetLevel) {
+      case NONE:
+        break;
+      case LOW:
+        armSubsystem.toLowPos();
+        break;
+      case MID:
+        armSubsystem.toMidPos();
+        break;
+      case HIGH:
+        armSubsystem.toHighPos();
+        break;
+    }
+    currRobotState = RobotState.AUTO_SCORE;
+  }
 
   @Override
   public void periodic() {
@@ -211,12 +246,17 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             case AUTO_SCORE: // not implemented
             case AUTO_SHELF: // not implemented
               break;
+            case AUTO_DRIVE:
+              break;
             default:
               break;
           }
         }
         break;
-
+      case TO_AUTO_DRIVE:
+        currRobotState = RobotState.AUTO_DRIVE;
+        logger.info("{} -> AUTO_DRIVE", currRobotState);
+        break;
       case TO_STOW:
         switch (currentAxis) {
           case HAND:
@@ -362,9 +402,59 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         }
 
         break;
+      case TO_AUTO_SCORE:
+        if (armSubsystem.getCurrState() == ArmState.LOW
+        || armSubsystem.getCurrState() == ArmState.MID
+        || armSubsystem.getCurrState() == ArmState.HIGH) {
+          logger.info("{} -> AUTO_SCORE", currRobotState);
+          currRobotState = RobotState.AUTO_SCORE;
+          currentAxis = CurrentAxis.NONE;
+        }
       case AUTO_SCORE:
+        // wait for arm to be in right position and then release the cone. 
+        // After releasing the cone, stow and finish the AutoPlaceCommand so it ends
+        //FIXME KENNy
+        //TODO KENNY
+        //FIXME KENNY
+        //FIXME KENNY
+        //FIXME KENNY
+        //FIXME KENNy
+        //TODO KENNY
+        //FIXME KENNY
+        //FIXME KENNY
+        //FIXME KENNY
+        //FIXME KENNy
+        //TODO KENNY
+        //FIXME KENNY
+        //FIXME KENNY
+        //FIXME KENNY
         break;
+      case TO_AUTO_SHELF:
+        switch (currentAxis) {
+          case ARM:
+            if (armSubsystem.getCurrState() == ArmState.SHELF) {
+              handSubsystem.open();
+              currentAxis = CurrentAxis.HAND;
+            }
+            break;
+          case HAND:
+            if (handSubsystem.isFinished()) {
+              currentAxis = CurrentAxis.NONE;
+              logger.info("{} -> AUTO_SHELF", currRobotState);
+              currRobotState = RobotState.AUTO_SHELF;
+            }
+            break;
+          default:
+            break;
+        }
       case AUTO_SHELF:
+        if (handSubsystem.hasPiece()) {
+          handSubsystem.grabCone();
+          gamePiece = GamePiece.CONE;
+          currPoseX = driveSubsystem.getPoseMeters().getX();
+          logger.info("{} -> SHELF_WAIT", currRobotState);
+          currRobotState = RobotState.SHELF_WAIT;
+        }
         break;
 
       case TO_FLOOR_PICKUP:
@@ -419,6 +509,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // check if robot has moved enough
         // (to) STOW
 
+        //FIXME IF FROM AUTO_SHELF AND IF SHELF INCLUDES GRABBING THE GAMEPIECE(IDK I DIDNT READ IT), THEN END THE AUTOPLACE COMMAND
+
         if (allianceColor == Alliance.Blue) {
           desiredPoseX = currPoseX - Constants.ArmConstants.kShelfMove;
           if (driveSubsystem.getPoseMeters().getX() <= desiredPoseX) {
@@ -432,7 +524,16 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         }
 
         break;
-
+      case AUTO_DRIVE:
+        if (driveSubsystem.isAutoDriveFinished() && driveSubsystem.inScorePosition()) {
+          if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED) {
+            driveSubsystem.currDriveState = DriveStates.IDLE;
+            //Start Arm Stuff.
+            if (driveSubsystem.isShelf) toAutoShelf();
+            else toAutoScore();
+          }
+        }
+        break;
       default:
         break;
     }
@@ -521,7 +622,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     TO_MANUAL_SHELF,
     TO_FLOOR_PICKUP,
     GRAB_GAME_PIECE,
-    TO_STOW
+    TO_STOW,
+    TO_AUTO_DRIVE,
+    AUTO_DRIVE,
+    TO_AUTO_SHELF,
+    TO_AUTO_SCORE
   }
 
   public enum CurrentAxis {

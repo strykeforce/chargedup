@@ -135,6 +135,9 @@ public class Constants {
     static final double kBevelOutputGear = 45; // 45
     public static final double kDriveGearRatio =
         (kDriveMotorOutputGear / kDriveInputGear) * (kBevelInputGear / kBevelOutputGear);
+    public static double kMaxSpeedToAutoDrive = 0.2; //FIXME WRoNG VAL
+    public static double kPathErrorThreshold = 0.2; //FIXME WRONG VAL
+    public static double kPathErrorOmegaThresholdDegrees = 0.5; //FIXME WRONG VAL
 
     public static Translation2d[] getWheelLocationMeters() {
       final double x = kRobotLength / 2.0; // front-back, was ROBOT_LENGTH
