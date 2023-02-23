@@ -34,13 +34,13 @@ public class RGBlightsSubsystem extends MeasurableSubsystem {
     // red_channel.setPeriodMultiplier(PeriodMultiplier.k1X);
     // green_channel.setPeriodMultiplier(PeriodMultiplier.k1X);
     // blue_channel.setPeriodMultiplier(PeriodMultiplier.k1X);
-    red_channel_D = new DigitalOutput(0);
+    red_channel_D = new DigitalOutput(7);
     red_channel_D.setPWMRate(2000);
     red_channel_D.enablePWM(0);
-    green_channel_D = new DigitalOutput(1);
+    green_channel_D = new DigitalOutput(8);
     green_channel_D.setPWMRate(2000);
     green_channel_D.enablePWM(0);
-    blue_channel_D = new DigitalOutput(2);
+    blue_channel_D = new DigitalOutput(9);
     blue_channel_D.setPWMRate(2000);
     blue_channel_D.enablePWM(0);
   }
