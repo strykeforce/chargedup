@@ -42,6 +42,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private boolean isReleaseDelayTimerRunning = false;
   private double currPoseX;
   private double desiredPoseX;
+  private boolean isAutoStageFinished = false;
+  private boolean isAutoPlacing = false;
 
   public RobotStateSubsystem(
       IntakeSubsystem intakeSubsystem,
@@ -56,6 +58,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   public RobotState getRobotState() {
     return currRobotState;
+  }
+  public boolean isAutoPlaceFinished() {
+    return isAutoStageFinished;
+  }
+  public void endAutoPlace() {
+    isAutoStageFinished = false;
+    logger.info("Finished Autoplace.");
   }
 
   public void setTargetLevel(TargetLevel targetLevel) {
@@ -193,6 +202,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void toAutoDrive(boolean isShelf, TargetCol targetCol, boolean isBlue) {
     logger.info("{} -> AUTO_DRIVE", currRobotState);
     currRobotState = RobotState.AUTO_DRIVE;
+    isAutoPlacing = true;
     if (Math.abs(driveSubsystem.getSpeedMPS()) <= DriveConstants.kMaxSpeedToAutoDrive) {
       driveSubsystem.autoDrive(isShelf, targetCol, isBlue);
     }
@@ -258,6 +268,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         logger.info("{} -> AUTO_DRIVE", currRobotState);
         break;
       case TO_STOW:
+        if (isAutoPlacing && driveSubsystem.isAutoDriveFinished()) {
+          isAutoPlacing = false;
+          isAutoStageFinished = true;
+        }
         switch (currentAxis) {
           case HAND:
             if (handSubsystem.isFinished()) {
@@ -414,6 +428,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // wait for arm to be in right position and then release the cone. 
         // After releasing the cone, stow and finish the AutoPlaceCommand so it ends
         //FIXME KENNy
+        toReleaseGamepiece();
+
         //TODO KENNY
         //FIXME KENNY
         //FIXME KENNY
@@ -508,7 +524,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // (from) AUTO_SHELF or MANUAL_SHELF
         // check if robot has moved enough
         // (to) STOW
-
+        if (driveSubsystem.isShelf && isAutoPlacing) {
+          isAutoStageFinished = true;
+          isAutoPlacing = false;
+          //Is autoshelf, End command here
+        }
         //FIXME IF FROM AUTO_SHELF AND IF SHELF INCLUDES GRABBING THE GAMEPIECE(IDK I DIDNT READ IT), THEN END THE AUTOPLACE COMMAND
 
         if (allianceColor == Alliance.Blue) {
@@ -532,7 +552,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             if (driveSubsystem.isShelf) toAutoShelf();
             else toAutoScore();
           }
-        }
+        } //FIXME ELSE??
         break;
       default:
         break;
