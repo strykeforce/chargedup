@@ -12,6 +12,6 @@ public class ShelfPickupCommand extends InstantCommand {
 
   @Override
   public void initialize() {
-    robotStateSubsystem.toManualStage();
+    robotStateSubsystem.toManualShelf();
   }
 }

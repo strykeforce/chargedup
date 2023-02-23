@@ -96,4 +96,21 @@ stateDiagram-v2
     elevatorToStow3 --> elbowToStow3: elevatorFinished
     elbowToStow3 --> [*]: elbowFinished
    }
+   
+   Stow --> stowToShelf : toShelf()
+   stowToShelf --> shelf : armInPos
+   shelf --> shelfToStow : toStow()
+   shelfToStow --> Stow : armInPos
+   
+   state stowToShelf {
+   [*] --> elbowToShelf
+   elbowToShelf --> elevatorToShelf : elbowFinished
+   elevatorToShelf --> [*] : elevatorFinished
+   }
+   
+   state shelfToStow {
+   [*] --> elevatorToStow4
+   elevatorToStow4 --> elbowToStow4 : elevatorFinished
+   elbowToStow4 --> [*] : elbowFinished
+   }
    ```

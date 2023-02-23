@@ -28,6 +28,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private ArmSubsystem armSubsystem;
   private HandSubsystem handSubsystem;
   private DriveSubsystem driveSubsystem;
+  private RGBlightsSubsystem rgbLightsSubsystem;
   private TargetLevel targetLevel = TargetLevel.NONE;
   private TargetCol targetCol = TargetCol.NONE;
   private GamePiece gamePiece = GamePiece.NONE;
@@ -49,11 +50,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       IntakeSubsystem intakeSubsystem,
       ArmSubsystem armSubsystem,
       HandSubsystem handSubsystem,
-      DriveSubsystem driveSubsystem) {
+      DriveSubsystem driveSubsystem,
+      RGBlightsSubsystem rgbLightsSubsystem) {
     this.intakeSubsystem = intakeSubsystem;
     this.armSubsystem = armSubsystem;
     this.handSubsystem = handSubsystem;
     this.driveSubsystem = driveSubsystem;
+    this.rgbLightsSubsystem = rgbLightsSubsystem;
   }
 
   public RobotState getRobotState() {
@@ -131,6 +134,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       if (currRobotState == RobotState.STOW) toManualShelf();
       else toStow(RobotState.MANUAL_SHELF);
     }
+  }
+
+  public void toShelf() {
+    if (currRobotState == RobotState.STOW) toManualShelf();
+    else toStow(RobotState.MANUAL_SHELF);
   }
 
   public void toAutoStage() {}
@@ -411,8 +419,9 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           handSubsystem.grabCone();
           gamePiece = GamePiece.CONE;
           currPoseX = driveSubsystem.getPoseMeters().getX();
-          logger.info("{} -> SHELF_WAIT", currRobotState);
           currRobotState = RobotState.SHELF_WAIT;
+          rgbLightsSubsystem.setConeColor();
+          logger.info("{} -> SHELF_WAIT", currRobotState);
         }
 
         break;
@@ -535,11 +544,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           desiredPoseX = currPoseX - Constants.ArmConstants.kShelfMove;
           if (driveSubsystem.getPoseMeters().getX() <= desiredPoseX) {
             toStow();
+            rgbLightsSubsystem.setOff();
           }
         } else if (allianceColor == Alliance.Red) {
           desiredPoseX = currPoseX + Constants.ArmConstants.kShelfMove;
           if (driveSubsystem.getPoseMeters().getX() >= desiredPoseX) {
             toStow();
+            rgbLightsSubsystem.setOff();
           }
         }
 
