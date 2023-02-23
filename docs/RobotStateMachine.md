@@ -2,17 +2,18 @@
 stateDiagram-v2
     [*] --> stow
     stow --> intakeStage
-    intakeStage --> intake: beamBreak
-    intake --> stow: haveCube
+    intakeStage --> pickupFromIntake: beamBreak
+    pickupFromIntake --> stow: haveCube
 
     state intakeStage {
-        [*] --> armIntakeStage
-        armIntakeStage --> openHand: armInPos
+        [*] --> armAndIntakeStage
+        armAndIntakeStage --> openHand: armInPos
         openHand --> [*]: handOpen
     }
 
-    state intake{
-        [*] --> armIntake
+    state pickupFromIntake{
+        [*] --> retractIntake
+        retractIntake --> armIntake : intakeFinished
         armIntake --> closeHand: armInPos
         closeHand --> waitIntake: handClosed
         waitIntake --> [*]: delayElapsed
@@ -20,7 +21,7 @@ stateDiagram-v2
 
 
     stow --> autoScore
-    autoScore --> releaseGamepiece: 
+    autoScore --> releaseGamepiece: driver button AND autoStage done
     releaseGamepiece --> stow: noGamepiece
 
     state autoScore {
@@ -41,7 +42,7 @@ stateDiagram-v2
 
 
     stow --> manualScore
-    manualScore --> releaseGamepiece
+    manualScore --> releaseGamepiece : driver button AND armInPos
 
     state manualScore {
         [*] --> armToScore2: 1/2/3
@@ -49,8 +50,8 @@ stateDiagram-v2
     }
 
     stow --> autoShelf
-    autoShelf --> grabGamepiece
-    grabGamepiece --> stow: haveCone
+    autoShelf --> waitShelf
+    waitShelf --> stow: odomDeltaDone
 
     state autoShelf {
         state driveAndArm2 <<fork>>
@@ -64,21 +65,33 @@ stateDiagram-v2
     }
 
     state grabGamepiece {
-        [*] --> waitShelf
-        waitShelf --> [*]: delayElapsed
+        [*] --> handGrab
+        handGrab --> [*]: handFinished
     }
 
-    stow --> manualShelf
-    manualShelf --> grabGamepiece
+    stow --> toManualShelf
+    toManualShelf --> manualShelf : robotInPos
+    manualShelf --> waitShelf : odomDeltaDone
+    
+    state toManualShelf {
+    [*] --> armToShelf2
+    armToShelf2 --> handOpen : armInPos
+    handOpen --> [*] : handInPos
+    }
 
     state manualShelf {
-        [*] --> armToShelf2
-        armToShelf2 --> waitProx
-        waitProx --> [*]: inRange
+        [*] --> closeHand2 : proxSensorThres
+        closeHand2 --> [*] : handInPos
+    }
+    
+    state waitShelf {
+    [*] --> waitOdomDelta
+    waitOdomDelta --> [*] : drive >1m
     }
 
     stow --> floorPickup
     floorPickup --> grabGamepiece
+    grabGamepiece --> stow
 
     state floorPickup {
         [*] --> armToFloor
