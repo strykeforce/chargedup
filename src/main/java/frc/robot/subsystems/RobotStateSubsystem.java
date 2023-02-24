@@ -5,9 +5,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.robot.Constants;
-import frc.robot.Robot;
-import frc.robot.Constants.RobotStateConstants;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
@@ -62,12 +59,14 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public RobotState getRobotState() {
     return currRobotState;
   }
+
   public boolean isAutoPlaceFinished() {
     return isAutoStageFinished;
   }
-  public void endAutoPlace() {
+
+  public void endAutoPlace(boolean interrupted) {
     isAutoStageFinished = false;
-    logger.info("Finished Autoplace.");
+    logger.info("Finished Autoplace. Inturrupted: {}", interrupted);
   }
 
   public void setTargetLevel(TargetLevel targetLevel) {
@@ -207,14 +206,19 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     if (gamePiece == GamePiece.CONE) handSubsystem.grabCone();
     else handSubsystem.grabCube();
   }
-  public void toAutoDrive(boolean isShelf, TargetCol targetCol, boolean isBlue) {
+
+  public void toAutoDrive() {
     logger.info("{} -> AUTO_DRIVE", currRobotState);
     currRobotState = RobotState.AUTO_DRIVE;
     isAutoPlacing = true;
+    TargetCol tempTargetCol = TargetCol.NONE;
     if (Math.abs(driveSubsystem.getSpeedMPS()) <= DriveConstants.kMaxSpeedToAutoDrive) {
-      driveSubsystem.autoDrive(isShelf, targetCol, isBlue);
+      if (gamePiece == GamePiece.CONE) tempTargetCol = getTargetCol();
+      logger.info("Gamepiece toAutodrive: {}", gamePiece.toString());
+      driveSubsystem.autoDrive((gamePiece == GamePiece.NONE), tempTargetCol); // FIXME
     }
   }
+
   public void toAutoShelf() {
     logger.info("{} --> TO_AUTO_SHELF", currRobotState);
     armSubsystem.toShelfPos();
@@ -276,10 +280,6 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         logger.info("{} -> AUTO_DRIVE", currRobotState);
         break;
       case TO_STOW:
-        if (isAutoPlacing && driveSubsystem.isAutoDriveFinished()) {
-          isAutoPlacing = false;
-          isAutoStageFinished = true;
-        }
         switch (currentAxis) {
           case HAND:
             if (handSubsystem.isFinished()) {
@@ -427,32 +427,14 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         break;
       case TO_AUTO_SCORE:
         if (armSubsystem.getCurrState() == ArmState.LOW
-        || armSubsystem.getCurrState() == ArmState.MID
-        || armSubsystem.getCurrState() == ArmState.HIGH) {
+            || armSubsystem.getCurrState() == ArmState.MID
+            || armSubsystem.getCurrState() == ArmState.HIGH) {
           logger.info("{} -> AUTO_SCORE", currRobotState);
           currRobotState = RobotState.AUTO_SCORE;
           currentAxis = CurrentAxis.NONE;
         }
       case AUTO_SCORE:
-        // wait for arm to be in right position and then release the cone. 
-        // After releasing the cone, stow and finish the AutoPlaceCommand so it ends
-        //FIXME KENNy
-        toReleaseGamepiece();
-
-        //TODO KENNY
-        //FIXME KENNY
-        //FIXME KENNY
-        //FIXME KENNY
-        //FIXME KENNy
-        //TODO KENNY
-        //FIXME KENNY
-        //FIXME KENNY
-        //FIXME KENNY
-        //FIXME KENNy
-        //TODO KENNY
-        //FIXME KENNY
-        //FIXME KENNY
-        //FIXME KENNY
+        // wait for arm to be in right position and then release the cone.
         break;
       case TO_AUTO_SHELF:
         switch (currentAxis) {
@@ -536,9 +518,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         if (driveSubsystem.isShelf && isAutoPlacing) {
           isAutoStageFinished = true;
           isAutoPlacing = false;
-          //Is autoshelf, End command here
+          // Is autoshelf, End command here
         }
-        //FIXME IF FROM AUTO_SHELF AND IF SHELF INCLUDES GRABBING THE GAMEPIECE(IDK I DIDNT READ IT), THEN END THE AUTOPLACE COMMAND
+        // FIXME IF FROM AUTO_SHELF AND IF SHELF INCLUDES GRABBING THE GAMEPIECE(IDK I DIDNT READ
+        // IT), THEN END THE AUTOPLACE COMMAND
 
         if (allianceColor == Alliance.Blue) {
           desiredPoseX = currPoseX - Constants.ArmConstants.kShelfMove;
@@ -556,14 +539,16 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
         break;
       case AUTO_DRIVE:
-        if (driveSubsystem.isAutoDriveFinished() && driveSubsystem.inScorePosition()) {
+        if (driveSubsystem.isAutoDriveFinished()) { // && driveSubsystem.inScorePosition()) {
           if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED) {
             driveSubsystem.currDriveState = DriveStates.IDLE;
-            //Start Arm Stuff.
-            if (driveSubsystem.isShelf) toAutoShelf();
+            // Start Arm Stuff.
+            isAutoPlacing = false;
+            isAutoStageFinished = true;
+            if (gamePiece == GamePiece.NONE) toAutoShelf();
             else toAutoScore();
           }
-        } //FIXME ELSE??
+        } // FIXME ELSE??
         break;
       default:
         break;
@@ -599,11 +584,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
     if (!isBlueAlliance()) {
       targetX = Constants.RobotStateConstants.kFieldMaxX - targetX;
+      logger.info("Not blue alliance: {}", allianceColor.toString());
       rotation = 0;
     }
     int multiplier = 0;
-    if (targetCol.equals(TargetCol.LEFT)) multiplier = 1;
-    if (targetCol.equals(TargetCol.RIGHT)) multiplier = -1;
+    logger.info("tempTargetCol: {}", tempTargetCol.name());
+    if (tempTargetCol.equals(TargetCol.LEFT)) multiplier = 1;
+    if (tempTargetCol.equals(TargetCol.RIGHT)) multiplier = -1;
     if (!isBlueAlliance()) multiplier *= -1;
     return new Pose2d(
         targetX,

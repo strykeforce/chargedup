@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
-
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Set;
@@ -76,6 +75,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private Trajectory place;
   public DriveStates currDriveState = DriveStates.IDLE;
   public boolean isShelf;
+  // private boolean isAutoDriveFinished = false;
 
   public DriveSubsystem() {
     var moduleBuilder =
@@ -182,25 +182,27 @@ public class DriveSubsystem extends MeasurableSubsystem {
     endAutoDrivePose = endPose;
     omegaAutoDriveController.reset(getPoseMeters().getRotation().getRadians());
     autoDriving = true;
-    //autoDriveTimer.reset();
-    //autoDriveTimer.start();
+    // autoDriveTimer.reset();
+    // autoDriveTimer.start();
   }
 
   public boolean isAutoDriveFinished() {
     if (autoDriving) {
       return autoDriveTimer.hasElapsed(place.getTotalTimeSeconds());
-    } else 
-      return false;
+    } else return false;
   }
 
   public boolean inScorePosition() {
     Transform2d pathError = holoContInput.poseMeters.minus(getPoseMeters());
-    if (Math.abs(pathError.getX()) <= DriveConstants.kPathErrorThreshold && Math.abs(pathError.getY()) <= DriveConstants.kPathErrorThreshold && Math.abs(pathError.getRotation().getDegrees()) <= DriveConstants.kPathErrorOmegaThresholdDegrees) {
+    if (Math.abs(pathError.getX()) <= DriveConstants.kPathErrorThreshold
+        && Math.abs(pathError.getY()) <= DriveConstants.kPathErrorThreshold
+        && Math.abs(pathError.getRotation().getDegrees())
+            <= DriveConstants.kPathErrorOmegaThresholdDegrees) {
       return true;
     } else return false;
   }
 
-  public void autoDrive(boolean isShelf, TargetCol targetCol, boolean isBlue) {
+  public void autoDrive(boolean isShelf, TargetCol targetCol) {
     this.isShelf = isShelf;
     autoDriveTimer.start();
     if (robotStateSubsystem.isBlueAlliance()) desiredHeading = new Rotation2d(0.0);
@@ -218,25 +220,24 @@ public class DriveSubsystem extends MeasurableSubsystem {
     ArrayList<Translation2d> points = new ArrayList<>();
     Pose2d endPose = new Pose2d();
     if (!isShelf)
+      endPose = robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
+    else
       endPose =
-          robotStateSubsystem.getAutoPlaceDriveTarget(
-              getPoseMeters().getY(), targetCol);
-    else endPose = robotStateSubsystem.getShelfPosAutoDrive(targetCol, isBlue);
-
+          robotStateSubsystem.getShelfPosAutoDrive(targetCol, robotStateSubsystem.isBlueAlliance());
+    logger.info("Autodriving to: {}, isShelf: {}", endPose, isShelf);
     points.add(
         new Translation2d(
             (getPoseMeters().getX() + endPose.getX()) / 2,
             (getPoseMeters().getY() + endPose.getY()) / 2));
     Pose2d start =
         new Pose2d(
-            new Translation2d(
-                getPoseMeters().getX(), getPoseMeters().getY()),
+            new Translation2d(getPoseMeters().getX(), getPoseMeters().getY()),
             new Rotation2d(robotStateSubsystem.isBlueAlliance() ? Math.PI : 0.0));
     visionUpdates = false;
     place = TrajectoryGenerator.generateTrajectory(start, points, endPose, config);
     autoDriveTimer.reset();
     grapherTrajectoryActive(true);
-    calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
+    // calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
   }
   // private void autoDrive() {
   //   Pose2d currentPose = getPoseMeters();
@@ -333,38 +334,43 @@ public class DriveSubsystem extends MeasurableSubsystem {
     return autoDriving;
   }
 
+  public void setAutoDriving(boolean autoDrive) {
+    autoDriving = autoDrive;
+  }
 
   @Override
   public void periodic() {
     // Update swerve module states every robot loop
     swerveDrive.periodic();
-    switch(currDriveState) {
+    switch (currDriveState) {
       case IDLE:
         break;
       case AUTO_DRIVE:
         if (isAutoDriveFinished()) {
           currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
+          grapherTrajectoryActive(false);
+          setEnableHolo(false);
+          drive(0, 0, 0);
+          // visionUpdates = true;
+          logger.info("End Trajectory {}", autoDriveTimer.get());
         }
         break;
       case AUTO_DRIVE_FINISHED:
-        grapherTrajectoryActive(false);
-        setEnableHolo(false);
-        drive(0, 0, 0);
-        //visionUpdates = true;
-        autoDriving = false;
-        logger.info("End Trajectory {}", autoDriveTimer.get());
         break;
       default:
         break;
     }
-    //if (autoDriving && autoDriveTimer.hasElapsed(5.0)) visionUpdates = false;
-    //if (autoDriving && !visionUpdates) {
-      // autoDrive();
-      // double xSpeed = getFieldRelSpeed().vxMetersPerSecond;
-      // double ySpeed = getFieldRelSpeed().vyMetersPerSecond;
-      // Pose2d endPoint = new Pose2d();
+    // if (autoDriving && autoDriveTimer.hasElapsed(5.0)) visionUpdates = false;
+    if (autoDriving && !visionUpdates && currDriveState == DriveStates.AUTO_DRIVE) {
+      calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
+    }
+    // autoDrive();
 
-   // }
+    // double xSpeed = getFieldRelSpeed().vxMetersPerSecond;
+    // double ySpeed = getFieldRelSpeed().vyMetersPerSecond;
+    // Pose2d endPoint = new Pose2d();
+
+    // }
   }
 
   public double getSpeedMPS() {
@@ -418,6 +424,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
   public void resetOdometry(Pose2d pose) {
     swerveDrive.resetOdometry(pose);
     logger.info("reset odometry with: {}", pose);
+  }
+
+  public void resetOdometryNoLog(Pose2d pose) {
+    swerveDrive.resetOdometry(pose);
   }
 
   public Rotation2d getGyroRotation2d() {
@@ -622,6 +632,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
     if (active) trajectoryActive = 1.0;
     else trajectoryActive = 0.0;
   }
+
   public enum DriveStates {
     IDLE,
     AUTO_DRIVE,

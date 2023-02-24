@@ -21,10 +21,9 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.RGBlights.RGBsetPieceCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
-import frc.robot.commands.drive.DriveToPlacePathCommandGroup;
 import frc.robot.commands.drive.ResetOdometryCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
-import frc.robot.commands.drive.xLockCommand;
+import frc.robot.commands.elbow.ElbowOpenLoopCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.commands.hand.GrabConeCommand;
@@ -34,14 +33,15 @@ import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
+import frc.robot.commands.robotState.AutoPlaceCommandGroup;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.SetGamePieceCommand;
 import frc.robot.commands.robotState.SetLevelAndColCommandGroup;
+import frc.robot.commands.robotState.SetTargetColCommand;
 import frc.robot.commands.robotState.ShelfPickupCommand;
 import frc.robot.commands.robotState.StowRobotCommand;
 import frc.robot.commands.robotState.ToggleIntakeCommand;
-import frc.robot.commands.robotState.SetTargetColCommand;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.commands.vision.ToggleUpdateWithVisionCommand;
@@ -148,14 +148,16 @@ public class RobotContainer {
 
     // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
     // .onTrue(new DriveToPlaceCommand(driveSubsystem, robotStateSubsystem));
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-        .onTrue(
-            new DriveToPlacePathCommandGroup(
-                driveSubsystem,
-                robotStateSubsystem,
-                false,
-                robotStateSubsystem.getTargetCol(),
-                true));
+    /*new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+    .onTrue(
+        new DriveToPlacePathCommandGroup(
+            driveSubsystem,
+            robotStateSubsystem,
+            false,
+            robotStateSubsystem.getTargetCol(),
+            true));*/
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+        .onTrue(new AutoPlaceCommandGroup(driveSubsystem, robotStateSubsystem));
     // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
     // new JoystickButton(driveJoystick, InterlinkButton.X.id)
     // .onTrue(new xLockCommand(driveSubsystem));
@@ -178,11 +180,12 @@ public class RobotContainer {
 
     // Hand
     /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
-        .onTrue(
-            new HandToPositionCommand(handSubsystem, Constants.HandConstants.kCubeGrabbingPosition))
-        .onFalse(new HandToPositionCommand(handSubsystem, Constants.HandConstants.kMaxRev));
+    .onTrue(
+        new HandToPositionCommand(handSubsystem, Constants.HandConstants.kCubeGrabbingPosition))
+    .onFalse(new HandToPositionCommand(handSubsystem, Constants.HandConstants.kMaxRev));*/
     new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
-        .onTrue(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem));
+        .onTrue(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem))
+        .onFalse(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem));
     new JoystickButton(driveJoystick, Shoulder.LEFT_UP.id)
         .onTrue(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem))
         .onFalse(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem));
@@ -203,7 +206,7 @@ public class RobotContainer {
     //     .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, 0.2))
     //     .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
     new JoystickButton(driveJoystick, InterlinkButton.UP.id)
-        .onTrue(new ZeroElevatorCommand(elevatorSubsystem));*/
+        .onTrue(new ZeroElevatorCommand(elevatorSubsystem));
 
     // // Elbow testing
     // new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
@@ -213,12 +216,12 @@ public class RobotContainer {
     //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
     //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
     // // Elbow testing
-    // new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
-    //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-    //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.1));
-    // new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
-    //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-    //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
+    new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
+        .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
+        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.1));
+    new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
+        .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
+        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
 
     // intake buttons
     // new JoystickButton(xboxController, 3).onTrue(new
@@ -432,12 +435,11 @@ public class RobotContainer {
   }
 
   public void setAllianceColor(Alliance alliance) {
-    // this.alliance = alliance;
-    // allianceColor.withProperties(
-    //     Map.of(
-    //         "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse",
-    // "black"));
-    // robotStateSubsystem.setAllianceColor(alliance);
+    this.alliance = alliance;
+    allianceColor.withProperties(
+        Map.of(
+            "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
+    robotStateSubsystem.setAllianceColor(alliance);
     // testPath.generateTrajectory();
   }
 

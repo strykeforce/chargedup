@@ -179,7 +179,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
               (long) timeStamp);
 
         if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.isAutoDriving())
-          driveSubsystem.resetOdometry(
+          driveSubsystem.resetOdometryNoLog( // FIXME
               new Pose2d(
                   new Translation2d(x, y).plus(cameraOffset()),
                   driveSubsystem.getGyroRotation2d()));

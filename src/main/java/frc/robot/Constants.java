@@ -50,7 +50,6 @@ public class Constants {
     public static final double kFieldMaxX = 16.540988; // m
   }
 
-
   public static final class ArmConstants {
     public static final double kFrontBumperX = 0.30; // old: 0.25
     public static final double kCamY = 0.26; // Old: 0.21
@@ -135,9 +134,9 @@ public class Constants {
     static final double kBevelOutputGear = 45; // 45
     public static final double kDriveGearRatio =
         (kDriveMotorOutputGear / kDriveInputGear) * (kBevelInputGear / kBevelOutputGear);
-    public static double kMaxSpeedToAutoDrive = 0.2; //FIXME WRoNG VAL
-    public static double kPathErrorThreshold = 0.2; //FIXME WRONG VAL
-    public static double kPathErrorOmegaThresholdDegrees = 0.5; //FIXME WRONG VAL
+    public static double kMaxSpeedToAutoDrive = 4; // FIXME WRoNG VAL
+    public static double kPathErrorThreshold = 4; // FIXME WRONG VAL
+    public static double kPathErrorOmegaThresholdDegrees = 5; // FIXME WRONG VAL
 
     public static Translation2d[] getWheelLocationMeters() {
       final double x = kRobotLength / 2.0; // front-back, was ROBOT_LENGTH
@@ -574,7 +573,7 @@ public class Constants {
     public static final int kZeroStableCounts = 1592;
     public static final int kHasPieceStableCounts = 2;
 
-    public static final double kHandZeroTicks = 820;
+    public static final double kHandZeroTicks = 949;
 
     public static final double kAllowedError = 150; // FIXME
 
