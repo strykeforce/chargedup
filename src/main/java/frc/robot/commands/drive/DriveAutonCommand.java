@@ -32,6 +32,7 @@ public class DriveAutonCommand extends CommandBase {
     this.lastPath = lastPath;
     this.resetOdometry = resetOdometry;
     this.trajectoryName = trajectoryName;
+    generateTrajectory();
     timer.start();
   }
 
@@ -51,7 +52,7 @@ public class DriveAutonCommand extends CommandBase {
       driveSubsystem.resetOdometry(
           new Pose2d(initialPose.getTranslation(), driveSubsystem.getGyroRotation2d()));
     driveSubsystem.resetHolonomicController();
-    // driveSubsystem.grapherTrajectoryActive(true);
+    driveSubsystem.grapherTrajectoryActive(true);
     timer.reset();
     logger.info("Begin Trajectory: {}", trajectoryName);
   }
@@ -80,7 +81,7 @@ public class DriveAutonCommand extends CommandBase {
       driveSubsystem.drive(0, 0, 0);
     }
 
-    // driveSubsystem.grapherTrajectoryActive(false);
+    driveSubsystem.grapherTrajectoryActive(false);
     logger.info("End Trajectory {}: {}", trajectoryName, timer.get());
     trajectoryGenerated = false;
   }

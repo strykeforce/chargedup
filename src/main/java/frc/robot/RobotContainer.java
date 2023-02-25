@@ -23,7 +23,7 @@ import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ResetOdometryCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
-import frc.robot.commands.drive.xLockCommand;
+import frc.robot.commands.elbow.ElbowOpenLoopCommand;
 import frc.robot.commands.elevator.AdjustElevatorCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.HoldPositionCommand;
@@ -35,6 +35,7 @@ import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
+import frc.robot.commands.robotState.AutoPlaceCommandGroup;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.SetGamePieceCommand;
@@ -44,6 +45,7 @@ import frc.robot.commands.robotState.StowRobotCommand;
 import frc.robot.commands.robotState.ToggleIntakeCommand;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
+import frc.robot.commands.vision.ToggleUpdateWithVisionCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElbowSubsystem;
@@ -56,6 +58,7 @@ import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 import frc.robot.subsystems.ShoulderSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import java.util.Map;
 import org.strykeforce.healthcheck.HealthCheckCommand;
 import org.strykeforce.telemetry.TelemetryController;
@@ -70,6 +73,7 @@ public class RobotContainer {
   private final ElevatorSubsystem elevatorSubsystem;
   private final IntakeSubsystem intakeSubsystem;
   private final ArmSubsystem armSubsystem;
+  private final VisionSubsystem visionSubsystem;
   private final RGBlightsSubsystem rgbLightsSubsystem;
 
   private final XboxController xboxController = new XboxController(1);
@@ -92,6 +96,7 @@ public class RobotContainer {
     handSubsystem = new HandSubsystem();
     intakeSubsystem = new IntakeSubsystem();
     driveSubsystem = new DriveSubsystem();
+    visionSubsystem = new VisionSubsystem(driveSubsystem);
     // visionSubsystem = new VisionSubsystem(driveSubsystem);
     elevatorSubsystem = new ElevatorSubsystem();
     elbowSubsystem = new ElbowSubsystem();
@@ -104,8 +109,11 @@ public class RobotContainer {
 
     driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
 
-    // driveSubsystem.setVisionSubsystem(visionSubsystem);
-    // visionSubsystem.setFillBuffers(true);
+    driveSubsystem.setVisionSubsystem(visionSubsystem);
+    visionSubsystem.setFillBuffers(true);
+
+    // FIX ME
+    robotStateSubsystem.setAllianceColor(Alliance.Blue);
 
     configureTelemetry();
     configurePaths();
@@ -119,7 +127,7 @@ public class RobotContainer {
 
   private void configureTelemetry() {
     driveSubsystem.registerWith(telemetryService);
-    // visionSubsystem.registerWith(telemetryService);
+    visionSubsystem.registerWith(telemetryService);
     robotStateSubsystem.registerWith(telemetryService);
     elevatorSubsystem.registerWith(telemetryService);
     elbowSubsystem.registerWith(telemetryService);
@@ -139,18 +147,42 @@ public class RobotContainer {
         new DriveTeleopCommand(driveJoystick, driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.RESET.id)
         .onTrue(new ZeroGyroCommand(driveSubsystem));
-    new JoystickButton(driveJoystick, InterlinkButton.X.id)
-        .onTrue(new xLockCommand(driveSubsystem));
+
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+    // .onTrue(new DriveToPlaceCommand(driveSubsystem, robotStateSubsystem));
+    /*new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+    .onTrue(
+        new DriveToPlacePathCommandGroup(
+            driveSubsystem,
+            robotStateSubsystem,
+            false,
+            robotStateSubsystem.getTargetCol(),
+            true));*/
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+        .onTrue(
+            new AutoPlaceCommandGroup(
+                driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
+    // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.X.id)
+    // .onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-        .onTrue(new ResetOdometryCommand(driveSubsystem));
+        .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
+
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+    // .onTrue(new DriveAutonCommand(driveSubsystem, "straightPathX", true, true));
     // Requires swerve migration to new Pose2D
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
     // {driveSubsystem.resetOdometry(new Pose2d());},driveSubsystem);
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(testPath);
 
     // Hand
+    /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
+    .onTrue(
+        new HandToPositionCommand(handSubsystem, Constants.HandConstants.kCubeGrabbingPosition))
+    .onFalse(new HandToPositionCommand(handSubsystem, Constants.HandConstants.kMaxRev));*/
     new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
-        .onTrue(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem));
+        .onTrue(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem))
+        .onFalse(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem));
     new JoystickButton(driveJoystick, Shoulder.LEFT_UP.id)
         .onTrue(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem))
         .onFalse(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem));
@@ -180,6 +212,13 @@ public class RobotContainer {
     // new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
     //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
     //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
+    // // Elbow testing
+    new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
+        .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
+        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.1));
+    new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
+        .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
+        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
 
     // intake buttons
     // new JoystickButton(xboxController, 3).onTrue(new
@@ -187,6 +226,9 @@ public class RobotContainer {
     new JoystickButton(driveJoystick, Shoulder.RIGHT_DOWN.id)
         .onTrue(new ToggleIntakeCommand(robotStateSubsystem, intakeSubsystem))
         .onFalse(new ToggleIntakeCommand(robotStateSubsystem, intakeSubsystem));
+    // new JoystickButton(driveJoystick, Shoulder.RIGHT_DOWN.id)
+    // .onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem))
+    // .onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));
 
     // Toggle auto staging
     new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
@@ -205,6 +247,12 @@ public class RobotContainer {
   }
 
   public void configureOperatorButtonBindings() {
+    /*new JoystickButton(xboxController, XboxController.Button.kY.value)
+        .onTrue(new StowArmCommand(armSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kB.value)
+        .onTrue(new ArmToIntakeCommand(armSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kA.value)
+        .onTrue(new ArmIntakeStageCommand(armSubsystem));
     // new JoystickButton(xboxController, XboxController.Button.kY.value)
     //     .onTrue(
     //         new ShoulderToPositionCommand(
@@ -221,6 +269,16 @@ public class RobotContainer {
     //     .onTrue(
     //         new ElevatorToPositionCommand(
     //             elevatorSubsystem, Constants.ElevatorConstants.kStowElevator));
+    new JoystickButton(xboxController, XboxController.Button.kX.value)
+        .onTrue(new ArmHighCommand(armSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value)
+        .onTrue(new ArmLowCommand(armSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kBack.value)
+        .onTrue(new ArmMidCommand(armSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kStart.value)
+        .onTrue(new ArmFloorCommand(armSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kRightBumper.value)
+        .onTrue(new ArmShelfCommand(armSubsystem));*/
 
     // new JoystickButton(xboxController, XboxController.Button.kStart.value)
     //     .onTrue(new ElbowToPositionCommand(elbowSubsystem, Constants.ElbowConstants.kStowElbow));
@@ -298,7 +356,25 @@ public class RobotContainer {
             .addBoolean("Game Piece", () -> robotStateSubsystem.getGamePiece() != GamePiece.NONE)
             .withProperties(Map.of("colorWhenFalse", "black"))
             .withSize(2, 2)
-            .withPosition(3, 0);
+            .withPosition(5, 0);
+
+    Shuffleboard.getTab("Match")
+        .add("Update With Vision", new ToggleUpdateWithVisionCommand(driveSubsystem))
+        .withSize(1, 1)
+        .withPosition(4, 1);
+    Shuffleboard.getTab("Match")
+        .addBoolean("Update With Vision True", () -> driveSubsystem.visionUpdates)
+        .withSize(1, 1)
+        .withPosition(4, 0);
+
+    Shuffleboard.getTab("Match")
+        .addBoolean("IsRight", () -> robotStateSubsystem.getTargetCol() == TargetCol.RIGHT)
+        .withSize(1, 1)
+        .withPosition(3, 0);
+    Shuffleboard.getTab("Match")
+        .addBoolean("IsLeft", () -> robotStateSubsystem.getTargetCol() == TargetCol.LEFT)
+        .withSize(1, 1)
+        .withPosition(3, 1);
   }
 
   private void configurePitDashboard() {

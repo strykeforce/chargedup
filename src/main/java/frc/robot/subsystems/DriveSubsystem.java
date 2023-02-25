@@ -10,6 +10,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -25,6 +26,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Set;
@@ -51,6 +53,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private final ProfiledPIDController omegaController;
   private final PIDController xController;
   private final PIDController yController;
+  private final ProfiledPIDController omegaAutoDriveController;
   private RobotStateSubsystem robotStateSubsystem;
 
   // Grapher Variables
@@ -64,6 +67,15 @@ public class DriveSubsystem extends MeasurableSubsystem {
       new TimestampedPose(RobotController.getFPGATime(), new Pose2d());
   public VisionSubsystem visionSubsystem;
   private double distanceVisionWheelOdom = 0.0;
+  public boolean autoDriving = false, visionUpdates = true;
+  private Pose2d endAutoDrivePose;
+  private double lastXSpeed = 0.0, lastYSpeed = 0.0, speedMPSglobal = 0.0;
+  private Timer autoDriveTimer = new Timer();
+  private Rotation2d desiredHeading;
+  private Trajectory place;
+  public DriveStates currDriveState = DriveStates.IDLE;
+  private boolean isShelf;
+  // private boolean isAutoDriveFinished = false;
 
   public DriveSubsystem() {
     var moduleBuilder =
@@ -105,6 +117,15 @@ public class DriveSubsystem extends MeasurableSubsystem {
     swerveDrive.setGyroOffset(Rotation2d.fromDegrees(0));
 
     // Setup Holonomic Controller
+    omegaAutoDriveController =
+        new ProfiledPIDController(
+            DriveConstants.kPOmega,
+            DriveConstants.kIOmega,
+            DriveConstants.kDOmega,
+            new TrapezoidProfile.Constraints(
+                DriveConstants.kMaxOmega, DriveConstants.kMaxAccelOmega));
+    omegaAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
+
     omegaController =
         new ProfiledPIDController(
             DriveConstants.kPOmega,
@@ -153,21 +174,233 @@ public class DriveSubsystem extends MeasurableSubsystem {
     this.robotStateSubsystem = robotStateSubsystem;
   }
 
+  public boolean canGetVisionUpdates() {
+    return visionUpdates;
+  }
+
+  public void driveToPose(Pose2d endPose) {
+    endAutoDrivePose = endPose;
+    omegaAutoDriveController.reset(getPoseMeters().getRotation().getRadians());
+    setAutoDriving(true);
+    // autoDriveTimer.reset();
+    // autoDriveTimer.start();
+  }
+
+  public boolean isAutoDriveFinished() {
+    // autoDriving &&
+    if (place != null) {
+      // if (autoDriveTimer.hasElapsed(place.getTotalTimeSeconds())) setAutoDriving(false);
+      return autoDriveTimer.hasElapsed(place.getTotalTimeSeconds());
+    } else return false;
+  }
+
+  public boolean inScorePosition() {
+    Transform2d pathError = holoContInput.poseMeters.minus(getPoseMeters());
+    if (Math.abs(pathError.getX()) <= DriveConstants.kPathErrorThreshold
+        && Math.abs(pathError.getY()) <= DriveConstants.kPathErrorThreshold
+        && Math.abs(pathError.getRotation().getDegrees())
+            <= DriveConstants.kPathErrorOmegaThresholdDegrees) {
+      return true;
+    } else return false;
+  }
+
+  public void autoDrive(boolean isShelf, TargetCol targetCol) {
+    this.isShelf = isShelf;
+    if (robotStateSubsystem.isBlueAlliance()) desiredHeading = new Rotation2d(0.0);
+    else desiredHeading = new Rotation2d(Math.PI);
+    if (isShelf)
+      desiredHeading = new Rotation2d(desiredHeading.getRadians() == Math.PI ? 0.0 : Math.PI);
+    setEnableHolo(true);
+    resetHolonomicController();
+    // driveSubsystem.grapherTrajectoryActive(true);
+    // driveSubsystem.lockZero();
+
+    logger.info("Moving to place");
+    TrajectoryConfig config = new TrajectoryConfig(2.5, 1.5);
+    config.setEndVelocity(0);
+    config.setStartVelocity(0.0);
+    ArrayList<Translation2d> points = new ArrayList<>();
+    Pose2d endPose = new Pose2d();
+    if (!isShelf)
+      endPose = robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
+    else
+      endPose =
+          robotStateSubsystem.getShelfPosAutoDrive(targetCol, robotStateSubsystem.isBlueAlliance());
+    logger.info("Autodriving to: {}, isShelf: {}", endPose, isShelf);
+    if (!isShelf)
+      points.add(
+          new Translation2d(
+              (getPoseMeters().getX() + endPose.getX()) / 2,
+              (getPoseMeters().getY() + endPose.getY()) / 2));
+    else
+      points.add(new Translation2d((getPoseMeters().getX() + endPose.getX()) / 2, endPose.getY()));
+    double startAngle = robotStateSubsystem.isBlueAlliance() ? Math.PI : 0.0;
+    if (isShelf) startAngle = startAngle == 0.0 ? Math.PI : 0.0;
+    Pose2d start =
+        new Pose2d(
+            new Translation2d(getPoseMeters().getX(), getPoseMeters().getY()),
+            new Rotation2d(startAngle));
+    visionUpdates = false;
+    place = TrajectoryGenerator.generateTrajectory(start, points, endPose, config);
+    autoDriveTimer.reset();
+    autoDriveTimer.start();
+    logger.info("DRIVESUB: {} -> AUTO_DRIVE", currDriveState);
+    currDriveState = DriveStates.AUTO_DRIVE;
+    grapherTrajectoryActive(true);
+    // calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
+  }
+  // private void autoDrive() {
+  //   Pose2d currentPose = getPoseMeters();
+  //   Rotation2d robotRotation = getGyroRotation2d();
+  //   Transform2d poseDifference = currentPose.minus(endAutoDrivePose);
+
+  //   // holoContInput =
+  //   double result =
+  //       omegaAutoDriveController.calculate(
+  //           MathUtil.angleModulus(robotRotation.getRadians()),
+  //           robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
+  //   result = 0.0;
+  //   double straightDist =
+  //       Math.sqrt(
+  //           poseDifference.getX() * poseDifference.getX()
+  //               + poseDifference.getY() * poseDifference.getY());
+
+  //   double angle = Math.atan2(poseDifference.getY(), poseDifference.getX());
+  //   logger.info("Angle is {}", angle);
+
+  //   double speedMPS =
+  //       Math.sqrt(
+  //           (straightDist + DriveConstants.kAutoEquationOffset)
+  //               * (2 * DriveConstants.kMaxAutoAccel));
+  //   logger.info("Predicted speed is {}", speedMPS);
+  //   double currentXvel = speedMPS * Math.cos(angle);
+  //   double currentYvel = speedMPS * Math.sin(angle);
+
+  //   speedMPS =
+  //       Math.sqrt(
+  //           Math.pow(
+  //                   lastXSpeed
+  //                       + Math.copySign(
+  //                           DriveConstants.kMaxAutoAccel / 50, currentXvel - lastXSpeed),
+  //                   2)
+  //               + Math.pow(currentYvel, 2));
+  //   currentXvel =
+  //       lastXSpeed + Math.copySign(DriveConstants.kMaxAutoAccel / 50, currentXvel - lastXSpeed);
+
+  //   speedMPS =
+  //       Math.sqrt(
+  //           Math.pow(currentXvel, 2)
+  //               + Math.pow(
+  //                   lastYSpeed
+  //                       + Math.copySign(
+  //                           DriveConstants.kMaxAutoAccel / 50, currentYvel - lastYSpeed),
+  //                   2));
+  //   currentYvel =
+  //       lastYSpeed + Math.copySign(DriveConstants.kMaxAutoAccel / 50, currentYvel - lastYSpeed);
+
+  //   if (Math.abs(speedMPS) > 1) {
+  //     speedMPS = Math.copySign(1, speedMPS);
+  //     double tempAngle = Math.atan2(currentYvel, currentXvel);
+  //     currentXvel = speedMPS * Math.cos(tempAngle);
+  //     currentYvel = speedMPS * Math.sin(tempAngle);
+  //   }
+  //   speedMPSglobal = speedMPS;
+  //   lastXSpeed = currentXvel;
+  //   lastYSpeed = currentYvel;
+
+  //   Translation2d moveTranslation = new Translation2d(currentXvel, currentYvel);
+
+  //   if (Math.abs(poseDifference.getX()) <= DriveConstants.kAutoDistanceLimit)
+  //     moveTranslation = new Translation2d(0, moveTranslation.getY());
+  //   if (Math.abs(poseDifference.getY()) <= DriveConstants.kAutoDistanceLimit)
+  //     moveTranslation = new Translation2d(moveTranslation.getX(), 0.0);
+
+  //   // Translation2d moveTranslation =
+  //   // new Translation2d(poseDifference.getX() * 0.25, poseDifference.getY() * 0.25);
+  //   move(moveTranslation.getX(), moveTranslation.getY(), result, true);
+
+  //   logger.info("X accel {}, Y accel", moveTranslation.getX(), moveTranslation.getY());
+  //   logger.info(" X Dif: {}, Y Dif: {}", poseDifference.getX(), poseDifference.getY());
+
+  //   if (Math.abs(poseDifference.getX()) <= DriveConstants.kAutoDistanceLimit
+  //       && Math.abs(poseDifference.getY()) <= DriveConstants.kAutoDistanceLimit
+  //   // && Math.abs(
+  //   //         robotRotation.getRadians()
+  //   //             - (robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI))
+  //   //     <= Math.toRadians(DriveConstants.kMaxAngleOff)
+  //   ) {
+  //     autoDriveTimer.stop();
+  //     autoDriveTimer.reset();
+  //     autoDriving = false;
+  //     visionUpdates = true;
+  //     logger.info("Autodrive Finished");
+  //     lastXSpeed = 0.0;
+  //     speedMPSglobal = 0.0;
+  //     lastYSpeed = 0.0;
+  //   }
+  // }
+
+  public boolean isAutoDriving() {
+    return autoDriving;
+  }
+
+  public void setDriveState(DriveStates driveStates) {
+    currDriveState = driveStates;
+  }
+
+  public void setAutoDriving(boolean autoDrive) {
+    autoDriving = autoDrive;
+  }
+
   @Override
   public void periodic() {
     // Update swerve module states every robot loop
     swerveDrive.periodic();
-    // TimestampedPose pose = visionSubsystem.odomNewPoseViaVision();
-    // if (!DriverStation.isAutonomous()) {
-    //   distanceVisionWheelOdom = distancePose(pose.getPose(), swerveDrive.getPoseMeters());
-    //   timestampedPose.setPose(pose.getPose());
-    //   timestampedPose.setTimestamp(pose.getTimestamp());
-    //   // updateOdometryWithVision(pose.getPose(), pose.getTimestamp());
+    switch (currDriveState) {
+      case IDLE:
+        break;
+      case AUTO_DRIVE:
+        if (isAutoDriveFinished()) {
+          grapherTrajectoryActive(false);
+          setEnableHolo(false);
+          drive(0, 0, 0);
+          visionUpdates = true;
+          setAutoDriving(false);
+          logger.info("End Trajectory {}", autoDriveTimer.get());
+          autoDriveTimer.stop();
+          autoDriveTimer.reset();
+          logger.info("DRIVESUB: {} -> AUTO_DRIVE_FINISHED", currDriveState);
+          currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
+          break;
+        }
+        if (autoDriving && !visionUpdates) {
+          calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
+        }
+        break;
+      case AUTO_DRIVE_FINISHED:
+        break;
+      default:
+        break;
+    }
+    // if (autoDriving && autoDriveTimer.hasElapsed(5.0)) visionUpdates = false;
+    // autoDrive();
+
+    // double xSpeed = getFieldRelSpeed().vxMetersPerSecond;
+    // double ySpeed = getFieldRelSpeed().vyMetersPerSecond;
+    // Pose2d endPoint = new Pose2d();
     // }
-    // if (distancePose(pose.getPose(), swerveDrive.getPoseMeters())
-    //     < DriveConstants.kUpdateThreshold) {
-    //   updateOdometryWithVision(pose.getPose(), pose.getTimestamp());
-    // }
+  }
+
+  public double getSpeedMPS() {
+    return speedMPSglobal;
+  }
+
+  public double getLastXSpeed() {
+    return lastXSpeed;
+  }
+
+  public double getLastYSpeed() {
+    return lastYSpeed;
   }
 
   public double distanceOdometryVision(Pose2d vision) {
@@ -209,6 +442,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
   public void resetOdometry(Pose2d pose) {
     swerveDrive.resetOdometry(pose);
     logger.info("reset odometry with: {}", pose);
+  }
+
+  public void resetOdometryNoLog(Pose2d pose) {
+    swerveDrive.resetOdometry(pose);
   }
 
   public Rotation2d getGyroRotation2d() {
@@ -272,7 +509,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
   // Trajectory TOML Parsing
   public PathData generateTrajectory(String trajectoryName) {
-
     try {
       if (shouldFlip()) {
         logger.info("Flipping path");
@@ -392,7 +628,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
     holoContInput = desiredState;
     holoContAngle = desiredAngle;
     holoContOutput = holonomicController.calculate(getPoseMeters(), desiredState, desiredAngle);
-    logger.info("input: {}, output: {}", holoContInput, holoContOutput);
+    logger.info("input: {}, output: {}, angle: {}", holoContInput, holoContOutput, desiredAngle);
     move(
         holoContOutput.vxMetersPerSecond,
         holoContOutput.vyMetersPerSecond,
@@ -413,6 +649,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
   public void grapherTrajectoryActive(Boolean active) {
     if (active) trajectoryActive = 1.0;
     else trajectoryActive = 0.0;
+  }
+
+  public enum DriveStates {
+    IDLE,
+    AUTO_DRIVE,
+    AUTO_DRIVE_FINISHED
   }
 
   @Override
@@ -455,6 +697,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("FWD Vel", () -> lastVelocity[0]),
         new Measure("STR Vel", () -> lastVelocity[1]),
         new Measure("YAW Vel", () -> lastVelocity[2]),
-        new Measure("Gyro Rate", () -> getGyroRate()));
+        new Measure("Gyro Rate", () -> getGyroRate()),
+        new Measure("Auto Drive Speed X", () -> getLastXSpeed()),
+        new Measure("Auto Drive Speed Y", () -> getLastYSpeed()),
+        new Measure("Auto Drive End X", () -> endAutoDrivePose.getX()),
+        new Measure("Auto Drive End Y", () -> endAutoDrivePose.getY()),
+        new Measure("Auto Drive Timer", () -> autoDriveTimer.get()),
+        new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()));
   }
 }

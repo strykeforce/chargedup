@@ -1,13 +1,18 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotStateConstants;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
+import frc.robot.subsystems.DriveSubsystem.DriveStates;
 import frc.robot.subsystems.HandSubsystem.HandStates;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -35,6 +40,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private boolean isReleaseDelayTimerRunning = false;
   private double currPoseX;
   private double desiredPoseX;
+  private boolean isAutoStageFinished = false;
+  private boolean isAutoPlacing = false;
 
   public RobotStateSubsystem(
       IntakeSubsystem intakeSubsystem,
@@ -51,6 +58,15 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   public RobotState getRobotState() {
     return currRobotState;
+  }
+
+  public boolean isAutoPlaceFinished() {
+    return isAutoStageFinished;
+  }
+
+  public void endAutoPlace(boolean interrupted) {
+    isAutoStageFinished = false;
+    logger.info("Finished Autoplace. Inturrupted: {}", interrupted);
   }
 
   public void setTargetLevel(TargetLevel targetLevel) {
@@ -191,6 +207,45 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     else handSubsystem.grabCube();
   }
 
+  public void toAutoDrive() {
+    logger.info("{} -> AUTO_DRIVE", currRobotState);
+    currRobotState = RobotState.AUTO_DRIVE;
+    isAutoPlacing = true;
+    TargetCol tempTargetCol = TargetCol.NONE;
+    if (Math.abs(driveSubsystem.getSpeedMPS()) <= DriveConstants.kMaxSpeedToAutoDrive) {
+      if (gamePiece != GamePiece.CUBE) tempTargetCol = getTargetCol();
+      logger.info("Gamepiece toAutodrive: {}", gamePiece.toString());
+      driveSubsystem.autoDrive((gamePiece == GamePiece.NONE), tempTargetCol); // FIXME
+    }
+  }
+
+  public void toAutoShelf() {
+    logger.info("{} --> TO_AUTO_SHELF", currRobotState);
+    armSubsystem.toShelfPos();
+    isAutoPlacing = true; // FIXME
+    currentAxis = CurrentAxis.ARM;
+    currRobotState = RobotState.TO_AUTO_SHELF;
+  }
+
+  public void toAutoScore() {
+    logger.info("{} --> AUTO_SCORE", currRobotState);
+    isAutoPlacing = true; // FIXME
+    switch (targetLevel) {
+      case NONE:
+        break;
+      case LOW:
+        armSubsystem.toLowPos();
+        break;
+      case MID:
+        armSubsystem.toMidPos();
+        break;
+      case HIGH:
+        armSubsystem.toHighPos();
+        break;
+    }
+    currRobotState = RobotState.AUTO_SCORE;
+  }
+
   @Override
   public void periodic() {
     switch (currRobotState) {
@@ -214,12 +269,17 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             case AUTO_SCORE: // not implemented
             case AUTO_SHELF: // not implemented
               break;
+            case AUTO_DRIVE:
+              break;
             default:
               break;
           }
         }
         break;
-
+      case TO_AUTO_DRIVE:
+        currRobotState = RobotState.AUTO_DRIVE;
+        logger.info("{} -> AUTO_DRIVE", currRobotState);
+        break;
       case TO_STOW:
         switch (currentAxis) {
           case HAND:
@@ -368,9 +428,47 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         }
 
         break;
+      case TO_AUTO_SCORE:
+        if (armSubsystem.getCurrState() == ArmState.LOW
+            || armSubsystem.getCurrState() == ArmState.MID
+            || armSubsystem.getCurrState() == ArmState.HIGH) {
+          logger.info("{} -> AUTO_SCORE", currRobotState);
+          currRobotState = RobotState.AUTO_SCORE;
+          currentAxis = CurrentAxis.NONE;
+        }
       case AUTO_SCORE:
+        // wait for arm to be in right position and then release the cone.
+        isAutoStageFinished = true;
+        toAutoDrive();
         break;
+      case TO_AUTO_SHELF:
+        switch (currentAxis) {
+          case ARM:
+            if (armSubsystem.getCurrState() == ArmState.SHELF) {
+              handSubsystem.open();
+              currentAxis = CurrentAxis.HAND;
+            }
+            break;
+          case HAND:
+            if (handSubsystem.isFinished()) {
+              currentAxis = CurrentAxis.NONE;
+              isAutoStageFinished = true;
+              toAutoDrive();
+              // logger.info("{} -> AUTO_SHELF", currRobotState);
+              // currRobotState = RobotState.AUTO_SHELF;
+            }
+            break;
+          default:
+            break;
+        }
       case AUTO_SHELF:
+        if (handSubsystem.hasPiece()) {
+          handSubsystem.grabCone();
+          gamePiece = GamePiece.CONE;
+          currPoseX = driveSubsystem.getPoseMeters().getX();
+          logger.info("{} -> SHELF_WAIT", currRobotState);
+          currRobotState = RobotState.SHELF_WAIT;
+        }
         break;
 
       case TO_FLOOR_PICKUP:
@@ -401,7 +499,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // open hand
         // (break)
         if (handSubsystem.isFinished() && !isReleaseDelayTimerRunning) {
-          gamePiece = GamePiece.NONE;
+          setGamePiece(GamePiece.NONE);
           releaseDelayTimer.reset();
           releaseDelayTimer.start();
           isReleaseDelayTimerRunning = true;
@@ -415,8 +513,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         break;
       case GRAB_GAME_PIECE:
         if (handSubsystem.isFinished()) {
-          if (handSubsystem.getHandState() == HandStates.CONE_CLOSED) gamePiece = GamePiece.CONE;
-          else gamePiece = GamePiece.CUBE;
+          if (handSubsystem.getHandState() == HandStates.CONE_CLOSED) setGamePiece(GamePiece.CONE);
+          else setGamePiece(GamePiece.CUBE);
           toStow();
         }
         break;
@@ -424,26 +522,96 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // (from) AUTO_SHELF or MANUAL_SHELF
         // check if robot has moved enough
         // (to) STOW
+        if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED) {
+          logger.info("DRIVESUB: {} -> IDLE", driveSubsystem.currDriveState);
+          driveSubsystem.setDriveState(DriveStates.IDLE);
+        }
+
+        // FIXME IF FROM AUTO_SHELF AND IF SHELF INCLUDES GRABBING THE GAMEPIECE(IDK I DIDNT READ
+        // IT), THEN END THE AUTOPLACE COMMAND
 
         if (allianceColor == Alliance.Blue) {
           desiredPoseX = currPoseX - Constants.ArmConstants.kShelfMove;
           if (driveSubsystem.getPoseMeters().getX() <= desiredPoseX) {
-            toStow();
             rgbLightsSubsystem.setOff();
+            toStow();
           }
         } else if (allianceColor == Alliance.Red) {
           desiredPoseX = currPoseX + Constants.ArmConstants.kShelfMove;
           if (driveSubsystem.getPoseMeters().getX() >= desiredPoseX) {
-            toStow();
             rgbLightsSubsystem.setOff();
+            toStow();
           }
         }
 
         break;
-
+      case AUTO_DRIVE:
+        if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED) {
+          // driveSubsystem.currDriveState = DriveStates.IDLE;
+          // Start Arm Stuff.
+          isAutoPlacing = false;
+          // isAutoStageFinished = true;
+          // if (gamePiece == GamePiece.NONE) toAutoShelf();
+          // else toAutoScore();
+          if (gamePiece == GamePiece.NONE) {
+            logger.info("{} -> AUTO_SHELF", currRobotState);
+            currRobotState = RobotState.AUTO_SHELF;
+          }
+        } // FIXME ELSE??
+        break;
       default:
         break;
     }
+  }
+
+  public Pose2d getShelfPosAutoDrive(TargetCol tempTargetCol, boolean isBlue) {
+    int multiplier = 0;
+    logger.info("tempTargetCol: {}", tempTargetCol.name());
+    if (tempTargetCol.equals(TargetCol.LEFT)) multiplier = -1;
+    if (tempTargetCol.equals(TargetCol.RIGHT)) multiplier = 1;
+    if (isBlue) multiplier *= -1;
+
+    if (isBlue)
+      return new Pose2d(
+          new Translation2d(
+              RobotStateConstants.kShelfBlue.getX(),
+              RobotStateConstants.kShelfBlue.getY()
+                  + RobotStateConstants.kShelfOffset * multiplier),
+          new Rotation2d(0.0));
+    return new Pose2d(
+        new Translation2d(
+            RobotStateConstants.kShelfRed.getX(),
+            RobotStateConstants.kShelfRed.getY() + RobotStateConstants.kShelfOffset * multiplier),
+        new Rotation2d(Math.PI));
+  }
+
+  public Pose2d getAutoPlaceDriveTarget(double yCoord, TargetCol tempTargetCol) {
+    int gridIndex =
+        ((yCoord > Constants.RobotStateConstants.kBound1Y) ? 1 : 0)
+            + ((yCoord > Constants.RobotStateConstants.kBound2Y) ? 1 : 0);
+    double targetX = Constants.RobotStateConstants.kAutoPlaceX;
+    double rotation = Math.PI;
+    if (!isBlueAlliance()) rotation = 0.0;
+
+    if (!isBlueAlliance()) {
+      targetX = Constants.RobotStateConstants.kFieldMaxX - targetX;
+      logger.info("Not blue alliance: {}", allianceColor.toString());
+      rotation = 0;
+    }
+    int multiplier = 0;
+    logger.info("tempTargetCol: {}", tempTargetCol.name());
+    if (tempTargetCol.equals(TargetCol.LEFT)) multiplier = 1;
+    if (tempTargetCol.equals(TargetCol.RIGHT)) multiplier = -1;
+    if (!isBlueAlliance()) multiplier *= -1;
+    return new Pose2d(
+        targetX,
+        Constants.RobotStateConstants.kGridY[gridIndex]
+            + multiplier * RobotStateConstants.kPolePlaceOffset,
+        new Rotation2d(rotation));
+  }
+
+  public boolean isBlueAlliance() {
+    return getAllianceColor() == Alliance.Blue;
   }
 
   public enum TargetLevel {
@@ -483,7 +651,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     TO_MANUAL_SHELF,
     TO_FLOOR_PICKUP,
     GRAB_GAME_PIECE,
-    TO_STOW
+    TO_STOW,
+    TO_AUTO_DRIVE,
+    AUTO_DRIVE,
+    TO_AUTO_SHELF,
+    TO_AUTO_SCORE
   }
 
   public enum CurrentAxis {
