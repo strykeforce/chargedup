@@ -345,12 +345,12 @@ public class RobotContainer {
 
     Shuffleboard.getTab("Match")
         .add("Update With Vision", new ToggleUpdateWithVisionCommand(driveSubsystem))
-        .withSize(4, 1)
-        .withPosition(0, 0);
+        .withSize(1, 1)
+        .withPosition(4, 1);
     Shuffleboard.getTab("Match")
         .addBoolean("Update With Vision True", () -> driveSubsystem.visionUpdates)
-        .withSize(4, 2)
-        .withPosition(0, 0);
+        .withSize(1, 1)
+        .withPosition(4, 0);
 
     Shuffleboard.getTab("Match")
         .addBoolean("IsRight", () -> robotStateSubsystem.getTargetCol() == TargetCol.RIGHT)

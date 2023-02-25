@@ -38,14 +38,14 @@ public class Constants {
     public static final double kReleaseDelayTime = 0.5;
 
     public static final double kPolePlaceOffset = 0.56;
-    public static final double kShelfOffset = 0.60;
+    public static final double kShelfOffset = 0.75;
     public static final double[] kGridY = {1.071626, 2.748026, 4.424426}; // m
     public static final double kBound1Y = 1.908175; // m
     public static final double kBound2Y = 3.584575; // m
     public static final Pose2d kShelfBlue =
-        new Pose2d(new Translation2d(15.6, 6.749796), new Rotation2d());
+        new Pose2d(new Translation2d(15.53, 6.749796), new Rotation2d());
     public static final Pose2d kShelfRed =
-        new Pose2d(new Translation2d(0.80, 6.749796), new Rotation2d());
+        new Pose2d(new Translation2d(1.0, 6.749796), new Rotation2d());
 
     public static final double kFieldMaxX = 16.540988; // m
   }
@@ -499,7 +499,7 @@ public class Constants {
     public static final double kIntakePickupDelaySec = 0.5;
     public static final int kBeamBreakStableCounts = 2;
 
-    public static final int kIntakeZeroTicks = 2_800;
+    public static final int kIntakeZeroTicks = 2_650;
 
     public static TalonSRXConfiguration getExtendTalonConfig() {
       TalonSRXConfiguration talonConfig = new TalonSRXConfiguration();

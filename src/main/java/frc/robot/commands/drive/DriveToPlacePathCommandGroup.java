@@ -13,7 +13,7 @@ public class DriveToPlacePathCommandGroup extends SequentialCommandGroup {
       boolean isShelf,
       TargetCol targetCol,
       boolean isBlue) {
-    driveSubsystem.autoDriving = true;
+    driveSubsystem.setAutoDriving(true);
     addCommands(
         new WaitCommand(0.25),
         new DriveToPlaceCommand(driveSubsystem, robotStateSubsystem, isShelf, targetCol, isBlue));

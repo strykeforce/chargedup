@@ -74,7 +74,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private Rotation2d desiredHeading;
   private Trajectory place;
   public DriveStates currDriveState = DriveStates.IDLE;
-  public boolean isShelf;
+  private boolean isShelf;
   // private boolean isAutoDriveFinished = false;
 
   public DriveSubsystem() {
@@ -181,13 +181,15 @@ public class DriveSubsystem extends MeasurableSubsystem {
   public void driveToPose(Pose2d endPose) {
     endAutoDrivePose = endPose;
     omegaAutoDriveController.reset(getPoseMeters().getRotation().getRadians());
-    autoDriving = true;
+    setAutoDriving(true);
     // autoDriveTimer.reset();
     // autoDriveTimer.start();
   }
 
   public boolean isAutoDriveFinished() {
-    if (autoDriving) {
+    // autoDriving &&
+    if (place != null) {
+      // if (autoDriveTimer.hasElapsed(place.getTotalTimeSeconds())) setAutoDriving(false);
       return autoDriveTimer.hasElapsed(place.getTotalTimeSeconds());
     } else return false;
   }
@@ -207,8 +209,11 @@ public class DriveSubsystem extends MeasurableSubsystem {
     autoDriveTimer.start();
     if (robotStateSubsystem.isBlueAlliance()) desiredHeading = new Rotation2d(0.0);
     else desiredHeading = new Rotation2d(Math.PI);
+    if (isShelf)
+      desiredHeading = new Rotation2d(desiredHeading.getRadians() == Math.PI ? 0.0 : Math.PI);
     setEnableHolo(true);
     resetHolonomicController();
+    logger.info("DRIVESUB: {} -> AUTO_DRIVE", currDriveState);
     currDriveState = DriveStates.AUTO_DRIVE;
     // driveSubsystem.grapherTrajectoryActive(true);
     // driveSubsystem.lockZero();
@@ -229,10 +234,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Translation2d(
             (getPoseMeters().getX() + endPose.getX()) / 2,
             (getPoseMeters().getY() + endPose.getY()) / 2));
+    double startAngle = robotStateSubsystem.isBlueAlliance() ? Math.PI : 0.0;
+    if (isShelf) startAngle = startAngle == 0.0 ? Math.PI : 0.0;
     Pose2d start =
         new Pose2d(
             new Translation2d(getPoseMeters().getX(), getPoseMeters().getY()),
-            new Rotation2d(robotStateSubsystem.isBlueAlliance() ? Math.PI : 0.0));
+            new Rotation2d(startAngle));
     visionUpdates = false;
     place = TrajectoryGenerator.generateTrajectory(start, points, endPose, config);
     autoDriveTimer.reset();
@@ -351,8 +358,11 @@ public class DriveSubsystem extends MeasurableSubsystem {
           grapherTrajectoryActive(false);
           setEnableHolo(false);
           drive(0, 0, 0);
-          // visionUpdates = true;
+          visionUpdates = true;
+          // setAutoDriving(false);
           logger.info("End Trajectory {}", autoDriveTimer.get());
+          autoDriveTimer.stop();
+          autoDriveTimer.reset();
         }
         break;
       case AUTO_DRIVE_FINISHED:
@@ -369,7 +379,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
     // double xSpeed = getFieldRelSpeed().vxMetersPerSecond;
     // double ySpeed = getFieldRelSpeed().vyMetersPerSecond;
     // Pose2d endPoint = new Pose2d();
-
     // }
   }
 
@@ -684,6 +693,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("Auto Drive Speed Y", () -> getLastYSpeed()),
         new Measure("Auto Drive End X", () -> endAutoDrivePose.getX()),
         new Measure("Auto Drive End Y", () -> endAutoDrivePose.getY()),
+        new Measure("Auto Drive Timer", () -> autoDriveTimer.get()),
         new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()));
   }
 }

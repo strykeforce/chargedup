@@ -210,10 +210,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void toAutoDrive() {
     logger.info("{} -> AUTO_DRIVE", currRobotState);
     currRobotState = RobotState.AUTO_DRIVE;
-    isAutoPlacing = true;
+    // isAutoPlacing = true;
     TargetCol tempTargetCol = TargetCol.NONE;
     if (Math.abs(driveSubsystem.getSpeedMPS()) <= DriveConstants.kMaxSpeedToAutoDrive) {
-      if (gamePiece == GamePiece.CONE) tempTargetCol = getTargetCol();
+      if (gamePiece != GamePiece.CUBE) tempTargetCol = getTargetCol();
       logger.info("Gamepiece toAutodrive: {}", gamePiece.toString());
       driveSubsystem.autoDrive((gamePiece == GamePiece.NONE), tempTargetCol); // FIXME
     }
@@ -222,13 +222,14 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void toAutoShelf() {
     logger.info("{} --> TO_AUTO_SHELF", currRobotState);
     armSubsystem.toShelfPos();
+    isAutoPlacing = true; // FIXME
     currentAxis = CurrentAxis.ARM;
     currRobotState = RobotState.TO_AUTO_SHELF;
   }
 
   public void toAutoScore() {
     logger.info("{} --> AUTO_SCORE", currRobotState);
-
+    isAutoPlacing = true; // FIXME
     switch (targetLevel) {
       case NONE:
         break;
@@ -435,6 +436,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         }
       case AUTO_SCORE:
         // wait for arm to be in right position and then release the cone.
+        isAutoStageFinished = true;
+        toAutoDrive();
         break;
       case TO_AUTO_SHELF:
         switch (currentAxis) {
@@ -447,8 +450,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           case HAND:
             if (handSubsystem.isFinished()) {
               currentAxis = CurrentAxis.NONE;
-              logger.info("{} -> AUTO_SHELF", currRobotState);
-              currRobotState = RobotState.AUTO_SHELF;
+              isAutoStageFinished = true;
+              toAutoDrive();
+              // logger.info("{} -> AUTO_SHELF", currRobotState);
+              // currRobotState = RobotState.AUTO_SHELF;
             }
             break;
           default:
@@ -515,7 +520,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // (from) AUTO_SHELF or MANUAL_SHELF
         // check if robot has moved enough
         // (to) STOW
-        if (driveSubsystem.isShelf && isAutoPlacing) {
+        if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED) {
+          logger.info("DRIVESUB: {} -> IDLE", driveSubsystem.currDriveState);
+          driveSubsystem.currDriveState = DriveStates.IDLE;
+        }
+        if ((gamePiece == GamePiece.NONE) && isAutoPlacing) {
           isAutoStageFinished = true;
           isAutoPlacing = false;
           // Is autoshelf, End command here
@@ -539,14 +548,16 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
         break;
       case AUTO_DRIVE:
-        if (driveSubsystem.isAutoDriveFinished()) { // && driveSubsystem.inScorePosition()) {
-          if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED) {
-            driveSubsystem.currDriveState = DriveStates.IDLE;
-            // Start Arm Stuff.
-            isAutoPlacing = false;
-            isAutoStageFinished = true;
-            if (gamePiece == GamePiece.NONE) toAutoShelf();
-            else toAutoScore();
+        if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED) {
+          // driveSubsystem.currDriveState = DriveStates.IDLE;
+          // Start Arm Stuff.
+          isAutoPlacing = false;
+          // isAutoStageFinished = true;
+          // if (gamePiece == GamePiece.NONE) toAutoShelf();
+          // else toAutoScore();
+          if (gamePiece == GamePiece.NONE) {
+            logger.info("{} -> AUTO_SHELF", currRobotState);
+            currRobotState = RobotState.AUTO_SHELF;
           }
         } // FIXME ELSE??
         break;
@@ -557,21 +568,23 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   public Pose2d getShelfPosAutoDrive(TargetCol tempTargetCol, boolean isBlue) {
     int multiplier = 0;
-    if (tempTargetCol.equals(TargetCol.LEFT)) multiplier = 1;
-    if (tempTargetCol.equals(TargetCol.RIGHT)) multiplier = -1;
+    logger.info("tempTargetCol: {}", tempTargetCol.name());
+    if (tempTargetCol.equals(TargetCol.LEFT)) multiplier = -1;
+    if (tempTargetCol.equals(TargetCol.RIGHT)) multiplier = 1;
     if (isBlue) multiplier *= -1;
 
     if (isBlue)
       return new Pose2d(
           new Translation2d(
-              RobotStateConstants.kShelfBlue.getX() + RobotStateConstants.kShelfOffset * multiplier,
-              RobotStateConstants.kShelfBlue.getY()),
-          new Rotation2d(Math.PI));
+              RobotStateConstants.kShelfBlue.getX(),
+              RobotStateConstants.kShelfBlue.getY()
+                  + RobotStateConstants.kShelfOffset * multiplier),
+          new Rotation2d(0.0));
     return new Pose2d(
         new Translation2d(
-            RobotStateConstants.kShelfRed.getX() + RobotStateConstants.kShelfOffset * multiplier,
-            RobotStateConstants.kShelfRed.getY()),
-        new Rotation2d(0.0));
+            RobotStateConstants.kShelfRed.getX(),
+            RobotStateConstants.kShelfRed.getY() + RobotStateConstants.kShelfOffset * multiplier),
+        new Rotation2d(Math.PI));
   }
 
   public Pose2d getAutoPlaceDriveTarget(double yCoord, TargetCol tempTargetCol) {
