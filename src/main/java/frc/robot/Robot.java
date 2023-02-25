@@ -37,6 +37,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    m_robotContainer.updateGamePiece();
     // CommandScheduler.getInstance()
     //     .onCommandInitialize(command -> logger.info("{} initialized", command.getName()));
   }

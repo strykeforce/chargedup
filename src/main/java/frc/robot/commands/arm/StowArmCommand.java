@@ -8,6 +8,7 @@ public class StowArmCommand extends InstantCommand {
 
   public StowArmCommand(ArmSubsystem armSubsystem) {
     this.armSubsystem = armSubsystem;
+    addRequirements(armSubsystem);
   }
 
   @Override
