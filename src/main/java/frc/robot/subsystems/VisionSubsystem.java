@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -11,7 +12,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.CircularBuffer;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import java.io.IOException;
 import java.util.List;
@@ -157,7 +157,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
       result = cam1.getLatestResult();
       if (canFillBuffers) fillBuffers();
     } catch (Exception e) {
-      logger.info("VISION : GET LATEST FAILED");
+      // logger.info("VISION : GET LATEST FAILED");
     }
     if (result.hasTargets()) {
       targets = result.getTargets();
@@ -167,17 +167,25 @@ public class VisionSubsystem extends MeasurableSubsystem {
     double x = robotPose.getX(), y = robotPose.getY();
     try {
       if (result.hasTargets() && result.getBestTarget().getPoseAmbiguity() <= 0.15) {
-        x = photonPoseEstimator.update().get().estimatedPose.getX();
-        y = photonPoseEstimator.update().get().estimatedPose.getY();
-        if (driveSubsystem.distanceOdometryVision(
-                new Pose2d(new Translation2d(x, y), new Rotation2d()))
-            <= DriveConstants.kUpdateThreshold)
+        Pose3d cameraPose = photonPoseEstimator.update().get().estimatedPose;
+        y = cameraPose.getY();
+        x = cameraPose.getX();
+        // y = photonPoseEstimator.update().get().estimatedPose.getY();
+        // x = photonPoseEstimator.update().get().estimatedPose.getX();
+        if (driveSubsystem.canGetVisionUpdates())
           driveSubsystem.updateOdometryWithVision(
-              new Pose2d(new Translation2d(x, y).plus(cameraOffset()), new Rotation2d()),
+              new Pose2d(
+                  new Translation2d(x, y).plus(cameraOffset()), driveSubsystem.getGyroRotation2d()),
               (long) timeStamp);
+
+        if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.isAutoDriving())
+          driveSubsystem.resetOdometryNoLog( // FIXME
+              new Pose2d(
+                  new Translation2d(x, y).plus(cameraOffset()),
+                  driveSubsystem.getGyroRotation2d()));
       }
     } catch (Exception e) {
-      logger.error("VISION : ODOMETRY FAIL");
+      // logger.error("VISION : ODOMETRY FAIL");
     }
     robotPose = new Translation2d(x, y);
     // result.setTimestampSeconds(timeStamp);
@@ -204,12 +212,13 @@ public class VisionSubsystem extends MeasurableSubsystem {
         new Measure("BestTarget Ambiguity", () -> getAmbiguity()),
         new Measure("Time Stamp", () -> timeStamp),
         new Measure(
-            "Position From Robot X(Offset)", () -> (getOdometry().getX() + cameraOffset().getX())),
+            "Vision Odometry X(Offset)", () -> (getOdometry().getX() + cameraOffset().getX())),
         new Measure(
-            "Position From Robot Y(Offset)", () -> (getOdometry().getY() + cameraOffset().getY())),
+            "Vision Odometry Y(Offset)", () -> (getOdometry().getY() + cameraOffset().getY())),
         new Measure("Has Targets", () -> getHasTargets()),
         new Measure("Camera Offset X", () -> cameraOffset().getX()),
         new Measure("Camera Offset Y", () -> cameraOffset().getY()),
+        new Measure("Camera Latency", () -> result.getLatencyMillis()),
         new Measure("Camera Odometry X (NO OFFSET)", () -> getOdometry().getX()),
         new Measure("Camera Odometry Y (NO OFFSET)", () -> getOdometry().getY()));
   }

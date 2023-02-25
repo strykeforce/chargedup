@@ -8,6 +8,7 @@ public class ArmShelfCommand extends InstantCommand {
 
   public ArmShelfCommand(ArmSubsystem armSubsystem) {
     this.armSubsystem = armSubsystem;
+    addRequirements(armSubsystem);
   }
 
   @Override
