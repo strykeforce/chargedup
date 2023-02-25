@@ -8,6 +8,8 @@ public class ArmFloorCommand extends InstantCommand {
 
   public ArmFloorCommand(ArmSubsystem armSubsystem) {
     this.armSubsystem = armSubsystem;
+
+    addRequirements(armSubsystem);
   }
 
   @Override
