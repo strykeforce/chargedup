@@ -24,7 +24,9 @@ import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ResetOdometryCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
+import frc.robot.commands.elevator.AdjustElevatorCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
+import frc.robot.commands.elevator.HoldPositionCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.commands.hand.GrabConeCommand;
 import frc.robot.commands.hand.GrabCubeCommand;
@@ -79,6 +81,7 @@ public class RobotContainer {
   // Dashboard Widgets
   private SuppliedValueWidget<Boolean> allianceColor;
   private Alliance alliance = Alliance.Invalid;
+  private SuppliedValueWidget<Boolean> currGamePiece;
 
   // Paths
   private DriveAutonCommand testPath;
@@ -182,8 +185,8 @@ public class RobotContainer {
     // new JoystickButton(xboxController, 3).onTrue(new
     // ToggleIntakeExtendedCommand(intakeSubsystem));
     new JoystickButton(driveJoystick, Shoulder.RIGHT_DOWN.id)
-        .onTrue(new ToggleIntakeCommand(robotStateSubsystem))
-        .onFalse(new ToggleIntakeCommand(robotStateSubsystem));
+        .onTrue(new ToggleIntakeCommand(robotStateSubsystem, intakeSubsystem))
+        .onFalse(new ToggleIntakeCommand(robotStateSubsystem, intakeSubsystem));
 
     // Toggle auto staging
     new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
@@ -196,7 +199,9 @@ public class RobotContainer {
     //     .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
 
     new JoystickButton(driveJoystick, InterlinkButton.DOWN.id)
-        .onTrue(new StowRobotCommand(robotStateSubsystem));
+        .onTrue(
+            new StowRobotCommand(
+                robotStateSubsystem, armSubsystem, intakeSubsystem, handSubsystem));
   }
 
   public void configureOperatorButtonBindings() {
@@ -244,7 +249,7 @@ public class RobotContainer {
     new JoystickButton(xboxController, XboxController.Button.kA.value)
         .onTrue(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem));
     new JoystickButton(xboxController, XboxController.Button.kX.value)
-        .onTrue(new ToggleIntakeCommand(robotStateSubsystem));
+        .onTrue(new ToggleIntakeCommand(robotStateSubsystem, intakeSubsystem));
     new JoystickButton(xboxController, XboxController.Button.kY.value)
         .onTrue(new ShelfPickupCommand(robotStateSubsystem));
 
@@ -264,7 +269,17 @@ public class RobotContainer {
         .onTrue(new RGBsetPieceCommand(rgbLightsSubsystem, GamePiece.CUBE));
 
     new JoystickButton(xboxController, XboxController.Button.kStart.value)
-        .onTrue(new RGBsetPieceCommand(rgbLightsSubsystem, GamePiece.CONE));
+        .onTrue(new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE));
+
+    // Adjust elevator
+    Trigger leftUp =
+        new Trigger(() -> xboxController.getLeftY() <= -0.1)
+            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, -1000))
+            .onFalse(new HoldPositionCommand(elevatorSubsystem));
+    Trigger leftDown =
+        new Trigger(() -> xboxController.getLeftY() >= 0.1)
+            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, 1000))
+            .onFalse(new HoldPositionCommand(elevatorSubsystem));
   }
 
   public Command getAutonomousCommand() {
@@ -278,6 +293,12 @@ public class RobotContainer {
             .withProperties(Map.of("colorWhenFalse", "black"))
             .withSize(2, 2)
             .withPosition(0, 0);
+    currGamePiece =
+        Shuffleboard.getTab("Match")
+            .addBoolean("Game Piece", () -> robotStateSubsystem.getGamePiece() != GamePiece.NONE)
+            .withProperties(Map.of("colorWhenFalse", "black"))
+            .withSize(2, 2)
+            .withPosition(3, 0);
   }
 
   private void configurePitDashboard() {
@@ -350,16 +371,34 @@ public class RobotContainer {
         .withPosition(0, 5);
     handCommands.add("Grab Cube", new GrabCubeCommand(handSubsystem)).withPosition(0, 7);
     handCommands.add("Grab Cone", new GrabConeCommand(handSubsystem)).withPosition(0, 8);
+
+    // Set game piece
+    ShuffleboardLayout gamePieceCommands =
+        pitTab.getLayout("Hand", BuiltInLayouts.kGrid).withPosition(0, 0).withSize(1, 2);
+    gamePieceCommands
+        .add("Set cone", new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE))
+        .withPosition(0, 0);
+    gamePieceCommands
+        .add("Set cube", new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE))
+        .withPosition(0, 1);
   }
 
   public void setAllianceColor(Alliance alliance) {
-    // this.alliance = alliance;
-    // allianceColor.withProperties(
-    //     Map.of(
-    //         "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse",
-    // "black"));
-    // robotStateSubsystem.setAllianceColor(alliance);
-    // testPath.generateTrajectory();
+    this.alliance = alliance;
+    allianceColor.withProperties(
+        Map.of(
+            "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
+    robotStateSubsystem.setAllianceColor(alliance);
+    testPath.generateTrajectory();
+  }
+
+  public void updateGamePiece() {
+    currGamePiece.withProperties(
+        Map.of(
+            "colorWhenTrue",
+            robotStateSubsystem.getGamePiece() == GamePiece.CUBE ? "purple" : "yellow",
+            "colorWhenFalse",
+            "black"));
   }
 
   // Interlink Controller Mapping

@@ -547,13 +547,18 @@ public class Constants {
     public static final int kZeroStableCounts = 1592;
     public static final int kHasPieceStableCounts = 2;
 
+    public static final double kHandHoldingPercent = 0.1; // FIXME
+    public static final double kHoldingVelocityThreshold = 50; // FIXME
+    public static final int kHoldingStableCounts = 5; // FIXME
+    public static final int kHoldingTickThreshold = 200;
+
     public static final double kHandZeroTicks = 820;
 
     public static final double kAllowedError = 150; // FIXME
 
     public static final double kHandOpenPosition = 0;
-    public static final double kCubeGrabbingPosition = 900; // FIXME
-    public static final double kConeGrabbingPosition = 1_650; // FIXME
+    public static final double kCubeGrabbingPosition = 850;
+    public static final double kConeGrabbingPosition = kMaxFwd; // old: 1650
 
     public static TalonSRXConfiguration getHandTalonConfig() {
       TalonSRXConfiguration handConfig = new TalonSRXConfiguration();
@@ -564,9 +569,9 @@ public class Constants {
       handConfig.slot0.kF = 0.85;
       handConfig.slot0.integralZone = 0;
       handConfig.slot0.maxIntegralAccumulator = 0;
-      handConfig.slot0.allowableClosedloopError = 0;
-      handConfig.motionCruiseVelocity = 1_000;
-      handConfig.motionAcceleration = 5_000;
+      handConfig.slot0.allowableClosedloopError = 40;
+      handConfig.motionCruiseVelocity = 1000;
+      handConfig.motionAcceleration = 10_000;
 
       handConfig.forwardSoftLimitEnable = true;
       handConfig.forwardSoftLimitThreshold = kMaxFwd;
@@ -582,7 +587,7 @@ public class Constants {
     }
 
     public static SupplyCurrentLimitConfiguration getHandSupplyLimitConfig() {
-      return new SupplyCurrentLimitConfiguration(true, 10, 20, .5);
+      return new SupplyCurrentLimitConfiguration(true, 1, 1, .5);
     }
 
     public static SupplyCurrentLimitConfiguration getHandZeroSupplyCurrentLimit() {
