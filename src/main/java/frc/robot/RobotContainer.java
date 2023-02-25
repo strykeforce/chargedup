@@ -356,7 +356,7 @@ public class RobotContainer {
             .addBoolean("Game Piece", () -> robotStateSubsystem.getGamePiece() != GamePiece.NONE)
             .withProperties(Map.of("colorWhenFalse", "black"))
             .withSize(2, 2)
-            .withPosition(3, 0);
+            .withPosition(5, 0);
 
     Shuffleboard.getTab("Match")
         .add("Update With Vision", new ToggleUpdateWithVisionCommand(driveSubsystem))

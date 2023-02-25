@@ -227,10 +227,13 @@ public class DriveSubsystem extends MeasurableSubsystem {
       endPose =
           robotStateSubsystem.getShelfPosAutoDrive(targetCol, robotStateSubsystem.isBlueAlliance());
     logger.info("Autodriving to: {}, isShelf: {}", endPose, isShelf);
-    points.add(
-        new Translation2d(
-            (getPoseMeters().getX() + endPose.getX()) / 2,
-            (getPoseMeters().getY() + endPose.getY()) / 2));
+    if (!isShelf)
+      points.add(
+          new Translation2d(
+              (getPoseMeters().getX() + endPose.getX()) / 2,
+              (getPoseMeters().getY() + endPose.getY()) / 2));
+    else
+      points.add(new Translation2d((getPoseMeters().getX() + endPose.getX()) / 2, endPose.getY()));
     double startAngle = robotStateSubsystem.isBlueAlliance() ? Math.PI : 0.0;
     if (isShelf) startAngle = startAngle == 0.0 ? Math.PI : 0.0;
     Pose2d start =

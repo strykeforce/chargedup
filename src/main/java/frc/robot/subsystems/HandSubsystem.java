@@ -94,7 +94,7 @@ public class HandSubsystem extends MeasurableSubsystem {
       if (closingStableCounts >= HandConstants.kHoldingStableCounts) {
         return true;
       }
-    }
+    } else if (handState == HandStates.CONE_CLOSED) return true;
 
     return Math.abs(leftDesiredPosition - getLeftPos())
         <= Constants.HandConstants
@@ -184,7 +184,7 @@ public class HandSubsystem extends MeasurableSubsystem {
 
   @Override
   public Set<Measure> getMeasures() {
-    return Set.of();
+    return Set.of(new Measure("Hand State", () -> getHandState().ordinal()));
   }
 
   @Override
