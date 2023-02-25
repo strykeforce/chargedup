@@ -8,6 +8,7 @@ public class ArmLowCommand extends InstantCommand {
 
   public ArmLowCommand(ArmSubsystem armSubsystem) {
     this.armSubsystem = armSubsystem;
+    addRequirements(armSubsystem);
   }
 
   @Override

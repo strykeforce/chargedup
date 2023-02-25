@@ -8,6 +8,7 @@ public class ArmToIntakeCommand extends InstantCommand {
 
   public ArmToIntakeCommand(ArmSubsystem armSubsystem) {
     this.armSubsystem = armSubsystem;
+    addRequirements(armSubsystem);
   }
 
   @Override

@@ -10,6 +10,8 @@ public class ArmHighCommand extends InstantCommand {
 
   public ArmHighCommand(ArmSubsystem armSubsystem, GamePiece gamePiece) {
     this.armSubsystem = armSubsystem;
+
+    addRequirements(armSubsystem);
     this.gamePiece = gamePiece;
   }
 

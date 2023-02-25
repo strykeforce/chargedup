@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import frc.robot.Constants;
+import frc.robot.Constants.HandConstants;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ public class HandSubsystem extends MeasurableSubsystem {
   private int handLeftZeroStableCounts;
   // private int handRightZeroStableCounts;
   private int hasPieceStableCounts;
+  private int closingStableCounts;
 
   private boolean leftZeroDone;
   // private boolean rightZeroDone;
@@ -45,6 +47,7 @@ public class HandSubsystem extends MeasurableSubsystem {
 
     handState = HandStates.IDLE;
     handLeftZeroStableCounts = 0;
+    closingStableCounts = 0;
     zeroHand();
     // handRightZeroStableCounts = 0;
   }
@@ -87,8 +90,15 @@ public class HandSubsystem extends MeasurableSubsystem {
   // }
 
   public boolean isFinished() {
-    return Math.abs(leftDesiredPosition - getLeftPos()) <= Constants.HandConstants.kAllowedError
-    /*&& Math.abs(rightDesiredPosition - getRightPos()) <= Constants.HandConstants.kAllowedError*/ ;
+    if (handState == HandStates.TRANSITIONING && desiredState == HandStates.CONE_CLOSED) {
+      if (closingStableCounts >= HandConstants.kHoldingStableCounts) {
+        return true;
+      }
+    }
+
+    return Math.abs(leftDesiredPosition - getLeftPos())
+        <= Constants.HandConstants
+            .kAllowedError /*&& Math.abs(rightDesiredPosition - getRightPos()) <= Constants.HandConstants.kAllowedError*/;
   }
 
   public void zeroHand() {
@@ -158,6 +168,7 @@ public class HandSubsystem extends MeasurableSubsystem {
         Constants.HandConstants.kConeGrabbingPositionRight*/);
     desiredState = HandStates.CONE_CLOSED;
     handState = HandStates.TRANSITIONING;
+    closingStableCounts = 0;
   }
 
   public HandStates getHandState() {
@@ -248,6 +259,20 @@ public class HandSubsystem extends MeasurableSubsystem {
         break;
 
       case TRANSITIONING:
+        if (desiredState == HandStates.CONE_CLOSED) {
+          if (Math.abs(handLeftTalon.getSelectedSensorVelocity())
+                  < Constants.HandConstants.kHoldingVelocityThreshold
+              && getLeftPos() >= HandConstants.kHoldingTickThreshold) {
+            closingStableCounts++;
+          } else {
+            closingStableCounts = 0;
+          }
+
+          // if (isFinished()) {
+          //   setLeftPct(HandConstants.kHandHoldingPercent);
+          // }
+        }
+
         if (isFinished()) {
           handState = desiredState;
         }

@@ -10,6 +10,7 @@ public class ArmMidCommand extends InstantCommand {
 
   public ArmMidCommand(ArmSubsystem armSubsystem, GamePiece gamePiece) {
     this.armSubsystem = armSubsystem;
+    addRequirements(armSubsystem);
     this.gamePiece = gamePiece;
   }
 
