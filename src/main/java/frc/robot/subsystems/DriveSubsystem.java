@@ -206,15 +206,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
   public void autoDrive(boolean isShelf, TargetCol targetCol) {
     this.isShelf = isShelf;
-    autoDriveTimer.start();
     if (robotStateSubsystem.isBlueAlliance()) desiredHeading = new Rotation2d(0.0);
     else desiredHeading = new Rotation2d(Math.PI);
     if (isShelf)
       desiredHeading = new Rotation2d(desiredHeading.getRadians() == Math.PI ? 0.0 : Math.PI);
     setEnableHolo(true);
     resetHolonomicController();
-    logger.info("DRIVESUB: {} -> AUTO_DRIVE", currDriveState);
-    currDriveState = DriveStates.AUTO_DRIVE;
     // driveSubsystem.grapherTrajectoryActive(true);
     // driveSubsystem.lockZero();
 
@@ -243,6 +240,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
     visionUpdates = false;
     place = TrajectoryGenerator.generateTrajectory(start, points, endPose, config);
     autoDriveTimer.reset();
+    autoDriveTimer.start();
+    logger.info("DRIVESUB: {} -> AUTO_DRIVE", currDriveState);
+    currDriveState = DriveStates.AUTO_DRIVE;
     grapherTrajectoryActive(true);
     // calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
   }
@@ -341,6 +341,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
     return autoDriving;
   }
 
+  public void setDriveState(DriveStates driveStates) {
+    currDriveState = driveStates;
+  }
+
   public void setAutoDriving(boolean autoDrive) {
     autoDriving = autoDrive;
   }
@@ -354,15 +358,20 @@ public class DriveSubsystem extends MeasurableSubsystem {
         break;
       case AUTO_DRIVE:
         if (isAutoDriveFinished()) {
-          currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
           grapherTrajectoryActive(false);
           setEnableHolo(false);
           drive(0, 0, 0);
           visionUpdates = true;
-          // setAutoDriving(false);
+          setAutoDriving(false);
           logger.info("End Trajectory {}", autoDriveTimer.get());
           autoDriveTimer.stop();
           autoDriveTimer.reset();
+          logger.info("DRIVESUB: {} -> AUTO_DRIVE_FINISHED", currDriveState);
+          currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
+          break;
+        }
+        if (autoDriving && !visionUpdates) {
+          calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
         }
         break;
       case AUTO_DRIVE_FINISHED:
@@ -371,9 +380,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
         break;
     }
     // if (autoDriving && autoDriveTimer.hasElapsed(5.0)) visionUpdates = false;
-    if (autoDriving && !visionUpdates && currDriveState == DriveStates.AUTO_DRIVE) {
-      calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
-    }
     // autoDrive();
 
     // double xSpeed = getFieldRelSpeed().vxMetersPerSecond;

@@ -43,9 +43,9 @@ public class Constants {
     public static final double kBound1Y = 1.908175; // m
     public static final double kBound2Y = 3.584575; // m
     public static final Pose2d kShelfBlue =
-        new Pose2d(new Translation2d(15.53, 6.749796), new Rotation2d());
+        new Pose2d(new Translation2d(15.33, 6.749796), new Rotation2d());
     public static final Pose2d kShelfRed =
-        new Pose2d(new Translation2d(1.0, 6.749796), new Rotation2d());
+        new Pose2d(new Translation2d(1.20, 6.749796), new Rotation2d());
 
     public static final double kFieldMaxX = 16.540988; // m
   }
@@ -309,7 +309,7 @@ public class Constants {
     public static final double kLevelOneElevator = -1_500;
     public static final double kLevelTwoElevator = -11_674;
     public static final double kLevelThreeElevator = -1_500;
-    public static final double kShelfElevator = -20_106;
+    public static final double kShelfElevator = -14_106;
 
     public static TalonFXConfiguration getElevatorFalconConfig() {
       TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
@@ -347,7 +347,7 @@ public class Constants {
     }
 
     public static SupplyCurrentLimitConfiguration getElevatorZeroSupplyCurrentLimit() {
-      return new SupplyCurrentLimitConfiguration(true, 5, 5, 0.1);
+      return new SupplyCurrentLimitConfiguration(true, 1, 1, 0.1);
     }
   }
 
@@ -579,7 +579,7 @@ public class Constants {
 
     public static final double kHandOpenPosition = 0;
     public static final double kCubeGrabbingPosition = 900; // FIXME
-    public static final double kConeGrabbingPosition = 1_650; // FIXME
+    public static final double kConeGrabbingPosition = 1_700; // FIXME
 
     public static TalonSRXConfiguration getHandTalonConfig() {
       TalonSRXConfiguration handConfig = new TalonSRXConfiguration();

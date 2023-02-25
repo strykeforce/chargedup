@@ -210,7 +210,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void toAutoDrive() {
     logger.info("{} -> AUTO_DRIVE", currRobotState);
     currRobotState = RobotState.AUTO_DRIVE;
-    // isAutoPlacing = true;
+    isAutoPlacing = true;
     TargetCol tempTargetCol = TargetCol.NONE;
     if (Math.abs(driveSubsystem.getSpeedMPS()) <= DriveConstants.kMaxSpeedToAutoDrive) {
       if (gamePiece != GamePiece.CUBE) tempTargetCol = getTargetCol();
@@ -497,7 +497,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // open hand
         // (break)
         if (handSubsystem.isFinished() && !isReleaseDelayTimerRunning) {
-          gamePiece = GamePiece.NONE;
+          setGamePiece(GamePiece.NONE);
           releaseDelayTimer.reset();
           releaseDelayTimer.start();
           isReleaseDelayTimerRunning = true;
@@ -511,8 +511,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         break;
       case GRAB_GAME_PIECE:
         if (handSubsystem.isFinished()) {
-          if (handSubsystem.getHandState() == HandStates.CONE_CLOSED) gamePiece = GamePiece.CONE;
-          else gamePiece = GamePiece.CUBE;
+          if (handSubsystem.getHandState() == HandStates.CONE_CLOSED) setGamePiece(GamePiece.CONE);
+          else setGamePiece(GamePiece.CUBE);
           toStow();
         }
         break;
@@ -522,27 +522,23 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // (to) STOW
         if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED) {
           logger.info("DRIVESUB: {} -> IDLE", driveSubsystem.currDriveState);
-          driveSubsystem.currDriveState = DriveStates.IDLE;
+          driveSubsystem.setDriveState(DriveStates.IDLE);
         }
-        if ((gamePiece == GamePiece.NONE) && isAutoPlacing) {
-          isAutoStageFinished = true;
-          isAutoPlacing = false;
-          // Is autoshelf, End command here
-        }
+
         // FIXME IF FROM AUTO_SHELF AND IF SHELF INCLUDES GRABBING THE GAMEPIECE(IDK I DIDNT READ
         // IT), THEN END THE AUTOPLACE COMMAND
 
         if (allianceColor == Alliance.Blue) {
           desiredPoseX = currPoseX - Constants.ArmConstants.kShelfMove;
           if (driveSubsystem.getPoseMeters().getX() <= desiredPoseX) {
-            toStow();
             rgbLightsSubsystem.setOff();
+            toStow();
           }
         } else if (allianceColor == Alliance.Red) {
           desiredPoseX = currPoseX + Constants.ArmConstants.kShelfMove;
           if (driveSubsystem.getPoseMeters().getX() >= desiredPoseX) {
-            toStow();
             rgbLightsSubsystem.setOff();
+            toStow();
           }
         }
 

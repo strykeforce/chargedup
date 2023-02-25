@@ -38,7 +38,6 @@ import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.SetGamePieceCommand;
 import frc.robot.commands.robotState.SetLevelAndColCommandGroup;
-import frc.robot.commands.robotState.SetTargetColCommand;
 import frc.robot.commands.robotState.ShelfPickupCommand;
 import frc.robot.commands.robotState.StowRobotCommand;
 import frc.robot.commands.robotState.ToggleIntakeCommand;
@@ -157,19 +156,14 @@ public class RobotContainer {
             robotStateSubsystem.getTargetCol(),
             true));*/
     new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
-        .onTrue(new AutoPlaceCommandGroup(driveSubsystem, robotStateSubsystem));
+        .onTrue(
+            new AutoPlaceCommandGroup(
+                driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
     // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
     // new JoystickButton(driveJoystick, InterlinkButton.X.id)
     // .onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
         .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
-
-    new JoystickButton(driveJoystick, InterlinkButton.DOWN.id)
-        .onTrue(new SetTargetColCommand(robotStateSubsystem, TargetCol.LEFT));
-    new JoystickButton(driveJoystick, InterlinkButton.UP.id)
-        .onTrue(new SetTargetColCommand(robotStateSubsystem, TargetCol.RIGHT));
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
-        .onTrue(new SetTargetColCommand(robotStateSubsystem, TargetCol.MID));
 
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
     // .onTrue(new DriveAutonCommand(driveSubsystem, "straightPathX", true, true));

@@ -1,8 +1,10 @@
 package frc.robot.commands.robotState;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.DriveSubsystem.DriveStates;
+import frc.robot.subsystems.HandSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
@@ -18,14 +20,20 @@ public class AutoPlaceCommand extends CommandBase {
   private TargetCol targetCol;
   private boolean isBlue;
 
-  public AutoPlaceCommand(DriveSubsystem driveSubsystem, RobotStateSubsystem robotStateSubsystem) {
-    addRequirements(driveSubsystem, robotStateSubsystem);
+  public AutoPlaceCommand(
+      DriveSubsystem driveSubsystem,
+      RobotStateSubsystem robotStateSubsystem,
+      ArmSubsystem armSubsystem,
+      HandSubsystem handSubsystem) {
+    addRequirements(driveSubsystem, armSubsystem, handSubsystem);
     this.driveSubsystem = driveSubsystem;
     this.robotStateSubsystem = robotStateSubsystem;
   }
 
   @Override
   public void initialize() {
+    driveSubsystem.setDriveState(DriveStates.IDLE);
+    driveSubsystem.setAutoDriving(true);
     // First autodrive.
     logger.info(
         "Starting Autoplace, Level: {}, Position(Col): {}, isShelf: {}",
