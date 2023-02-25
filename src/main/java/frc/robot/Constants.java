@@ -277,7 +277,7 @@ public class Constants {
     public static final double kMaxExtension = 1.23; // FIXME meters
 
     // Elevator Positions
-    public static final double kIntakeElevator = -21_000;
+    public static final double kIntakeElevator = -27_000;
     public static final double kStowElevator = -2_000;
     public static final double kFloorElevator = -37_915;
     public static final double kLevelOneElevator = -1_500;
@@ -470,7 +470,7 @@ public class Constants {
     public static final int kExtendTalonID = 21;
 
     public static final int kCloseEnoughTicks = 150;
-    public static final int kExtendPosTicks = -2_000;
+    public static final int kExtendPosTicks = -1_800;
     public static final int kRetractPosTicks = 0;
 
     public static final double kIntakeSpeed = -0.35;
@@ -479,7 +479,7 @@ public class Constants {
     public static final double kIntakePickupDelaySec = 0.5;
     public static final int kBeamBreakStableCounts = 2;
 
-    public static final int kIntakeZeroTicks = 2_800;
+    public static final int kIntakeZeroTicks = 3150;
 
     public static TalonSRXConfiguration getExtendTalonConfig() {
       TalonSRXConfiguration talonConfig = new TalonSRXConfiguration();
@@ -563,7 +563,7 @@ public class Constants {
     public static final double kAllowedError = 150; // FIXME
 
     public static final double kHandOpenPosition = 0;
-    public static final double kCubeGrabbingPosition = 850;
+    public static final double kCubeGrabbingPosition = 1050;
     public static final double kConeGrabbingPosition = kMaxFwd; // old: 1650
 
     public static TalonSRXConfiguration getHandTalonConfig() {

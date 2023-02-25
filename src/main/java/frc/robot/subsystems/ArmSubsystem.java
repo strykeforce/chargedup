@@ -130,7 +130,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
       logger.info("Game piece is unknown yet required (toMidPos())! Defaulting to CONE");
     }
 
-    desiredState = currGamePiece == GamePiece.CUBE ? ArmState.MID_CUBE : ArmState.MID_CONE;
+    desiredState = (currGamePiece == GamePiece.CUBE) ? ArmState.MID_CUBE : ArmState.MID_CONE;
 
     switch (currState) {
       case STOW:
@@ -398,7 +398,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
             break;
           case SHOULDER:
             if (shoulderSubsystem.isFinished()) {
-              logger.info("{} -> MID", currState);
+              logger.info("{} -> {}", currState, desiredState);
 
               currState = desiredState;
               currAxis = CurrentAxis.NONE;
@@ -701,7 +701,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
     FRONT(
         ArmConstants.kShoulderPhysicalMin,
         ArmConstants.kShoulderPhysicalMax,
-        ArmConstants.kElevatorPhysicalMin,
+        ArmConstants.kElevatorBumperMin,
         ArmConstants.kElevatorPhysicalMax,
         ArmConstants.kElbowPhysicalMin,
         ArmConstants.kElbowPhysicalMax),
