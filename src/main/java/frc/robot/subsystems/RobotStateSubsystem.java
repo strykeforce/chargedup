@@ -421,7 +421,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           gamePiece = GamePiece.CONE;
           currPoseX = driveSubsystem.getPoseMeters().getX();
           currRobotState = RobotState.SHELF_WAIT;
-          rgbLightsSubsystem.setConeColor();
+          rgbLightsSubsystem.setColor(0.0, 1.0, 0.0);;
           logger.info("{} -> SHELF_WAIT", currRobotState);
         }
 
