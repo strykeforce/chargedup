@@ -557,8 +557,8 @@ public class Constants {
     public static final double kAllowedError = 150; // FIXME
 
     public static final double kHandOpenPosition = 0;
-    public static final double kCubeGrabbingPosition = 850; // FIXME
-    public static final double kConeGrabbingPosition = 1_650; // FIXME
+    public static final double kCubeGrabbingPosition = 850;
+    public static final double kConeGrabbingPosition = kMaxFwd; // old: 1650
 
     public static TalonSRXConfiguration getHandTalonConfig() {
       TalonSRXConfiguration handConfig = new TalonSRXConfiguration();
