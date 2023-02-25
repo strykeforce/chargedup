@@ -26,6 +26,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private HandSubsystem handSubsystem;
   private DriveSubsystem driveSubsystem;
   private RGBlightsSubsystem rgbLightsSubsystem;
+  private VisionSubsystem visionSubsystem;
   private TargetLevel targetLevel = TargetLevel.NONE;
   private TargetCol targetCol = TargetCol.NONE;
   private GamePiece gamePiece = GamePiece.NONE;
@@ -47,9 +48,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       IntakeSubsystem intakeSubsystem,
       ArmSubsystem armSubsystem,
       HandSubsystem handSubsystem,
-      DriveSubsystem driveSubsystem,
+      DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem,
       RGBlightsSubsystem rgbLightsSubsystem) {
     this.intakeSubsystem = intakeSubsystem;
+    this.visionSubsystem = visionSubsystem;
     this.armSubsystem = armSubsystem;
     this.handSubsystem = handSubsystem;
     this.driveSubsystem = driveSubsystem;
@@ -544,7 +546,15 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
         break;
       case AUTO_DRIVE:
+        if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FAILED){
+          rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
+          logger.info("ROBOT STATE: {} -> CHECK_AMBIGUITY", currRobotState);
+          currRobotState = RobotState.CHECK_AMBIGUITY;
+        } else {
+          rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
+        }
         if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED) {
+          rgbLightsSubsystem.setColor(0.0, 0.0, 0.0);
           // driveSubsystem.currDriveState = DriveStates.IDLE;
           // Start Arm Stuff.
           isAutoPlacing = false;
@@ -556,6 +566,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             currRobotState = RobotState.AUTO_SHELF;
           }
         } // FIXME ELSE??
+        break;
+      case CHECK_AMBIGUITY:
+        if (visionSubsystem.getAmbiguity() <= 0.15)
+        {
+          rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
+          toAutoDrive();
+        }
         break;
       default:
         break;
@@ -653,7 +670,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     TO_AUTO_DRIVE,
     AUTO_DRIVE,
     TO_AUTO_SHELF,
-    TO_AUTO_SCORE
+    TO_AUTO_SCORE,
+    CHECK_AMBIGUITY
   }
 
   public enum CurrentAxis {

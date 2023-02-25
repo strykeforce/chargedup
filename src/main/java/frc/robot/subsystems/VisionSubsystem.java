@@ -41,6 +41,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   AprilTagFieldLayout aprilTagFieldLayout;
   PhotonPoseEstimator photonPoseEstimator;
   private boolean buffersFull = false;
+  private boolean hasResetOdomAuto = false;
   Translation2d robotPose = new Translation2d(2767, 2767);
 
   public VisionSubsystem(DriveSubsystem driveSubsystem) {
@@ -179,16 +180,27 @@ public class VisionSubsystem extends MeasurableSubsystem {
               (long) timeStamp);
 
         if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.isAutoDriving())
+        {
           driveSubsystem.resetOdometryNoLog( // FIXME
               new Pose2d(
                   new Translation2d(x, y).plus(cameraOffset()),
                   driveSubsystem.getGyroRotation2d()));
+          hasResetOdomAuto = true;
+        }
       }
     } catch (Exception e) {
       // logger.error("VISION : ODOMETRY FAIL");
     }
     robotPose = new Translation2d(x, y);
     // result.setTimestampSeconds(timeStamp);
+  }
+
+  public boolean getOdomAutoBool(){
+    return hasResetOdomAuto;
+  }
+
+  public void setOdomAutoBool(boolean autoBool){
+    hasResetOdomAuto = autoBool;
   }
 
   @Override
