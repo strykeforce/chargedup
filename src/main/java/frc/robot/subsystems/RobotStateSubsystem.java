@@ -233,18 +233,25 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   public void toAutoScore() {
     logger.info("{} --> AUTO_SCORE", currRobotState);
+    //logger.info("ArmState: {}", armSubsystem.getCurrState());
     isAutoPlacing = true; // FIXME
     switch (targetLevel) {
       case NONE:
         break;
       case LOW:
-        armSubsystem.toLowPos();
+        if (armSubsystem.getCurrState() != ArmState.LOW) armSubsystem.toLowPos();
         break;
       case MID:
-        armSubsystem.toMidPos(getGamePiece());
+        if (armSubsystem.getCurrState() != ArmState.MID_CONE
+            && armSubsystem.getCurrState() != ArmState.MID_CUBE) {
+          logger.info("Not at Mid Pos, Going to Mid Pos now.");
+          armSubsystem.toMidPos(getGamePiece());
+        }
         break;
       case HIGH:
-        armSubsystem.toHighPos(getGamePiece());
+        if (armSubsystem.getCurrState() != ArmState.HIGH_CONE
+            && armSubsystem.getCurrState() != ArmState.HIGH_CUBE)
+          armSubsystem.toHighPos(getGamePiece());
         break;
     }
     currRobotState = RobotState.AUTO_SCORE;
@@ -561,7 +568,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
         }
         if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED) {
-          logger.info("Set RGB OFF");
+          // logger.info("Set RGB OFF");
           rgbLightsSubsystem.setOff();
           // driveSubsystem.currDriveState = DriveStates.IDLE;
           // Start Arm Stuff.
