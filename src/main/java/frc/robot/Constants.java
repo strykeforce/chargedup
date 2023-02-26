@@ -328,8 +328,8 @@ public class Constants {
       elevatorConfig.slot0.integralZone = 0;
       elevatorConfig.slot0.maxIntegralAccumulator = 0;
       elevatorConfig.slot0.allowableClosedloopError = 0;
-      elevatorConfig.motionCruiseVelocity = 5_000;
-      elevatorConfig.motionAcceleration = 20_000;
+      elevatorConfig.motionCruiseVelocity = 10_000;
+      elevatorConfig.motionAcceleration = 100_000;
 
       elevatorConfig.forwardSoftLimitEnable = true;
       elevatorConfig.forwardSoftLimitThreshold = kMaxFwd;
@@ -386,23 +386,23 @@ public class Constants {
 
       TalonFXConfiguration elbowConfig = new TalonFXConfiguration();
 
-      elbowConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 5, 5, 0.1);
+      elbowConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 5, 35, 2);
       elbowConfig.voltageMeasurementFilter = 32;
       elbowConfig.voltageCompSaturation = 12;
       elbowConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
       elbowConfig.velocityMeasurementWindow = 64;
       elbowConfig.neutralDeadband = 0.01;
 
-      elbowConfig.slot0.kP = 0.9;
-      elbowConfig.slot0.kI = 0.0;
-      elbowConfig.slot0.kD = 1.0;
+      elbowConfig.slot0.kP = 0.3;
+      elbowConfig.slot0.kI = 0.002;
+      elbowConfig.slot0.kD = 20.0;
       elbowConfig.slot0.kF = 0.053;
-      elbowConfig.slot0.integralZone = 0.0;
-      elbowConfig.slot0.maxIntegralAccumulator = 0.0;
+      elbowConfig.slot0.integralZone = 300.0;
+      elbowConfig.slot0.maxIntegralAccumulator = 40_000.0;
       elbowConfig.slot0.allowableClosedloopError = 150.0;
 
-      elbowConfig.motionAcceleration = 10_000;
-      elbowConfig.motionCruiseVelocity = 8_000;
+      elbowConfig.motionAcceleration = 50_000;
+      elbowConfig.motionCruiseVelocity = 19_000;
       elbowConfig.forwardSoftLimitEnable = true;
       elbowConfig.forwardSoftLimitThreshold = kForwardSoftLimit;
       elbowConfig.reverseSoftLimitEnable = true;
@@ -462,7 +462,7 @@ public class Constants {
       shoulderConfig.slot0.integralZone = 0;
       shoulderConfig.slot0.maxIntegralAccumulator = 0;
       shoulderConfig.slot0.allowableClosedloopError = 0;
-      shoulderConfig.motionCruiseVelocity = 250.0; // 200
+      shoulderConfig.motionCruiseVelocity = 300.0; // 200
       shoulderConfig.motionAcceleration = 300.0; // 200
 
       shoulderConfig.forwardSoftLimitEnable = true;
