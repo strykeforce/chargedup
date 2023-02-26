@@ -105,7 +105,12 @@ public class RobotContainer {
     rgbLightsSubsystem = new RGBlightsSubsystem();
     robotStateSubsystem =
         new RobotStateSubsystem(
-            intakeSubsystem, armSubsystem, handSubsystem, driveSubsystem, visionSubsystem, rgbLightsSubsystem);
+            intakeSubsystem,
+            armSubsystem,
+            handSubsystem,
+            driveSubsystem,
+            visionSubsystem,
+            rgbLightsSubsystem);
 
     driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
 

@@ -48,7 +48,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       IntakeSubsystem intakeSubsystem,
       ArmSubsystem armSubsystem,
       HandSubsystem handSubsystem,
-      DriveSubsystem driveSubsystem, VisionSubsystem visionSubsystem,
+      DriveSubsystem driveSubsystem,
+      VisionSubsystem visionSubsystem,
       RGBlightsSubsystem rgbLightsSubsystem) {
     this.intakeSubsystem = intakeSubsystem;
     this.visionSubsystem = visionSubsystem;
@@ -546,7 +547,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
         break;
       case AUTO_DRIVE:
-        if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FAILED){
+        if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FAILED) {
           rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
           logger.info("ROBOT STATE: {} -> CHECK_AMBIGUITY", currRobotState);
           currRobotState = RobotState.CHECK_AMBIGUITY;
@@ -568,10 +569,9 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         } // FIXME ELSE??
         break;
       case CHECK_AMBIGUITY:
-        if (visionSubsystem.getAmbiguity() <= 0.15)
-        {
+        if (visionSubsystem.getAmbiguity() <= 0.15) {
           rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
-          toAutoDrive();
+          // toAutoDrive();
         }
         break;
       default:

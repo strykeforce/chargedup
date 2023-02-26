@@ -179,8 +179,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
                   new Translation2d(x, y).plus(cameraOffset()), driveSubsystem.getGyroRotation2d()),
               (long) timeStamp);
 
-        if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.isAutoDriving())
-        {
+        if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.isAutoDriving()) {
           driveSubsystem.resetOdometryNoLog( // FIXME
               new Pose2d(
                   new Translation2d(x, y).plus(cameraOffset()),
@@ -195,11 +194,11 @@ public class VisionSubsystem extends MeasurableSubsystem {
     // result.setTimestampSeconds(timeStamp);
   }
 
-  public boolean getOdomAutoBool(){
+  public boolean getOdomAutoBool() {
     return hasResetOdomAuto;
   }
 
-  public void setOdomAutoBool(boolean autoBool){
+  public void setOdomAutoBool(boolean autoBool) {
     hasResetOdomAuto = autoBool;
   }
 
