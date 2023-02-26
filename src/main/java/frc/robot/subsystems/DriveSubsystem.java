@@ -345,6 +345,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   }
 
   public void setDriveState(DriveStates driveStates) {
+    logger.info("{} -> {}", currDriveState, driveStates);
     currDriveState = driveStates;
   }
 
@@ -361,6 +362,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         break;
       case AUTO_DRIVE:
         if (isAutoDriveFinished()) {
+          visionSubsystem.setOdomAutoBool(false);
           grapherTrajectoryActive(false);
           setEnableHolo(false);
           drive(0, 0, 0);
@@ -373,9 +375,28 @@ public class DriveSubsystem extends MeasurableSubsystem {
           currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
           break;
         }
-        if (autoDriving && !visionUpdates) {
+        if (autoDriving && !visionUpdates && visionSubsystem.getOdomAutoBool()) {
           calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
         }
+        if (autoDriving
+            && !visionUpdates
+            && (!visionSubsystem.getOdomAutoBool() || !visionSubsystem.isCameraWorking())) {
+          visionSubsystem.setOdomAutoBool(false);
+          grapherTrajectoryActive(false);
+          setEnableHolo(false);
+          drive(0, 0, 0);
+          visionUpdates = true;
+          setAutoDriving(false);
+          logger.info("End Trajectory {}", autoDriveTimer.get());
+          autoDriveTimer.stop();
+          autoDriveTimer.reset();
+          logger.info("DRIVESUB: {} -> AUTO_DRIVE_FAILED", currDriveState);
+          setDriveState(DriveStates.AUTO_DRIVE_FAILED);
+          // currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
+          break;
+        }
+        break;
+      case AUTO_DRIVE_FAILED:
         break;
       case AUTO_DRIVE_FINISHED:
         break;
@@ -654,7 +675,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
   public enum DriveStates {
     IDLE,
     AUTO_DRIVE,
-    AUTO_DRIVE_FINISHED
+    AUTO_DRIVE_FINISHED,
+    AUTO_DRIVE_FAILED
   }
 
   @Override

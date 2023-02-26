@@ -308,7 +308,7 @@ public class Constants {
     public static final double kFloorElevator = -37_915;
     public static final double kLevelOneElevator = -1_500;
     public static final double kLevelTwoConeElevator = -11_674;
-    public static final double kLevelTwoCubeElevator = -47_674; // old -11_674
+    public static final double kLevelTwoCubeElevator = -40_000; // old -47_674
     public static final double kLevelThreeConeElevator = -1_500;
     public static final double kLevelThreeCubeElevator = kLevelThreeConeElevator;
     public static final double kShelfElevator = -14_106;
