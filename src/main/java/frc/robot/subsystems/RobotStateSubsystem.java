@@ -43,6 +43,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private double desiredPoseX;
   private boolean isAutoStageFinished = false;
   private boolean isAutoPlacing = false;
+  private boolean cameraWork = false;
 
   public RobotStateSubsystem(
       IntakeSubsystem intakeSubsystem,
@@ -118,6 +119,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   public Alliance getAllianceColor() {
     return allianceColor;
+  }
+
+  public boolean isCameraWorking() {
+    return visionSubsystem.isCameraWorking();
   }
 
   public void toIntake() {
@@ -252,6 +257,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   @Override
   public void periodic() {
+    if (!cameraWork && isCameraWorking()) {
+      rgbLightsSubsystem.setColor(0.0, 0.0, 0.0);
+      cameraWork = true;
+    }
+
     switch (currRobotState) {
       case STOW:
         if (currRobotState != nextRobotState) {

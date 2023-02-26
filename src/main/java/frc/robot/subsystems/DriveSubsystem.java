@@ -378,7 +378,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
         if (autoDriving && !visionUpdates && visionSubsystem.getOdomAutoBool()) {
           calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
         }
-        if (autoDriving && !visionUpdates && !visionSubsystem.getOdomAutoBool()) {
+        if (autoDriving
+            && !visionUpdates
+            && (!visionSubsystem.getOdomAutoBool() || !visionSubsystem.isCameraWorking())) {
           visionSubsystem.setOdomAutoBool(false);
           grapherTrajectoryActive(false);
           setEnableHolo(false);

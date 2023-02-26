@@ -40,6 +40,7 @@ public class RGBlightsSubsystem extends MeasurableSubsystem {
     blue_channel_D = new DigitalOutput(9);
     blue_channel_D.setPWMRate(2000);
     blue_channel_D.enablePWM(0);
+    setColor(1.0, 0.0, 0.0);
   }
 
   public void setColor(Double red, Double green, Double blue) {
