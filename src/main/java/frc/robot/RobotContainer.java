@@ -332,7 +332,7 @@ public class RobotContainer {
         .onTrue(new RGBsetPieceCommand(rgbLightsSubsystem, GamePiece.CUBE));
 
     new JoystickButton(xboxController, XboxController.Button.kStart.value)
-        .onTrue(new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE));
+        .onTrue(new RGBsetPieceCommand(rgbLightsSubsystem, GamePiece.CONE));
 
     // Adjust elevator
     Trigger leftUp =
