@@ -238,7 +238,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   public void toAutoScore() {
     logger.info("{} --> AUTO_SCORE", currRobotState);
-    //logger.info("ArmState: {}", armSubsystem.getCurrState());
+    // logger.info("ArmState: {}", armSubsystem.getCurrState());
     isAutoPlacing = true; // FIXME
     switch (targetLevel) {
       case NONE:
