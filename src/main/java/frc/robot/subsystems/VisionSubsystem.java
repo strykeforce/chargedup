@@ -184,7 +184,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
               new Pose2d(
                   new Translation2d(x, y).plus(cameraOffset()),
                   driveSubsystem.getGyroRotation2d()));
-          hasResetOdomAuto = true;
+          setOdomAutoBool(true);
         }
       }
     } catch (Exception e) {
@@ -199,6 +199,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   }
 
   public void setOdomAutoBool(boolean autoBool) {
+    logger.info("setOdomAutoBool: {}", autoBool);
     hasResetOdomAuto = autoBool;
   }
 
@@ -231,6 +232,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
         new Measure("Camera Offset Y", () -> cameraOffset().getY()),
         new Measure("Camera Latency", () -> result.getLatencyMillis()),
         new Measure("Camera Odometry X (NO OFFSET)", () -> getOdometry().getX()),
+        new Measure("hasResetOdomAuto", () -> (getOdomAutoBool() ? 1 : 0)),
         new Measure("Camera Odometry Y (NO OFFSET)", () -> getOdometry().getY()));
   }
 }

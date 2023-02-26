@@ -345,6 +345,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   }
 
   public void setDriveState(DriveStates driveStates) {
+    logger.info("{} -> {}", currDriveState, driveStates);
     currDriveState = driveStates;
   }
 
@@ -389,7 +390,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
           autoDriveTimer.reset();
           logger.info("DRIVESUB: {} -> AUTO_DRIVE_FAILED", currDriveState);
           setDriveState(DriveStates.AUTO_DRIVE_FAILED);
-          currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
+          // currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
           break;
         }
         break;

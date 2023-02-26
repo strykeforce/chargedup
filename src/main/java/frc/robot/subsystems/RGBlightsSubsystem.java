@@ -43,6 +43,7 @@ public class RGBlightsSubsystem extends MeasurableSubsystem {
   }
 
   public void setColor(Double red, Double green, Double blue) {
+    logger.info("Set RGB color to: {}, {}, {}", red, green, blue);
     // double R = red * 5000 - 500;
     // if (R < 0) {
     //   R = 0;

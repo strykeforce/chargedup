@@ -129,6 +129,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public void toManualStage() {
+    rgbLightsSubsystem.setOff();
     if (gamePiece != GamePiece.NONE) {
       if (currRobotState == RobotState.STOW) toManualScore();
       else toStow(RobotState.MANUAL_SCORE);
@@ -560,7 +561,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
         }
         if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED) {
-          rgbLightsSubsystem.setColor(0.0, 0.0, 0.0);
+          logger.info("Set RGB OFF");
+          rgbLightsSubsystem.setOff();
           // driveSubsystem.currDriveState = DriveStates.IDLE;
           // Start Arm Stuff.
           isAutoPlacing = false;
@@ -577,6 +579,9 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         if (visionSubsystem.getAmbiguity() <= 0.15) {
           rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
           // toAutoDrive();
+        }
+        if (visionSubsystem.getAmbiguity() > 0.15) {
+          rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
         }
         break;
       default:
