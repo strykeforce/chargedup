@@ -150,7 +150,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
       logger.info("Game piece is unknown yet required (toHighPos())! Defaulting to CONE");
     }
 
-    desiredState = currGamePiece == GamePiece.CUBE ? ArmState.MID_CUBE : ArmState.MID_CONE;
+    desiredState = currGamePiece == GamePiece.CUBE ? ArmState.HIGH_CUBE : ArmState.HIGH_CONE;
 
     switch (currState) {
       case STOW:
