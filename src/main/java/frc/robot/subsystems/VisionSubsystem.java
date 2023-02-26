@@ -99,6 +99,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   }
 
   public double getAmbiguity() {
+    if (!isCameraWorking()) return 2767;
     if (getHasTargets() == 1.0) {
       return bestTarget.getPoseAmbiguity();
     }
@@ -150,6 +151,10 @@ public class VisionSubsystem extends MeasurableSubsystem {
 
   public void setFillBuffers(boolean set) {
     canFillBuffers = set;
+  }
+
+  public boolean isCameraWorking() {
+    return cam1.isConnected();
   }
 
   @Override

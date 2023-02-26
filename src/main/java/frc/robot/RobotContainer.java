@@ -380,6 +380,10 @@ public class RobotContainer {
         .addBoolean("IsLeft", () -> robotStateSubsystem.getTargetCol() == TargetCol.LEFT)
         .withSize(1, 1)
         .withPosition(3, 1);
+    Shuffleboard.getTab("Match")
+        .addBoolean("IsCameraWorking", () -> visionSubsystem.isCameraWorking())
+        .withSize(1, 1)
+        .withPosition(7, 0);
   }
 
   private void configurePitDashboard() {
