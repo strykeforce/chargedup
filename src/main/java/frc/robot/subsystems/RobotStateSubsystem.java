@@ -325,7 +325,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           case ARM_AND_INTAKE:
             if (intakeSubsystem.isFinished()
                 && armSubsystem.getCurrState() == ArmState.INTAKE_STAGE) {
-              handSubsystem.open();
+              handSubsystem.openIntake();
               currentAxis = CurrentAxis.HAND;
               break;
             }
@@ -490,6 +490,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           handSubsystem.grabCone();
           gamePiece = GamePiece.CONE;
           currPoseX = driveSubsystem.getPoseMeters().getX();
+          rgbLightsSubsystem.setColor(0.0, 1.0, 0.0);
           logger.info("{} -> SHELF_WAIT", currRobotState);
           currRobotState = RobotState.SHELF_WAIT;
         }
