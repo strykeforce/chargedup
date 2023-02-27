@@ -499,7 +499,7 @@ public class Constants {
     public static final int kExtendPosTicks = -1_800;
     public static final int kRetractPosTicks = 0;
 
-    public static final double kIntakeSpeed = -0.35;
+    public static final double kIntakeSpeed = 0.4; //-0.35
     public static final double kIntakeEjectSpeed = 0.3;
     public static final double kEjectTimerDelaySec = 3;
     public static final double kIntakePickupDelaySec = 0.5;
