@@ -311,7 +311,7 @@ public class Constants {
     public static final double kLevelTwoCubeElevator = -40_000; // old -47_674
     public static final double kLevelThreeConeElevator = -1_500;
     public static final double kLevelThreeCubeElevator = kLevelThreeConeElevator;
-    public static final double kShelfElevator = -14_106;
+    public static final double kShelfElevator = -11_106; // -14_106
 
     public static TalonFXConfiguration getElevatorFalconConfig() {
       TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
@@ -401,7 +401,7 @@ public class Constants {
       elbowConfig.slot0.maxIntegralAccumulator = 40_000.0;
       elbowConfig.slot0.allowableClosedloopError = 150.0;
 
-      elbowConfig.motionAcceleration = 50_000;
+      elbowConfig.motionAcceleration = 37_500; // 50_000
       elbowConfig.motionCruiseVelocity = 19_000;
       elbowConfig.forwardSoftLimitEnable = true;
       elbowConfig.forwardSoftLimitThreshold = kForwardSoftLimit;
@@ -418,8 +418,8 @@ public class Constants {
     public static final int kShoulderId = 30; // FIXME
     public static final int kFollowerShoulderId = 34; // FIXME
 
-    public static final double kShoulderMainZeroTicks = 1000; // FIXME old: 1836
-    public static final double kShoulderFollowerZeroTicks = 3000; // FIXME old: 1836
+    public static final double kShoulderMainZeroTicks = 1472; // FIXME old: 1836
+    public static final double kShoulderFollowerZeroTicks = 3167; // FIXME old: 1836
 
     public static final double kMaxFwd = 5000; // FIXME 500 // FIXME 887
     public static final double kMaxRev = 0; // FIXME -1700 // FIXME -1580
@@ -499,8 +499,8 @@ public class Constants {
     public static final int kExtendPosTicks = -1_800;
     public static final int kRetractPosTicks = 0;
 
-    public static final double kIntakeSpeed = 0.4; //-0.35
-    public static final double kIntakeEjectSpeed = 0.3;
+    public static final double kIntakeSpeed = 0.4; // -0.35
+    public static final double kIntakeEjectSpeed = -0.3;
     public static final double kEjectTimerDelaySec = 3;
     public static final double kIntakePickupDelaySec = 0.5;
     public static final int kBeamBreakStableCounts = 2;

@@ -221,6 +221,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
     config.setStartVelocity(0.0);
     ArrayList<Translation2d> points = new ArrayList<>();
     Pose2d endPose = new Pose2d();
+    double startAngle = robotStateSubsystem.isBlueAlliance() ? Math.PI : 0.0;
+    if (isShelf) startAngle = startAngle == 0.0 ? Math.PI : 0.0;
+    Pose2d start =
+        new Pose2d(
+            new Translation2d(getPoseMeters().getX(), getPoseMeters().getY()),
+            new Rotation2d(startAngle));
     if (!isShelf)
       endPose = robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
     else
@@ -232,14 +238,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
           new Translation2d(
               (getPoseMeters().getX() + endPose.getX()) / 2,
               (getPoseMeters().getY() + endPose.getY()) / 2));
-    else
-      points.add(new Translation2d((getPoseMeters().getX() + endPose.getX()) / 2, endPose.getY()));
-    double startAngle = robotStateSubsystem.isBlueAlliance() ? Math.PI : 0.0;
-    if (isShelf) startAngle = startAngle == 0.0 ? Math.PI : 0.0;
-    Pose2d start =
-        new Pose2d(
-            new Translation2d(getPoseMeters().getX(), getPoseMeters().getY()),
-            new Rotation2d(startAngle));
+    else points.add(new Translation2d((start.getX() * 0.2 + endPose.getX() * 0.8), endPose.getY()));
     visionUpdates = false;
     place = TrajectoryGenerator.generateTrajectory(start, points, endPose, config);
     autoDriveTimer.reset();
