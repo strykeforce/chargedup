@@ -249,7 +249,6 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       case MID:
         if (armSubsystem.getCurrState() != ArmState.MID_CONE
             && armSubsystem.getCurrState() != ArmState.MID_CUBE) {
-          logger.info("Not at Mid Pos, Going to Mid Pos now.");
           armSubsystem.toMidPos(getGamePiece());
         }
         break;
