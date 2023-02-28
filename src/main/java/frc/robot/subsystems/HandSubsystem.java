@@ -2,7 +2,10 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import frc.robot.Constants;
 import frc.robot.Constants.HandConstants;
 import java.util.Set;
@@ -15,6 +18,7 @@ import org.strykeforce.telemetry.measurable.Measure;
 public class HandSubsystem extends MeasurableSubsystem {
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
   private TalonSRX handLeftTalon;
+  private TalonSRX rollerTalon;
   // private TalonSRX handRightTalon;
 
   private double leftDesiredPosition;
@@ -38,6 +42,10 @@ public class HandSubsystem extends MeasurableSubsystem {
     handLeftTalon.configSupplyCurrentLimit(Constants.HandConstants.getHandSupplyLimitConfig());
     handLeftTalon.setNeutralMode(NeutralMode.Brake);
 
+    rollerTalon = new TalonSRX(HandConstants.kRollerTalonId);
+    rollerTalon.configFactoryDefault();
+    rollerTalon.configSupplyCurrentLimit(HandConstants.getHandSupplyLimitConfig());
+    
     // handRightTalon = new TalonSRX(Constants.HandConstants.kWristTalonId);
     // handRightTalon.configAllSettings(Constants.HandConstants.getHandTalonConfig());
     // handRightTalon.configSupplyCurrentLimit(Constants.HandConstants.getHandSupplyLimitConfig());
@@ -50,6 +58,10 @@ public class HandSubsystem extends MeasurableSubsystem {
     closingStableCounts = 0;
     zeroHand();
     // handRightZeroStableCounts = 0;
+  }
+
+  public void runRollers(double percent) {
+    rollerTalon.set(TalonSRXControlMode.PercentOutput, percent);
   }
 
   public void setLeftPos(double location) {
@@ -156,6 +168,7 @@ public class HandSubsystem extends MeasurableSubsystem {
 
   public void grabCube() {
     logger.info("Grabbing cube");
+    runRollers(HandConstants.kRollerOutCube);
     setPos(Constants.HandConstants.kCubeGrabbingPosition /*,
         Constants.HandConstants.kCubeGrabbingPositionRight*/);
     desiredState = HandStates.CUBE_CLOSED;
@@ -164,6 +177,7 @@ public class HandSubsystem extends MeasurableSubsystem {
 
   public void grabCone() {
     logger.info("Grabbing cone");
+    runRollers(HandConstants.kRollerOutCone);
     setPos(Constants.HandConstants.kConeGrabbingPosition /*,
         Constants.HandConstants.kConeGrabbingPositionRight*/);
     desiredState = HandStates.CONE_CLOSED;

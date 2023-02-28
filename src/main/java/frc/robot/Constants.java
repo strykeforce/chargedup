@@ -568,6 +568,12 @@ public class Constants {
 
   public static class HandConstants {
     public static int kHandTalonId = 40;
+    public static int kRollerTalonId = 41;
+
+    public static final double kRollerOutCone = 0.2;
+    public static final double kRollerOutCube = 0.15;
+    public static final double kRollerPickUp = 0.5;
+    public static final double kRollerOff = 0.0;
 
     public static final double kMaxFwd = 2312; // 1100
     public static final double kMaxRev = -740; // -1000
@@ -624,6 +630,10 @@ public class Constants {
 
     public static SupplyCurrentLimitConfiguration getHandZeroSupplyCurrentLimit() {
       return new SupplyCurrentLimitConfiguration(true, 5, 5, 0.1);
+    }
+
+    public static SupplyCurrentLimitConfiguration getRollerSupplyLimitConfig() {
+      return new SupplyCurrentLimitConfiguration(true, 2, 2, 0.1);
     }
   }
 }

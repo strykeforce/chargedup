@@ -11,6 +11,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotStateConstants;
+import frc.robot.commands.hand.HandLeftSpeedCommand;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.DriveSubsystem.DriveStates;
 import frc.robot.subsystems.HandSubsystem.HandStates;
@@ -88,6 +89,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public void setGamePiece(GamePiece gamePiece) {
+    if (gamePiece == GamePiece.NONE)
+      handSubsystem.runRollers(HandConstants.kRollerOff);
     this.gamePiece = gamePiece;
     logger.info("set gamePiece to: {}", gamePiece);
   }
@@ -359,6 +362,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             break;
           case HAND:
             if (handSubsystem.isFinished()) {
+              handSubsystem.runRollers(HandConstants.kRollerPickUp);
               currentAxis = CurrentAxis.NONE;
               logger.info("Starting Intake Timer");
               intakeDelayTimer.reset();
@@ -417,7 +421,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // (from) TO_MANUAL_SHELF
         // grab game piece
         // (to) SHELF_WAIT
-
+        handSubsystem.runRollers(HandConstants.kRollerPickUp);
         if (handSubsystem.hasPiece()) {
           handSubsystem.grabCone();
           gamePiece = GamePiece.CONE;
@@ -465,6 +469,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             break;
         }
       case AUTO_SHELF:
+        handSubsystem.runRollers(HandConstants.kRollerPickUp);
         if (handSubsystem.hasPiece()) {
           handSubsystem.grabCone();
           gamePiece = GamePiece.CONE;
@@ -495,6 +500,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         break;
 
       case FLOOR_PICKUP:
+        handSubsystem.runRollers(HandConstants.kRollerPickUp);
         break;
 
       case RELEASE_GAME_PIECE:
