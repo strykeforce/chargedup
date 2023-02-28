@@ -11,7 +11,6 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotStateConstants;
-import frc.robot.commands.hand.HandLeftSpeedCommand;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.DriveSubsystem.DriveStates;
 import frc.robot.subsystems.HandSubsystem.HandStates;
@@ -93,8 +92,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public void setGamePiece(GamePiece gamePiece) {
-    if (gamePiece == GamePiece.NONE)
-      handSubsystem.runRollers(HandConstants.kRollerOff);
+    if (gamePiece == GamePiece.NONE) handSubsystem.runRollers(HandConstants.kRollerOff);
     this.gamePiece = gamePiece;
     logger.info("set gamePiece to: {}", gamePiece);
   }
@@ -349,6 +347,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // (wait) beam break
         // (to) PICKUP_FROM_INTAKE
 
+        handSubsystem.runRollers(HandConstants.kRollerPickUp);
         if (intakeSubsystem.isBeamBroken()) {
           logger.info("{} -> PICKUP_FROM_INTAKE", currRobotState);
           currRobotState = RobotState.PICKUP_FROM_INTAKE;
@@ -382,7 +381,6 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             break;
           case HAND:
             if (handSubsystem.isFinished()) {
-              handSubsystem.runRollers(HandConstants.kRollerPickUp);
               currentAxis = CurrentAxis.NONE;
               logger.info("Starting Intake Timer");
               intakeDelayTimer.reset();
@@ -392,6 +390,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           case NONE:
             if (intakeDelayTimer.hasElapsed(IntakeConstants.kIntakePickupDelaySec)) {
               intakeDelayTimer.stop();
+              handSubsystem.runRollers(HandConstants.kRollerOutCube);
+              logger.info("roller slow");
               setGamePiece(GamePiece.CUBE);
               toStow();
             }

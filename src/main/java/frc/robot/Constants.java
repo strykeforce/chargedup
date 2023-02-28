@@ -303,7 +303,7 @@ public class Constants {
     public static final double kMaxExtension = 1.23; // FIXME meters
 
     // Elevator Positions
-    public static final double kIntakeElevator = -22_930;
+    public static final double kIntakeElevator = -16_930;
     public static final double kStowElevator = -2_000;
     public static final double kFloorElevator = -32_600; // 32648
     public static final double kLevelOneElevator = -1_500;
@@ -597,6 +597,7 @@ public class Constants {
     public static final double kHandOpenPosition = kMaxRev;
     public static final double kIntakeOpenPosition = 50;
     public static final double kCubeGrabbingPosition = 300;
+    public static final double kFloorOpenPosition = 300;
     public static final double kConeGrabbingPosition = kMaxFwd; // old: 1650
 
     public static TalonSRXConfiguration getHandTalonConfig() {

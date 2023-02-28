@@ -4,8 +4,6 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import frc.robot.Constants;
 import frc.robot.Constants.HandConstants;
 import java.util.Set;
@@ -45,7 +43,7 @@ public class HandSubsystem extends MeasurableSubsystem {
     rollerTalon = new TalonSRX(HandConstants.kRollerTalonId);
     rollerTalon.configFactoryDefault();
     rollerTalon.configSupplyCurrentLimit(HandConstants.getHandSupplyLimitConfig());
-    
+
     // handRightTalon = new TalonSRX(Constants.HandConstants.kWristTalonId);
     // handRightTalon.configAllSettings(Constants.HandConstants.getHandTalonConfig());
     // handRightTalon.configSupplyCurrentLimit(Constants.HandConstants.getHandSupplyLimitConfig());
@@ -160,6 +158,13 @@ public class HandSubsystem extends MeasurableSubsystem {
     handState = HandStates.TRANSITIONING;
   }
 
+  public void openFloor() {
+    logger.info("Opening hand to Floor Position");
+    setPos(Constants.HandConstants.kFloorOpenPosition);
+    desiredState = HandStates.OPEN;
+    handState = HandStates.TRANSITIONING;
+  }
+
   public double getSensor() {
     return handLeftTalon.getSensorCollection().getAnalogInRaw();
   }
@@ -175,7 +180,7 @@ public class HandSubsystem extends MeasurableSubsystem {
 
   public void grabCube() {
     logger.info("Grabbing cube");
-    runRollers(HandConstants.kRollerOutCube);
+    // runRollers(HandConstants.kRollerOutCube);
     setPos(Constants.HandConstants.kCubeGrabbingPosition /*,
         Constants.HandConstants.kCubeGrabbingPositionRight*/);
     desiredState = HandStates.CUBE_CLOSED;
@@ -200,6 +205,7 @@ public class HandSubsystem extends MeasurableSubsystem {
   public void registerWith(TelemetryService telemetryService) {
     super.registerWith(telemetryService);
     telemetryService.register(handLeftTalon);
+    telemetryService.register(rollerTalon);
     // telemetryService.register(handRightTalon);
   }
 
