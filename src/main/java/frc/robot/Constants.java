@@ -305,7 +305,7 @@ public class Constants {
     // Elevator Positions
     public static final double kIntakeElevator = -16_930;
     public static final double kStowElevator = -2_000;
-    public static final double kFloorElevator = -32_600; // 32648
+    public static final double kFloorElevator = -30_000; // 32648
     public static final double kLevelOneElevator = -1_500;
     public static final double kLevelTwoConeElevator = -11_674;
     public static final double kLevelTwoCubeElevator = -40_000; // old -47_674
@@ -374,7 +374,7 @@ public class Constants {
     // Elbow Positions
     public static final double kIntakeElbow = -17_500; // -25_000
     public static final double kStowElbow = 0;
-    public static final double kFloorElbow = 46_000; // 43_214
+    public static final double kFloorElbow = 43_000; // 43_214
     public static final double kLevelOneElbow = 44_462;
     public static final double kLevelTwoConeElbow = 126_486;
     public static final double kLevelTwoCubeElbow = 126_486;
@@ -572,7 +572,7 @@ public class Constants {
 
     public static final double kRollerOutCone = 0.2;
     public static final double kRollerOutCube = 0.15;
-    public static final double kRollerPickUp = 0.5;
+    public static final double kRollerPickUp = 0.7;
     public static final double kRollerOff = 0.0;
 
     public static final double kMaxFwd = 1100; // 1100
@@ -597,7 +597,8 @@ public class Constants {
     public static final double kHandOpenPosition = kMaxRev;
     public static final double kIntakeOpenPosition = 50;
     public static final double kCubeGrabbingPosition = 300;
-    public static final double kFloorOpenPosition = 300;
+    public static final double kFloorOpenPosition = 1000;
+    public static final double kShelfOpenPosition = 800;
     public static final double kConeGrabbingPosition = kMaxFwd; // old: 1650
 
     public static TalonSRXConfiguration getHandTalonConfig() {

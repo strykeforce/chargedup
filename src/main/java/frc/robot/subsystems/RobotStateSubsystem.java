@@ -170,7 +170,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void toFloorPickup() {
     logger.info("{} --> TO_FLOOR_PICKUP", currRobotState);
     if (currRobotState == RobotState.STOW) {
-      handSubsystem.openFloor();
+      handSubsystem.open();
       currRobotState = RobotState.TO_FLOOR_PICKUP;
       currentAxis = CurrentAxis.HAND;
     } else {
@@ -420,7 +420,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         switch (currentAxis) {
           case ARM:
             if (armSubsystem.getCurrState() == ArmState.SHELF) {
-              handSubsystem.open();
+              handSubsystem.openShelf();
               currentAxis = CurrentAxis.HAND;
             }
             break;
@@ -472,7 +472,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         switch (currentAxis) {
           case ARM:
             if (armSubsystem.getCurrState() == ArmState.SHELF) {
-              handSubsystem.open();
+              handSubsystem.openShelf();
               currentAxis = CurrentAxis.HAND;
             }
             break;
@@ -513,6 +513,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
               currentAxis = CurrentAxis.NONE;
               logger.info("{} -> FLOOR_PICKUP", currRobotState);
               currRobotState = RobotState.FLOOR_PICKUP;
+              handSubsystem.openFloor();
             }
             break;
           default:
