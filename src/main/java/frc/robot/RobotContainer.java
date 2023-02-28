@@ -64,7 +64,7 @@ public class RobotContainer {
 
   // Path Configuration For Robot Container
   private void configurePaths() {
-    testPath = new DriveAutonCommand(driveSubsystem, "pieceOneFetchPath", true, true);
+    testPath = new DriveAutonCommand(driveSubsystem, "pieceTwoToDockPath", true, true);
     threePiecePath =
         new ThreePiecePathCommandGroup(
             driveSubsystem,
@@ -83,7 +83,7 @@ public class RobotContainer {
         .onTrue(new ZeroGyroCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(threePiecePath);
+    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(testPath);
   }
 
   public Command getAutonomousCommand() {
