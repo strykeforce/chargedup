@@ -170,7 +170,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void toFloorPickup() {
     logger.info("{} --> TO_FLOOR_PICKUP", currRobotState);
     if (currRobotState == RobotState.STOW) {
-      handSubsystem.open();
+      handSubsystem.openFloor();
       currRobotState = RobotState.TO_FLOOR_PICKUP;
       currentAxis = CurrentAxis.HAND;
     } else {
