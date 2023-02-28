@@ -41,6 +41,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   AprilTagFieldLayout aprilTagFieldLayout;
   PhotonPoseEstimator photonPoseEstimator;
   private boolean buffersFull = false;
+  private boolean hasResetOdomAuto = false;
   Translation2d robotPose = new Translation2d(2767, 2767);
 
   public VisionSubsystem(DriveSubsystem driveSubsystem) {
@@ -98,6 +99,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   }
 
   public double getAmbiguity() {
+    if (!isCameraWorking()) return 2767;
     if (getHasTargets() == 1.0) {
       return bestTarget.getPoseAmbiguity();
     }
@@ -151,6 +153,10 @@ public class VisionSubsystem extends MeasurableSubsystem {
     canFillBuffers = set;
   }
 
+  public boolean isCameraWorking() {
+    return cam1.isConnected();
+  }
+
   @Override
   public void periodic() {
     try {
@@ -178,17 +184,28 @@ public class VisionSubsystem extends MeasurableSubsystem {
                   new Translation2d(x, y).plus(cameraOffset()), driveSubsystem.getGyroRotation2d()),
               (long) timeStamp);
 
-        if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.isAutoDriving())
+        if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.isAutoDriving()) {
           driveSubsystem.resetOdometryNoLog( // FIXME
               new Pose2d(
                   new Translation2d(x, y).plus(cameraOffset()),
                   driveSubsystem.getGyroRotation2d()));
+          setOdomAutoBool(true);
+        }
       }
     } catch (Exception e) {
       // logger.error("VISION : ODOMETRY FAIL");
     }
     robotPose = new Translation2d(x, y);
     // result.setTimestampSeconds(timeStamp);
+  }
+
+  public boolean getOdomAutoBool() {
+    return hasResetOdomAuto;
+  }
+
+  public void setOdomAutoBool(boolean autoBool) {
+    logger.info("setOdomAutoBool: {}", autoBool);
+    hasResetOdomAuto = autoBool;
   }
 
   @Override
@@ -220,6 +237,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
         new Measure("Camera Offset Y", () -> cameraOffset().getY()),
         new Measure("Camera Latency", () -> result.getLatencyMillis()),
         new Measure("Camera Odometry X (NO OFFSET)", () -> getOdometry().getX()),
+        new Measure("hasResetOdomAuto", () -> (getOdomAutoBool() ? 1 : 0)),
         new Measure("Camera Odometry Y (NO OFFSET)", () -> getOdometry().getY()));
   }
 }

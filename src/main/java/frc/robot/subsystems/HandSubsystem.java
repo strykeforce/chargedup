@@ -153,6 +153,13 @@ public class HandSubsystem extends MeasurableSubsystem {
     handState = HandStates.TRANSITIONING;
   }
 
+  public void openIntake() {
+    logger.info("Opening Hand to Intake Position");
+    setPos(Constants.HandConstants.kIntakeOpenPosition);
+    desiredState = HandStates.OPEN;
+    handState = HandStates.TRANSITIONING;
+  }
+
   public double getSensor() {
     return handLeftTalon.getSensorCollection().getAnalogInRaw();
   }
