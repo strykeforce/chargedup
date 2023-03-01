@@ -112,7 +112,6 @@ public class HandSubsystem extends MeasurableSubsystem {
   public boolean isFinished() {
     if (handState == HandStates.TRANSITIONING && desiredState == HandStates.CONE_CLOSED) {
       if (closingStableCounts >= HandConstants.kHoldingStableCounts) {
-        runRollers(HandConstants.kRollerOutCone);
         return true;
       }
     } else if (handState == HandStates.CONE_CLOSED) return true;
@@ -211,6 +210,7 @@ public class HandSubsystem extends MeasurableSubsystem {
     desiredState = HandStates.CONE_CLOSED;
     handState = HandStates.TRANSITIONING;
     closingStableCounts = 0;
+    hasPieceStableCounts = 0;
   }
 
   public HandStates getHandState() {
@@ -306,17 +306,18 @@ public class HandSubsystem extends MeasurableSubsystem {
           if (Math.abs(handLeftTalon.getSelectedSensorVelocity())
                   < Constants.HandConstants.kHoldingVelocityThreshold
               && getLeftPos() >= HandConstants.kHoldingTickThreshold
-              && getRollersVel() <= HandConstants.kConeVelLimit) {
+              && Math.abs(getRollersVel()) <= HandConstants.kConeVelLimit
+              && hasPiece()) {
             closingStableCounts++;
           } else {
             closingStableCounts = 0;
           }
 
-          // if (isFinished()) {
-          //   setLeftPct(HandConstants.kHandHoldingPercent);
-          // }
+          if (isFinished()) {
+            runRollers(HandConstants.kRollerOutCone);
+            handState = desiredState;
+          }
         }
-
         if (isFinished()) {
           handState = desiredState;
         }
