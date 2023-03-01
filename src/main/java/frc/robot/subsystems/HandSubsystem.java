@@ -44,7 +44,7 @@ public class HandSubsystem extends MeasurableSubsystem {
 
     rollerTalon = new TalonSRX(HandConstants.kRollerTalonId);
     rollerTalon.configFactoryDefault();
-    rollerTalon.configSupplyCurrentLimit(HandConstants.getHandSupplyLimitConfig());
+    rollerTalon.configSupplyCurrentLimit(HandConstants.getRollerSupplyLimitConfig());
     rollerTalon.configForwardLimitSwitchSource(
         LimitSwitchSource.Deactivated, LimitSwitchNormal.Disabled);
     rollerTalon.configReverseLimitSwitchSource(
@@ -187,7 +187,7 @@ public class HandSubsystem extends MeasurableSubsystem {
   }
 
   public boolean hasPiece() {
-    if (handLeftTalon.isFwdLimitSwitchClosed() == 1) {
+    if (rollerTalon.isFwdLimitSwitchClosed() == 1) {
       hasPieceStableCounts++;
     } else hasPieceStableCounts = 0;
 

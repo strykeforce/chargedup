@@ -603,7 +603,7 @@ public class Constants {
     public static final double kIntakeOpenPosition = 50;
     public static final double kCubeGrabbingPosition = 300;
     public static final double kFloorOpenPosition = 1000;
-    public static final double kShelfOpenPosition = 800;
+    public static final double kShelfOpenPosition = 0;
     public static final double kConeGrabbingPosition = 1100; // old: 1650
     public static final double kConeVelLimit = 50;
 
