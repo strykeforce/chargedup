@@ -1,0 +1,36 @@
+{
+  "Connections": {
+    "open": true
+  },
+  "NetworkTables Settings": {
+    "mode": "Client (NT4)",
+    "port3": 5800,
+    "port4": 5800,
+    "serverTeam": "10.27.67.11"
+  },
+  "Persistent Values": {
+    "open": false
+  },
+  "Retained Values": {
+    "open": false
+  },
+  "Server": {
+    "Publishers": {
+      "open": true
+    },
+    "Subscribers": {
+      "open": true
+    }
+  },
+  "Transitory Values": {
+    "open": false
+  },
+  "persistent": {
+    "Preferences": {
+      "SwerveDrive": {
+        "open": true
+      },
+      "open": true
+    }
+  }
+}

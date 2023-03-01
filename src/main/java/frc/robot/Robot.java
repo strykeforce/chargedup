@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.SetAllianceCommand;
+import frc.robot.commands.robotState.SetAllianceCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +40,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    m_robotContainer.updateGamePiece();
     // CommandScheduler.getInstance()
     //     .onCommandInitialize(command -> logger.info("{} initialized", command.getName()));
     if (!haveAlliance) {
@@ -53,7 +54,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    logger.info("Disabled Robot.");
+  }
 
   @Override
   public void disabledPeriodic() {}
