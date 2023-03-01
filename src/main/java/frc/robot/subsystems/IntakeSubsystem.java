@@ -123,7 +123,7 @@ public class IntakeSubsystem extends MeasurableSubsystem {
   }
 
   public boolean isBeamBroken() {
-    if (extendTalon.isFwdLimitSwitchClosed() > 0) beamBreakStableCounts++;
+    if (extendTalon.isRevLimitSwitchClosed() > 0) beamBreakStableCounts++;
     else beamBreakStableCounts = 0;
     beamBroken = beamBreakStableCounts > IntakeConstants.kBeamBreakStableCounts;
     return beamBreakStableCounts > IntakeConstants.kBeamBreakStableCounts;

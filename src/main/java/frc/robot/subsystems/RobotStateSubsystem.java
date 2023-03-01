@@ -348,6 +348,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // (to) PICKUP_FROM_INTAKE
 
         handSubsystem.runRollers(HandConstants.kRollerPickUp);
+        armSubsystem.toIntakePos();
         if (intakeSubsystem.isBeamBroken()) {
           logger.info("{} -> PICKUP_FROM_INTAKE", currRobotState);
           currRobotState = RobotState.PICKUP_FROM_INTAKE;
@@ -369,7 +370,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         switch (currentAxis) {
           case INTAKE:
             if (intakeSubsystem.isFinished()) {
-              armSubsystem.toIntakePos();
+              //armSubsystem.toIntakePos();
               currentAxis = CurrentAxis.ARM;
             }
             break;
@@ -391,7 +392,6 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             if (intakeDelayTimer.hasElapsed(IntakeConstants.kIntakePickupDelaySec)) {
               intakeDelayTimer.stop();
               handSubsystem.runRollers(HandConstants.kRollerOutCube);
-              logger.info("roller slow");
               setGamePiece(GamePiece.CUBE);
               toStow();
             }

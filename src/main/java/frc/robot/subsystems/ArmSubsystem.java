@@ -55,8 +55,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
         logger.info("{} -> INTAKE_TO_STOW", currState);
         currState = ArmState.INTAKE_TO_STOW;
         currAxis = CurrentAxis.ELEVATOR;
-        shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
-        elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+        //shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
+        //elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
         break;
       case SHELF:
         logger.info("{} -> SHELF_TO_STOW", currState);
