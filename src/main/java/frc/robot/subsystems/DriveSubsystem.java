@@ -221,6 +221,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
     config.setStartVelocity(0.0);
     ArrayList<Translation2d> points = new ArrayList<>();
     Pose2d endPose = new Pose2d();
+    double startAngle = robotStateSubsystem.isBlueAlliance() ? Math.PI : 0.0;
+    if (isShelf) startAngle = startAngle == 0.0 ? Math.PI : 0.0;
+    Pose2d start =
+        new Pose2d(
+            new Translation2d(getPoseMeters().getX(), getPoseMeters().getY()),
+            new Rotation2d(startAngle));
     if (!isShelf)
       endPose = robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
     else
@@ -232,14 +238,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
           new Translation2d(
               (getPoseMeters().getX() + endPose.getX()) / 2,
               (getPoseMeters().getY() + endPose.getY()) / 2));
-    else
-      points.add(new Translation2d((getPoseMeters().getX() + endPose.getX()) / 2, endPose.getY()));
-    double startAngle = robotStateSubsystem.isBlueAlliance() ? Math.PI : 0.0;
-    if (isShelf) startAngle = startAngle == 0.0 ? Math.PI : 0.0;
-    Pose2d start =
-        new Pose2d(
-            new Translation2d(getPoseMeters().getX(), getPoseMeters().getY()),
-            new Rotation2d(startAngle));
+    else points.add(new Translation2d((start.getX() * 0.2 + endPose.getX() * 0.8), endPose.getY()));
     visionUpdates = false;
     place = TrajectoryGenerator.generateTrajectory(start, points, endPose, config);
     autoDriveTimer.reset();
@@ -345,6 +344,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   }
 
   public void setDriveState(DriveStates driveStates) {
+    logger.info("{} -> {}", currDriveState, driveStates);
     currDriveState = driveStates;
   }
 
@@ -361,6 +361,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         break;
       case AUTO_DRIVE:
         if (isAutoDriveFinished()) {
+          visionSubsystem.setOdomAutoBool(false);
           grapherTrajectoryActive(false);
           setEnableHolo(false);
           drive(0, 0, 0);
@@ -373,9 +374,28 @@ public class DriveSubsystem extends MeasurableSubsystem {
           currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
           break;
         }
-        if (autoDriving && !visionUpdates) {
+        if (autoDriving && !visionUpdates && visionSubsystem.getOdomAutoBool()) {
           calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
         }
+        if (autoDriving
+            && !visionUpdates
+            && (!visionSubsystem.getOdomAutoBool() || !visionSubsystem.isCameraWorking())) {
+          visionSubsystem.setOdomAutoBool(false);
+          grapherTrajectoryActive(false);
+          setEnableHolo(false);
+          drive(0, 0, 0);
+          visionUpdates = true;
+          setAutoDriving(false);
+          logger.info("End Trajectory {}", autoDriveTimer.get());
+          autoDriveTimer.stop();
+          autoDriveTimer.reset();
+          logger.info("DRIVESUB: {} -> AUTO_DRIVE_FAILED", currDriveState);
+          setDriveState(DriveStates.AUTO_DRIVE_FAILED);
+          // currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
+          break;
+        }
+        break;
+      case AUTO_DRIVE_FAILED:
         break;
       case AUTO_DRIVE_FINISHED:
         break;
@@ -654,7 +674,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
   public enum DriveStates {
     IDLE,
     AUTO_DRIVE,
-    AUTO_DRIVE_FINISHED
+    AUTO_DRIVE_FINISHED,
+    AUTO_DRIVE_FAILED
   }
 
   @Override

@@ -162,6 +162,27 @@ public class HandSubsystem extends MeasurableSubsystem {
     handState = HandStates.TRANSITIONING;
   }
 
+  public void openIntake() {
+    logger.info("Opening Hand to Intake Position");
+    setPos(Constants.HandConstants.kIntakeOpenPosition);
+    desiredState = HandStates.OPEN;
+    handState = HandStates.TRANSITIONING;
+  }
+
+  public void openFloor() {
+    logger.info("Opening hand to Floor Position");
+    setPos(Constants.HandConstants.kFloorOpenPosition);
+    desiredState = HandStates.OPEN;
+    handState = HandStates.TRANSITIONING;
+  }
+
+  public void openShelf() {
+    logger.info("Opening Hand to Shelf Position");
+    setPos(Constants.HandConstants.kShelfOpenPosition);
+    desiredState = HandStates.OPEN;
+    handState = HandStates.TRANSITIONING;
+  }
+
   public double getSensor() {
     return handLeftTalon.getSensorCollection().getAnalogInRaw();
   }
@@ -176,7 +197,7 @@ public class HandSubsystem extends MeasurableSubsystem {
 
   public void grabCube() {
     logger.info("Grabbing cube");
-    runRollers(HandConstants.kRollerOutCube);
+    // runRollers(HandConstants.kRollerOutCube);
     setPos(Constants.HandConstants.kCubeGrabbingPosition /*,
         Constants.HandConstants.kCubeGrabbingPositionRight*/);
     desiredState = HandStates.CUBE_CLOSED;
@@ -200,6 +221,7 @@ public class HandSubsystem extends MeasurableSubsystem {
   public void registerWith(TelemetryService telemetryService) {
     super.registerWith(telemetryService);
     telemetryService.register(handLeftTalon);
+    telemetryService.register(rollerTalon);
     // telemetryService.register(handRightTalon);
   }
 

@@ -33,7 +33,7 @@ public class AutoPlaceCommand extends CommandBase {
   @Override
   public void initialize() {
     driveSubsystem.setDriveState(DriveStates.IDLE);
-    driveSubsystem.setAutoDriving(true);
+    // driveSubsystem.setAutoDriving(true);
     // First autodrive.
     logger.info(
         "Starting Autoplace, Level: {}, Position(Col): {}, isShelf: {}",
@@ -50,7 +50,8 @@ public class AutoPlaceCommand extends CommandBase {
 
   @Override
   public boolean isFinished() {
-    return (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED);
+    return (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED
+        || driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FAILED);
   }
 
   @Override
