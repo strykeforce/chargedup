@@ -104,6 +104,7 @@ public class Constants {
 
   public static final class DriveConstants {
     // Drive Constants
+    // public static final double kWheelDiameterInches = 3.0 * (563.5 / 500.0); // practice bot
     public static final Pose2d kOdometryZeroPosBlue =
         new Pose2d(new Translation2d(1.80, 5.097), new Rotation2d());
     public static final Pose2d kOdometryZeroPosRed =

@@ -504,15 +504,6 @@ public class RobotContainer {
             "black"));
   }
 
-  public void updateGamePiece() {
-    currGamePiece.withProperties(
-        Map.of(
-            "colorWhenTrue",
-            robotStateSubsystem.getGamePiece() == GamePiece.CUBE ? "purple" : "yellow",
-            "colorWhenFalse",
-            "black"));
-  }
-
   // Interlink Controller Mapping
   public enum Axis {
     RIGHT_X(1),
