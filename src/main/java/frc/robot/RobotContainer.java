@@ -23,7 +23,6 @@ import frc.robot.commands.RGBlights.RGBsetPieceCommand;
 import frc.robot.commands.auto.ThreePiecePathCommandGroup;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
-import frc.robot.commands.drive.ResetOdometryCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.elbow.ElbowOpenLoopCommand;
 import frc.robot.commands.elevator.AdjustElevatorCommand;
@@ -158,6 +157,8 @@ public class RobotContainer {
             "pieceTwoPlacePath");
   }
 
+  // , "pieceTwoPlacePath"
+
   private void configureDriverButtonBindings() {
     driveSubsystem.setDefaultCommand(
         new DriveTeleopCommand(driveJoystick, driveSubsystem, robotStateSubsystem));
@@ -181,8 +182,9 @@ public class RobotContainer {
     // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
     // new JoystickButton(driveJoystick, InterlinkButton.X.id)
     // .onTrue(new xLockCommand(driveSubsystem));
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-        .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+    //     .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(threePiecePath);
 
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
     // .onTrue(new DriveAutonCommand(driveSubsystem, "straightPathX", true, true));
