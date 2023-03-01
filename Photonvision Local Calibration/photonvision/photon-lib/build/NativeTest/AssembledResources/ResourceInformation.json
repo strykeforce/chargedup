@@ -1,0 +1,25 @@
+{
+  "versions": [
+    "ntcore-cpp-2023.2-windowsx86-64.1-windowsx86-64 (edu.wpi.first.ntcore:ntcore-cpp:2023.2.1)",
+    "wpinet-cpp-2023.2-windowsx86-64.1-windowsx86-64 (edu.wpi.first.wpinet:wpinet-cpp:2023.2.1)",
+    "hal-cpp-2023.2-windowsx86-64.1-windowsx86-64 (edu.wpi.first.hal:hal-cpp:2023.2.1)",
+    "wpiutil-cpp-2023.2-windowsx86-64.1-windowsx86-64 (edu.wpi.first.wpiutil:wpiutil-cpp:2023.2.1)",
+    "wpimath-cpp-2023.2-windowsx86-64.1-windowsx86-64 (edu.wpi.first.wpimath:wpimath-cpp:2023.2.1)"
+  ],
+  "windows": {
+    "x86-64": [
+      "/windows/x86-64/shared/ntcore.dll",
+      "/windows/x86-64/shared/ntcorejni.dll",
+      "/windows/x86-64/shared/WindowsLoaderHelper.dll",
+      "/windows/x86-64/shared/wpiHal.dll",
+      "/windows/x86-64/shared/wpiHaljni.dll",
+      "/windows/x86-64/shared/wpimath.dll",
+      "/windows/x86-64/shared/wpimathjni.dll",
+      "/windows/x86-64/shared/wpinet.dll",
+      "/windows/x86-64/shared/wpinetjni.dll",
+      "/windows/x86-64/shared/wpiutil.dll",
+      "/windows/x86-64/shared/wpiutiljni.dll"
+    ]
+  },
+  "hash": "85fbd052f4fb527505c0dfec8ff61366"
+}
