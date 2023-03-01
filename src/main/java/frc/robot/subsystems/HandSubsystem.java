@@ -1,11 +1,11 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
+import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import frc.robot.Constants;
 import frc.robot.Constants.HandConstants;
 import java.util.Set;
@@ -45,7 +45,11 @@ public class HandSubsystem extends MeasurableSubsystem {
     rollerTalon = new TalonSRX(HandConstants.kRollerTalonId);
     rollerTalon.configFactoryDefault();
     rollerTalon.configSupplyCurrentLimit(HandConstants.getHandSupplyLimitConfig());
-    
+    rollerTalon.configForwardLimitSwitchSource(
+        LimitSwitchSource.Deactivated, LimitSwitchNormal.Disabled);
+    rollerTalon.configReverseLimitSwitchSource(
+        LimitSwitchSource.Deactivated, LimitSwitchNormal.Disabled);
+
     // handRightTalon = new TalonSRX(Constants.HandConstants.kWristTalonId);
     // handRightTalon.configAllSettings(Constants.HandConstants.getHandTalonConfig());
     // handRightTalon.configSupplyCurrentLimit(Constants.HandConstants.getHandSupplyLimitConfig());
@@ -62,6 +66,10 @@ public class HandSubsystem extends MeasurableSubsystem {
 
   public void runRollers(double percent) {
     rollerTalon.set(TalonSRXControlMode.PercentOutput, percent);
+  }
+
+  public double getRollersVel() {
+    return rollerTalon.getSelectedSensorVelocity();
   }
 
   public void setLeftPos(double location) {
@@ -104,6 +112,7 @@ public class HandSubsystem extends MeasurableSubsystem {
   public boolean isFinished() {
     if (handState == HandStates.TRANSITIONING && desiredState == HandStates.CONE_CLOSED) {
       if (closingStableCounts >= HandConstants.kHoldingStableCounts) {
+        runRollers(HandConstants.kRollerOutCone);
         return true;
       }
     } else if (handState == HandStates.CONE_CLOSED) return true;
@@ -158,8 +167,7 @@ public class HandSubsystem extends MeasurableSubsystem {
   }
 
   public boolean hasPiece() {
-    if (handLeftTalon.getSensorCollection().getAnalogInRaw()
-        > Constants.HandConstants.kHasPieceMinTicks) {
+    if (handLeftTalon.isFwdLimitSwitchClosed() == 1) {
       hasPieceStableCounts++;
     } else hasPieceStableCounts = 0;
 
@@ -177,7 +185,6 @@ public class HandSubsystem extends MeasurableSubsystem {
 
   public void grabCone() {
     logger.info("Grabbing cone");
-    runRollers(HandConstants.kRollerOutCone);
     setPos(Constants.HandConstants.kConeGrabbingPosition /*,
         Constants.HandConstants.kConeGrabbingPositionRight*/);
     desiredState = HandStates.CONE_CLOSED;
@@ -276,7 +283,8 @@ public class HandSubsystem extends MeasurableSubsystem {
         if (desiredState == HandStates.CONE_CLOSED) {
           if (Math.abs(handLeftTalon.getSelectedSensorVelocity())
                   < Constants.HandConstants.kHoldingVelocityThreshold
-              && getLeftPos() >= HandConstants.kHoldingTickThreshold) {
+              && getLeftPos() >= HandConstants.kHoldingTickThreshold
+              && getRollersVel() <= HandConstants.kConeVelLimit) {
             closingStableCounts++;
           } else {
             closingStableCounts = 0;

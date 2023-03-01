@@ -11,7 +11,6 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotStateConstants;
-import frc.robot.commands.hand.HandLeftSpeedCommand;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.DriveSubsystem.DriveStates;
 import frc.robot.subsystems.HandSubsystem.HandStates;
@@ -89,8 +88,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public void setGamePiece(GamePiece gamePiece) {
-    if (gamePiece == GamePiece.NONE)
-      handSubsystem.runRollers(HandConstants.kRollerOff);
+    if (gamePiece == GamePiece.NONE) handSubsystem.runRollers(HandConstants.kRollerOff);
     this.gamePiece = gamePiece;
     logger.info("set gamePiece to: {}", gamePiece);
   }

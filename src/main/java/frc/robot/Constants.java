@@ -119,6 +119,11 @@ public class Constants {
     public static final double kAutoDistanceLimit = 0.03;
     public static final double kMaxAngleOff = 4.0;
 
+    public static final double kShelfMovePercent = 0.1;
+    public static final double kShelfYawPercent = 0.1;
+    public static final double kPlaceMovePercent = 0.1;
+    public static final double kPlaceYawPercent = 0.1;
+
     // Drive Base Size and Gearing
     public static final double kMaxSpeedMetersPerSecond = 5.44; // practice bot 3.889
     public static final double kRobotWidth = 0.495; // practice bot: 0.625 //Old: .5
@@ -596,7 +601,8 @@ public class Constants {
 
     public static final double kHandOpenPosition = 0;
     public static final double kCubeGrabbingPosition = 1050;
-    public static final double kConeGrabbingPosition = kMaxFwd; // old: 1650
+    public static final double kConeGrabbingPosition = 1100; // old: 1650
+    public static final double kConeVelLimit = 50;
 
     public static TalonSRXConfiguration getHandTalonConfig() {
       TalonSRXConfiguration handConfig = new TalonSRXConfiguration();
