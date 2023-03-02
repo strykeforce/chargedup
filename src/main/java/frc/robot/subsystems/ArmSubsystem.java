@@ -22,6 +22,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private ArmState desiredState;
   private ArmState currState;
   private CurrentAxis currAxis;
+  private boolean continueToIntake;
 
   public ArmSubsystem(
       ShoulderSubsystem shoulderSubsystem,
@@ -55,8 +56,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
         logger.info("{} -> INTAKE_TO_STOW", currState);
         currState = ArmState.INTAKE_TO_STOW;
         currAxis = CurrentAxis.ELEVATOR;
-        //shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
-        //elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+        shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
+        elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
         break;
       case SHELF:
         logger.info("{} -> SHELF_TO_STOW", currState);
@@ -81,6 +82,11 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toIntakeStagePos() {
+    toIntakeStagePos(false);
+  }
+
+  public void toIntakeStagePos(boolean continueToIntake) {
+    this.continueToIntake = continueToIntake;
     switch (currState) {
       case STOW:
         logger.info("{} -> STOW_TO_INTAKE_STAGE", currState);
@@ -331,6 +337,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
         }
         break;
       case INTAKE_STAGE:
+        if (continueToIntake) {
+          toIntakePos();
+        }
+
         break;
       case INTAKE:
         break;

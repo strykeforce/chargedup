@@ -63,9 +63,9 @@ public class IntakeSubsystem extends MeasurableSubsystem {
     // logger.info("Intake is extending to {}", IntakeConstants.kExtendPosTicks);
   }
 
-  public void retractClosedLoop() {
-    extendTalon.set(ControlMode.MotionMagic, IntakeConstants.kRetractPosTicks);
-    intakeSetPointTicks = IntakeConstants.kRetractPosTicks;
+  public void retractClosedLoop(double retractPos) {
+    extendTalon.set(ControlMode.MotionMagic, retractPos);
+    intakeSetPointTicks = retractPos;
     isIntakeExtended = false;
     // logger.info("Intake is retracting to {}", IntakeConstants.kRetractPosTicks);
   }
@@ -94,7 +94,13 @@ public class IntakeSubsystem extends MeasurableSubsystem {
   public void retractIntake() {
     currIntakeState = IntakeState.RETRACTED;
     intakeOpenLoop(0);
-    retractClosedLoop();
+    retractClosedLoop(IntakeConstants.kRetractPosTicks);
+  }
+
+  public void retractToPickupFromIntake() {
+    currIntakeState = IntakeState.RETRACTED;
+    intakeOpenLoop(0);
+    retractClosedLoop(IntakeConstants.kPickupPosTicks);
   }
 
   public void startIntaking(boolean doHolding) {
@@ -123,7 +129,7 @@ public class IntakeSubsystem extends MeasurableSubsystem {
   }
 
   public boolean isBeamBroken() {
-    if (extendTalon.isRevLimitSwitchClosed() > 0) beamBreakStableCounts++;
+    if (extendTalon.isFwdLimitSwitchClosed() > 0) beamBreakStableCounts++;
     else beamBreakStableCounts = 0;
     beamBroken = beamBreakStableCounts > IntakeConstants.kBeamBreakStableCounts;
     return beamBreakStableCounts > IntakeConstants.kBeamBreakStableCounts;

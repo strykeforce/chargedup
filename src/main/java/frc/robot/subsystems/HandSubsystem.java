@@ -186,12 +186,20 @@ public class HandSubsystem extends MeasurableSubsystem {
     return handLeftTalon.getSensorCollection().getAnalogInRaw();
   }
 
-  public boolean hasPiece() {
-    if (rollerTalon.isFwdLimitSwitchClosed() == 1) {
+  public boolean hasCone() {
+    if (rollerTalon.isFwdLimitSwitchClosed() > 0) {
       hasPieceStableCounts++;
     } else hasPieceStableCounts = 0;
 
-    return hasPieceStableCounts > Constants.HandConstants.kHasPieceStableCounts;
+    return hasPieceStableCounts > Constants.HandConstants.kHasConeStableCounts;
+  }
+
+  public boolean hasCube() {
+    if (rollerTalon.isRevLimitSwitchClosed() > 0) {
+      hasPieceStableCounts++;
+    } else hasPieceStableCounts = 0;
+
+    return hasPieceStableCounts > Constants.HandConstants.kHasCubeStableCounts;
   }
 
   public void grabCube() {
@@ -307,14 +315,14 @@ public class HandSubsystem extends MeasurableSubsystem {
                   < Constants.HandConstants.kHoldingVelocityThreshold
               && getLeftPos() >= HandConstants.kHoldingTickThreshold
               && Math.abs(getRollersVel()) <= HandConstants.kConeVelLimit
-              && hasPiece()) {
+              && hasCone()) {
             closingStableCounts++;
           } else {
             closingStableCounts = 0;
           }
 
           if (isFinished()) {
-            runRollers(HandConstants.kRollerOutCone);
+            runRollers(HandConstants.kRollerConeHoldSpeed);
             handState = desiredState;
           }
         }
