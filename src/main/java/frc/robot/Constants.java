@@ -378,7 +378,7 @@ public class Constants {
     public static final int kCloseEnoughTicks = 2000;
 
     // Elbow Positions
-    public static final double kIntakeElbow = -34_000; // -17_500
+    public static final double kIntakeElbow = -37_000; // -17_500
     public static final double kStowElbow = 0;
     public static final double kFloorElbow = 43_000; // 43_214
     public static final double kLevelOneElbow = 44_462;
@@ -504,7 +504,7 @@ public class Constants {
     public static final int kCloseEnoughTicks = 150;
     public static final int kExtendPosTicks = -1_800;
     public static final int kRetractPosTicks = 0;
-    public static final int kPickupPosTicks = -500;
+    public static final int kPickupPosTicks = -1_000;
 
     public static final double kIntakeSpeed = 0.4; // -0.35
     public static final double kIntakeEjectSpeed = -0.3;

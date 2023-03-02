@@ -312,6 +312,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
               currentAxis = CurrentAxis.INTAKE;
               intakeSubsystem.retractIntake();
             }
+            break;
           case INTAKE:
             if (intakeSubsystem.isFinished()) {
               currentAxis = CurrentAxis.NONE;
@@ -355,7 +356,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           logger.info("{} -> PICKUP_FROM_INTAKE", currRobotState);
           currRobotState = RobotState.PICKUP_FROM_INTAKE;
           intakeSubsystem.retractToPickupFromIntake();
-          currentAxis = CurrentAxis.INTAKE;
+          handSubsystem.grabCube();
+          currentAxis = CurrentAxis.HAND;
         }
 
         break;
@@ -373,8 +375,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           case INTAKE:
             if (intakeSubsystem.isFinished()) {
               // armSubsystem.toIntakePos();
-              handSubsystem.grabCube();
-              currentAxis = CurrentAxis.HAND;
+              // handSubsystem.grabCube();
+              // currentAxis = CurrentAxis.HAND;
             }
             break;
           case ARM:

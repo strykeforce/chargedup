@@ -92,12 +92,14 @@ public class IntakeSubsystem extends MeasurableSubsystem {
   }
 
   public void retractIntake() {
+    logger.info("Retract Intake to: {}", IntakeConstants.kRetractPosTicks);
     currIntakeState = IntakeState.RETRACTED;
     intakeOpenLoop(0);
     retractClosedLoop(IntakeConstants.kRetractPosTicks);
   }
 
   public void retractToPickupFromIntake() {
+    logger.info("Retract Intake to Pickup Pos: {}", IntakeConstants.kPickupPosTicks);
     currIntakeState = IntakeState.RETRACTED;
     intakeOpenLoop(0);
     retractClosedLoop(IntakeConstants.kPickupPosTicks);
