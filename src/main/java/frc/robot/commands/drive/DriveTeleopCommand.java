@@ -47,14 +47,17 @@ public class DriveTeleopCommand extends CommandBase {
     double yawPercent = 1.0, movePercent = 1.0;
     if (robotStateSubsystem.getRobotState() == RobotState.AUTO_SHELF
         || robotStateSubsystem.getRobotState() == RobotState.MANUAL_SHELF
-        || robotStateSubsystem.getRobotState() == RobotState.TO_MANUAL_SHELF) {
+        || robotStateSubsystem.getRobotState() == RobotState.TO_MANUAL_SHELF
+        || robotStateSubsystem.getRobotState() == RobotState.SHELF_WAIT_TRANSITION
+        || robotStateSubsystem.getRobotState() == RobotState.AUTO_DRIVE) {
       yawPercent = DriveConstants.kShelfYawPercent;
       movePercent = DriveConstants.kShelfMovePercent;
     }
 
     if (robotStateSubsystem.getRobotState() == RobotState.AUTO_SCORE
         || robotStateSubsystem.getRobotState() == RobotState.MANUAL_SCORE
-        || robotStateSubsystem.getRobotState() == RobotState.TO_MANUAL_SCORE) {
+        || robotStateSubsystem.getRobotState() == RobotState.TO_MANUAL_SCORE
+        || robotStateSubsystem.getRobotState() == RobotState.AUTO_DRIVE) {
       yawPercent = DriveConstants.kPlaceYawPercent;
       movePercent = DriveConstants.kPlaceMovePercent;
     }
