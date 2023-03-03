@@ -29,9 +29,11 @@ public class HandSubsystem extends MeasurableSubsystem {
   private int closingStableCounts;
 
   private boolean leftZeroDone;
+  private static Constants constants;
   // private boolean rightZeroDone;
 
-  public HandSubsystem() {
+  public HandSubsystem(Constants constants) {
+    HandSubsystem.constants = constants;
     handLeftTalon = new TalonSRX(Constants.HandConstants.kHandTalonId);
     handLeftTalon.configFactoryDefault();
     handLeftTalon.configAllSettings(Constants.HandConstants.getHandTalonConfig());
@@ -121,14 +123,11 @@ public class HandSubsystem extends MeasurableSubsystem {
     // // setRightPct(Constants.HandConstants.kHandZeroSpeed);
 
     double absolute = handLeftTalon.getSensorCollection().getPulseWidthPosition() & 0xFFF;
-    double offset = absolute - Constants.HandConstants.kHandZeroTicks;
+    double offset = absolute - constants.kHandZeroTicks;
     handLeftTalon.setSelectedSensorPosition(offset);
 
     logger.info(
-        "Absolute: {}, Zero pos: {}, Offset: {}",
-        absolute,
-        Constants.HandConstants.kHandZeroTicks,
-        offset);
+        "Absolute: {}, Zero pos: {}, Offset: {}", absolute, constants.kHandZeroTicks, offset);
 
     // logger.info("Hand is zeroing");
     // handState = HandStates.ZEROING;

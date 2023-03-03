@@ -35,6 +35,7 @@ import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
+import frc.robot.commands.intake.ToggleIntakeExtendedCommand;
 import frc.robot.commands.robotState.AutoPlaceCommandGroup;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
@@ -75,6 +76,7 @@ public class RobotContainer {
   private final ArmSubsystem armSubsystem;
   private final VisionSubsystem visionSubsystem;
   private final RGBlightsSubsystem rgbLightsSubsystem;
+  private final Constants constants;
 
   private final XboxController xboxController = new XboxController(1);
   private final Joystick driveJoystick = new Joystick(0);
@@ -93,14 +95,15 @@ public class RobotContainer {
   private HandSubsystem handSubsystem;
 
   public RobotContainer() {
-    handSubsystem = new HandSubsystem();
-    intakeSubsystem = new IntakeSubsystem();
-    driveSubsystem = new DriveSubsystem();
+    constants = new Constants();
+    handSubsystem = new HandSubsystem(constants);
+    intakeSubsystem = new IntakeSubsystem(constants);
+    driveSubsystem = new DriveSubsystem(constants);
     visionSubsystem = new VisionSubsystem(driveSubsystem);
     // visionSubsystem = new VisionSubsystem(driveSubsystem);
     elevatorSubsystem = new ElevatorSubsystem();
-    elbowSubsystem = new ElbowSubsystem();
-    shoulderSubsystem = new ShoulderSubsystem();
+    elbowSubsystem = new ElbowSubsystem(constants);
+    shoulderSubsystem = new ShoulderSubsystem(constants);
     armSubsystem = new ArmSubsystem(shoulderSubsystem, elevatorSubsystem, elbowSubsystem);
     rgbLightsSubsystem = new RGBlightsSubsystem();
     robotStateSubsystem =
@@ -229,8 +232,8 @@ public class RobotContainer {
     // new JoystickButton(xboxController, 3).onTrue(new
     // ToggleIntakeExtendedCommand(intakeSubsystem));
     new JoystickButton(driveJoystick, Shoulder.RIGHT_DOWN.id)
-        .onTrue(new ToggleIntakeCommand(robotStateSubsystem, intakeSubsystem))
-        .onFalse(new ToggleIntakeCommand(robotStateSubsystem, intakeSubsystem));
+        .onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem))
+        .onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));
     // new JoystickButton(driveJoystick, Shoulder.RIGHT_DOWN.id)
     // .onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem))
     // .onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));

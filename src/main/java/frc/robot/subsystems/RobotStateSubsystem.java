@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
@@ -58,6 +59,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     this.handSubsystem = handSubsystem;
     this.driveSubsystem = driveSubsystem;
     this.rgbLightsSubsystem = rgbLightsSubsystem;
+    logger.info("Serial Number: {}", RobotController.getSerialNumber());
   }
 
   public RobotState getRobotState() {
