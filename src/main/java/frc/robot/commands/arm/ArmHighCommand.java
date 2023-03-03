@@ -1,10 +1,13 @@
 package frc.robot.commands.arm;
 
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.RobotStateSubsystem;
+import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 
-public class ArmHighCommand extends InstantCommand {
+public class ArmHighCommand extends CommandBase {
   private ArmSubsystem armSubsystem;
   private GamePiece gamePiece;
 
@@ -18,5 +21,10 @@ public class ArmHighCommand extends InstantCommand {
   @Override
   public void initialize() {
     armSubsystem.toHighPos(gamePiece);
+  }
+
+  @Override
+  public boolean isFinished() {
+    return armSubsystem.getCurrState() == ArmState.HIGH_CONE || armSubsystem.getCurrState() == ArmState.HIGH_CUBE;
   }
 }

@@ -1,11 +1,15 @@
 package frc.robot.commands.robotState;
 
+import javax.naming.InsufficientResourcesException;
+
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.HandSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
+import frc.robot.subsystems.RobotStateSubsystem.RobotState;
 
-public class ManualScoreCommand extends InstantCommand {
+public class ManualScoreCommand extends CommandBase {
   private RobotStateSubsystem robotStateSubsystem;
 
   public ManualScoreCommand(
@@ -19,5 +23,10 @@ public class ManualScoreCommand extends InstantCommand {
   @Override
   public void initialize() {
     robotStateSubsystem.toManualStage();
+  }
+
+  @Override
+  public boolean isFinished() {
+    return robotStateSubsystem.getRobotState() == RobotState.STOW || robotStateSubsystem.getRobotState() == RobotState.MANUAL_SCORE || robotStateSubsystem.getRobotState() == RobotState.MANUAL_SHELF;
   }
 }

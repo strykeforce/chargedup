@@ -1,9 +1,10 @@
 package frc.robot.commands.hand;
 
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.HandSubsystem;
 
-public class HandLeftToPositionCommand extends InstantCommand {
+public class HandLeftToPositionCommand extends CommandBase {
   private HandSubsystem handSubsystem;
   private double position;
 
@@ -17,5 +18,10 @@ public class HandLeftToPositionCommand extends InstantCommand {
   @Override
   public void initialize() {
     handSubsystem.setLeftPos(position);
+  }
+
+  @Override
+  public boolean isFinished() {
+      return handSubsystem.isFinished();
   }
 }

@@ -1,11 +1,12 @@
 package frc.robot.commands.robotState;
 
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.RobotState;
 
-public class ToggleIntakeCommand extends InstantCommand {
+public class ToggleIntakeCommand extends CommandBase {
   private RobotStateSubsystem robotStateSubsystem;
 
   public ToggleIntakeCommand(
@@ -25,5 +26,10 @@ public class ToggleIntakeCommand extends InstantCommand {
     } else {
       robotStateSubsystem.toIntake();
     }
+  }
+
+  @Override
+  public boolean isFinished() {
+      return robotStateSubsystem.getRobotState() == RobotState.STOW || robotStateSubsystem.getRobotState() == RobotState.INTAKE_STAGE;
   }
 }

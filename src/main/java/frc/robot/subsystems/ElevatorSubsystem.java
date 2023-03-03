@@ -96,6 +96,10 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
     // rightFollowFalcon.configReverseSoftLimitThreshold(minTicks);
   }
 
+  public ElevatorState getElevatorState() {
+    return elevatorState;
+  }
+
   @Override
   public void registerWith(TelemetryService telemetryService) {
     super.registerWith(telemetryService);

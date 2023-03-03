@@ -73,7 +73,7 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
     double absoluteMain =
         leftMainShoulderTalon.getSensorCollection().getPulseWidthPosition() & 0xFFF;
     double offsetMain = absoluteMain - Constants.ShoulderConstants.kShoulderMainZeroTicks;
-
+    
     leftMainShoulderTalon.setSelectedSensorPosition(offsetMain);
 
     logger.info(
