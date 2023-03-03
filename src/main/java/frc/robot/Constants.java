@@ -355,6 +355,7 @@ public class Constants {
 
   public static final class ElbowConstants {
     public static final int kElbowFalconID = 33; // 33
+    public static final int kElbowFollowerFalconID = 35;
     public static final int kRemoteEncoderID = 15; // 15
 
     // zero=up&slightly towards the elevator
@@ -382,7 +383,7 @@ public class Constants {
     public static final double kLevelThreeCubeElbow = kLevelThreeConeElbow;
     public static final double kShelfElbow = 116_214;
 
-    public static TalonFXConfiguration getElbowFalonConfig() {
+    public static TalonFXConfiguration getElbowFalconConfig() {
 
       TalonFXConfiguration elbowConfig = new TalonFXConfiguration();
 

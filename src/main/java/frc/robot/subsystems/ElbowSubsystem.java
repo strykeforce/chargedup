@@ -17,6 +17,7 @@ import org.strykeforce.telemetry.measurable.Measure;
 
 public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent {
   private TalonFX elbowFalcon;
+  private TalonFX elbowFollowerFalcon;
   private double setPointTicks = 0;
   private CANifier remoteEncoder;
   private Logger logger = LoggerFactory.getLogger(ElbowSubsystem.class);
@@ -24,7 +25,11 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
   public ElbowSubsystem() {
     elbowFalcon = new TalonFX(ElbowConstants.kElbowFalconID);
     elbowFalcon.configFactoryDefault();
-    elbowFalcon.configAllSettings(ElbowConstants.getElbowFalonConfig());
+    elbowFalcon.configAllSettings(ElbowConstants.getElbowFalconConfig());
+
+    elbowFollowerFalcon = new TalonFX(ElbowConstants.kElbowFollowerFalconID);
+    elbowFollowerFalcon.configFactoryDefault();
+    elbowFollowerFalcon.configAllSettings(ElbowConstants.getElbowFalconConfig());
 
     remoteEncoder = new CANifier(ElbowConstants.kRemoteEncoderID);
 
@@ -33,7 +38,16 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
     elbowFalcon.configReverseSoftLimitThreshold(ElbowConstants.kReverseSoftLimit);
     elbowFalcon.configReverseSoftLimitEnable(true);
 
+    elbowFollowerFalcon.configForwardSoftLimitThreshold(ElbowConstants.kForwardSoftLimit);
+    elbowFollowerFalcon.configForwardSoftLimitEnable(true);
+    elbowFollowerFalcon.configReverseSoftLimitThreshold(ElbowConstants.kReverseSoftLimit);
+    elbowFollowerFalcon.configReverseSoftLimitEnable(true);
+
     elbowFalcon.setNeutralMode(NeutralMode.Brake);
+    elbowFollowerFalcon.setNeutralMode(NeutralMode.Brake);
+
+    elbowFollowerFalcon.setInverted(true);
+    elbowFollowerFalcon.follow(elbowFalcon);
 
     zeroElbow();
   }
