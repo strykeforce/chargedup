@@ -26,7 +26,7 @@
 | Shoulder   | SRX      | left main             | 30 | 3        |  2        | 550    |         |
 | Shoulder   | SRX      | right follow          | 34 | 16       | 19        | 550    |         |
 | Elevator   | FX       | left main elevator    | 31 | 2        | 5         | falcon |         |
-| Elevator   | FX       | right follow          | 32 | 17       | 17        | falcon |         |
+| Elevator   | FX       | right follow elevator | 32 | 17       | 17        | falcon |         |
 | Elbow      | FX       | left main elbow       | 33 |          |  4        | falcon |         |
 | Elbow      | FX       | right follow elbow    | 35 |          |           | falcon |         | 
 | Elbow      | Canifier | canifier              | 15 |          |  23       | -      |         |
