@@ -90,9 +90,9 @@ public class RobotContainer {
 
   // Paths
   private DriveAutonCommand testPath;
+  private ThreePiecePathCommandGroup threePiecePath;
 
   private HandSubsystem handSubsystem;
-  private ThreePiecePathCommandGroup threePiecePath;
 
   public RobotContainer() {
     handSubsystem = new HandSubsystem();
