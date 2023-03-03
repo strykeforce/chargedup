@@ -21,13 +21,14 @@
 | Drive      | FX       | drive                 | 11 | 19       |  15       | falcon |         |
 | Drive      | FX       | drive                 | 12 | 1        |  7        | falcon |         |
 | Drive      | FX       | drive                 | 13 | 18       |  14       | falcon |         |
-| Intake     | FX       | intake                | 20 | 12       |  16       | falcon |         |
-| Intake     | SRX      | extend                | 21 |          |  13       | bag    |         |
+| Intake     | FX       | intake                | 20 | 15       |  16       | falcon |         |
+| Intake     | SRX      | extend                | 21 | 12       |  13       | bag    |         |
 | Shoulder   | SRX      | left main             | 30 | 3        |  2        | 550    |         |
 | Shoulder   | SRX      | right follow          | 34 | 16       | 19        | 550    |         |
-| Elevator   | FX       | left main             | 31 | 2        | 5         | falcon |         |
+| Elevator   | FX       | left main elevator    | 31 | 2        | 5         | falcon |         |
 | Elevator   | FX       | right follow          | 32 | 17       | 17        | falcon |         |
-| Elbow      | FX       | elbow                 | 33 |          |  4        | falcon |         |
+| Elbow      | FX       | left main elbow       | 33 |          |  4        | falcon |         |
+| Elbow      | FX       | right follow elbow    | 35 |          |           | falcon |         | 
 | Elbow      | Canifier | canifier              | 15 |          |  23       | -      |         |
 | Hand       | SRX      | hand                  | 40 |          |  3        | 550    |         |
 
