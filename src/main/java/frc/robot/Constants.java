@@ -102,6 +102,10 @@ public class Constants {
     public static final double kShelfMove = 1; // FIXME put in real number
   }
 
+  public static final class AutonConstants {
+    public static final double kPastXPosition = 4.0; // FIXME put in real number
+  }
+
   public static final class DriveConstants {
     // Drive Constants
     // public static final double kWheelDiameterInches = 3.0 * (563.5 / 500.0); // practice bot
