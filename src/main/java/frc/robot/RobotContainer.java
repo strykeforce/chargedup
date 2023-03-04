@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.RGBlights.RGBsetPieceCommand;
+import frc.robot.commands.drive.AutoBalanceCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ResetOdometryCommand;
@@ -35,7 +36,6 @@ import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
-import frc.robot.commands.robotState.AutoPlaceCommandGroup;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.SetGamePieceCommand;
@@ -165,16 +165,19 @@ public class RobotContainer {
             false,
             robotStateSubsystem.getTargetCol(),
             true));*/
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
-        .onTrue(
-            new AutoPlaceCommandGroup(
-                driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
+
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+    //     .onTrue(
+    //         new AutoPlaceCommandGroup(
+    //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+        .onTrue(new AutoBalanceCommand(true, driveSubsystem, robotStateSubsystem));
+
     // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
     // new JoystickButton(driveJoystick, InterlinkButton.X.id)
     // .onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
         .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
-
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
     // .onTrue(new DriveAutonCommand(driveSubsystem, "straightPathX", true, true));
     // Requires swerve migration to new Pose2D
@@ -382,10 +385,10 @@ public class RobotContainer {
         .addBoolean("IsLeft", () -> robotStateSubsystem.getTargetCol() == TargetCol.LEFT)
         .withSize(1, 1)
         .withPosition(3, 1);
-    Shuffleboard.getTab("Match")
-        .addBoolean("IsCameraWorking", () -> visionSubsystem.isCameraWorking())
-        .withSize(1, 1)
-        .withPosition(7, 0);
+    // Shuffleboard.getTab("Match")
+    //     .addBoolean("IsCameraWorking", () -> visionSubsystem.isCameraWorking())
+    //     .withSize(1, 1)
+    //     .withPosition(7, 0);
   }
 
   private void configurePitDashboard() {

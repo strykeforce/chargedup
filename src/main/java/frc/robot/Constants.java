@@ -197,6 +197,13 @@ public class Constants {
     // public static final double kRateLimitMove = 0.3;
     public static final double kExpoScaleYawFactor = 0.75;
 
+    // AutoBalance Constants
+    public static final double kAutoBalanceCloseEnoughDeg = 2;
+    public static final double kAutoBalanceEnableGyroThresholdDegrees = 8;
+    public static final double kAutoBalanceStableCount = 10;
+    public static final double kAutoBalanceDriveVel = 0.45;
+    public static final double kAutoBalanceFinalDriveVel = 0.25;
+
     public static TalonSRXConfiguration getAzimuthTalonConfig() {
       // constructor sets encoder to Quad/CTRE_MagEncoder_Relative
       TalonSRXConfiguration azimuthConfig = new TalonSRXConfiguration();

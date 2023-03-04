@@ -5,6 +5,7 @@ import static frc.robot.Constants.kTalonConfigTimeout;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -67,7 +68,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
       new TimestampedPose(RobotController.getFPGATime(), new Pose2d());
   public VisionSubsystem visionSubsystem;
   private double distanceVisionWheelOdom = 0.0;
-  public boolean autoDriving = false, visionUpdates = true;
+  public boolean autoDriving = false,
+      visionUpdates = false; // FIXME NEEDS TO BE TRUE FOR EVERY OTHER BRANCH
   private Pose2d endAutoDrivePose;
   private double lastXSpeed = 0.0, lastYSpeed = 0.0, speedMPSglobal = 0.0;
   private Timer autoDriveTimer = new Timer();
@@ -76,6 +78,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
   public DriveStates currDriveState = DriveStates.IDLE;
   private boolean isShelf;
   private Constants constants;
+  private AHRS ahrs;
+  private boolean autoBalanceGyroActive = false;
+  private double autoBalanceStableCounts = 0;
   // private boolean isAutoDriveFinished = false;
 
   public DriveSubsystem(Constants constants) {
@@ -113,8 +118,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
       swerveModules[i].loadAndSetAzimuthZeroReference();
     }
-
-    swerveDrive = new SwerveDrive(swerveModules);
+    ahrs = new AHRS();
+    swerveDrive = new SwerveDrive(ahrs, swerveModules);
     swerveDrive.resetGyro();
     swerveDrive.setGyroOffset(Rotation2d.fromDegrees(0));
 
@@ -189,9 +194,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   }
 
   public boolean isAutoDriveFinished() {
-    // autoDriving &&
     if (place != null) {
-      // if (autoDriveTimer.hasElapsed(place.getTotalTimeSeconds())) setAutoDriving(false);
       return autoDriveTimer.hasElapsed(place.getTotalTimeSeconds());
     } else return false;
   }
@@ -214,9 +217,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
       desiredHeading = new Rotation2d(desiredHeading.getRadians() == Math.PI ? 0.0 : Math.PI);
     setEnableHolo(true);
     resetHolonomicController();
-    // driveSubsystem.grapherTrajectoryActive(true);
-    // driveSubsystem.lockZero();
-
     logger.info("Moving to place");
     TrajectoryConfig config = new TrajectoryConfig(2.5, 1.5);
     config.setEndVelocity(0);
@@ -245,7 +245,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
     place = TrajectoryGenerator.generateTrajectory(start, points, endPose, config);
     autoDriveTimer.reset();
     autoDriveTimer.start();
-    logger.info("DRIVESUB: {} -> AUTO_DRIVE", currDriveState);
+    logger.info("{} -> AUTO_DRIVE", currDriveState);
     currDriveState = DriveStates.AUTO_DRIVE;
     grapherTrajectoryActive(true);
     // calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
@@ -354,6 +354,15 @@ public class DriveSubsystem extends MeasurableSubsystem {
     autoDriving = autoDrive;
   }
 
+  public void autoBalance(boolean isOnAllianceSide) {
+    // On alliance side of charge station, drive Positive X
+    if (isOnAllianceSide) drive(DriveConstants.kAutoBalanceDriveVel, 0, 0);
+    // NOT On alliance side of charge station, drive Negative X
+    else drive(-DriveConstants.kAutoBalanceDriveVel, 0, 0);
+    logger.info("{} -> AUTO_BALANCE", currDriveState);
+    currDriveState = DriveStates.AUTO_BALANCE;
+  }
+
   @Override
   public void periodic() {
     // Update swerve module states every robot loop
@@ -372,7 +381,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
           logger.info("End Trajectory {}", autoDriveTimer.get());
           autoDriveTimer.stop();
           autoDriveTimer.reset();
-          logger.info("DRIVESUB: {} -> AUTO_DRIVE_FINISHED", currDriveState);
+          logger.info("{} -> AUTO_DRIVE_FINISHED", currDriveState);
           currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
           break;
         }
@@ -381,7 +390,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         }
         if (autoDriving
             && !visionUpdates
-            && (!visionSubsystem.getOdomAutoBool() || !visionSubsystem.isCameraWorking())) {
+            && (!visionSubsystem.getOdomAutoBool())) { // || !visionSubsystem.isCameraWorking())) {
           visionSubsystem.setOdomAutoBool(false);
           grapherTrajectoryActive(false);
           setEnableHolo(false);
@@ -391,7 +400,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
           logger.info("End Trajectory {}", autoDriveTimer.get());
           autoDriveTimer.stop();
           autoDriveTimer.reset();
-          logger.info("DRIVESUB: {} -> AUTO_DRIVE_FAILED", currDriveState);
+          logger.info("{} -> AUTO_DRIVE_FAILED", currDriveState);
           setDriveState(DriveStates.AUTO_DRIVE_FAILED);
           // currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
           break;
@@ -400,6 +409,40 @@ public class DriveSubsystem extends MeasurableSubsystem {
       case AUTO_DRIVE_FAILED:
         break;
       case AUTO_DRIVE_FINISHED:
+        break;
+      case AUTO_BALANCE:
+        if (autoBalanceGyroActive == false && Math.abs(ahrs.getRoll() - 2) >= 5) {
+          //Start timer here.
+        }
+        if (autoBalanceGyroActive == false
+            && Math.abs(ahrs.getRoll() - 2)
+                >= DriveConstants.kAutoBalanceEnableGyroThresholdDegrees) {
+          logger.info("Autobalance Enabled Gyro");
+          autoBalanceGyroActive = true;
+        }
+        if (autoBalanceGyroActive == true
+            && ahrs.getRoll() - 2 <= DriveConstants.kAutoBalanceCloseEnoughDeg
+            && ahrs.getRoll() - 2 >= -DriveConstants.kAutoBalanceCloseEnoughDeg) {
+          // Stop
+          double autoBalanceStableCountChange = autoBalanceStableCounts;
+          drive(0, 0, 0);
+          xLock();
+          if (autoBalanceStableCounts >= DriveConstants.kAutoBalanceStableCount) {
+            // Robot Stable, Continueing to Finished
+            logger.info("{} -> AUTO_BALANCE_FINISHED", currDriveState);
+            currDriveState = DriveStates.AUTO_BALANCE_FINISHED;
+            autoBalanceStableCounts = 0;
+          } else {
+            autoBalanceStableCounts++; // Stable Count not reached, Increment by 1
+          }
+          autoBalanceStableCountChange -= autoBalanceStableCounts;
+          if (autoBalanceStableCountChange == 0
+              && !(autoBalanceStableCounts >= DriveConstants.kAutoBalanceStableCount))
+            logger.info("Not stable, Need to add re-stabilization logic here");
+        }
+        break;
+      case AUTO_BALANCE_FINISHED:
+        autoBalanceGyroActive = false;
         break;
       default:
         break;
@@ -472,6 +515,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
   public Rotation2d getGyroRotation2d() {
     return swerveDrive.getHeading();
+  }
+
+  public double getGyroRoll() {
+    return ahrs.getRoll();
   }
 
   public void lockZero() {
@@ -677,7 +724,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
     IDLE,
     AUTO_DRIVE,
     AUTO_DRIVE_FINISHED,
-    AUTO_DRIVE_FAILED
+    AUTO_DRIVE_FAILED,
+    AUTO_BALANCE,
+    AUTO_BALANCE_FINISHED
   }
 
   @Override
@@ -726,6 +775,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("Auto Drive End X", () -> endAutoDrivePose.getX()),
         new Measure("Auto Drive End Y", () -> endAutoDrivePose.getY()),
         new Measure("Auto Drive Timer", () -> autoDriveTimer.get()),
+        new Measure("Robot Roll Deg", () -> getGyroRoll()),
         new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()));
   }
 }
