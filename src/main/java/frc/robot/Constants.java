@@ -134,6 +134,8 @@ public class Constants {
     public static final double kElbowIntakeMax = ElbowConstants.kForwardSoftLimit;
 
     public static final double kShelfMove = 1; // FIXME put in real number
+    public static final double kShelfTransitionMove = 0.2;
+    public static final double kSweepTimerElapseSeconds = 0.5;
   }
 
   public static final class DriveConstants {
@@ -153,6 +155,12 @@ public class Constants {
         new Pose2d(
             new Translation2d(RobotStateConstants.kFieldMaxX - 1.80, 0.39), new Rotation2d());
 
+    public static final double kShelfMovePercent = 0.2;
+    public static final double kShelfYawPercent = 0.1;
+    public static final double kPlaceMovePercent = 0.2;
+    public static final double kPlaceYawPercent = 0.1;
+
+    // Drive Base Size and Gearing
     public static final double kRobotWidth = 0.495; // practice bot: 0.625 //Old: .5
     public static final double kRobotLength = 0.62; // practice bot: 0.625 //Old:.615
 
@@ -333,9 +341,9 @@ public class Constants {
     public static final double kMaxExtension = 1.23; // FIXME meters
 
     // Elevator Positions
-    public static final double kIntakeElevator = -22_930;
+    public static final double kIntakeElevator = -23_500; // intake 9.75 gap
     public static final double kStowElevator = -2_000;
-    public static final double kFloorElevator = -32_600; // 32648
+    public static final double kFloorElevator = -27_000; // 32648
     public static final double kLevelOneElevator = -1_500;
     public static final double kLevelTwoConeElevator = -11_674;
     public static final double kLevelTwoCubeElevator = -40_000; // old -47_674
@@ -391,7 +399,7 @@ public class Constants {
     // zero=up&slightly towards the elevator
 
     public static final int kForwardSoftLimit = 187_094; // 150_000
-    public static final int kReverseSoftLimit = -29_487; // -506
+    public static final int kReverseSoftLimit = -41_847; // -506
 
     public static final double kZeroDegs = -90; // FIXME
     public static final double kTicksPerDeg = 4096.0 / 360; // FIXME
@@ -402,7 +410,7 @@ public class Constants {
     public static final int kCloseEnoughTicks = 2000;
 
     // Elbow Positions
-    public static final double kIntakeElbow = -19_347; // -25_000
+    public static final double kIntakeElbow = -38_847; // -25_000
     public static final double kStowElbow = 0;
     public static final double kFloorElbow = 44_152; // 43_214
     public static final double kLevelOneElbow = 42_615;
@@ -411,6 +419,7 @@ public class Constants {
     public static final double kLevelThreeConeElbow = 177_432;
     public static final double kLevelThreeCubeElbow = kLevelThreeConeElbow;
     public static final double kShelfElbow = 114_366;
+    public static final double kFloorElbowSweep = 35_000;
 
     public static TalonFXConfiguration getElbowFalonConfig() {
 
@@ -527,6 +536,7 @@ public class Constants {
     public static final int kCloseEnoughTicks = 150;
     public static final int kExtendPosTicks = -1_800;
     public static final int kRetractPosTicks = 0;
+    public static final int kPickupPosTicks = -1_800; // -1_000
 
     public static final double kIntakeSpeed = 0.4; // -0.35
     public static final double kIntakeEjectSpeed = -0.3;
@@ -596,6 +606,12 @@ public class Constants {
   public static class HandConstants {
 
     public static int kHandTalonId = 40;
+    public static int kRollerTalonId = 41;
+
+    public static final double kRollerConeHoldSpeed = 0.2;
+    public static final double kRollerCubeHoldSpeed = 0.15;
+    public static final double kRollerPickUp = 0.7;
+    public static final double kRollerOff = 0.0;
 
     public static final double kMaxFwd = 1100; // 1100
     public static final double kMaxRev = -500; // -1000
@@ -605,7 +621,8 @@ public class Constants {
     public static final double kHandZeroSpeed = 0.1;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
     public static final int kZeroStableCounts = 1592;
-    public static final int kHasPieceStableCounts = 2;
+    public static final int kHasConeStableCounts = 2;
+    public static final int kHasCubeStableCounts = 2;
 
     public static final double kHandHoldingPercent = 0.1; // FIXME
     public static final double kHoldingVelocityThreshold = 50; // FIXME
@@ -615,9 +632,12 @@ public class Constants {
     public static final double kAllowedError = 150; // FIXME
 
     public static final double kHandOpenPosition = kMaxRev;
-    public static final double kIntakeOpenPosition = 50;
+    public static final double kIntakeOpenPosition = -500; // 50
     public static final double kCubeGrabbingPosition = 300;
-    public static final double kConeGrabbingPosition = kMaxFwd; // old: 1650
+    public static final double kFloorOpenPosition = 300;
+    public static final double kShelfOpenPosition = 0;
+    public static final double kConeGrabbingPosition = 1100; // old: 1650
+    public static final double kConeVelLimit = 50;
 
     public static TalonSRXConfiguration getHandTalonConfig() {
       TalonSRXConfiguration handConfig = new TalonSRXConfiguration();
@@ -651,6 +671,10 @@ public class Constants {
 
     public static SupplyCurrentLimitConfiguration getHandZeroSupplyCurrentLimit() {
       return new SupplyCurrentLimitConfiguration(true, 5, 5, 0.1);
+    }
+
+    public static SupplyCurrentLimitConfiguration getRollerSupplyLimitConfig() {
+      return new SupplyCurrentLimitConfiguration(true, 2, 2, 0.1);
     }
   }
 

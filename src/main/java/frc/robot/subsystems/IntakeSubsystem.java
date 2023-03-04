@@ -66,9 +66,9 @@ public class IntakeSubsystem extends MeasurableSubsystem {
     // logger.info("Intake is extending to {}", IntakeConstants.kExtendPosTicks);
   }
 
-  public void retractClosedLoop() {
-    extendTalon.set(ControlMode.MotionMagic, IntakeConstants.kRetractPosTicks);
-    intakeSetPointTicks = IntakeConstants.kRetractPosTicks;
+  public void retractClosedLoop(double retractPos) {
+    extendTalon.set(ControlMode.MotionMagic, retractPos);
+    intakeSetPointTicks = retractPos;
     isIntakeExtended = false;
     // logger.info("Intake is retracting to {}", IntakeConstants.kRetractPosTicks);
   }
@@ -95,9 +95,17 @@ public class IntakeSubsystem extends MeasurableSubsystem {
   }
 
   public void retractIntake() {
+    logger.info("Retract Intake to: {}", IntakeConstants.kRetractPosTicks);
     currIntakeState = IntakeState.RETRACTED;
     intakeOpenLoop(0);
-    retractClosedLoop();
+    retractClosedLoop(IntakeConstants.kRetractPosTicks);
+  }
+
+  public void retractToPickupFromIntake() {
+    logger.info("Retract Intake to Pickup Pos: {}", IntakeConstants.kPickupPosTicks);
+    currIntakeState = IntakeState.RETRACTED;
+    intakeOpenLoop(0);
+    retractClosedLoop(IntakeConstants.kPickupPosTicks);
   }
 
   public void startIntaking(boolean doHolding) {

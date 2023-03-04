@@ -117,7 +117,7 @@ public class RobotContainer {
     driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
 
     driveSubsystem.setVisionSubsystem(visionSubsystem);
-    visionSubsystem.setFillBuffers(true);
+    visionSubsystem.setFillBuffers(false); // FIXME TRUE
 
     // FIX ME
     robotStateSubsystem.setAllianceColor(Alliance.Blue);
@@ -222,10 +222,10 @@ public class RobotContainer {
     // // Elbow testing
     new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
         .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.1));
+        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.2));
     new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
         .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
+        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.2));
 
     // intake buttons
     // new JoystickButton(xboxController, 3).onTrue(new
