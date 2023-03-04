@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
@@ -45,6 +46,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private boolean isAutoStageFinished = false;
   private boolean isAutoPlacing = false;
   private boolean cameraWork = false;
+  private Timer floorSweepTimer = new Timer();
 
   public RobotStateSubsystem(
       IntakeSubsystem intakeSubsystem,
@@ -514,22 +516,46 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           case HAND:
             if (handSubsystem.isFinished()) {
               armSubsystem.toFloorPos();
+              handSubsystem.runRollers(HandConstants.kRollerPickUp);
               currentAxis = CurrentAxis.ARM;
             }
             break;
           case ARM:
             if (armSubsystem.getCurrState() == ArmState.FLOOR) {
               currentAxis = CurrentAxis.NONE;
-              logger.info("{} -> FLOOR_PICKUP", currRobotState);
-              currRobotState = RobotState.FLOOR_PICKUP;
+              logger.info("{} -> FLOOR_GRAB_CONE", currRobotState);
+              currRobotState = RobotState.FLOOR_GRAB_CONE;
               handSubsystem.openFloor();
+              floorSweepTimer.reset();
+              floorSweepTimer.start();
             }
             break;
           default:
             break;
         }
         break;
-
+      case FLOOR_GRAB_CONE:
+        switch (currentAxis) {
+          case NONE:
+            if (floorSweepTimer.hasElapsed(ArmConstants.kSweepTimerElapseSeconds)) {
+              logger.info("FloorSweepTimer Elapsed");
+              floorSweepTimer.reset();
+              armSubsystem.toFloorSweep();
+              currentAxis = CurrentAxis.ARM;
+            }
+            break;
+          case ARM:
+            if (armSubsystem.getCurrState() == ArmState.FLOOR_SWEEP) {
+              handSubsystem.grabCone();
+              setGamePiece(GamePiece.CONE);
+              currentAxis = CurrentAxis.HAND;
+            }
+            break;
+          case HAND:
+            if (handSubsystem.isFinished()) toStow();
+            break;
+        }
+        break;
       case FLOOR_PICKUP:
         handSubsystem.runRollers(HandConstants.kRollerPickUp);
         break;
@@ -733,7 +759,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     AUTO_DRIVE,
     TO_AUTO_SHELF,
     TO_AUTO_SCORE,
-    CHECK_AMBIGUITY
+    CHECK_AMBIGUITY,
+    FLOOR_GRAB_CONE
   }
 
   public enum CurrentAxis {

@@ -23,6 +23,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private ArmState currState;
   private CurrentAxis currAxis;
   private boolean continueToIntake;
+  private boolean continueToFloorSweep;
 
   public ArmSubsystem(
       ShoulderSubsystem shoulderSubsystem,
@@ -188,6 +189,11 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toFloorPos() {
+    toFloorPos(false);
+  }
+
+  public void toFloorPos(boolean continueToFloorSweep) {
+    this.continueToFloorSweep = continueToFloorSweep;
     switch (currState) {
       case STOW:
         logger.info("{} -> STOW_TO_FLOOR", currState);
@@ -200,6 +206,20 @@ public class ArmSubsystem extends MeasurableSubsystem {
         break;
     }
     desiredState = ArmState.FLOOR;
+  }
+
+  public void toFloorSweep() {
+    switch (currState) {
+      case FLOOR:
+        logger.info("{} -> FLOOR_TO_FLOOR_SWEEP", currState);
+        currState = ArmState.FLOOR_TO_FLOOR_SWEEP;
+        currAxis = CurrentAxis.ELBOW;
+        logger.info("Set Elbow to {} Ticks", currState.elbowPos);
+        elbowSubsystem.setPos(currState.elbowPos);
+        break;
+      default:
+        toFloorPos();
+    }
   }
 
   public boolean isFinished() {
@@ -329,6 +349,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
           case SHELF:
             toShelfPos();
             break;
+          case FLOOR_SWEEP:
+            // fall through
           case FLOOR:
             toFloorPos();
             break;
@@ -357,6 +379,9 @@ public class ArmSubsystem extends MeasurableSubsystem {
       case SHELF:
         break;
       case FLOOR:
+        if (continueToFloorSweep) {
+          toFloorSweep();
+        }
         break;
       case MANUAL:
         break;
@@ -615,6 +640,18 @@ public class ArmSubsystem extends MeasurableSubsystem {
             break;
         }
         break;
+      case FLOOR_TO_FLOOR_SWEEP:
+        switch (currAxis) {
+          case ELBOW:
+            if (elbowSubsystem.isFinished()) {
+              logger.info("{} -> FLOOR_SWEEP", currState);
+              currState = ArmState.FLOOR_SWEEP;
+              currAxis = CurrentAxis.NONE;
+            }
+        }
+        break;
+      case FLOOR_SWEEP:
+        break;
       default:
         break;
     }
@@ -674,7 +711,12 @@ public class ArmSubsystem extends MeasurableSubsystem {
     SCORE_TO_STOW(STOW),
     SHELF_TO_STOW(STOW),
     FLOOR_TO_STOW(STOW),
-    MANUAL_TO_STOW(STOW);
+    MANUAL_TO_STOW(STOW),
+    FLOOR_SWEEP(
+        ShoulderConstants.kFloorShoulder,
+        ElevatorConstants.kFloorElevator,
+        ElbowConstants.kFloorElbowSweep),
+    FLOOR_TO_FLOOR_SWEEP(FLOOR_SWEEP);
 
     public final double shoulderPos;
     public final double elevatorPos;
