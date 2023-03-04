@@ -76,6 +76,7 @@ public class RobotContainer {
   private final ArmSubsystem armSubsystem;
   private final VisionSubsystem visionSubsystem;
   private final RGBlightsSubsystem rgbLightsSubsystem;
+  private final Constants constants;
 
   private final XboxController xboxController = new XboxController(1);
   private final Joystick driveJoystick = new Joystick(0);
@@ -95,14 +96,15 @@ public class RobotContainer {
   private ThreePiecePathCommandGroup threePiecePath;
 
   public RobotContainer() {
-    handSubsystem = new HandSubsystem();
-    intakeSubsystem = new IntakeSubsystem();
-    driveSubsystem = new DriveSubsystem();
+    constants = new Constants();
+    handSubsystem = new HandSubsystem(constants);
+    intakeSubsystem = new IntakeSubsystem(constants);
+    driveSubsystem = new DriveSubsystem(constants);
     visionSubsystem = new VisionSubsystem(driveSubsystem);
     // visionSubsystem = new VisionSubsystem(driveSubsystem);
     elevatorSubsystem = new ElevatorSubsystem();
-    elbowSubsystem = new ElbowSubsystem();
-    shoulderSubsystem = new ShoulderSubsystem();
+    elbowSubsystem = new ElbowSubsystem(constants);
+    shoulderSubsystem = new ShoulderSubsystem(constants);
     armSubsystem = new ArmSubsystem(shoulderSubsystem, elevatorSubsystem, elbowSubsystem);
     rgbLightsSubsystem = new RGBlightsSubsystem();
     robotStateSubsystem =
@@ -117,7 +119,7 @@ public class RobotContainer {
     driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
 
     driveSubsystem.setVisionSubsystem(visionSubsystem);
-    visionSubsystem.setFillBuffers(true);
+    visionSubsystem.setFillBuffers(false); // FIXME TRUE
 
     // FIX ME
     robotStateSubsystem.setAllianceColor(Alliance.Blue);
@@ -233,10 +235,10 @@ public class RobotContainer {
     // // Elbow testing
     new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
         .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.1));
+        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.2));
     new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
         .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
+        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.2));
 
     // intake buttons
     // new JoystickButton(xboxController, 3).onTrue(new

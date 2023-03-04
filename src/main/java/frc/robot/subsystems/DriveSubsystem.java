@@ -75,13 +75,15 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private Trajectory place;
   public DriveStates currDriveState = DriveStates.IDLE;
   private boolean isShelf;
+  private Constants constants;
   // private boolean isAutoDriveFinished = false;
 
-  public DriveSubsystem() {
+  public DriveSubsystem(Constants constants) {
+    this.constants = constants;
     var moduleBuilder =
         new TalonSwerveModule.Builder()
             .driveGearRatio(DriveConstants.kDriveGearRatio)
-            .wheelDiameterInches(DriveConstants.kWheelDiameterInches)
+            .wheelDiameterInches(constants.kWheelDiameterInches)
             .driveMaximumMetersPerSecond(DriveConstants.kMaxSpeedMetersPerSecond);
 
     TalonSwerveModule[] swerveModules = new TalonSwerveModule[4];
