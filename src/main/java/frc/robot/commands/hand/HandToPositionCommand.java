@@ -19,6 +19,6 @@ public class HandToPositionCommand extends InstantCommand {
 
   @Override
   public void initialize() {
-    handSubsystem.setPos(leftPosition /*, rightPosition*/);
+    handSubsystem.stowHand(leftPosition /*, rightPosition*/);
   }
 }

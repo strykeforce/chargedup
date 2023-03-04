@@ -29,9 +29,11 @@ public class HandSubsystem extends MeasurableSubsystem {
   private int closingStableCounts;
 
   private boolean leftZeroDone;
+  private static Constants constants;
   // private boolean rightZeroDone;
 
-  public HandSubsystem() {
+  public HandSubsystem(Constants constants) {
+    HandSubsystem.constants = constants;
     handLeftTalon = new TalonSRX(Constants.HandConstants.kHandTalonId);
     handLeftTalon.configFactoryDefault();
     handLeftTalon.configAllSettings(Constants.HandConstants.getHandTalonConfig());
@@ -64,7 +66,7 @@ public class HandSubsystem extends MeasurableSubsystem {
   //   handRightTalon.set(ControlMode.MotionMagic, location);
   // }
 
-  public void setPos(double leftLocation /*, double rightLocation*/) {
+  private void setPos(double leftLocation /*, double rightLocation*/) {
     setLeftPos(leftLocation);
     // setRightPos(rightLocation);
   }
@@ -83,6 +85,12 @@ public class HandSubsystem extends MeasurableSubsystem {
 
   public double getLeftPos() {
     return handLeftTalon.getSelectedSensorPosition();
+  }
+
+  public void stowHand(double leftLocation) {
+    logger.info("{} -> STOW_CLOSED", handState);
+    handState = HandStates.STOW_CLOSED;
+    setPos(leftLocation);
   }
 
   // public double getRightPos() {
@@ -121,14 +129,11 @@ public class HandSubsystem extends MeasurableSubsystem {
     // // setRightPct(Constants.HandConstants.kHandZeroSpeed);
 
     double absolute = handLeftTalon.getSensorCollection().getPulseWidthPosition() & 0xFFF;
-    double offset = absolute - Constants.HandConstants.kHandZeroTicks;
+    double offset = absolute - constants.kHandZeroTicks;
     handLeftTalon.setSelectedSensorPosition(offset);
 
     logger.info(
-        "Absolute: {}, Zero pos: {}, Offset: {}",
-        absolute,
-        Constants.HandConstants.kHandZeroTicks,
-        offset);
+        "Absolute: {}, Zero pos: {}, Offset: {}", absolute, constants.kHandZeroTicks, offset);
 
     // logger.info("Hand is zeroing");
     // handState = HandStates.ZEROING;
@@ -264,7 +269,8 @@ public class HandSubsystem extends MeasurableSubsystem {
       case CONE_CLOSED:
         // logger.info("Hand is closed for cone");
         break;
-
+      case STOW_CLOSED:
+        break;
       case TRANSITIONING:
         if (desiredState == HandStates.CONE_CLOSED) {
           if (Math.abs(handLeftTalon.getSelectedSensorVelocity())
@@ -294,6 +300,7 @@ public class HandSubsystem extends MeasurableSubsystem {
     OPEN,
     CUBE_CLOSED,
     CONE_CLOSED,
+    STOW_CLOSED,
     TRANSITIONING
   }
 }
