@@ -7,6 +7,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -34,8 +35,10 @@ public class IntakeSubsystem extends MeasurableSubsystem {
   private final Logger logger = LoggerFactory.getLogger(IntakeSubsystem.class);
   private int beamBreakStableCounts = 0;
   private boolean beamBroken = false;
+  private Constants constants;
 
-  public IntakeSubsystem() {
+  public IntakeSubsystem(Constants constants) {
+    this.constants = constants;
     intakeFalcon = new TalonFX(IntakeConstants.kIntakeFalconID);
     intakeFalcon.configFactoryDefault();
     intakeFalcon.configAllSettings(IntakeConstants.getIntakeFalconConfig());
@@ -82,12 +85,12 @@ public class IntakeSubsystem extends MeasurableSubsystem {
   public void zeroIntake() {
     int absPos = extendTalon.getSensorCollection().getPulseWidthPosition() & 0xFFF;
 
-    int offset = absPos - IntakeConstants.kIntakeZeroTicks;
+    int offset = absPos - constants.kIntakeZeroTicks;
     extendTalon.setSelectedSensorPosition(offset);
     logger.info(
         "Intake zeroed; offset: {} zeroTicks: {} absPosition: {}",
         offset,
-        IntakeConstants.kIntakeZeroTicks,
+        constants.kIntakeZeroTicks,
         absPos);
   }
 

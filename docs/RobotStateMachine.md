@@ -1,4 +1,5 @@
 ``` mermaid
+
 stateDiagram-v2
     [*] --> stow
     stow --> intakeStage
@@ -49,19 +50,31 @@ stateDiagram-v2
         armToScore2 --> [*]: armInPos
     }
 
-    stow --> autoShelf
-    autoShelf --> waitShelf
+    stow --> toAutoShelf
+    toAutoShelf --> autoDrive : handFinished
+    autoDrive --> autoShelf : autoDriveFinished
+    autoShelf --> waitShelf : haveGamepiece
     waitShelf --> stow: odomDeltaDone
 
+    state toAutoShelf {
+        [*] --> armToShelf3
+        armToShelf3 --> openHand2 : armInPos
+        openHand2 --> [*] : handInPos
+    }
+
+    state autoDrive {
+        state checkFail <<choice>>
+        [*] --> checkFail
+        checkFail --> autoFailed : noOdomReset
+        checkFail --> driveAutoPath : OdomReset
+        driveAutoPath --> [*] : autoDriveFinished
+
+    }
+
     state autoShelf {
-        state driveAndArm2 <<fork>>
-        state armAndDrive2 <<join>>
-        [*] --> driveAndArm2
-        driveAndArm2 --> driveToPos2
-        driveAndArm2 --> armToShelf
-        driveToPos2 --> armAndDrive2 
-        armToShelf --> armAndDrive2
-        armAndDrive2 --> [*]: driveDone
+        [*] --> waitGamepiece
+        waitGamepiece --> closeHand3 : sensorSeePiece
+        closeHand3 --> [*] : handInPos
     }
 
     state grabGamepiece {
@@ -97,5 +110,7 @@ stateDiagram-v2
         [*] --> armToFloor
         armToFloor --> [*]
     }
+
+
 
 ```
