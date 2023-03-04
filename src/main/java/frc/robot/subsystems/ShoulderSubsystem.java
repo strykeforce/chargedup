@@ -48,6 +48,7 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
   }
 
   public void setPct(double pct) {
+    rightFollowerShoulderTalon.set(ControlMode.PercentOutput, pct);
     leftMainShoulderTalon.set(ControlMode.PercentOutput, pct);
   }
 
@@ -74,15 +75,23 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
   public void zeroShoulder() {
     double absoluteMain =
         leftMainShoulderTalon.getSensorCollection().getPulseWidthPosition() & 0xFFF;
+    double absoluteFollower =
+        rightFollowerShoulderTalon.getSensorCollection().getPulseWidthPosition() & 0xFFF;
     double offsetMain = absoluteMain - constants.kShoulderMainZeroTicks;
-
+    double offsetFollower = absoluteFollower - constants.kShoulderFollowerZeroTicks;
     leftMainShoulderTalon.setSelectedSensorPosition(offsetMain);
+    rightFollowerShoulderTalon.setSelectedSensorPosition(offsetFollower);
 
     logger.info(
         "Absolute Main: {}, Zero pos Main: {}, Offset Main: {}",
         absoluteMain,
         constants.kShoulderMainZeroTicks,
         offsetMain);
+    logger.info(
+        "Absolute Follower: {}, Zero pos Follower: {}, Offset Follower: {}",
+        absoluteFollower,
+        constants.kShoulderFollowerZeroTicks,
+        offsetFollower);
   }
 
   public void setSoftLimits(double minTicks, double maxTicks) {

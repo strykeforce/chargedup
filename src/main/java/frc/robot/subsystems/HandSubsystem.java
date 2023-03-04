@@ -66,7 +66,7 @@ public class HandSubsystem extends MeasurableSubsystem {
   //   handRightTalon.set(ControlMode.MotionMagic, location);
   // }
 
-  public void setPos(double leftLocation /*, double rightLocation*/) {
+  private void setPos(double leftLocation /*, double rightLocation*/) {
     setLeftPos(leftLocation);
     // setRightPos(rightLocation);
   }
@@ -85,6 +85,12 @@ public class HandSubsystem extends MeasurableSubsystem {
 
   public double getLeftPos() {
     return handLeftTalon.getSelectedSensorPosition();
+  }
+
+  public void stowHand(double leftLocation) {
+    logger.info("{} -> STOW_CLOSED", handState);
+    handState = HandStates.STOW_CLOSED;
+    setPos(leftLocation);
   }
 
   // public double getRightPos() {
@@ -263,7 +269,8 @@ public class HandSubsystem extends MeasurableSubsystem {
       case CONE_CLOSED:
         // logger.info("Hand is closed for cone");
         break;
-
+      case STOW_CLOSED:
+        break;
       case TRANSITIONING:
         if (desiredState == HandStates.CONE_CLOSED) {
           if (Math.abs(handLeftTalon.getSelectedSensorVelocity())
@@ -293,6 +300,7 @@ public class HandSubsystem extends MeasurableSubsystem {
     OPEN,
     CUBE_CLOSED,
     CONE_CLOSED,
+    STOW_CLOSED,
     TRANSITIONING
   }
 }

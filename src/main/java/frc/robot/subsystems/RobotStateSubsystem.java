@@ -164,7 +164,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
     intakeSubsystem.retractIntake();
 
-    if (gamePiece == GamePiece.NONE) handSubsystem.setPos(HandConstants.kConeGrabbingPosition);
+    if (gamePiece == GamePiece.NONE) handSubsystem.stowHand(HandConstants.kConeGrabbingPosition);
     currentAxis = CurrentAxis.HAND;
   }
 
