@@ -16,6 +16,6 @@ public class IntakeExtendCommand extends CommandBase {
   @Override
   public void initialize() {
     if (doExtend) intakeSubsystem.extendClosedLoop();
-    else intakeSubsystem.retractClosedLoop();
+    else intakeSubsystem.retractIntake();
   }
 }

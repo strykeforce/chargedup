@@ -20,7 +20,7 @@ public class HandToPositionCommand extends CommandBase {
 
   @Override
   public void initialize() {
-    handSubsystem.setPos(leftPosition /*, rightPosition*/);
+    handSubsystem.stowHand(leftPosition /*, rightPosition*/);
   }
 
   @Override

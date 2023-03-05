@@ -20,8 +20,10 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
   private double setPointTicks = 0;
   private CANifier remoteEncoder;
   private Logger logger = LoggerFactory.getLogger(ElbowSubsystem.class);
+  private Constants constants;
 
-  public ElbowSubsystem() {
+  public ElbowSubsystem(Constants constants) {
+    this.constants = constants;
     elbowFalcon = new TalonFX(ElbowConstants.kElbowFalconID);
     elbowFalcon.configFactoryDefault();
     elbowFalcon.configAllSettings(ElbowConstants.getElbowFalonConfig());
@@ -46,14 +48,14 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
 
   private void zeroElbow() {
     int absoluteTicks = getPulseWidthFor(PWMChannel.PWMChannel0);
-    int offset = absoluteTicks - ElbowConstants.kZeroTicks;
+    int offset = absoluteTicks - constants.kElbowZeroTicks;
     elbowFalcon.setSelectedSensorPosition(offset * Constants.ElbowConstants.kOffsetFactor);
     remoteEncoder.setQuadraturePosition(offset, 10);
     logger.info(
         "Zeroed elbow, absolute: {}, offset: {}, zero ticks: {}",
         absoluteTicks,
         offset,
-        ElbowConstants.kZeroTicks);
+        constants.kElbowZeroTicks);
   }
 
   public void rotateOpenLoop(double percentOutput) {
