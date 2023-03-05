@@ -20,12 +20,13 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.RGBlights.RGBsetPieceCommand;
-import frc.robot.commands.drive.AutoBalanceCommand;
 import frc.robot.commands.auto.ThreePiecePathCommandGroup;
+import frc.robot.commands.drive.AutoBalanceCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ResetOdometryCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
+import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elbow.ElbowOpenLoopCommand;
 import frc.robot.commands.elevator.AdjustElevatorCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
@@ -38,7 +39,6 @@ import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
-import frc.robot.commands.robotState.AutoPlaceCommandGroup;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.SetGamePieceCommand;
@@ -180,16 +180,16 @@ public class RobotContainer {
             robotStateSubsystem.getTargetCol(),
             true));*/
 
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
-        .onTrue(
-            new AutoPlaceCommandGroup(
-                driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-    //     .onTrue(new AutoBalanceCommand(true, driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+    //     .onTrue(
+    //         new AutoPlaceCommandGroup(
+    //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+        .onTrue(new AutoBalanceCommand(true, driveSubsystem, robotStateSubsystem));
 
     // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
-    // new JoystickButton(driveJoystick, InterlinkButton.X.id)
-    // .onTrue(new xLockCommand(driveSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.X.id)
+    .onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
         .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
