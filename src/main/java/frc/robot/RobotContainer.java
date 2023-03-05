@@ -185,11 +185,11 @@ public class RobotContainer {
     //         new AutoPlaceCommandGroup(
     //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
     new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-        .onTrue(new AutoBalanceCommand(true, driveSubsystem, robotStateSubsystem));
+        .onTrue(new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem));
 
     // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
-    .onTrue(new xLockCommand(driveSubsystem));
+        .onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
         .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)

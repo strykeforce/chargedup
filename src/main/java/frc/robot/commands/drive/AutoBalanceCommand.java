@@ -31,12 +31,22 @@ public class AutoBalanceCommand extends CommandBase {
   }
 
   @Override
+  public void execute() {
+    if (driveSubsystem.currDriveState == DriveStates.AUTO_BALANCE_FINISHED) {
+      driveSubsystem.autoBalanceReadjust = false;
+      driveSubsystem.autoBalanceGyroActive = false;
+    }
+  }
+
+  @Override
   public boolean isFinished() {
-    return driveSubsystem.currDriveState == DriveStates.AUTO_BALANCE_FINISHED;
+    return false; // driveSubsystem.currDriveState == DriveStates.AUTO_BALANCE_FINISHED;
   }
 
   @Override
   public void end(boolean interrupted) {
     logger.info("Autobalance Finished Interrupted: {}", interrupted);
+    driveSubsystem.autoBalanceReadjust = false;
+    driveSubsystem.autoBalanceGyroActive = false;
   }
 }

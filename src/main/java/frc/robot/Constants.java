@@ -203,11 +203,11 @@ public class Constants {
     public static final double kExpoScaleYawFactor = 0.75;
 
     // AutoBalance Constants
-    public static final double kAutoBalanceCloseEnoughDeg = 2;
+    public static final double kAutoBalanceCloseEnoughDeg = 2; // 2
     public static final double kAutoBalanceEnableGyroThresholdDegrees = 8;
     public static final double kAutoBalanceStableCount = 10;
     public static final double kAutoBalanceDriveVel = 0.55;
-    public static final double kAutoBalanceFinalDriveVel = 0.25;
+    public static final double kAutoBalanceFinalDriveVel = 0.25; // 0.25
     public static final double kAutoBalanceSlowdownTimeSec = 4.5; // 1/4 second to start
     public static final double kAutoBalanceStartTimerThresholdDeg = 5;
 
