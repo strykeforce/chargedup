@@ -46,6 +46,7 @@ public class HandSubsystem extends MeasurableSubsystem {
 
     rollerTalon = new TalonSRX(HandConstants.kRollerTalonId);
     rollerTalon.configFactoryDefault();
+    rollerTalon.configAllSettings(HandConstants.getRolleConfig());
     rollerTalon.configSupplyCurrentLimit(HandConstants.getRollerSupplyLimitConfig());
     rollerTalon.configForwardLimitSwitchSource(
         LimitSwitchSource.Deactivated, LimitSwitchNormal.Disabled);

@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import frc.robot.Constants;
+import frc.robot.Constants.ElevatorConstants;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,13 +76,10 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
     rightFollowFalcon.configForwardSoftLimitEnable(false);
     rightFollowFalcon.configReverseSoftLimitEnable(false);
 
-    leftMainFalcon.configSupplyCurrentLimit(
-        Constants.ElevatorConstants.getElevatorZeroSupplyCurrentLimit(),
-        Constants.kTalonConfigTimeout);
-
-    rightFollowFalcon.configSupplyCurrentLimit(
-        Constants.ElevatorConstants.getElevatorZeroSupplyCurrentLimit(),
-        Constants.kTalonConfigTimeout);
+    leftMainFalcon.configStatorCurrentLimit(
+        ElevatorConstants.getElevStatorCurrentLimitConfiguration());
+    rightFollowFalcon.configStatorCurrentLimit(
+        ElevatorConstants.getElevStatorCurrentLimitConfiguration());
 
     setPct(Constants.ElevatorConstants.kElevatorZeroSpeed);
 
@@ -124,6 +122,9 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
         if (elevatorZeroStableCounts > Constants.ElevatorConstants.kZeroStableCounts) {
           leftMainFalcon.setSelectedSensorPosition(0.0);
           rightFollowFalcon.setSelectedSensorPosition(0.0);
+
+          leftMainFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
+          rightFollowFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
           leftMainFalcon.configSupplyCurrentLimit(
               Constants.ElevatorConstants.getElevatorSupplyLimitConfig(),
               Constants.kTalonConfigTimeout);

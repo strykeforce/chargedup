@@ -24,6 +24,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private CurrentAxis currAxis;
   private boolean continueToIntake;
   private boolean continueToFloorSweep;
+  private boolean isShoulderStaged = false;
 
   public ArmSubsystem(
       ShoulderSubsystem shoulderSubsystem,
@@ -159,6 +160,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
     desiredState = currGamePiece == GamePiece.CUBE ? ArmState.HIGH_CUBE : ArmState.HIGH_CONE;
 
+    isShoulderStaged = false;
     switch (currState) {
       case STOW:
         logger.info("{} -> STOW_TO_HIGH", currState);
@@ -450,11 +452,17 @@ public class ArmSubsystem extends MeasurableSubsystem {
               currAxis = CurrentAxis.ELEVATOR;
               elevatorSubsystem.setPos(desiredState.elevatorPos);
             }
+            if (elbowSubsystem.getPos() >= ElbowConstants.kLevelTwoConeElbow && !isShoulderStaged) {
+              isShoulderStaged = true;
+              shoulderSubsystem.setPos(desiredState.shoulderPos);
+              elevatorSubsystem.setPos(desiredState.elevatorPos);
+            }
             break;
           case ELEVATOR:
             if (elevatorSubsystem.isFinished()) {
               currAxis = CurrentAxis.SHOULDER;
-              shoulderSubsystem.setPos(desiredState.shoulderPos);
+
+              if (!isShoulderStaged) shoulderSubsystem.setPos(desiredState.shoulderPos);
             }
             break;
           case SHOULDER:
