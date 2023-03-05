@@ -4,7 +4,10 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.CircularBuffer;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -15,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import org.slf4j.Logger;
@@ -24,7 +28,7 @@ import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
 import org.strykeforce.telemetry.measurable.Measure;
 
 public class VisionSubsystem extends MeasurableSubsystem {
-  PhotonCamera cam1; // = new PhotonCamera("OV9281");
+  PhotonCamera cam1 = new PhotonCamera("OV9281");
   private static final Logger logger = LoggerFactory.getLogger(VisionSubsystem.class);
   public static DriveSubsystem driveSubsystem;
   private CircularBuffer gyroBuffer;
@@ -49,15 +53,15 @@ public class VisionSubsystem extends MeasurableSubsystem {
     } catch (IOException e) {
       logger.error("VISION SUBSYSTEM : APRILTAG JSON FAILED");
     }
-    // photonPoseEstimator =
-    // new PhotonPoseEstimator(
-    //     aprilTagFieldLayout,
-    //     PoseStrategy.LOWEST_AMBIGUITY,
-    //     cam1,
-    //     // -.25, .11,0 // 0,10, 187
-    //     new Transform3d(
-    //         new Translation3d(0, 0, 0),
-    //         new Rotation3d(0, Units.degreesToRadians(0), Units.degreesToRadians(0))));
+    photonPoseEstimator =
+        new PhotonPoseEstimator(
+            aprilTagFieldLayout,
+            PoseStrategy.LOWEST_AMBIGUITY,
+            cam1,
+            // -.25, .11,0 // 0,10, 187
+            new Transform3d(
+                new Translation3d(0, 0, 0),
+                new Rotation3d(0, Units.degreesToRadians(0), Units.degreesToRadians(0))));
   }
 
   public Translation2d cameraOffset() {
@@ -94,13 +98,13 @@ public class VisionSubsystem extends MeasurableSubsystem {
     return targets.size();
   }
 
-  // public double getAmbiguity() {
-  //   if (!isCameraWorking()) return 2767;
-  //   if (getHasTargets() == 1.0) {
-  //     return bestTarget.getPoseAmbiguity();
-  //   }
-  //   return 2767;
-  // }
+  public double getAmbiguity() {
+    if (!isCameraWorking()) return 2767;
+    if (getHasTargets() == 1.0) {
+      return bestTarget.getPoseAmbiguity();
+    }
+    return 2767;
+  }
 
   public double getHasTargets() {
     if (result.hasTargets()) return 1.0;
@@ -149,9 +153,9 @@ public class VisionSubsystem extends MeasurableSubsystem {
     canFillBuffers = set;
   }
 
-  // public boolean isCameraWorking() {
-  //   return cam1.isConnected();
-  // }
+  public boolean isCameraWorking() {
+    return cam1.isConnected();
+  }
 
   @Override
   public void periodic() {
@@ -161,11 +165,11 @@ public class VisionSubsystem extends MeasurableSubsystem {
     } catch (Exception e) {
       // logger.info("VISION : GET LATEST FAILED");
     }
-    // if (result.hasTargets()) {
-    //   targets = result.getTargets();
-    //   bestTarget = result.getBestTarget();
-    //   timeStamp = result.getTimestampSeconds();
-    // }
+    if (result.hasTargets()) {
+      targets = result.getTargets();
+      bestTarget = result.getBestTarget();
+      timeStamp = result.getTimestampSeconds();
+    }
     double x = robotPose.getX(), y = robotPose.getY();
     try {
       if (result.hasTargets() && result.getBestTarget().getPoseAmbiguity() <= 0.15) {
@@ -222,7 +226,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
         new Measure("Distance to 8", () -> targetDist(8)),
         new Measure("Best Target Id", () -> getBestTarget()),
         new Measure("Num Targets", () -> getNumTargets()),
-        // new Measure("BestTarget Ambiguity", () -> getAmbiguity()),
+        new Measure("BestTarget Ambiguity", () -> getAmbiguity()),
         new Measure("Time Stamp", () -> timeStamp),
         new Measure(
             "Vision Odometry X(Offset)", () -> (getOdometry().getX() + cameraOffset().getX())),

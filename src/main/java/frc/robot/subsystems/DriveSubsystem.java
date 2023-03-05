@@ -81,6 +81,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private AHRS ahrs;
   private boolean autoBalanceGyroActive = false;
   private double autoBalanceStableCounts = 0;
+  private Timer autoBalanceTimer = new Timer();
   // private boolean isAutoDriveFinished = false;
 
   public DriveSubsystem(Constants constants) {
@@ -390,7 +391,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         }
         if (autoDriving
             && !visionUpdates
-            && (!visionSubsystem.getOdomAutoBool())) { // || !visionSubsystem.isCameraWorking())) {
+            && (!visionSubsystem.getOdomAutoBool() || !visionSubsystem.isCameraWorking())) {
           visionSubsystem.setOdomAutoBool(false);
           grapherTrajectoryActive(false);
           setEnableHolo(false);
@@ -411,18 +412,27 @@ public class DriveSubsystem extends MeasurableSubsystem {
       case AUTO_DRIVE_FINISHED:
         break;
       case AUTO_BALANCE:
-        if (autoBalanceGyroActive == false && Math.abs(ahrs.getRoll() - 2) >= 5) {
-          //Start timer here.
+        if (autoBalanceGyroActive == false) {
+          if (Math.abs(ahrs.getRoll()) >= DriveConstants.kAutoBalanceStartTimerThresholdDeg) {
+            autoBalanceTimer.reset();
+            autoBalanceTimer.start();
+            logger.info("Started Autobalance Timer");
+          }
+          if (Math.abs(ahrs.getRoll()) >= DriveConstants.kAutoBalanceEnableGyroThresholdDegrees) {
+            logger.info("Autobalance Enabled Gyro");
+            autoBalanceGyroActive = true;
+          }
         }
-        if (autoBalanceGyroActive == false
-            && Math.abs(ahrs.getRoll() - 2)
-                >= DriveConstants.kAutoBalanceEnableGyroThresholdDegrees) {
-          logger.info("Autobalance Enabled Gyro");
-          autoBalanceGyroActive = true;
+
+        if (autoBalanceTimer.hasElapsed(DriveConstants.kAutoBalanceSlowdownTimeSec)) {
+          logger.info("Autobalance driving at slower speed");
+          drive(DriveConstants.kAutoBalanceFinalDriveVel, 0, 0);
+          autoBalanceTimer.stop();
+          autoBalanceTimer.reset();
         }
         if (autoBalanceGyroActive == true
-            && ahrs.getRoll() - 2 <= DriveConstants.kAutoBalanceCloseEnoughDeg
-            && ahrs.getRoll() - 2 >= -DriveConstants.kAutoBalanceCloseEnoughDeg) {
+            && ahrs.getRoll() <= DriveConstants.kAutoBalanceCloseEnoughDeg
+            && ahrs.getRoll() >= -DriveConstants.kAutoBalanceCloseEnoughDeg) {
           // Stop
           double autoBalanceStableCountChange = autoBalanceStableCounts;
           drive(0, 0, 0);

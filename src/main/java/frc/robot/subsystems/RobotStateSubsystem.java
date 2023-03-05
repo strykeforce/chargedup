@@ -126,9 +126,9 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     return allianceColor;
   }
 
-  // public boolean isCameraWorking() {
-  //   return visionSubsystem.isCameraWorking();
-  // }
+  public boolean isCameraWorking() {
+    return visionSubsystem.isCameraWorking();
+  }
 
   public void toIntake() {
     logger.info("{} -->  TO_INTAKE_STAGE", currRobotState);
@@ -662,13 +662,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // }
         break;
       case CHECK_AMBIGUITY:
-        // if (visionSubsystem.getAmbiguity() <= 0.15) {
-        //   rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
-        //   // toAutoDrive();
-        // }
-        // if (visionSubsystem.getAmbiguity() > 0.15) {
-        //   rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
-        // }
+        if (visionSubsystem.getAmbiguity() <= 0.15) {
+          rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
+          // toAutoDrive();
+        }
+        if (visionSubsystem.getAmbiguity() > 0.15) {
+          rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
+        }
         break;
       default:
         break;
