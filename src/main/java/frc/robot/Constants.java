@@ -66,12 +66,12 @@ public class Constants {
   public static final class RobotStateConstants {
     public static final double kRobotLength = 1.5; // FIXME m
     public static final double kPoleToCenterOffset = 1.38 + kRobotLength / 2.0; // m
-    public static final double kAutoPlaceX = 1.88; // FIXME m 2.5
+    public static final double kAutoPlaceX = 1.85; // FIXME m 2.5
 
     public static final Pose2d kShelfBlue =
-        new Pose2d(new Translation2d(15.30, 6.749796), new Rotation2d());
+        new Pose2d(new Translation2d(15.33, 6.749796), new Rotation2d());
     public static final Pose2d kShelfRed =
-        new Pose2d(new Translation2d(1.17, 6.749796), new Rotation2d());
+        new Pose2d(new Translation2d(1.14, 6.749796), new Rotation2d());
 
     public static final double kPolePlaceOffset = 0.56;
     public static final double kShelfOffset = 0.75;
@@ -238,7 +238,7 @@ public class Constants {
       driveConfig.supplyCurrLimit.triggerThresholdTime = 1.0;
       driveConfig.supplyCurrLimit.enable = true;
       driveConfig.statorCurrLimit.enable = false;
-      driveConfig.slot0.kP = 0.08;
+      driveConfig.slot0.kP = 0.16; // 0.16
       driveConfig.slot0.kI = 0.0002;
       driveConfig.slot0.kD = 0.000;
       driveConfig.slot0.kF = 0.047;
@@ -253,11 +253,13 @@ public class Constants {
       return driveConfig;
     }
     // Holonomic Controller Constants
-    public static final double kPHolonomic = 6.0;
-    public static final double kIHolonomic = 0.0;
-    public static final double kDHolonomic = kPHolonomic / 100.0;
+    public static final double kPHolonomic = 0.25; // 6 0.25
+    public static final double kIHolonomic = 0.0000;
+    public static final double kDHolonomic = 0.00; // kPHolonomic/100
+    public static final double kIMin = 0.0;
+    public static final double kIMax = 0.0;
 
-    public static final double kPOmega = 2.5;
+    public static final double kPOmega = 4.5;
     public static final double kIOmega = 0.0;
     public static final double kDOmega = 0.0;
     //    public static final double kMaxVelOmega = kMaxOmega / 2.0;
@@ -354,7 +356,7 @@ public class Constants {
     public static final double kLevelTwoCubeElevator = -40_000; // old -47_674
     public static final double kLevelThreeConeElevator = -1_500;
     public static final double kLevelThreeCubeElevator = kLevelThreeConeElevator;
-    public static final double kShelfElevator = -11_106; // -14_106
+    public static final double kShelfElevator = -12_606; // -14_106
 
     public static TalonFXConfiguration getElevatorFalconConfig() {
       TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
@@ -716,6 +718,6 @@ public class Constants {
     public static final int kIntakeZeroTicks = 3150;
 
     // Hand
-    public static final double kHandZeroTicks = 975;
+    public static final double kHandZeroTicks = 975; // 975
   }
 }

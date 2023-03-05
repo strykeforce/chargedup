@@ -55,6 +55,10 @@ public class DriveAutonCommand extends CommandBase {
     driveSubsystem.grapherTrajectoryActive(true);
     timer.reset();
     logger.info("Begin Trajectory: {}", trajectoryName);
+    if (trajectoryGenerated) {
+      Trajectory.State desiredState = trajectory.sample(timer.get());
+      driveSubsystem.calculateController(desiredState, robotHeading);
+    }
   }
 
   @Override

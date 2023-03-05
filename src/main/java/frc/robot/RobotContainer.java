@@ -149,7 +149,7 @@ public class RobotContainer {
 
   // Path Configuration For Robot Container
   private void configurePaths() {
-    testPath = new DriveAutonCommand(driveSubsystem, "pieceTwoToDockPath", true, true);
+    testPath = new DriveAutonCommand(driveSubsystem, "pieceTwoFetchPath", true, true);
     threePiecePath =
         new ThreePiecePathCommandGroup(
             driveSubsystem,
@@ -186,14 +186,14 @@ public class RobotContainer {
     // .onTrue(new xLockCommand(driveSubsystem));
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
     //     .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(threePiecePath);
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(threePiecePath);
 
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
     // .onTrue(new DriveAutonCommand(driveSubsystem, "straightPathX", true, true));
     // Requires swerve migration to new Pose2D
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
     // {driveSubsystem.resetOdometry(new Pose2d());},driveSubsystem);
-    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(testPath);
+    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(testPath);
 
     // Hand
     /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
