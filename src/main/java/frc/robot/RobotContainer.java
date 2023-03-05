@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
@@ -19,9 +20,9 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.RGBlights.RGBsetPieceCommand;
+import frc.robot.commands.auto.ThreePiecePathCommandGroup;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
-import frc.robot.commands.drive.ResetOdometryCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.elbow.ElbowOpenLoopCommand;
 import frc.robot.commands.elevator.AdjustElevatorCommand;
@@ -92,6 +93,7 @@ public class RobotContainer {
   private DriveAutonCommand testPath;
 
   private HandSubsystem handSubsystem;
+  private ThreePiecePathCommandGroup threePiecePath;
 
   public RobotContainer() {
     constants = new Constants();
@@ -145,9 +147,19 @@ public class RobotContainer {
     telemetryService.start();
   }
 
+  // Path Configuration For Robot Container
   private void configurePaths() {
-    testPath = new DriveAutonCommand(driveSubsystem, "mirrorTestPath", true, true);
+    testPath = new DriveAutonCommand(driveSubsystem, "pieceTwoFetchPath", true, true);
+    threePiecePath =
+        new ThreePiecePathCommandGroup(
+            driveSubsystem,
+            "pieceOneFetchPath",
+            "pieceOnePlacePath",
+            "pieceTwoFetchPath",
+            "pieceTwoPlacePath");
   }
+
+  // , "pieceTwoPlacePath"
 
   private void configureDriverButtonBindings() {
     driveSubsystem.setDefaultCommand(
@@ -172,15 +184,16 @@ public class RobotContainer {
     // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
     // new JoystickButton(driveJoystick, InterlinkButton.X.id)
     // .onTrue(new xLockCommand(driveSubsystem));
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-        .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+    //     .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(threePiecePath);
 
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
     // .onTrue(new DriveAutonCommand(driveSubsystem, "straightPathX", true, true));
     // Requires swerve migration to new Pose2D
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
     // {driveSubsystem.resetOdometry(new Pose2d());},driveSubsystem);
-    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(testPath);
+    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(testPath);
 
     // Hand
     /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
@@ -477,6 +490,13 @@ public class RobotContainer {
             "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
     robotStateSubsystem.setAllianceColor(alliance);
     testPath.generateTrajectory();
+    threePiecePath.generateTrajectory();
+    // Flips gyro angle if alliance is red team
+    if (robotStateSubsystem.getAllianceColor() == Alliance.Red) {
+      driveSubsystem.setGyroOffset(Rotation2d.fromDegrees(180));
+    } else {
+      driveSubsystem.setGyroOffset(Rotation2d.fromDegrees(0));
+    }
   }
 
   public void updateGamePiece() {
