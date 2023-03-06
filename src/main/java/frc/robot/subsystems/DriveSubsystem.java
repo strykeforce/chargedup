@@ -652,7 +652,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
     holoContInput = desiredState;
     holoContAngle = desiredAngle;
     holoContOutput = holonomicController.calculate(getPoseMeters(), desiredState, desiredAngle);
-    logger.info("input: {}, output: {}, angle: {}", holoContInput, holoContOutput, desiredAngle);
+    // logger.info("input: {}, output: {}, angle: {}", holoContInput, holoContOutput, desiredAngle);
     move(
         holoContOutput.vxMetersPerSecond,
         holoContOutput.vyMetersPerSecond,
