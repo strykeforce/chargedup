@@ -1,9 +1,10 @@
 package frc.robot.commands.robotState;
 
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.RobotStateSubsystem;
+import frc.robot.subsystems.RobotStateSubsystem.RobotState;
 
-public class ShelfPickupCommand extends InstantCommand {
+public class ShelfPickupCommand extends CommandBase {
   private RobotStateSubsystem robotStateSubsystem;
 
   public ShelfPickupCommand(RobotStateSubsystem robotStateSubsystem) {
@@ -13,5 +14,10 @@ public class ShelfPickupCommand extends InstantCommand {
   @Override
   public void initialize() {
     robotStateSubsystem.toManualShelf();
+  }
+
+  @Override
+  public boolean isFinished() {
+    return robotStateSubsystem.getRobotState() == RobotState.MANUAL_SHELF;
   }
 }
