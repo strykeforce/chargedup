@@ -4,7 +4,6 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import frc.robot.Constants;
-import frc.robot.Constants.ShoulderConstants;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,11 +75,11 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
   public void zeroShoulder() {
     double absoluteMain =
         leftMainShoulderTalon.getSensorCollection().getPulseWidthPosition() & 0xFFF;
-    double offsetMain = absoluteMain - ShoulderConstants.kShoulderMainZeroTicks;
+    double offsetMain = absoluteMain - constants.kShoulderMainZeroTicks;
 
     double absoluteFollower =
         rightFollowerShoulderTalon.getSensorCollection().getPulseWidthPosition() & 0xFFF;
-    double offsetFollower = absoluteFollower - ShoulderConstants.kShoulderFollowerZeroTicks;
+    double offsetFollower = absoluteFollower - constants.kShoulderFollowerZeroTicks;
     leftMainShoulderTalon.setSelectedSensorPosition(offsetMain);
     rightFollowerShoulderTalon.setSelectedSensorPosition(offsetFollower);
 
