@@ -6,7 +6,7 @@ is_reversed = false
 target_yaw = 0.0 #degrees
 
 [start_pose]
-    x = 2.02
+    x = 2.02 #FIXME point is from end of floor node to center of robot measured on practice bot
     y = 4.895
     angle = 0.0
 

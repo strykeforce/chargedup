@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.RGBlights.RGBsetPieceCommand;
+import frc.robot.commands.auto.CommunityToDockCommandGroup;
 import frc.robot.commands.auto.ThreePiecePathCommandGroup;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
@@ -91,6 +92,7 @@ public class RobotContainer {
 
   // Paths
   private DriveAutonCommand testPath;
+  private CommunityToDockCommandGroup communityToDockCommandGroup;
 
   private HandSubsystem handSubsystem;
   private ThreePiecePathCommandGroup threePiecePath;
@@ -157,6 +159,11 @@ public class RobotContainer {
             "pieceOnePlacePath",
             "pieceTwoFetchPath",
             "pieceTwoPlacePath");
+    communityToDockCommandGroup =
+        new CommunityToDockCommandGroup(
+            driveSubsystem, 
+            "piecePlaceToCommunityPath", 
+            "communityToDockPath");
   }
 
   // , "pieceTwoPlacePath"
@@ -193,7 +200,7 @@ public class RobotContainer {
     // Requires swerve migration to new Pose2D
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
     // {driveSubsystem.resetOdometry(new Pose2d());},driveSubsystem);
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(testPath);
+    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(communityToDockCommandGroup);
 
     // Hand
     /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
@@ -490,6 +497,7 @@ public class RobotContainer {
             "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
     robotStateSubsystem.setAllianceColor(alliance);
     testPath.generateTrajectory();
+    communityToDockCommandGroup.generateTrajectory();
     threePiecePath.generateTrajectory();
     // Flips gyro angle if alliance is red team
     if (robotStateSubsystem.getAllianceColor() == Alliance.Red) {
