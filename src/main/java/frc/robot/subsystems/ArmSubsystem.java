@@ -677,7 +677,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
     INTAKE_STAGE(
         ShoulderConstants.kIntakeShoulder,
         ElevatorConstants.kStowElevator,
-        ElbowConstants.kIntakeElbow),
+        ElbowConstants.kIntakeStageElbow),
     LOW(
         ShoulderConstants.kLevelOneShoulder,
         ElevatorConstants.kLevelOneElevator,

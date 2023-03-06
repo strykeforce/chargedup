@@ -123,6 +123,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
           leftMainFalcon.setSelectedSensorPosition(0.0);
           rightFollowFalcon.setSelectedSensorPosition(0.0);
 
+          setPct(0);
           leftMainFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
           rightFollowFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
           leftMainFalcon.configSupplyCurrentLimit(
@@ -136,7 +137,6 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
           leftMainFalcon.configForwardSoftLimitEnable(true);
           leftMainFalcon.configReverseSoftLimitEnable(true);
 
-          setPct(0);
           desiredPosition = 0;
           elevatorState = ElevatorState.ZEROED;
           logger.info("Elevator is zeroed");
