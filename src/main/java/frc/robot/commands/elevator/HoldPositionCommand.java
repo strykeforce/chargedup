@@ -1,7 +1,6 @@
 package frc.robot.commands.elevator;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 public class HoldPositionCommand extends CommandBase {
@@ -19,6 +18,6 @@ public class HoldPositionCommand extends CommandBase {
 
   @Override
   public boolean isFinished() {
-      return elevatorSubsystem.isFinished();
+    return elevatorSubsystem.isFinished();
   }
 }

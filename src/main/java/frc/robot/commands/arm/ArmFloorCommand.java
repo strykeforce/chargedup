@@ -1,6 +1,5 @@
 package frc.robot.commands.arm;
 
-
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;

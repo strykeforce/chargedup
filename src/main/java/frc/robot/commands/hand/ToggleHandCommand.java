@@ -1,7 +1,6 @@
 package frc.robot.commands.hand;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.HandSubsystem;
 import frc.robot.subsystems.HandSubsystem.HandStates;
@@ -33,6 +32,6 @@ public class ToggleHandCommand extends CommandBase {
 
   @Override
   public boolean isFinished() {
-      return handSubsystem.isFinished();
+    return handSubsystem.isFinished();
   }
 }

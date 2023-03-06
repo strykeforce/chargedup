@@ -1,7 +1,6 @@
 package frc.robot.commands.hand;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.HandSubsystem;
 import frc.robot.subsystems.HandSubsystem.HandStates;
 
@@ -21,6 +20,6 @@ public class GrabCubeCommand extends CommandBase {
 
   @Override
   public boolean isFinished() {
-      return handSubsystem.getHandState() == HandStates.CUBE_CLOSED;
+    return handSubsystem.getHandState() == HandStates.CUBE_CLOSED;
   }
 }

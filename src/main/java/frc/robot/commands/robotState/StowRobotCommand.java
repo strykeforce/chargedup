@@ -1,7 +1,6 @@
 package frc.robot.commands.robotState;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.HandSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -30,6 +29,6 @@ public class StowRobotCommand extends CommandBase {
 
   @Override
   public boolean isFinished() {
-      return robotStateSubsystem.getRobotState() == RobotState.STOW;
+    return robotStateSubsystem.getRobotState() == RobotState.STOW;
   }
 }

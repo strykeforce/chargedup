@@ -1,7 +1,6 @@
 package frc.robot.commands.hand;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.HandSubsystem;
 
 public class HandToPositionCommand extends CommandBase {
@@ -25,6 +24,6 @@ public class HandToPositionCommand extends CommandBase {
 
   @Override
   public boolean isFinished() {
-      return handSubsystem.isFinished();
+    return handSubsystem.isFinished();
   }
 }

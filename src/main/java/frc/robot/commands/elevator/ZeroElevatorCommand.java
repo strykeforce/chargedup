@@ -1,7 +1,6 @@
 package frc.robot.commands.elevator;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem.ElevatorState;
 
@@ -21,6 +20,6 @@ public class ZeroElevatorCommand extends CommandBase {
 
   @Override
   public boolean isFinished() {
-      return elevatorSubsystem.getElevatorState() == ElevatorState.ZEROED;
+    return elevatorSubsystem.getElevatorState() == ElevatorState.ZEROED;
   }
 }
