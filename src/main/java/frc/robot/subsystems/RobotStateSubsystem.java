@@ -48,6 +48,9 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private boolean isAutoPlacing = false;
   private boolean cameraWork = false;
   private boolean hasIntakeDelayPassed = false;
+  private boolean retakeAfterScore = false;
+  private boolean allIntake = false;
+  private double retakeXIntial = -1.0;
   private Timer floorSweepTimer = new Timer();
 
   public RobotStateSubsystem(
@@ -270,6 +273,15 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     currRobotState = RobotState.AUTO_SCORE;
   }
 
+  public boolean shouldRetakeArm() {
+    return retakeAfterScore
+        && (isBlueAlliance()
+                && driveSubsystem.getPoseMeters().getX()
+                    > retakeXIntial + RobotStateConstants.kRetakeAfterPlaceOffset
+            || driveSubsystem.getPoseMeters().getX()
+                < retakeXIntial - RobotStateConstants.kRetakeAfterPlaceOffset);
+  }
+
   @Override
   public void periodic() {
     if (!cameraWork && isCameraWorking()) {
@@ -318,7 +330,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             }
             break;
           case ARM:
+            if (!armSubsystem.isFullRetaking() && shouldRetakeArm())
+              armSubsystem.setArmRetake(true);
             if (armSubsystem.getCurrState() == ArmState.STOW) {
+              armSubsystem.setArmRetake(false);
+              retakeAfterScore = false;
               currentAxis = CurrentAxis.INTAKE;
               intakeSubsystem.retractIntake();
             }
@@ -592,6 +608,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           isReleaseDelayTimerRunning = true;
         } else if (isReleaseDelayTimerRunning
             && releaseDelayTimer.hasElapsed(RobotStateConstants.kReleaseDelayTime)) {
+          retakeAfterScore = true;
+          retakeXIntial = driveSubsystem.getPoseMeters().getX();
           isReleaseDelayTimerRunning = false;
           releaseDelayTimer.stop();
           toStow();
@@ -676,14 +694,15 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         } // FIXME ELSE??
         break;
       case CHECK_AMBIGUITY:
-        if (handSubsystem.hasCone()) {
-          handSubsystem.grabCone();
-          gamePiece = GamePiece.CONE;
-          currPoseX = driveSubsystem.getPoseMeters().getX();
-          rgbLightsSubsystem.setColor(0.0, 1.0, 0.0);
-          logger.info("{} -> SHELF_WAIT_TRANSITION", currRobotState);
-          currRobotState = RobotState.SHELF_WAIT_TRANSITION;
-        }
+        if (gamePiece == GamePiece.NONE)
+          if (handSubsystem.hasCone()) {
+            handSubsystem.grabCone();
+            gamePiece = GamePiece.CONE;
+            currPoseX = driveSubsystem.getPoseMeters().getX();
+            rgbLightsSubsystem.setColor(0.0, 1.0, 0.0);
+            logger.info("{} -> SHELF_WAIT_TRANSITION", currRobotState);
+            currRobotState = RobotState.SHELF_WAIT_TRANSITION;
+          }
         if (visionSubsystem.getAmbiguity() <= 0.15) {
           rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
           // toAutoDrive();
