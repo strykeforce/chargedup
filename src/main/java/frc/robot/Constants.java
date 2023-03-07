@@ -143,6 +143,10 @@ public class Constants {
   public static final class AutonConstants {
     public static final double kPastXPosition = 8.0; // FIXME put in real number
     public static final double kMinXFastStow = 2.1;
+
+    public static final int kStartSwitchID = 0;
+    public static final int kEndSwitchId = 5;
+    public static final int kSwitchStableCounts = 100;
   }
 
   public static final class DriveConstants {

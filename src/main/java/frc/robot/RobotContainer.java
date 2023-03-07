@@ -52,6 +52,7 @@ import frc.robot.commands.shoulder.ShoulderSpeedCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.commands.vision.ToggleUpdateWithVisionCommand;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.AutoSwitch;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElbowSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -81,6 +82,7 @@ public class RobotContainer {
   private final VisionSubsystem visionSubsystem;
   private final RGBlightsSubsystem rgbLightsSubsystem;
   private final Constants constants;
+  private final AutoSwitch autoSwitch;
 
   private final XboxController xboxController = new XboxController(1);
   private final Joystick driveJoystick = new Joystick(0);
@@ -122,6 +124,19 @@ public class RobotContainer {
             visionSubsystem,
             rgbLightsSubsystem);
 
+    autoSwitch =
+        new AutoSwitch(
+            robotStateSubsystem,
+            driveSubsystem,
+            intakeSubsystem,
+            armSubsystem,
+            shoulderSubsystem,
+            elevatorSubsystem,
+            elbowSubsystem,
+            handSubsystem,
+            visionSubsystem,
+            rgbLightsSubsystem);
+
     driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
 
     driveSubsystem.setVisionSubsystem(visionSubsystem);
@@ -142,6 +157,14 @@ public class RobotContainer {
 
   public void setAuto(boolean isAuto) {
     robotStateSubsystem.setAutoMode(isAuto);
+  }
+
+  public AutoSwitch getAutoSwitch() {
+    return autoSwitch;
+  }
+
+  public void zeroElevator() {
+    if (!elevatorSubsystem.hasZeroed()) elevatorSubsystem.zeroElevator();
   }
 
   private void configureTelemetry() {
@@ -431,6 +454,10 @@ public class RobotContainer {
         .addBoolean("IsCameraWorking", () -> visionSubsystem.isCameraWorking())
         .withSize(1, 1)
         .withPosition(7, 0);
+    Shuffleboard.getTab("Match")
+        .addBoolean("IsTrajGenerated", () -> autoSwitch.getAutCommand().hasGenerated())
+        .withSize(1, 1)
+        .withPosition(7, 1);
   }
 
   private void configurePitDashboard() {
@@ -525,6 +552,7 @@ public class RobotContainer {
     communityToDockCommandGroup.generateTrajectory();
     twoPieceWithDockAutoCommandGroup.generateTrajectory();
     threePiecePath.generateTrajectory();
+    autoSwitch.getAutCommand().generateTrajectory();
     // Flips gyro angle if alliance is red team
     if (robotStateSubsystem.getAllianceColor() == Alliance.Red) {
       driveSubsystem.setGyroOffset(Rotation2d.fromDegrees(180));

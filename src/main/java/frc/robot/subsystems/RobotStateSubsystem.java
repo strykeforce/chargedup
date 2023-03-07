@@ -180,7 +180,18 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     currRobotState = RobotState.TO_STOW;
     nextRobotState = nextState;
 
-    if (gamePiece == GamePiece.NONE) handSubsystem.stowHand(HandConstants.kConeGrabbingPosition);
+    switch (gamePiece) {
+      case CONE:
+        handSubsystem.grabCone();
+        break;
+      case CUBE:
+        handSubsystem.grabCube();
+        break;
+      case NONE:
+        handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition);
+    }
+
+    // if (gamePiece == GamePiece.NONE) handSubsystem.stowHand(HandConstants.kConeGrabbingPosition);
     currentAxis = CurrentAxis.HAND;
   }
 

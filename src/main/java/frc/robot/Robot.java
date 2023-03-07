@@ -8,14 +8,14 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.robotState.SetAllianceCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
+  private AutoCommandInterface m_autonomousCommand;
   private static final Logger logger = LoggerFactory.getLogger(Robot.class);
 
   private RobotContainer m_robotContainer;
@@ -49,24 +49,33 @@ public class Robot extends TimedRobot {
         haveAlliance = true;
         m_robotContainer.setAllianceColor(alliance);
         logger.info("Set Alliance {}", alliance);
+        m_robotContainer.getAutoSwitch().getAutCommand().generateTrajectory();
       }
     }
   }
 
   @Override
   public void disabledInit() {
-    logger.info("Disabled Robot.");
+    logger.info("Disabled Init");
   }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    m_robotContainer.getAutoSwitch().checkSwitch();
+  }
 
   @Override
   public void disabledExit() {}
 
   @Override
   public void autonomousInit() {
+    logger.info("Autonomous Init");
     m_robotContainer.setAuto(true);
+    m_autonomousCommand = m_robotContainer.getAutoSwitch().getAutCommand();
+    if (m_autonomousCommand != null) {
+      if (!m_autonomousCommand.hasGenerated()) m_autonomousCommand.generateTrajectory();
+      m_autonomousCommand.schedule();
+    }
   }
 
   @Override
@@ -77,9 +86,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    logger.info("Teleop Init");
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    m_robotContainer.zeroElevator();
+    // m_robotContainer.setAuto(false); commented out for now - to allow testing in Tele
   }
 
   @Override
