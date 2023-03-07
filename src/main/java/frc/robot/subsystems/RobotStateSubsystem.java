@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -49,6 +50,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private boolean cameraWork = false;
   private boolean hasIntakeDelayPassed = false;
   private Timer floorSweepTimer = new Timer();
+  private Pose2d tempStowPose;
 
   public RobotStateSubsystem(
       IntakeSubsystem intakeSubsystem,
@@ -169,12 +171,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     if (gamePiece == GamePiece.NONE) handSubsystem.stowHand(HandConstants.kConeGrabbingPosition);
     currentAxis = CurrentAxis.HAND;
   }
+
   public void toStowScore(RobotState nextState) {
     logger.info("{} --> TO_STOW(SCORE)", currRobotState);
     currRobotState = RobotState.TO_STOW;
     nextRobotState = nextState;
-
-    //if (gamePiece == GamePiece.NONE) handSubsystem.stowHand(HandConstants.kConeGrabbingPosition);
+    tempStowPose = driveSubsystem.getPoseMeters();
+    // if (gamePiece == GamePiece.NONE) handSubsystem.stowHand(HandConstants.kConeGrabbingPosition);
     currentAxis = CurrentAxis.HAND;
   }
 
@@ -320,6 +323,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       case TO_STOW:
         switch (currentAxis) {
           case HAND:
+            Translation2d stowTranslation = tempStowPose.getTranslation();
+            if (Math.abs(stowTranslation.getDistance(driveSubsystem.getPoseMeters().getTranslation())) >= .1) {
+              if (gamePiece == GamePiece.NONE) handSubsystem.stowHand(HandConstants.kConeGrabbingPosition);
+            }
             if (handSubsystem.isFinished()) {
               currentAxis = CurrentAxis.ARM;
               armSubsystem.toStowPos();

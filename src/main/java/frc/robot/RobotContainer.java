@@ -252,9 +252,9 @@ public class RobotContainer {
     // .onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));
 
     // Toggle auto staging
-    new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
+    new JoystickButton(driveJoystick, Trim.RIGHT_Y_POS.id)
         .onTrue(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem));
-    new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
+    new JoystickButton(driveJoystick, Trim.RIGHT_Y_NEG.id)
         .onTrue(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem));
     // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
     //     .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
