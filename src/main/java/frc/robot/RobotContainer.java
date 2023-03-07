@@ -207,6 +207,7 @@ public class RobotContainer {
             robotStateSubsystem,
             handSubsystem,
             armSubsystem,
+            elevatorSubsystem,
             "piecePlaceToCommunityPath",
             "communityToDockPath");
   }
