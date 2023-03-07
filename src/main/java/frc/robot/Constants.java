@@ -68,6 +68,7 @@ public class Constants {
     public static final double kRobotLength = 1.5; // FIXME m
     public static final double kPoleToCenterOffset = 1.38 + kRobotLength / 2.0; // m
     public static final double kAutoPlaceX = 1.85; // FIXME m 2.5
+    public static final double kRetakeAfterPlaceOffset = 1.0;
 
     public static final Pose2d kShelfBlue =
         new Pose2d(new Translation2d(15.33, 6.749796), new Rotation2d());

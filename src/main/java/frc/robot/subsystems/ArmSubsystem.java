@@ -25,6 +25,9 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private boolean continueToIntake;
   private boolean continueToFloorSweep;
   private boolean isShoulderStaged = false;
+  private boolean shouldRetakeArm = false;
+  private boolean isArmFullRetaking = false;
+  private boolean hasElbowZeroed = false;
 
   public ArmSubsystem(
       ShoulderSubsystem shoulderSubsystem,
@@ -321,6 +324,14 @@ public class ArmSubsystem extends MeasurableSubsystem {
     return currState;
   }
 
+  public void setArmRetake(boolean setter) {
+    shouldRetakeArm = setter;
+  }
+
+  public boolean isFullRetaking() {
+    return shouldRetakeArm;
+  }
+
   @Override
   public void periodic() {
     HandRegion currHandRegion = getHandRegion();
@@ -543,7 +554,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
             break;
           case ELBOW:
             if (elbowSubsystem.isFinished()) {
-
               logger.info("{} -> STOW", currState);
               currState = ArmState.STOW;
               currAxis = CurrentAxis.NONE;
@@ -557,20 +567,29 @@ public class ArmSubsystem extends MeasurableSubsystem {
       case SCORE_TO_STOW:
         switch (currAxis) {
           case SHOULDER:
+            if (shouldRetakeArm) {
+              isArmFullRetaking = true;
+              elbowSubsystem.setPos(ArmState.STOW.elbowPos);
+              elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+            }
             if (shoulderSubsystem.isFinished()) {
               currAxis = CurrentAxis.ELEVATOR;
-              elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+              if (!isArmFullRetaking) elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
             }
             break;
           case ELEVATOR:
+            if (shouldRetakeArm && !isArmFullRetaking) {
+              isArmFullRetaking = true;
+              elbowSubsystem.setPos(ArmState.STOW.elbowPos);
+            }
             if (elevatorSubsystem.isFinished()) {
               currAxis = CurrentAxis.ELBOW;
-              elbowSubsystem.setPos(ArmState.STOW.elbowPos);
+              if (!isArmFullRetaking) elbowSubsystem.setPos(ArmState.STOW.elbowPos);
             }
             break;
           case ELBOW:
             if (elbowSubsystem.isFinished()) {
-
+              isArmFullRetaking = false;
               logger.info("{} -> STOW", currState);
               currState = ArmState.STOW;
               currAxis = CurrentAxis.NONE;
