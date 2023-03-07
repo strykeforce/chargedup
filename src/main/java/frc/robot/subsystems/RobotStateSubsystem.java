@@ -169,12 +169,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     if (gamePiece == GamePiece.NONE) handSubsystem.stowHand(HandConstants.kConeGrabbingPosition);
     currentAxis = CurrentAxis.HAND;
   }
+
   public void toStowScore(RobotState nextState) {
     logger.info("{} --> TO_STOW(SCORE)", currRobotState);
     currRobotState = RobotState.TO_STOW;
     nextRobotState = nextState;
 
-    //if (gamePiece == GamePiece.NONE) handSubsystem.stowHand(HandConstants.kConeGrabbingPosition);
+    // if (gamePiece == GamePiece.NONE) handSubsystem.stowHand(HandConstants.kConeGrabbingPosition);
     currentAxis = CurrentAxis.HAND;
   }
 
