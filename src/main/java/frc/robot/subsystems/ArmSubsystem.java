@@ -108,6 +108,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toIntakePos() {
+    hasElbowZeroed = false;
     switch (currState) {
       case INTAKE_STAGE:
         logger.info("{} -> INTAKE_STAGE_TO_INTAKE", currState);
@@ -122,6 +123,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toLowPos() {
+    hasElbowZeroed = false;
     switch (currState) {
       case STOW:
         logger.info("{} -> STOW_TO_LOW", currState);
@@ -137,6 +139,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toMidPos(GamePiece currGamePiece) {
+    hasElbowZeroed = false;
     if (currGamePiece == GamePiece.NONE) {
       logger.info("Game piece is unknown yet required (toMidPos())! Defaulting to CONE");
     }
@@ -157,6 +160,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toHighPos(GamePiece currGamePiece) {
+    hasElbowZeroed = false;
     if (currGamePiece == GamePiece.NONE) {
       logger.info("Game piece is unknown yet required (toHighPos())! Defaulting to CONE");
     }
@@ -178,6 +182,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toShelfPos() {
+    hasElbowZeroed = false;
     switch (currState) {
       case STOW:
         logger.info("{} -> STOW_TO_SHELF", currState);
@@ -194,6 +199,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toFloorPos() {
+    hasElbowZeroed = false;
     toFloorPos(false);
   }
 
@@ -340,6 +346,11 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
     switch (currState) {
       case STOW:
+      if (!hasElbowZeroed)
+      {
+        elbowSubsystem.zeroElbowStow();
+        hasElbowZeroed = true;
+      }
         switch (desiredState) {
           case LOW:
             toLowPos();
@@ -539,7 +550,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
               elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
             }
             break;
-          case ELEVATOR:
+            case ELEVATOR:
             if (elevatorSubsystem.isFinished()) {
               currAxis = CurrentAxis.ELBOW;
               elbowSubsystem.setPos(ArmState.STOW.elbowPos);
@@ -560,7 +571,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
       case SCORE_TO_STOW:
         switch (currAxis) {
           case SHOULDER:
-            if (shouldRetakeArm) {
+            if (shouldRetakeArm && !isArmFullRetaking) {
               isArmFullRetaking = true;
               elbowSubsystem.setPos(ArmState.STOW.elbowPos);
               elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
