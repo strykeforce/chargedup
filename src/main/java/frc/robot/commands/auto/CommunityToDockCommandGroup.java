@@ -35,18 +35,17 @@ public class CommunityToDockCommandGroup extends SequentialCommandGroup {
     secondPath = new DriveAutonCommand(driveSubsystem, pathTwo, true, false);
 
     addCommands(
-      new ParallelCommandGroup(
-        new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE),
-        new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH),
-        new ZeroElevatorCommand(elevatorSubsystem),
-        new AutoGrabConeCommand(handSubsystem),
-        new SetVisionUpdateCommand(driveSubsystem, false)
-      ),
-      new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem),
-      new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem),
-      firstPath, 
-      secondPath,
-      new xLockCommand(driveSubsystem));
+        new ParallelCommandGroup(
+            new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE),
+            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH),
+            new ZeroElevatorCommand(elevatorSubsystem),
+            new AutoGrabConeCommand(handSubsystem),
+            new SetVisionUpdateCommand(driveSubsystem, false)),
+        new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem),
+        new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem),
+        firstPath,
+        secondPath,
+        new xLockCommand(driveSubsystem));
   }
 
   public void generateTrajectory() {
