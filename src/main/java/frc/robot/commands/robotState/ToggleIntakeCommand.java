@@ -21,7 +21,7 @@ public class ToggleIntakeCommand extends CommandBase {
     if (currState == RobotState.INTAKE_STAGE
         || currState == RobotState.PICKUP_FROM_INTAKE
         || currState == RobotState.TO_INTAKE_STAGE) {
-      robotStateSubsystem.toStow();
+      robotStateSubsystem.toStowIntake();
     } else {
       robotStateSubsystem.toIntake();
     }

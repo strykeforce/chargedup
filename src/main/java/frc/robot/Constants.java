@@ -135,7 +135,7 @@ public class Constants {
     public static final double kElbowIntakeMax = ElbowConstants.kForwardSoftLimit;
 
     public static final double kShelfMove = 1; // FIXME put in real number
-    public static final double kShelfTransitionMove = 0.2;
+    public static final double kShelfTransitionMove = 0.1; // 0.2
     public static final double kSweepTimerElapseSeconds = 0.5;
   }
 
@@ -375,8 +375,8 @@ public class Constants {
       elevatorConfig.slot0.integralZone = 0;
       elevatorConfig.slot0.maxIntegralAccumulator = 0;
       elevatorConfig.slot0.allowableClosedloopError = 0;
-      elevatorConfig.motionCruiseVelocity = 10_000; // 10_000
-      elevatorConfig.motionAcceleration = 100_000; // 100_000
+      elevatorConfig.motionCruiseVelocity = 7_000; // 10_000
+      elevatorConfig.motionAcceleration = 40_000; // 100_000
 
       elevatorConfig.forwardSoftLimitEnable = true;
       elevatorConfig.forwardSoftLimitThreshold = kMaxFwd;
@@ -435,7 +435,7 @@ public class Constants {
     public static final double kLevelTwoConeElbow = 124_638;
     public static final double kLevelTwoCubeElbow = 124_638;
     public static final double kLevelThreeConeElbow = 177_432;
-    public static final double kLevelThreeCubeElbow = kLevelThreeConeElbow;
+    public static final double kLevelThreeCubeElbow = 174_432;
     public static final double kShelfElbow = 114_366;
     public static final double kFloorElbowSweep = 35_000;
 

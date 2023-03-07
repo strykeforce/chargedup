@@ -45,7 +45,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   }
 
   public void setPos(double location) {
-    logger.info("Elevator moving to {}", location);
+    // logger.info("Elevator moving to {}", location);
     desiredPosition = location;
     leftMainFalcon.set(TalonFXControlMode.MotionMagic, location);
   }

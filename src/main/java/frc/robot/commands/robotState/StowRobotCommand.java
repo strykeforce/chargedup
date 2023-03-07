@@ -24,7 +24,7 @@ public class StowRobotCommand extends CommandBase {
 
   @Override
   public void initialize() {
-    robotStateSubsystem.toStow();
+    robotStateSubsystem.toStowIntake();
   }
 
   @Override
