@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -51,6 +50,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private boolean hasIntakeDelayPassed = false;
   private Timer floorSweepTimer = new Timer();
   private Pose2d tempStowPose;
+  private boolean stowHandScore = false;
 
   public RobotStateSubsystem(
       IntakeSubsystem intakeSubsystem,
@@ -324,8 +324,14 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         switch (currentAxis) {
           case HAND:
             Translation2d stowTranslation = tempStowPose.getTranslation();
-            if (Math.abs(stowTranslation.getDistance(driveSubsystem.getPoseMeters().getTranslation())) >= .1) {
-              if (gamePiece == GamePiece.NONE) handSubsystem.stowHand(HandConstants.kConeGrabbingPosition);
+            if (Math.abs(
+                        stowTranslation.getDistance(
+                            driveSubsystem.getPoseMeters().getTranslation()))
+                    >= .1
+                && !stowHandScore
+                && gamePiece == GamePiece.NONE) {
+              handSubsystem.stowHand(HandConstants.kConeGrabbingPosition);
+              stowHandScore = true;
             }
             if (handSubsystem.isFinished()) {
               currentAxis = CurrentAxis.ARM;
