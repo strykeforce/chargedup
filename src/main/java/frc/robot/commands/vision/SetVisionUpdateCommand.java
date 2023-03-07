@@ -11,7 +11,6 @@ public class SetVisionUpdateCommand extends InstantCommand {
   private static final Logger logger = LoggerFactory.getLogger(ToggleUpdateWithVisionCommand.class);
 
   public SetVisionUpdateCommand(DriveSubsystem driveSubsystem, boolean isUpdating) {
-    addRequirements(driveSubsystem);
     this.driveSubsystem = driveSubsystem;
     this.isUpdating = isUpdating;
   }

@@ -44,6 +44,14 @@ public class DriveAutonCommand extends CommandBase {
     trajectoryGenerated = true;
   }
 
+  public Pose2d getInitialPose() {
+    if (trajectoryGenerated) {
+      return trajectory.getInitialPose();
+    } else {
+      return new Pose2d();
+    }
+  }
+
   @Override
   public void initialize() {
     driveSubsystem.setEnableHolo(true);

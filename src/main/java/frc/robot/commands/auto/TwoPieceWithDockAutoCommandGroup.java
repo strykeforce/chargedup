@@ -3,6 +3,7 @@ package frc.robot.commands.auto;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.drive.DriveAutonCommand;
+import frc.robot.commands.drive.ResetOdometryAutoCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.commands.robotState.FloorIntakeCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
@@ -35,7 +36,7 @@ public class TwoPieceWithDockAutoCommandGroup extends SequentialCommandGroup {
       String pathOne,
       String pathTwo,
       String pathThree) {
-    firstPath = new DriveAutonCommand(driveSubsystem, pathOne, true, true);
+    firstPath = new DriveAutonCommand(driveSubsystem, pathOne, true, false);
     secondPath = new DriveAutonCommand(driveSubsystem, pathTwo, true, false);
     thirdPath = new DriveAutonCommand(driveSubsystem, pathThree, true, false);
 
@@ -45,7 +46,8 @@ public class TwoPieceWithDockAutoCommandGroup extends SequentialCommandGroup {
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH),
             new ZeroElevatorCommand(elevatorSubsystem),
             new AutoGrabConeCommand(handSubsystem),
-            new SetVisionUpdateCommand(driveSubsystem, false)),
+            new SetVisionUpdateCommand(driveSubsystem, false),
+            new ResetOdometryAutoCommand(driveSubsystem, firstPath.getInitialPose())),
         new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem),
         new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem),
         new ParallelCommandGroup(
