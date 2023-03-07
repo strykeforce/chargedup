@@ -141,7 +141,12 @@ public class Constants {
   }
 
   public static final class AutonConstants {
-    public static final double kPastXPosition = 4.0; // FIXME put in real number
+    public static final double kPastXPosition = 8.0; // FIXME put in real number
+    public static final double kMinXFastStow = 2.1;
+
+    public static final int kStartSwitchID = 0;
+    public static final int kEndSwitchId = 5;
+    public static final int kSwitchStableCounts = 100;
   }
 
   public static final class DriveConstants {
@@ -558,7 +563,7 @@ public class Constants {
     public static final int kPickupPosTicks = -1_800; // -1_000
 
     public static final double kIntakeDelay = 0.0;
-    public static final double kIntakeSpeed = 0.4; // -0.35
+    public static final double kIntakeSpeed = 0.45; // -0.35
     public static final double kIntakeEjectSpeed = -0.3;
     public static final double kEjectTimerDelaySec = 3;
     public static final double kIntakePickupDelaySec = 0.5;

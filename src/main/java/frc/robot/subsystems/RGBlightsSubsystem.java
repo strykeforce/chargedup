@@ -18,6 +18,9 @@ public class RGBlightsSubsystem extends MeasurableSubsystem {
   private DigitalOutput blue_channel_D;
 
   private Logger logger = LoggerFactory.getLogger(RGBlightsSubsystem.class);
+  private double redSetpoint = 1.0;
+  private double greenSetpoint = 0.0;
+  private double blueSetpoint = 0.0;
 
   @Override
   public Set<Measure> getMeasures() {
@@ -74,6 +77,12 @@ public class RGBlightsSubsystem extends MeasurableSubsystem {
     red_channel_D.updateDutyCycle(red);
     green_channel_D.updateDutyCycle(green);
     blue_channel_D.updateDutyCycle(blue);
+    if (red != redSetpoint || blue != blueSetpoint || green != greenSetpoint) {
+      logger.info("Lights Changed to: ({}, {}, {})", red, green, blue);
+      redSetpoint = red;
+      greenSetpoint = green;
+      blueSetpoint = blue;
+    }
   }
 
   public void setCubeColor() {
