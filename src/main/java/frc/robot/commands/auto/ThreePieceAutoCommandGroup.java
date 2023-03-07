@@ -49,7 +49,8 @@ public class ThreePieceAutoCommandGroup extends SequentialCommandGroup {
         new ParallelCommandGroup(
             secondPath,
             new SequentialCommandGroup(
-                new PastXPositionCommand(driveSubsystem, Constants.AutonConstants.kPastXPosition),
+                new PastXPositionCommand(
+                    robotStateSubsystem, driveSubsystem, Constants.AutonConstants.kPastXPosition),
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
         new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem),
         new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID),
@@ -58,7 +59,8 @@ public class ThreePieceAutoCommandGroup extends SequentialCommandGroup {
         new ParallelCommandGroup(
             fourthPath,
             new SequentialCommandGroup(
-                new PastXPositionCommand(driveSubsystem, Constants.AutonConstants.kPastXPosition),
+                new PastXPositionCommand(
+                    robotStateSubsystem, driveSubsystem, Constants.AutonConstants.kPastXPosition),
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
         new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem));
   }

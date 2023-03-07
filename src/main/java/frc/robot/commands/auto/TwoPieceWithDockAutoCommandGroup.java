@@ -2,10 +2,10 @@ package frc.robot.commands.auto;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants;
 import frc.robot.commands.drive.DriveAutonCommand;
-import frc.robot.commands.drive.ResetOdometryAutoCommand;
+import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
-import frc.robot.commands.robotState.FloorIntakeCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.ReleaseGamepieceCommand;
 import frc.robot.commands.robotState.SetGamePieceCommand;
@@ -36,7 +36,7 @@ public class TwoPieceWithDockAutoCommandGroup extends SequentialCommandGroup {
       String pathOne,
       String pathTwo,
       String pathThree) {
-    firstPath = new DriveAutonCommand(driveSubsystem, pathOne, true, false);
+    firstPath = new DriveAutonCommand(driveSubsystem, pathOne, true, true);
     secondPath = new DriveAutonCommand(driveSubsystem, pathTwo, true, false);
     thirdPath = new DriveAutonCommand(driveSubsystem, pathThree, true, false);
 
@@ -46,19 +46,23 @@ public class TwoPieceWithDockAutoCommandGroup extends SequentialCommandGroup {
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH),
             new ZeroElevatorCommand(elevatorSubsystem),
             new AutoGrabConeCommand(handSubsystem),
-            new SetVisionUpdateCommand(driveSubsystem, false),
-            new ResetOdometryAutoCommand(driveSubsystem, firstPath.getInitialPose())),
+            new SetVisionUpdateCommand(driveSubsystem, false)),
         new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem),
         new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem),
         new ParallelCommandGroup(
-            firstPath, new FloorIntakeCommand(robotStateSubsystem, armSubsystem, intakeSubsystem)));
-    // new ParallelCommandGroup(
-    //     secondPath,
-    //     new SequentialCommandGroup(
-    //         new PastXPositionCommand(driveSubsystem, Constants.AutonConstants.kPastXPosition),
-    //         new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
-    // new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem),
-    // thirdPath);
+            firstPath,
+            new AutoFloorIntakeCommand(
+                robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
+            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID)),
+        new ParallelCommandGroup(
+            secondPath,
+            new SequentialCommandGroup(
+                new PastXPositionCommand(
+                    robotStateSubsystem, driveSubsystem, Constants.AutonConstants.kPastXPosition),
+                new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
+        new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem),
+        thirdPath,
+        new xLockCommand(driveSubsystem));
   }
 
   public void generateTrajectory() {

@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
@@ -139,6 +140,10 @@ public class RobotContainer {
         .onTrue(new HealthCheckCommand(driveSubsystem, intakeSubsystem));
   }
 
+  public void setAuto(boolean isAuto) {
+    robotStateSubsystem.setAutoMode(isAuto);
+  }
+
   private void configureTelemetry() {
     driveSubsystem.registerWith(telemetryService);
     visionSubsystem.registerWith(telemetryService);
@@ -165,7 +170,7 @@ public class RobotContainer {
             elevatorSubsystem,
             "pieceOneFetchPath",
             "pieceOnePlacePath",
-            "pieceTwoFetchPath");
+            "pieceTwoToDockPath");
     threePiecePath =
         new ThreePiecePathCommandGroup(
             driveSubsystem,
@@ -218,7 +223,9 @@ public class RobotContainer {
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
     // {driveSubsystem.resetOdometry(new Pose2d());},driveSubsystem);
     new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-        .onTrue(twoPieceWithDockAutoCommandGroup);
+        .onTrue(twoPieceWithDockAutoCommandGroup)
+        .onTrue(
+            new InstantCommand(() -> robotStateSubsystem.setAutoMode(true), robotStateSubsystem));
 
     // Hand
     /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)

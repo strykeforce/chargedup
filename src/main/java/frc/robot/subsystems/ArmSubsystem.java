@@ -120,7 +120,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
         elevatorSubsystem.setPos(ArmState.INTAKE.elevatorPos);
         break;
       default:
-        toIntakeStagePos();
+        toIntakeStagePos(true);
         break;
     }
   }
@@ -317,7 +317,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
     return Set.of(
         new Measure("Hand X", () -> getHandPosition().getX()),
         new Measure("Hand Y", () -> getHandPosition().getY()),
-        new Measure("Hand region", () -> getHandRegion().ordinal()));
+        new Measure("Hand region", () -> getHandRegion().ordinal()),
+        new Measure("Arm State", () -> currState.ordinal()));
   }
 
   public ArmState getCurrState() {
@@ -326,6 +327,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
   public void setArmFastStow(boolean setter) {
     shouldFastStowArm = setter;
+    logger.info("Set Arm Fast Stow to: {}", setter);
   }
 
   public boolean isFastStowing() {
@@ -410,6 +412,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
           logger.info("{} -> INTAKE_STAGE", currState);
           currState = ArmState.INTAKE_STAGE;
           currAxis = CurrentAxis.NONE;
+          logger.info("Continue to Intake: {}", continueToIntake);
         }
         break;
       case STOW_TO_LOW:
