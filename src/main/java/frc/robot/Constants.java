@@ -375,8 +375,8 @@ public class Constants {
       elevatorConfig.slot0.integralZone = 0;
       elevatorConfig.slot0.maxIntegralAccumulator = 0;
       elevatorConfig.slot0.allowableClosedloopError = 0;
-      elevatorConfig.motionCruiseVelocity = 10_000; // 10_000
-      elevatorConfig.motionAcceleration = 100_000; // 100_000
+      elevatorConfig.motionCruiseVelocity = 7_000; // 10_000
+      elevatorConfig.motionAcceleration = 40_000; // 100_000
 
       elevatorConfig.forwardSoftLimitEnable = true;
       elevatorConfig.forwardSoftLimitThreshold = kMaxFwd;

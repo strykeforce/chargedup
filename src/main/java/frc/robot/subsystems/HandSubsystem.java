@@ -231,6 +231,10 @@ public class HandSubsystem extends MeasurableSubsystem {
     return handState;
   }
 
+  public HandStates getDesiredHandState() {
+    return desiredState;
+  }
+
   @Override
   public void registerWith(TelemetryService telemetryService) {
     super.registerWith(telemetryService);

@@ -22,6 +22,7 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.RGBlights.RGBsetPieceCommand;
 import frc.robot.commands.auto.CommunityToDockCommandGroup;
 import frc.robot.commands.auto.ThreePiecePathCommandGroup;
+import frc.robot.commands.auto.TwoPieceWithDockAutoCommandGroup;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
@@ -94,6 +95,7 @@ public class RobotContainer {
   // Paths
   private DriveAutonCommand testPath;
   private CommunityToDockCommandGroup communityToDockCommandGroup;
+  private TwoPieceWithDockAutoCommandGroup twoPieceWithDockAutoCommandGroup;
 
   private HandSubsystem handSubsystem;
   private ThreePiecePathCommandGroup threePiecePath;
@@ -153,6 +155,17 @@ public class RobotContainer {
   // Path Configuration For Robot Container
   private void configurePaths() {
     testPath = new DriveAutonCommand(driveSubsystem, "pieceTwoFetchPath", true, true);
+    twoPieceWithDockAutoCommandGroup =
+        new TwoPieceWithDockAutoCommandGroup(
+            driveSubsystem,
+            robotStateSubsystem,
+            armSubsystem,
+            handSubsystem,
+            intakeSubsystem,
+            elevatorSubsystem,
+            "pieceOneFetchPath",
+            "pieceOnePlacePath",
+            "pieceTwoFetchPath");
     threePiecePath =
         new ThreePiecePathCommandGroup(
             driveSubsystem,
@@ -162,8 +175,11 @@ public class RobotContainer {
             "pieceTwoPlacePath");
     communityToDockCommandGroup =
         new CommunityToDockCommandGroup(
-            driveSubsystem, 
-            "piecePlaceToCommunityPath", 
+            driveSubsystem,
+            robotStateSubsystem,
+            handSubsystem,
+            armSubsystem,
+            "piecePlaceToCommunityPath",
             "communityToDockPath");
   }
 
@@ -201,7 +217,8 @@ public class RobotContainer {
     // Requires swerve migration to new Pose2D
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
     // {driveSubsystem.resetOdometry(new Pose2d());},driveSubsystem);
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(communityToDockCommandGroup);
+    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+        .onTrue(twoPieceWithDockAutoCommandGroup);
 
     // Hand
     /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
@@ -499,6 +516,7 @@ public class RobotContainer {
     robotStateSubsystem.setAllianceColor(alliance);
     testPath.generateTrajectory();
     communityToDockCommandGroup.generateTrajectory();
+    twoPieceWithDockAutoCommandGroup.generateTrajectory();
     threePiecePath.generateTrajectory();
     // Flips gyro angle if alliance is red team
     if (robotStateSubsystem.getAllianceColor() == Alliance.Red) {

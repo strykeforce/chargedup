@@ -98,7 +98,11 @@ public class ArmSubsystem extends MeasurableSubsystem {
         elbowSubsystem.setPos(ArmState.INTAKE_STAGE.elbowPos);
         break;
       default:
-        toStowPos(ArmState.INTAKE_STAGE);
+        if (continueToIntake) {
+          toStowPos(ArmState.INTAKE);
+        } else {
+          toStowPos(ArmState.INTAKE_STAGE);
+        }
         break;
     }
     desiredState = ArmState.INTAKE_STAGE;
@@ -347,6 +351,9 @@ public class ArmSubsystem extends MeasurableSubsystem {
             break;
           case INTAKE_STAGE:
             toIntakePos();
+            break;
+          case INTAKE:
+            toIntakeStagePos(continueToIntake);
             break;
           case SHELF:
             toShelfPos();

@@ -137,6 +137,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     currRobotState = RobotState.TO_INTAKE_STAGE;
     currentAxis = CurrentAxis.INTAKE;
     intakeSubsystem.startIntaking();
+    if (handSubsystem.getHandState() == HandStates.OPEN
+        || handSubsystem.getDesiredHandState() == HandStates.OPEN) {
+      handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition);
+    }
   }
 
   public void toManualStage() {
@@ -631,7 +635,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           driveSubsystem.setDriveState(DriveStates.IDLE);
         }
 
-        // FIXME IF FROM AUTO_SHELF AND IF SHELF INCLUDES GRABBING THE GAMEPIECE(IDK I DIDNT READ
+        // FIXME IF FROM AUTO_SHELF AND IF SHELF INCLUDES GRABBING THE GAMEPIECE(IDK I
+        // DIDNT READ
         // IT), THEN END THE AUTOPLACE COMMAND
 
         if (allianceColor == Alliance.Blue) {
