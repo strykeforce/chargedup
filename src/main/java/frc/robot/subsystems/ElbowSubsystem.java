@@ -46,9 +46,15 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
     return (int) pulseWidthandPeriod[0];
   }
 
+  public void zeroElbowStow() {
+    rotateOpenLoop(0.0);
+    zeroElbow();
+  }
+
   private void zeroElbow() {
     int absoluteTicks = getPulseWidthFor(PWMChannel.PWMChannel0);
     int offset = absoluteTicks - constants.kElbowZeroTicks;
+    logger.info("Current Elbow Position: {}", elbowFalcon.getSelectedSensorPosition());
     elbowFalcon.setSelectedSensorPosition(offset * Constants.ElbowConstants.kOffsetFactor);
     remoteEncoder.setQuadraturePosition(offset, 10);
     logger.info(
@@ -64,6 +70,7 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
   }
 
   public void setPos(double posTicks) {
+    if (setPointTicks != posTicks) logger.info("Moving Elbow to: {}", posTicks);
     elbowFalcon.set(ControlMode.MotionMagic, posTicks);
     setPointTicks = posTicks;
   }

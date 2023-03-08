@@ -43,6 +43,7 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
   }
 
   public void setPos(double location) {
+    if (location != desiredPosition) logger.info("Moving Shoulder to: {}", location);
     desiredPosition = location;
     leftMainShoulderTalon.set(ControlMode.MotionMagic, location);
   }
