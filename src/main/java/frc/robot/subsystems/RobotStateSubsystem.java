@@ -219,6 +219,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     logger.info("{} -> RELEASE_GAME_PIECE", currRobotState);
     currRobotState = RobotState.RELEASE_GAME_PIECE;
     handSubsystem.open();
+    rgbLightsSubsystem.setOff();
   }
 
   public void toGrabGamepiece(GamePiece gamePiece) {
