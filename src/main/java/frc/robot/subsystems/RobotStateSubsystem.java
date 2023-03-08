@@ -55,6 +55,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private double scorePosXIntial = -1.0;
   private Timer floorSweepTimer = new Timer();
   private boolean isAuto = false;
+  private ElbowSubsystem elbowSubsystem;
 
   public RobotStateSubsystem(
       IntakeSubsystem intakeSubsystem,
@@ -62,13 +63,15 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       HandSubsystem handSubsystem,
       DriveSubsystem driveSubsystem,
       VisionSubsystem visionSubsystem,
-      RGBlightsSubsystem rgbLightsSubsystem) {
+      RGBlightsSubsystem rgbLightsSubsystem,
+      ElbowSubsystem elbowSubsystem) {
     this.intakeSubsystem = intakeSubsystem;
     this.visionSubsystem = visionSubsystem;
     this.armSubsystem = armSubsystem;
     this.handSubsystem = handSubsystem;
     this.driveSubsystem = driveSubsystem;
     this.rgbLightsSubsystem = rgbLightsSubsystem;
+    this.elbowSubsystem = elbowSubsystem;
     logger.info("Serial Number: {}", RobotController.getSerialNumber());
   }
 
@@ -159,42 +162,48 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     rgbLightsSubsystem.setOff();
     if (gamePiece != GamePiece.NONE) {
       if (currRobotState == RobotState.STOW) toManualScore();
-      else toStow(RobotState.MANUAL_SCORE);
+      else toStowIntake(RobotState.MANUAL_SCORE);
     } else {
       if (currRobotState == RobotState.STOW) toManualShelf();
-      else toStow(RobotState.MANUAL_SHELF);
+      else toStowIntake(RobotState.MANUAL_SHELF);
     }
   }
 
   public void toShelf() {
     if (currRobotState == RobotState.STOW) toManualShelf();
-    else toStow(RobotState.MANUAL_SHELF);
+    else toStowIntake(RobotState.MANUAL_SHELF);
   }
 
   public void toAutoStage() {}
 
-  public void toStow() {
-    toStow(RobotState.STOW);
+  public void toStowIntake() {
+    toStowIntake(RobotState.STOW);
   }
 
-  public void toStow(RobotState nextState) {
-    logger.info("{} --> TO_STOW", currRobotState);
-    currRobotState = RobotState.TO_STOW;
-    nextRobotState = nextState;
+  public void toStowIntake(RobotState nextState) {
+    // currRobotState = RobotState.TO_STOW_SCORE;
+    if (elbowSubsystem.getPos() >= 0) {
+      logger.info("{} --> TO_STOW_SCORE", currRobotState);
+      currRobotState = RobotState.TO_STOW_SCORE;
+      currentAxis = CurrentAxis.ARM;
+      armSubsystem.toStowPos();
+    } else if (elbowSubsystem.getPos() < 0) {
+      logger.info("{} --> TO_STOW", currRobotState);
+      currRobotState = RobotState.TO_STOW;
 
-    switch (gamePiece) {
-      case CONE:
-        handSubsystem.grabCone();
-        break;
-      case CUBE:
-        handSubsystem.grabCube();
-        break;
-      case NONE:
-        handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition);
+      switch (gamePiece) {
+        case CONE:
+          handSubsystem.grabCone();
+          break;
+        case CUBE:
+          handSubsystem.grabCube();
+          break;
+        case NONE:
+          handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition);
+      }
+      currentAxis = CurrentAxis.HAND;
     }
-
-    // if (gamePiece == GamePiece.NONE) handSubsystem.stowHand(HandConstants.kConeGrabbingPosition);
-    currentAxis = CurrentAxis.HAND;
+    nextRobotState = nextState;
   }
 
   public void toFloorPickup() {
@@ -204,7 +213,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       currRobotState = RobotState.TO_FLOOR_PICKUP;
       currentAxis = CurrentAxis.HAND;
     } else {
-      toStow(RobotState.FLOOR_PICKUP);
+      toStowIntake(RobotState.FLOOR_PICKUP);
     }
   }
 
@@ -249,7 +258,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     releaseDelayTimer.stop();
     releaseDelayTimer.reset();
     scorePosXIntial = driveSubsystem.getPoseMeters().getX();
-    handSubsystem.runRollers(HandConstants.kRollerDrop);
+    logger.info("Score Pos X: {}", scorePosXIntial);
   }
 
   public void toGrabGamepiece(GamePiece gamePiece) {
@@ -360,6 +369,40 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         currRobotState = RobotState.AUTO_DRIVE;
         logger.info("{} -> AUTO_DRIVE", currRobotState);
         break;
+      case TO_STOW_SCORE:
+        switch (currentAxis) {
+          case ARM:
+            if (armSubsystem.getCurrState() == ArmState.STOW) {
+              switch (gamePiece) {
+                case CONE:
+                  handSubsystem.grabCone();
+                  break;
+                case CUBE:
+                  handSubsystem.grabCube();
+                  break;
+                case NONE:
+                  handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition);
+              }
+              currentAxis = CurrentAxis.HAND;
+            }
+            break;
+          case HAND:
+            if (handSubsystem.isFinished()) {
+              currentAxis = CurrentAxis.INTAKE;
+              intakeSubsystem.retractIntake();
+            }
+            break;
+          case INTAKE:
+            if (intakeSubsystem.isFinished()) {
+              currentAxis = CurrentAxis.NONE;
+              logger.info("{} -> STOW", currRobotState);
+              currRobotState = RobotState.STOW;
+            }
+            break;
+          default:
+            break;
+        }
+        break;
       case TO_STOW:
         switch (currentAxis) {
           case HAND:
@@ -400,7 +443,6 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             break;
         }
         break;
-
       case TO_INTAKE_STAGE:
         switch (currentAxis) {
           case INTAKE:
@@ -492,7 +534,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             if (intakeDelayTimer.hasElapsed(IntakeConstants.kIntakePickupDelaySec)) {
               intakeDelayTimer.stop();
               handSubsystem.runRollers(HandConstants.kRollerCubeHoldSpeed);
-              toStow();
+              setGamePiece(GamePiece.CUBE);
+              toStowIntake();
             }
             break;
           default:
@@ -642,7 +685,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             }
             break;
           case HAND:
-            if (handSubsystem.isFinished()) toStow();
+            if (handSubsystem.isFinished()) toStowIntake();
             break;
         }
         break;
@@ -668,7 +711,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           releaseDelayTimer.stop();
           releaseDelayTimer.reset();
           logger.info("Release timer elapsed.");
-          toStow();
+          toStowIntake();
         }
 
         break;
@@ -676,7 +719,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         if (handSubsystem.isFinished()) {
           if (handSubsystem.getHandState() == HandStates.CONE_CLOSED) setGamePiece(GamePiece.CONE);
           else setGamePiece(GamePiece.CUBE);
-          toStow();
+          toStowIntake();
         }
         break;
       case SHELF_WAIT_TRANSITION:
@@ -701,7 +744,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // (to) STOW
 
         if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED) {
-          logger.info("DRIVESUB: {} -> IDLE", driveSubsystem.currDriveState);
+          logger.info("{} -> IDLE", driveSubsystem.currDriveState);
           driveSubsystem.setDriveState(DriveStates.IDLE);
         }
 
@@ -713,13 +756,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           desiredPoseX = currPoseX - Constants.ArmConstants.kShelfMove;
           if (driveSubsystem.getPoseMeters().getX() <= desiredPoseX) {
             rgbLightsSubsystem.setOff();
-            toStow();
+            toStowIntake();
           }
         } else if (allianceColor == Alliance.Red) {
           desiredPoseX = currPoseX + Constants.ArmConstants.kShelfMove;
           if (driveSubsystem.getPoseMeters().getX() >= desiredPoseX) {
             rgbLightsSubsystem.setOff();
-            toStow();
+            toStowIntake();
           }
         }
 
@@ -730,7 +773,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             handSubsystem.runRollers(HandConstants.kRollerPickUp);
           }
           rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
-          logger.info("ROBOT STATE: {} -> CHECK_AMBIGUITY", currRobotState);
+          logger.info("{} -> CHECK_AMBIGUITY", currRobotState);
           currRobotState = RobotState.CHECK_AMBIGUITY;
         } else {
           rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
@@ -751,15 +794,14 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         } // FIXME ELSE??
         break;
       case CHECK_AMBIGUITY:
-        if (gamePiece == GamePiece.NONE)
-          if (handSubsystem.hasCone()) {
-            handSubsystem.grabCone();
-            gamePiece = GamePiece.CONE;
-            currPoseX = driveSubsystem.getPoseMeters().getX();
-            rgbLightsSubsystem.setColor(0.0, 1.0, 0.0);
-            logger.info("{} -> SHELF_WAIT_TRANSITION", currRobotState);
-            currRobotState = RobotState.SHELF_WAIT_TRANSITION;
-          }
+        if (gamePiece == GamePiece.NONE && handSubsystem.hasCone()) {
+          handSubsystem.grabCone();
+          gamePiece = GamePiece.CONE;
+          currPoseX = driveSubsystem.getPoseMeters().getX();
+          rgbLightsSubsystem.setColor(0.0, 1.0, 0.0);
+          logger.info("{} -> SHELF_WAIT_TRANSITION", currRobotState);
+          currRobotState = RobotState.SHELF_WAIT_TRANSITION;
+        }
         if (visionSubsystem.getAmbiguity() <= 0.15) {
           rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
           // toAutoDrive();
@@ -867,7 +909,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     TO_AUTO_SHELF,
     TO_AUTO_SCORE,
     CHECK_AMBIGUITY,
-    FLOOR_GRAB_CONE
+    FLOOR_GRAB_CONE,
+    TO_STOW_SCORE
   }
 
   public enum CurrentAxis {
