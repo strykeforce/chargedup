@@ -22,6 +22,12 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private ArmState desiredState;
   private ArmState currState;
   private CurrentAxis currAxis;
+  private boolean continueToIntake;
+  private boolean continueToFloorSweep;
+  private boolean isShoulderStaged = false;
+  private boolean shouldFastStowArm = false;
+  private boolean isArmFastStowing = false;
+  private boolean hasElbowZeroed = false;
 
   public ArmSubsystem(
       ShoulderSubsystem shoulderSubsystem,
@@ -81,6 +87,11 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toIntakeStagePos() {
+    toIntakeStagePos(false);
+  }
+
+  public void toIntakeStagePos(boolean continueToIntake) {
+    this.continueToIntake = continueToIntake;
     switch (currState) {
       case STOW:
         logger.info("{} -> STOW_TO_INTAKE_STAGE", currState);
@@ -90,7 +101,11 @@ public class ArmSubsystem extends MeasurableSubsystem {
         elbowSubsystem.setPos(ArmState.INTAKE_STAGE.elbowPos);
         break;
       default:
-        toStowPos(ArmState.INTAKE_STAGE);
+        if (continueToIntake) {
+          toStowPos(ArmState.INTAKE);
+        } else {
+          toStowPos(ArmState.INTAKE_STAGE);
+        }
         break;
     }
     desiredState = ArmState.INTAKE_STAGE;
@@ -105,7 +120,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
         elevatorSubsystem.setPos(ArmState.INTAKE.elevatorPos);
         break;
       default:
-        toIntakeStagePos();
+        toIntakeStagePos(true);
         break;
     }
   }
@@ -152,6 +167,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
     desiredState = currGamePiece == GamePiece.CUBE ? ArmState.HIGH_CUBE : ArmState.HIGH_CONE;
 
+    isShoulderStaged = false;
     switch (currState) {
       case STOW:
         logger.info("{} -> STOW_TO_HIGH", currState);
@@ -182,6 +198,11 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toFloorPos() {
+    toFloorPos(false);
+  }
+
+  public void toFloorPos(boolean continueToFloorSweep) {
+    this.continueToFloorSweep = continueToFloorSweep;
     switch (currState) {
       case STOW:
         logger.info("{} -> STOW_TO_FLOOR", currState);
@@ -194,6 +215,20 @@ public class ArmSubsystem extends MeasurableSubsystem {
         break;
     }
     desiredState = ArmState.FLOOR;
+  }
+
+  public void toFloorSweep() {
+    switch (currState) {
+      case FLOOR:
+        logger.info("{} -> FLOOR_TO_FLOOR_SWEEP", currState);
+        currState = ArmState.FLOOR_TO_FLOOR_SWEEP;
+        currAxis = CurrentAxis.ELBOW;
+        logger.info("Set Elbow to {} Ticks", currState.elbowPos);
+        elbowSubsystem.setPos(currState.elbowPos);
+        break;
+      default:
+        toFloorPos();
+    }
   }
 
   public boolean isFinished() {
@@ -282,11 +317,21 @@ public class ArmSubsystem extends MeasurableSubsystem {
     return Set.of(
         new Measure("Hand X", () -> getHandPosition().getX()),
         new Measure("Hand Y", () -> getHandPosition().getY()),
-        new Measure("Hand region", () -> getHandRegion().ordinal()));
+        new Measure("Hand region", () -> getHandRegion().ordinal()),
+        new Measure("Arm State", () -> currState.ordinal()));
   }
 
   public ArmState getCurrState() {
     return currState;
+  }
+
+  public void setArmFastStow(boolean setter) {
+    shouldFastStowArm = setter;
+    logger.info("Set Arm Fast Stow to: {}", setter);
+  }
+
+  public boolean isFastStowing() {
+    return shouldFastStowArm;
   }
 
   @Override
@@ -320,9 +365,14 @@ public class ArmSubsystem extends MeasurableSubsystem {
           case INTAKE_STAGE:
             toIntakePos();
             break;
+          case INTAKE:
+            toIntakeStagePos(continueToIntake);
+            break;
           case SHELF:
             toShelfPos();
             break;
+          case FLOOR_SWEEP:
+            // fall through
           case FLOOR:
             toFloorPos();
             break;
@@ -331,6 +381,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
         }
         break;
       case INTAKE_STAGE:
+        if (continueToIntake) {
+          toIntakePos();
+        }
+
         break;
       case INTAKE:
         break;
@@ -347,6 +401,9 @@ public class ArmSubsystem extends MeasurableSubsystem {
       case SHELF:
         break;
       case FLOOR:
+        if (continueToFloorSweep) {
+          toFloorSweep();
+        }
         break;
       case MANUAL:
         break;
@@ -355,6 +412,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
           logger.info("{} -> INTAKE_STAGE", currState);
           currState = ArmState.INTAKE_STAGE;
           currAxis = CurrentAxis.NONE;
+          logger.info("Continue to Intake: {}", continueToIntake);
         }
         break;
       case STOW_TO_LOW:
@@ -415,11 +473,17 @@ public class ArmSubsystem extends MeasurableSubsystem {
               currAxis = CurrentAxis.ELEVATOR;
               elevatorSubsystem.setPos(desiredState.elevatorPos);
             }
+            if (elbowSubsystem.getPos() >= ElbowConstants.kLevelTwoConeElbow && !isShoulderStaged) {
+              isShoulderStaged = true;
+              shoulderSubsystem.setPos(desiredState.shoulderPos);
+              elevatorSubsystem.setPos(desiredState.elevatorPos);
+            }
             break;
           case ELEVATOR:
             if (elevatorSubsystem.isFinished()) {
               currAxis = CurrentAxis.SHOULDER;
-              shoulderSubsystem.setPos(desiredState.shoulderPos);
+
+              if (!isShoulderStaged) shoulderSubsystem.setPos(desiredState.shoulderPos);
             }
             break;
           case SHOULDER:
@@ -493,7 +557,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
             break;
           case ELBOW:
             if (elbowSubsystem.isFinished()) {
-
               logger.info("{} -> STOW", currState);
               currState = ArmState.STOW;
               currAxis = CurrentAxis.NONE;
@@ -507,20 +570,29 @@ public class ArmSubsystem extends MeasurableSubsystem {
       case SCORE_TO_STOW:
         switch (currAxis) {
           case SHOULDER:
+            if (shouldFastStowArm) {
+              isArmFastStowing = true;
+              elbowSubsystem.setPos(ArmState.STOW.elbowPos);
+              elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+            }
             if (shoulderSubsystem.isFinished()) {
               currAxis = CurrentAxis.ELEVATOR;
-              elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+              if (!isArmFastStowing) elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
             }
             break;
           case ELEVATOR:
+            if (shouldFastStowArm && !isArmFastStowing) {
+              isArmFastStowing = true;
+              elbowSubsystem.setPos(ArmState.STOW.elbowPos);
+            }
             if (elevatorSubsystem.isFinished()) {
               currAxis = CurrentAxis.ELBOW;
-              elbowSubsystem.setPos(ArmState.STOW.elbowPos);
+              if (!isArmFastStowing) elbowSubsystem.setPos(ArmState.STOW.elbowPos);
             }
             break;
           case ELBOW:
             if (elbowSubsystem.isFinished()) {
-
+              isArmFastStowing = false;
               logger.info("{} -> STOW", currState);
               currState = ArmState.STOW;
               currAxis = CurrentAxis.NONE;
@@ -605,6 +677,18 @@ public class ArmSubsystem extends MeasurableSubsystem {
             break;
         }
         break;
+      case FLOOR_TO_FLOOR_SWEEP:
+        switch (currAxis) {
+          case ELBOW:
+            if (elbowSubsystem.isFinished()) {
+              logger.info("{} -> FLOOR_SWEEP", currState);
+              currState = ArmState.FLOOR_SWEEP;
+              currAxis = CurrentAxis.NONE;
+            }
+        }
+        break;
+      case FLOOR_SWEEP:
+        break;
       default:
         break;
     }
@@ -622,7 +706,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
     INTAKE_STAGE(
         ShoulderConstants.kIntakeShoulder,
         ElevatorConstants.kStowElevator,
-        ElbowConstants.kIntakeElbow),
+        ElbowConstants.kIntakeStageElbow),
     LOW(
         ShoulderConstants.kLevelOneShoulder,
         ElevatorConstants.kLevelOneElevator,
@@ -664,7 +748,12 @@ public class ArmSubsystem extends MeasurableSubsystem {
     SCORE_TO_STOW(STOW),
     SHELF_TO_STOW(STOW),
     FLOOR_TO_STOW(STOW),
-    MANUAL_TO_STOW(STOW);
+    MANUAL_TO_STOW(STOW),
+    FLOOR_SWEEP(
+        ShoulderConstants.kFloorShoulder,
+        ElevatorConstants.kFloorElevator,
+        ElbowConstants.kFloorElbowSweep),
+    FLOOR_TO_FLOOR_SWEEP(FLOOR_SWEEP);
 
     public final double shoulderPos;
     public final double elevatorPos;

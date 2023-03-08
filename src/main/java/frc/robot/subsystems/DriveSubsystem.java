@@ -75,13 +75,15 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private Trajectory place;
   public DriveStates currDriveState = DriveStates.IDLE;
   private boolean isShelf;
+  private Constants constants;
   // private boolean isAutoDriveFinished = false;
 
-  public DriveSubsystem() {
+  public DriveSubsystem(Constants constants) {
+    this.constants = constants;
     var moduleBuilder =
         new TalonSwerveModule.Builder()
             .driveGearRatio(DriveConstants.kDriveGearRatio)
-            .wheelDiameterInches(DriveConstants.kWheelDiameterInches)
+            .wheelDiameterInches(constants.kWheelDiameterInches)
             .driveMaximumMetersPerSecond(DriveConstants.kMaxSpeedMetersPerSecond);
 
     TalonSwerveModule[] swerveModules = new TalonSwerveModule[4];
@@ -138,9 +140,11 @@ public class DriveSubsystem extends MeasurableSubsystem {
     xController =
         new PIDController(
             DriveConstants.kPHolonomic, DriveConstants.kIHolonomic, DriveConstants.kDHolonomic);
+    // xController.setIntegratorRange(DriveConstants.kIMin, DriveConstants.kIMax);
     yController =
         new PIDController(
             DriveConstants.kPHolonomic, DriveConstants.kIHolonomic, DriveConstants.kDHolonomic);
+    // yController.setIntegratorRange(DriveConstants.kIMin, DriveConstants.kIMax);
     holonomicController = new HolonomicDriveController(xController, yController, omegaController);
     // Disabling the holonomic controller makes the robot directly follow the trajectory output (no
     // closing the loop on x,y,theta errors)
@@ -648,7 +652,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
     holoContInput = desiredState;
     holoContAngle = desiredAngle;
     holoContOutput = holonomicController.calculate(getPoseMeters(), desiredState, desiredAngle);
-    logger.info("input: {}, output: {}, angle: {}", holoContInput, holoContOutput, desiredAngle);
+    // logger.info("input: {}, output: {}, angle: {}", holoContInput, holoContOutput, desiredAngle);
     move(
         holoContOutput.vxMetersPerSecond,
         holoContOutput.vyMetersPerSecond,

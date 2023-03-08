@@ -1,9 +1,10 @@
 package frc.robot.commands.arm;
 
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ArmSubsystem.ArmState;
 
-public class ArmToIntakeCommand extends InstantCommand {
+public class ArmToIntakeCommand extends CommandBase {
   private ArmSubsystem armSubsystem;
 
   public ArmToIntakeCommand(ArmSubsystem armSubsystem) {
@@ -14,5 +15,10 @@ public class ArmToIntakeCommand extends InstantCommand {
   @Override
   public void initialize() {
     armSubsystem.toIntakePos();
+  }
+
+  @Override
+  public boolean isFinished() {
+    return armSubsystem.getCurrState() == ArmState.INTAKE;
   }
 }

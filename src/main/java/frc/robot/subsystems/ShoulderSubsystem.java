@@ -15,10 +15,12 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
   private TalonSRX leftMainShoulderTalon;
   private TalonSRX rightFollowerShoulderTalon;
   private double desiredPosition;
+  private Constants constants;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  public ShoulderSubsystem() {
+  public ShoulderSubsystem(Constants constants) {
+    this.constants = constants;
     leftMainShoulderTalon = new TalonSRX(Constants.ShoulderConstants.kShoulderId);
     rightFollowerShoulderTalon = new TalonSRX(Constants.ShoulderConstants.kFollowerShoulderId);
     leftMainShoulderTalon.configFactoryDefault();
@@ -41,11 +43,13 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
   }
 
   public void setPos(double location) {
+    if (location != desiredPosition) logger.info("Moving Shoulder to: {}", location);
     desiredPosition = location;
     leftMainShoulderTalon.set(ControlMode.MotionMagic, location);
   }
 
   public void setPct(double pct) {
+    rightFollowerShoulderTalon.set(ControlMode.PercentOutput, pct);
     leftMainShoulderTalon.set(ControlMode.PercentOutput, pct);
   }
 
@@ -72,15 +76,24 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
   public void zeroShoulder() {
     double absoluteMain =
         leftMainShoulderTalon.getSensorCollection().getPulseWidthPosition() & 0xFFF;
-    double offsetMain = absoluteMain - Constants.ShoulderConstants.kShoulderMainZeroTicks;
+    double offsetMain = absoluteMain - constants.kShoulderMainZeroTicks;
 
+    double absoluteFollower =
+        rightFollowerShoulderTalon.getSensorCollection().getPulseWidthPosition() & 0xFFF;
+    double offsetFollower = absoluteFollower - constants.kShoulderFollowerZeroTicks;
     leftMainShoulderTalon.setSelectedSensorPosition(offsetMain);
+    rightFollowerShoulderTalon.setSelectedSensorPosition(offsetFollower);
 
     logger.info(
         "Absolute Main: {}, Zero pos Main: {}, Offset Main: {}",
         absoluteMain,
-        Constants.ShoulderConstants.kShoulderMainZeroTicks,
+        constants.kShoulderMainZeroTicks,
         offsetMain);
+    logger.info(
+        "Absolute Follower: {}, Zero pos Follower: {}, Offset Follower: {}",
+        absoluteFollower,
+        constants.kShoulderFollowerZeroTicks,
+        offsetFollower);
   }
 
   public void setSoftLimits(double minTicks, double maxTicks) {

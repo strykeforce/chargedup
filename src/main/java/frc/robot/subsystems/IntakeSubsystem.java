@@ -7,6 +7,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -34,12 +35,14 @@ public class IntakeSubsystem extends MeasurableSubsystem {
   private final Logger logger = LoggerFactory.getLogger(IntakeSubsystem.class);
   private int beamBreakStableCounts = 0;
   private boolean beamBroken = false;
+  private Constants constants;
 
-  public IntakeSubsystem() {
+  public IntakeSubsystem(Constants constants) {
+    this.constants = constants;
     intakeFalcon = new TalonFX(IntakeConstants.kIntakeFalconID);
     intakeFalcon.configFactoryDefault();
     intakeFalcon.configAllSettings(IntakeConstants.getIntakeFalconConfig());
-    intakeFalcon.setNeutralMode(NeutralMode.Brake);
+    intakeFalcon.setNeutralMode(NeutralMode.Coast);
 
     extendTalon = new TalonSRX(IntakeConstants.kExtendTalonID);
     extendTalon.configFactoryDefault();
@@ -63,9 +66,9 @@ public class IntakeSubsystem extends MeasurableSubsystem {
     // logger.info("Intake is extending to {}", IntakeConstants.kExtendPosTicks);
   }
 
-  public void retractClosedLoop() {
-    extendTalon.set(ControlMode.MotionMagic, IntakeConstants.kRetractPosTicks);
-    intakeSetPointTicks = IntakeConstants.kRetractPosTicks;
+  public void retractClosedLoop(double retractPos) {
+    extendTalon.set(ControlMode.MotionMagic, retractPos);
+    intakeSetPointTicks = retractPos;
     isIntakeExtended = false;
     // logger.info("Intake is retracting to {}", IntakeConstants.kRetractPosTicks);
   }
@@ -82,19 +85,27 @@ public class IntakeSubsystem extends MeasurableSubsystem {
   public void zeroIntake() {
     int absPos = extendTalon.getSensorCollection().getPulseWidthPosition() & 0xFFF;
 
-    int offset = absPos - IntakeConstants.kIntakeZeroTicks;
+    int offset = absPos - constants.kIntakeZeroTicks;
     extendTalon.setSelectedSensorPosition(offset);
     logger.info(
         "Intake zeroed; offset: {} zeroTicks: {} absPosition: {}",
         offset,
-        IntakeConstants.kIntakeZeroTicks,
+        constants.kIntakeZeroTicks,
         absPos);
   }
 
   public void retractIntake() {
+    logger.info("Retract Intake to: {}", IntakeConstants.kRetractPosTicks);
     currIntakeState = IntakeState.RETRACTED;
     intakeOpenLoop(0);
-    retractClosedLoop();
+    retractClosedLoop(IntakeConstants.kRetractPosTicks);
+  }
+
+  public void retractToPickupFromIntake() {
+    logger.info("Retract Intake to Pickup Pos: {}", IntakeConstants.kPickupPosTicks);
+    currIntakeState = IntakeState.RETRACTED;
+    intakeOpenLoop(0);
+    retractClosedLoop(IntakeConstants.kPickupPosTicks);
   }
 
   public void startIntaking(boolean doHolding) {
