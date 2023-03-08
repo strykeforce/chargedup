@@ -181,13 +181,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public void toStowIntake(RobotState nextState) {
-    currRobotState = RobotState.TO_STOW_SCORE;
+    // currRobotState = RobotState.TO_STOW_SCORE;
     if (elbowSubsystem.getPos() >= 0) {
-      currRobotState = RobotState.TO_STOW_SCORE;
       logger.info("{} --> TO_STOW_SCORE", currRobotState);
+      currRobotState = RobotState.TO_STOW_SCORE;
       currentAxis = CurrentAxis.ARM;
       armSubsystem.toStowPos();
-    } else if (gamePiece == GamePiece.NONE && elbowSubsystem.getPos() < 0) {
+    } else if (elbowSubsystem.getPos() < 0) {
       logger.info("{} --> TO_STOW", currRobotState);
       currRobotState = RobotState.TO_STOW;
 
@@ -201,17 +201,9 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         case NONE:
           handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition);
       }
+      currentAxis = CurrentAxis.HAND;
     }
     nextRobotState = nextState;
-    currentAxis = CurrentAxis.HAND;
-  }
-
-  public void toStowScore(RobotState nextState) {
-    logger.info("{} --> TO_STOW(SCORE)", currRobotState);
-    currRobotState = RobotState.TO_STOW;
-    nextRobotState = nextState;
-    if (gamePiece == GamePiece.NONE) armSubsystem.toStowPos();
-    currentAxis = CurrentAxis.ARM;
   }
 
   public void toFloorPickup() {
@@ -266,7 +258,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     releaseDelayTimer.stop();
     releaseDelayTimer.reset();
     scorePosXIntial = driveSubsystem.getPoseMeters().getX();
-    handSubsystem.runRollers(HandConstants.kRollerDrop);
+    logger.info("Score Pos X: {}", scorePosXIntial);
   }
 
   public void toGrabGamepiece(GamePiece gamePiece) {
@@ -406,6 +398,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
               logger.info("{} -> STOW", currRobotState);
               currRobotState = RobotState.STOW;
             }
+            break;
           default:
             break;
         }

@@ -31,6 +31,7 @@ public class AutoSwitch {
   private final HandSubsystem handSubsystem;
   private final VisionSubsystem visionSubsystem;
   private final RGBlightsSubsystem rgBlightsSubsystem;
+  AutoCommandInterface defaultCommand;
 
   public AutoSwitch(
       RobotStateSubsystem robotStateSubsystem,
@@ -53,6 +54,10 @@ public class AutoSwitch {
     this.handSubsystem = handSubsystem;
     this.visionSubsystem = visionSubsystem;
     this.rgBlightsSubsystem = rgBlightsSubsystem;
+
+    defaultCommand =
+        new DefaultAutoCommand(
+            driveSubsystem, robotStateSubsystem, elevatorSubsystem, handSubsystem, armSubsystem);
 
     for (int i = AutonConstants.kStartSwitchID; i <= AutonConstants.kEndSwitchId; i++) {
       switchInputs.add(new DigitalInput(i));
@@ -78,8 +83,7 @@ public class AutoSwitch {
 
   public AutoCommandInterface getAutoCommand() {
     if (autoCommand == null) {
-      return new DefaultAutoCommand(
-          driveSubsystem, robotStateSubsystem, elevatorSubsystem, handSubsystem, armSubsystem);
+      return defaultCommand;
     } else return this.autoCommand;
   }
 
