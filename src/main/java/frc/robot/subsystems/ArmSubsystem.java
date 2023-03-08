@@ -29,6 +29,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private boolean isArmFastStowing = false;
   private boolean hasElbowZeroed = true;
   private boolean isElbowReinforced = true;
+  private boolean doReinforceElevator = true;
 
   public ArmSubsystem(
       ShoulderSubsystem shoulderSubsystem,
@@ -39,6 +40,11 @@ public class ArmSubsystem extends MeasurableSubsystem {
     this.shoulderSubsystem = shoulderSubsystem;
     this.elevatorSubsystem = elevatorSubsystem;
     this.elbowSubsystem = elbowSubsystem;
+  }
+
+  public void setReinforceElevator(boolean doReinforceElevator) {
+    this.doReinforceElevator = doReinforceElevator;
+    logger.info("Turn Elevator Reinforce: {}", doReinforceElevator);
   }
 
   public void toStowPos() {
@@ -408,7 +414,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
     switch (currState) {
       case STOW:
-        if (!hasElbowZeroed && !isElbowReinforced && desiredState == ArmState.STOW) {
+        if (!hasElbowZeroed
+            && !isElbowReinforced
+            && desiredState == ArmState.STOW
+            && doReinforceElevator) {
           elevatorSubsystem.reinforceElevator();
           elbowSubsystem.zeroElbowStow();
           hasElbowZeroed = true;

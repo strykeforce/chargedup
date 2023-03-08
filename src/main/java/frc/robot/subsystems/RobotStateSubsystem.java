@@ -123,6 +123,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   public void setAutoMode(boolean isAuto) {
     this.isAuto = isAuto;
+    if (isAuto) armSubsystem.setReinforceElevator(false);
+    else armSubsystem.setReinforceElevator(true);
   }
 
   @Override
