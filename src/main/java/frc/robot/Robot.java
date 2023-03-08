@@ -62,6 +62,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     m_robotContainer.getAutoSwitch().checkSwitch();
+    m_robotContainer.checkCameraOnline();
   }
 
   @Override

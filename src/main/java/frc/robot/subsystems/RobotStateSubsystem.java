@@ -48,7 +48,6 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private double desiredPoseX;
   private boolean isAutoStageFinished = false;
   private boolean isAutoPlacing = false;
-  private boolean cameraWork = false;
   private boolean hasIntakeDelayPassed = false;
   private boolean fastStowAfterScore = false;
   private boolean allIntake = false;
@@ -321,11 +320,6 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   @Override
   public void periodic() {
-    if (!cameraWork && isCameraWorking()) {
-      rgbLightsSubsystem.setColor(0.0, 0.0, 0.0);
-      cameraWork = true;
-    }
-
     switch (currRobotState) {
       case STOW:
         if (currRobotState != nextRobotState) {
