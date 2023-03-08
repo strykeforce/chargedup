@@ -115,7 +115,8 @@ public class RobotContainer {
             handSubsystem,
             driveSubsystem,
             visionSubsystem,
-            rgbLightsSubsystem);
+            rgbLightsSubsystem,
+            elbowSubsystem);
 
     driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
 

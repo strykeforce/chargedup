@@ -305,6 +305,12 @@ public class ArmSubsystem extends MeasurableSubsystem {
     return new Translation2d(x, y);
   }
 
+  public void stowShoulder() {
+    currAxis = CurrentAxis.SHOULDER;
+    shoulderSubsystem.zeroShoulder();
+    ;
+  }
+
   @Override
   public Set<Measure> getMeasures() {
     return Set.of(
@@ -574,7 +580,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
             break;
         }
         break;
-
       case INTAKE_STAGE_TO_INTAKE:
         switch (currAxis) {
           case ELEVATOR:
@@ -707,7 +712,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ElevatorConstants.kFloorElevator,
         ElbowConstants.kFloorElbow),
     MANUAL(0, 0, 0),
-
     STOW_TO_INTAKE_STAGE(INTAKE_STAGE),
     STOW_TO_LOW(LOW),
     STOW_TO_MID(MID_CONE), // Do not use for arm position
@@ -720,6 +724,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
     SHELF_TO_STOW(STOW),
     FLOOR_TO_STOW(STOW),
     MANUAL_TO_STOW(STOW),
+    SCORE_STOW(STOW),
     FLOOR_SWEEP(
         ShoulderConstants.kFloorShoulder,
         ElevatorConstants.kFloorElevator,
