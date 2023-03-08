@@ -24,6 +24,7 @@ import frc.robot.commands.RGBlights.RGBsetPieceCommand;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.CommunityToDockCommandGroup;
 import frc.robot.commands.auto.ThreePiecePathCommandGroup;
+import frc.robot.commands.auto.TwoPieceAutoPlacePathCommandGroup;
 import frc.robot.commands.auto.TwoPieceWithDockAutoCommandGroup;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
@@ -100,6 +101,7 @@ public class RobotContainer {
   private DriveAutonCommand testPath;
   private CommunityToDockCommandGroup communityToDockCommandGroup;
   private TwoPieceWithDockAutoCommandGroup twoPieceWithDockAutoCommandGroup;
+  private TwoPieceAutoPlacePathCommandGroup twoPieceAutoPlacePathCommandGroup;
 
   private ThreePiecePathCommandGroup threePiecePath;
 
@@ -189,6 +191,16 @@ public class RobotContainer {
   // Path Configuration For Robot Container
   private void configurePaths() {
     testPath = new DriveAutonCommand(driveSubsystem, "pieceTwoFetchPath", true, true);
+    twoPieceAutoPlacePathCommandGroup =
+        new TwoPieceAutoPlacePathCommandGroup(
+            driveSubsystem,
+            robotStateSubsystem,
+            armSubsystem,
+            handSubsystem,
+            intakeSubsystem,
+            elevatorSubsystem,
+            "pieceFetchPath",
+            "readyForAutoPlacePath");
     twoPieceWithDockAutoCommandGroup =
         new TwoPieceWithDockAutoCommandGroup(
             driveSubsystem,
@@ -253,7 +265,7 @@ public class RobotContainer {
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
     // {driveSubsystem.resetOdometry(new Pose2d());},driveSubsystem);
     new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-        .onTrue(twoPieceWithDockAutoCommandGroup)
+        .onTrue(twoPieceAutoPlacePathCommandGroup)
         .onTrue(
             new InstantCommand(() -> robotStateSubsystem.setAutoMode(true), robotStateSubsystem));
 
@@ -559,6 +571,7 @@ public class RobotContainer {
     communityToDockCommandGroup.generateTrajectory();
     twoPieceWithDockAutoCommandGroup.generateTrajectory();
     threePiecePath.generateTrajectory();
+    twoPieceAutoPlacePathCommandGroup.generateTrajectory();
     // autoSwitch.getAutCommand().generateTrajectory();
     // Flips gyro angle if alliance is red team
     if (robotStateSubsystem.getAllianceColor() == Alliance.Red) {
