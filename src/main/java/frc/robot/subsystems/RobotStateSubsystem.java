@@ -242,6 +242,9 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     currRobotState = RobotState.RELEASE_GAME_PIECE;
     handSubsystem.open();
     fastStowAfterScore = true;
+    isReleaseDelayTimerRunning = false;
+    releaseDelayTimer.stop();
+    releaseDelayTimer.reset();
     scorePosXIntial = driveSubsystem.getPoseMeters().getX();
   }
 
@@ -356,7 +359,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       case TO_STOW:
         switch (currentAxis) {
           case HAND:
-            if (handSubsystem.isFinished() || isAuto) {
+            if (handSubsystem.isFinished()) {
               currentAxis = CurrentAxis.ARM;
               if (shouldFastStowArm()) {
                 armSubsystem.setArmFastStow(true);
@@ -645,11 +648,14 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           releaseDelayTimer.reset();
           releaseDelayTimer.start();
           isReleaseDelayTimerRunning = true;
+          logger.info("Started release timer");
         } else if (isReleaseDelayTimerRunning
             && releaseDelayTimer.hasElapsed(RobotStateConstants.kReleaseDelayTime)) {
 
           isReleaseDelayTimerRunning = false;
           releaseDelayTimer.stop();
+          releaseDelayTimer.reset();
+          logger.info("Release timer elapsed.");
           toStow();
         }
 
