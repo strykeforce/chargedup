@@ -18,6 +18,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   private TalonFX rightFollowFalcon;
   private double desiredPosition;
   private ElevatorState elevatorState;
+  private boolean hasZeroed = false;
 
   private int elevatorZeroStableCounts;
 
@@ -45,7 +46,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   }
 
   public void setPos(double location) {
-    logger.info("Elevator moving to {}", location);
+    if (desiredPosition != location) logger.info("Elevator moving to {}", location);
     desiredPosition = location;
     leftMainFalcon.set(TalonFXControlMode.MotionMagic, location);
   }
@@ -116,11 +117,19 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
     elevatorState = ElevatorState.ZEROING;
   }
 
+  public boolean hasZeroed() {
+    return hasZeroed;
+  }
+
   public void setSoftLimits(double minTicks, double maxTicks) {
     leftMainFalcon.configForwardSoftLimitThreshold(maxTicks);
     leftMainFalcon.configReverseSoftLimitThreshold(minTicks);
     // rightFollowFalcon.configForwardSoftLimitThreshold(maxTicks);
     // rightFollowFalcon.configReverseSoftLimitThreshold(minTicks);
+  }
+
+  public ElevatorState getElevatorState() {
+    return elevatorState;
   }
 
   @Override
@@ -153,6 +162,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
           leftMainFalcon.setSelectedSensorPosition(0.0);
           rightFollowFalcon.setSelectedSensorPosition(0.0);
 
+          setPct(0);
           leftMainFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
           rightFollowFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
           leftMainFalcon.configSupplyCurrentLimit(
@@ -169,6 +179,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
           desiredPosition = 0;
           elevatorState = ElevatorState.ZEROED;
           logger.info("Elevator is zeroed");
+          hasZeroed = true;
           break;
         }
       case ZEROED:

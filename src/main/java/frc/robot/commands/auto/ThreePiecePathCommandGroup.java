@@ -4,12 +4,14 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.subsystems.DriveSubsystem;
 
-public class ThreePiecePathCommandGroup extends SequentialCommandGroup {
+public class ThreePiecePathCommandGroup extends SequentialCommandGroup
+    implements AutoCommandInterface {
 
   DriveAutonCommand firstPath;
   DriveAutonCommand secondPath;
   DriveAutonCommand thirdPath;
   DriveAutonCommand fourthPath;
+  private boolean hasGenerated = false;
 
   public ThreePiecePathCommandGroup(
       DriveSubsystem driveSubsystem,
@@ -29,5 +31,10 @@ public class ThreePiecePathCommandGroup extends SequentialCommandGroup {
     secondPath.generateTrajectory();
     thirdPath.generateTrajectory();
     fourthPath.generateTrajectory();
+    hasGenerated = true;
+  }
+
+  public boolean hasGenerated() {
+    return hasGenerated;
   }
 }

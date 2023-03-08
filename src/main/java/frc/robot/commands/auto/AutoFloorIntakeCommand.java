@@ -1,4 +1,4 @@
-package frc.robot.commands.robotState;
+package frc.robot.commands.auto;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ArmSubsystem;
@@ -7,28 +7,28 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.RobotState;
 
-public class StowRobotCommand extends CommandBase {
-  private RobotStateSubsystem robotStateSubsystem;
+public class AutoFloorIntakeCommand extends CommandBase {
 
-  public StowRobotCommand(
+  private final RobotStateSubsystem robotStateSubsystem;
+  private final ArmSubsystem armSubsystem;
+
+  public AutoFloorIntakeCommand(
       RobotStateSubsystem robotStateSubsystem,
-      ArmSubsystem armSubsystem,
       IntakeSubsystem intakeSubsystem,
+      ArmSubsystem armSubsystem,
       HandSubsystem handSubsystem) {
+    addRequirements(intakeSubsystem, armSubsystem, handSubsystem);
     this.robotStateSubsystem = robotStateSubsystem;
-
-    addRequirements(armSubsystem);
-    addRequirements(intakeSubsystem);
-    addRequirements(handSubsystem);
+    this.armSubsystem = armSubsystem;
   }
 
   @Override
   public void initialize() {
-    robotStateSubsystem.toStow();
+    robotStateSubsystem.toIntake();
   }
 
   @Override
   public boolean isFinished() {
-    return robotStateSubsystem.getRobotState() == RobotState.STOW;
+    return robotStateSubsystem.getRobotState() == RobotState.PICKUP_FROM_INTAKE;
   }
 }

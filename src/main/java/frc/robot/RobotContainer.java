@@ -16,11 +16,15 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.RGBlights.RGBsetPieceCommand;
+import frc.robot.commands.auto.AutoCommandInterface;
+import frc.robot.commands.auto.CommunityToDockCommandGroup;
 import frc.robot.commands.auto.ThreePiecePathCommandGroup;
+import frc.robot.commands.auto.TwoPieceWithDockAutoCommandGroup;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
@@ -49,6 +53,7 @@ import frc.robot.commands.shoulder.ShoulderSpeedCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.commands.vision.ToggleUpdateWithVisionCommand;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.AutoSwitch;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElbowSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -78,6 +83,7 @@ public class RobotContainer {
   private final VisionSubsystem visionSubsystem;
   private final RGBlightsSubsystem rgbLightsSubsystem;
   private final Constants constants;
+  private final AutoSwitch autoSwitch;
 
   private final XboxController xboxController = new XboxController(1);
   private final Joystick driveJoystick = new Joystick(0);
@@ -92,6 +98,8 @@ public class RobotContainer {
 
   // Paths
   private DriveAutonCommand testPath;
+  private CommunityToDockCommandGroup communityToDockCommandGroup;
+  private TwoPieceWithDockAutoCommandGroup twoPieceWithDockAutoCommandGroup;
 
   private HandSubsystem handSubsystem;
   private ThreePiecePathCommandGroup threePiecePath;
@@ -117,6 +125,19 @@ public class RobotContainer {
             visionSubsystem,
             rgbLightsSubsystem);
 
+    autoSwitch =
+        new AutoSwitch(
+            robotStateSubsystem,
+            driveSubsystem,
+            intakeSubsystem,
+            armSubsystem,
+            shoulderSubsystem,
+            elevatorSubsystem,
+            elbowSubsystem,
+            handSubsystem,
+            visionSubsystem,
+            rgbLightsSubsystem);
+
     driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
 
     driveSubsystem.setVisionSubsystem(visionSubsystem);
@@ -135,6 +156,22 @@ public class RobotContainer {
         .onTrue(new HealthCheckCommand(driveSubsystem, intakeSubsystem));
   }
 
+  public void setAuto(boolean isAuto) {
+    robotStateSubsystem.setAutoMode(isAuto);
+  }
+
+  public AutoSwitch getAutoSwitch() {
+    return autoSwitch;
+  }
+
+  public AutoCommandInterface getAutoCommand() {
+    return twoPieceWithDockAutoCommandGroup;
+  }
+
+  public void zeroElevator() {
+    if (!elevatorSubsystem.hasZeroed()) elevatorSubsystem.zeroElevator();
+  }
+
   private void configureTelemetry() {
     driveSubsystem.registerWith(telemetryService);
     visionSubsystem.registerWith(telemetryService);
@@ -151,6 +188,17 @@ public class RobotContainer {
   // Path Configuration For Robot Container
   private void configurePaths() {
     testPath = new DriveAutonCommand(driveSubsystem, "pieceTwoFetchPath", true, true);
+    twoPieceWithDockAutoCommandGroup =
+        new TwoPieceWithDockAutoCommandGroup(
+            driveSubsystem,
+            robotStateSubsystem,
+            armSubsystem,
+            handSubsystem,
+            intakeSubsystem,
+            elevatorSubsystem,
+            "pieceOneFetchPath",
+            "pieceOnePlacePath",
+            "pieceTwoToDockPath");
     threePiecePath =
         new ThreePiecePathCommandGroup(
             driveSubsystem,
@@ -158,6 +206,15 @@ public class RobotContainer {
             "pieceOnePlacePath",
             "pieceTwoFetchPath",
             "pieceTwoPlacePath");
+    communityToDockCommandGroup =
+        new CommunityToDockCommandGroup(
+            driveSubsystem,
+            robotStateSubsystem,
+            handSubsystem,
+            armSubsystem,
+            elevatorSubsystem,
+            "piecePlaceToCommunityPath",
+            "communityToDockPath");
   }
 
   // , "pieceTwoPlacePath"
@@ -194,7 +251,10 @@ public class RobotContainer {
     // Requires swerve migration to new Pose2D
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
     // {driveSubsystem.resetOdometry(new Pose2d());},driveSubsystem);
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(testPath);
+    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+        .onTrue(twoPieceWithDockAutoCommandGroup)
+        .onTrue(
+            new InstantCommand(() -> robotStateSubsystem.setAutoMode(true), robotStateSubsystem));
 
     // Hand
     /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
@@ -400,6 +460,10 @@ public class RobotContainer {
         .addBoolean("IsCameraWorking", () -> visionSubsystem.isCameraWorking())
         .withSize(1, 1)
         .withPosition(7, 0);
+    // Shuffleboard.getTab("Match")
+    //     .addBoolean("IsTrajGenerated", () -> autoSwitch.getAutCommand().hasGenerated())
+    //     .withSize(1, 1)
+    //     .withPosition(7, 1);
   }
 
   private void configurePitDashboard() {
@@ -491,7 +555,10 @@ public class RobotContainer {
             "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
     robotStateSubsystem.setAllianceColor(alliance);
     testPath.generateTrajectory();
+    communityToDockCommandGroup.generateTrajectory();
+    twoPieceWithDockAutoCommandGroup.generateTrajectory();
     threePiecePath.generateTrajectory();
+    // autoSwitch.getAutCommand().generateTrajectory();
     // Flips gyro angle if alliance is red team
     if (robotStateSubsystem.getAllianceColor() == Alliance.Red) {
       driveSubsystem.setGyroOffset(Rotation2d.fromDegrees(180));

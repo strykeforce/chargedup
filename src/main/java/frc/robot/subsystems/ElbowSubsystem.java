@@ -70,6 +70,7 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
   }
 
   public void setPos(double posTicks) {
+    if (setPointTicks != posTicks) logger.info("Moving Elbow to: {}", posTicks);
     elbowFalcon.set(ControlMode.MotionMagic, posTicks);
     setPointTicks = posTicks;
   }

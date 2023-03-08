@@ -25,8 +25,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private boolean continueToIntake;
   private boolean continueToFloorSweep;
   private boolean isShoulderStaged = false;
-  private boolean shouldRetakeArm = false;
-  private boolean isArmFullRetaking = false;
+  private boolean shouldFastStowArm = false;
+  private boolean isArmFastStowing = false;
   private boolean hasElbowZeroed = true;
   private boolean isElbowReinforced = true;
 
@@ -110,7 +110,11 @@ public class ArmSubsystem extends MeasurableSubsystem {
         }
         break;
       default:
-        toStowPos(ArmState.INTAKE_STAGE);
+        if (continueToIntake) {
+          toStowPos(ArmState.INTAKE);
+        } else {
+          toStowPos(ArmState.INTAKE_STAGE);
+        }
         break;
     }
     desiredState = ArmState.INTAKE_STAGE;
@@ -375,19 +379,21 @@ public class ArmSubsystem extends MeasurableSubsystem {
     return Set.of(
         new Measure("Hand X", () -> getHandPosition().getX()),
         new Measure("Hand Y", () -> getHandPosition().getY()),
-        new Measure("Hand region", () -> getHandRegion().ordinal()));
+        new Measure("Hand region", () -> getHandRegion().ordinal()),
+        new Measure("Arm State", () -> currState.ordinal()));
   }
 
   public ArmState getCurrState() {
     return currState;
   }
 
-  public void setArmRetake(boolean setter) {
-    shouldRetakeArm = setter;
+  public void setArmFastStow(boolean setter) {
+    shouldFastStowArm = setter;
+    logger.info("Set Arm Fast Stow to: {}", setter);
   }
 
-  public boolean isFullRetaking() {
-    return shouldRetakeArm;
+  public boolean isFastStowing() {
+    return shouldFastStowArm;
   }
 
   @Override
@@ -426,6 +432,9 @@ public class ArmSubsystem extends MeasurableSubsystem {
             break;
           case INTAKE_STAGE:
             toIntakePos();
+            break;
+          case INTAKE:
+            toIntakeStagePos(continueToIntake);
             break;
           case SHELF:
             toShelfPos();
@@ -471,6 +480,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
           logger.info("{} -> INTAKE_STAGE", currState);
           currState = ArmState.INTAKE_STAGE;
           currAxis = CurrentAxis.NONE;
+          logger.info("Continue to Intake: {}", continueToIntake);
         }
         break;
       case STOW_TO_LOW:
@@ -628,29 +638,29 @@ public class ArmSubsystem extends MeasurableSubsystem {
       case SCORE_TO_STOW:
         switch (currAxis) {
           case SHOULDER:
-            if (shouldRetakeArm && !isArmFullRetaking) {
-              isArmFullRetaking = true;
+            if (shouldFastStowArm) {
+              isArmFastStowing = true;
               elbowSubsystem.setPos(ArmState.STOW.elbowPos);
               elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
             }
             if (shoulderSubsystem.isFinished()) {
               currAxis = CurrentAxis.ELEVATOR;
-              if (!isArmFullRetaking) elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+              if (!isArmFastStowing) elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
             }
             break;
           case ELEVATOR:
-            if (shouldRetakeArm && !isArmFullRetaking) {
-              isArmFullRetaking = true;
+            if (shouldFastStowArm && !isArmFastStowing) {
+              isArmFastStowing = true;
               elbowSubsystem.setPos(ArmState.STOW.elbowPos);
             }
             if (elevatorSubsystem.isFinished()) {
               currAxis = CurrentAxis.ELBOW;
-              if (!isArmFullRetaking) elbowSubsystem.setPos(ArmState.STOW.elbowPos);
+              if (!isArmFastStowing) elbowSubsystem.setPos(ArmState.STOW.elbowPos);
             }
             break;
           case ELBOW:
             if (elbowSubsystem.isFinished()) {
-              isArmFullRetaking = false;
+              isArmFastStowing = false;
               logger.info("{} -> STOW", currState);
               currState = ArmState.STOW;
               currAxis = CurrentAxis.NONE;
@@ -764,7 +774,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
     INTAKE_STAGE(
         ShoulderConstants.kIntakeShoulder,
         ElevatorConstants.kStowElevator,
-        ElbowConstants.kIntakeElbow),
+        ElbowConstants.kIntakeStageElbow),
     LOW(
         ShoulderConstants.kLevelOneShoulder,
         ElevatorConstants.kLevelOneElevator,
