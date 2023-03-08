@@ -558,7 +558,7 @@ public class Constants {
     public static final int kExtendTalonID = 21;
 
     public static final int kCloseEnoughTicks = 150;
-    public static final int kExtendPosTicks = -2_000; // -1_800
+    public static final int kExtendPosTicks = -2_000; // -2_000
     public static final int kRetractPosTicks = 0;
     public static final int kPickupPosTicks = -1_800; // -1_000
 
@@ -637,6 +637,7 @@ public class Constants {
     public static final double kRollerCubeHoldSpeed = 0.15;
     public static final double kRollerPickUp = 0.7;
     public static final double kRollerOff = 0.0;
+    public static final double kRollerDrop = -0.1;
 
     public static final double kMaxFwd = 1100; // 1100
     public static final double kMaxRev = -500; // -1000

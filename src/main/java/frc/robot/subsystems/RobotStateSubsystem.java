@@ -246,6 +246,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     releaseDelayTimer.stop();
     releaseDelayTimer.reset();
     scorePosXIntial = driveSubsystem.getPoseMeters().getX();
+    handSubsystem.runRollers(HandConstants.kRollerDrop);
   }
 
   public void toGrabGamepiece(GamePiece gamePiece) {
@@ -378,7 +379,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
                 currentAxis = CurrentAxis.NONE;
                 logger.info("{} -> STOW", currRobotState);
                 currRobotState = RobotState.STOW;
-                intakeSubsystem.retractIntake();
+                intakeSubsystem.retractIntake(false);
                 break;
               }
               currentAxis = CurrentAxis.INTAKE;
