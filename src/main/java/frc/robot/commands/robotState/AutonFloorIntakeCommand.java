@@ -6,10 +6,10 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.RobotState;
 
-public class FloorIntakeCommand extends CommandBase {
+public class AutonFloorIntakeCommand extends CommandBase {
   private RobotStateSubsystem robotStateSubsystem;
 
-  public FloorIntakeCommand(
+  public AutonFloorIntakeCommand(
       RobotStateSubsystem robotStateSubsystem,
       ArmSubsystem armSubsystem,
       IntakeSubsystem intakeSubsystem) {
@@ -26,6 +26,6 @@ public class FloorIntakeCommand extends CommandBase {
 
   @Override
   public boolean isFinished() {
-    return robotStateSubsystem.getRobotState() == RobotState.STOW;
+    return robotStateSubsystem.getRobotState() == RobotState.PICKUP_FROM_INTAKE;
   }
 }

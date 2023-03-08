@@ -1,17 +1,16 @@
-package frc.robot.commands.hand;
+package frc.robot.commands.robotState;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.HandSubsystem;
-import frc.robot.subsystems.HandSubsystem.HandStates;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 
-public class ToggleHandCommand extends CommandBase {
+public class GrabConeCommand extends CommandBase {
   private HandSubsystem handSubsystem;
   private RobotStateSubsystem robotStateSubsystem;
 
-  public ToggleHandCommand(
+  public GrabConeCommand(
       HandSubsystem handSubsystem,
       RobotStateSubsystem robotStateSubsystem,
       ArmSubsystem armSubsystem) {
@@ -22,12 +21,7 @@ public class ToggleHandCommand extends CommandBase {
 
   @Override
   public void initialize() {
-    if (handSubsystem.getHandState() == HandStates.OPEN) {
-      robotStateSubsystem.toGrabGamepiece(GamePiece.CONE);
-    } else if (handSubsystem.getHandState() == HandStates.CUBE_CLOSED
-        || handSubsystem.getHandState() == HandStates.CONE_CLOSED) {
-      robotStateSubsystem.toReleaseGamepiece();
-    }
+    robotStateSubsystem.toGrabGamepiece(GamePiece.CONE);
   }
 
   @Override

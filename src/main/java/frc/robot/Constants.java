@@ -2,6 +2,7 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
@@ -67,6 +68,7 @@ public class Constants {
     public static final double kRobotLength = 1.5; // FIXME m
     public static final double kPoleToCenterOffset = 1.38 + kRobotLength / 2.0; // m
     public static final double kAutoPlaceX = 1.85; // FIXME m 2.5
+    public static final double kRetakeAfterPlaceOffset = 1.0;
 
     public static final Pose2d kShelfBlue =
         new Pose2d(new Translation2d(15.33, 6.749796), new Rotation2d());
@@ -139,7 +141,12 @@ public class Constants {
   }
 
   public static final class AutonConstants {
-    public static final double kPastXPosition = 4.0; // FIXME put in real number
+    public static final double kPastXPosition = 8.0; // FIXME put in real number
+    public static final double kMinXFastStow = 2.1;
+
+    public static final int kStartSwitchID = 0;
+    public static final int kEndSwitchId = 5;
+    public static final int kSwitchStableCounts = 100;
   }
 
   public static final class DriveConstants {
@@ -161,9 +168,9 @@ public class Constants {
             new Translation2d(RobotStateConstants.kFieldMaxX - 1.80, 0.39), new Rotation2d());
 
     public static final double kShelfMovePercent = 0.2;
-    public static final double kShelfYawPercent = 0.1;
+    public static final double kShelfYawPercent = 0.2;
     public static final double kPlaceMovePercent = 0.2;
-    public static final double kPlaceYawPercent = 0.1;
+    public static final double kPlaceYawPercent = 0.2;
 
     // Drive Base Size and Gearing
     public static final double kRobotWidth = 0.495; // practice bot: 0.625 //Old: .5
@@ -237,6 +244,7 @@ public class Constants {
       azimuthConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
       azimuthConfig.voltageCompSaturation = 12;
       azimuthConfig.voltageMeasurementFilter = 32;
+      azimuthConfig.neutralDeadband = 0.04;
       return azimuthConfig;
     }
     // Drive Falcon Config
@@ -346,7 +354,7 @@ public class Constants {
 
     public static final double kAllowedError = 1500;
 
-    public static final double kElevatorZeroSpeed = 0.08;
+    public static final double kElevatorZeroSpeed = 0.20;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
     public static final int kZeroStableCounts = 10; // old 25
 
@@ -370,8 +378,8 @@ public class Constants {
     public static TalonFXConfiguration getElevatorFalconConfig() {
       TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
 
-      elevatorConfig.supplyCurrLimit.currentLimit = 80;
-      elevatorConfig.supplyCurrLimit.triggerThresholdCurrent = 90;
+      elevatorConfig.supplyCurrLimit.currentLimit = 20;
+      elevatorConfig.supplyCurrLimit.triggerThresholdCurrent = 20;
       elevatorConfig.supplyCurrLimit.triggerThresholdTime = 0.1;
       elevatorConfig.supplyCurrLimit.enable = true;
 
@@ -382,8 +390,8 @@ public class Constants {
       elevatorConfig.slot0.integralZone = 0;
       elevatorConfig.slot0.maxIntegralAccumulator = 0;
       elevatorConfig.slot0.allowableClosedloopError = 0;
-      elevatorConfig.motionCruiseVelocity = 10_000; // 10_000
-      elevatorConfig.motionAcceleration = 100_000; // 100_000
+      elevatorConfig.motionCruiseVelocity = 7_000; // 10_000
+      elevatorConfig.motionAcceleration = 40_000; // 100_000
 
       elevatorConfig.forwardSoftLimitEnable = true;
       elevatorConfig.forwardSoftLimitThreshold = kMaxFwd;
@@ -396,6 +404,14 @@ public class Constants {
       elevatorConfig.voltageMeasurementFilter = 32;
 
       return elevatorConfig;
+    }
+
+    public static StatorCurrentLimitConfiguration getElevStatorCurrentLimitConfiguration() {
+      return new StatorCurrentLimitConfiguration(true, 6.0, 6.0, 0.001);
+    }
+
+    public static StatorCurrentLimitConfiguration getElevStatorTurnOff() {
+      return new StatorCurrentLimitConfiguration(false, 0.0, 0.0, 0.0);
     }
 
     public static SupplyCurrentLimitConfiguration getElevatorSupplyLimitConfig() {
@@ -415,7 +431,7 @@ public class Constants {
     // zero=up&slightly towards the elevator
 
     public static final int kForwardSoftLimit = 187_094; // 150_000
-    public static final int kReverseSoftLimit = -41_847; // -506
+    public static final int kReverseSoftLimit = -44_847; // -506
 
     public static final double kZeroDegs = -90; // FIXME
     public static final double kTicksPerDeg = 4096.0 / 360; // FIXME
@@ -426,7 +442,8 @@ public class Constants {
     public static final int kCloseEnoughTicks = 2000;
 
     // Elbow Positions
-    public static final double kIntakeElbow = -38_847; // -25_000
+    public static final double kIntakeStageElbow = -30_000;
+    public static final double kIntakeElbow = -40_000; // -43_200
     public static final double kStowElbow = 0;
     public static final double kFloorElbow = 44_152; // 43_214
     public static final double kLevelOneElbow = 42_615;
@@ -511,13 +528,13 @@ public class Constants {
 
       shoulderConfig.slot0.kP = 5.0; // OLD 2.0
       shoulderConfig.slot0.kI = 0.0;
-      shoulderConfig.slot0.kD = 0.0; // OLD 60.0
+      shoulderConfig.slot0.kD = 10.0; // OLD 0.0
       shoulderConfig.slot0.kF = 2.5; // OLD 2.0
       shoulderConfig.slot0.integralZone = 0;
       shoulderConfig.slot0.maxIntegralAccumulator = 0;
       shoulderConfig.slot0.allowableClosedloopError = 0;
       shoulderConfig.motionCruiseVelocity = 375.0; // 200
-      shoulderConfig.motionAcceleration = 300.0; // 200
+      shoulderConfig.motionAcceleration = 1000.0; // 200
 
       shoulderConfig.forwardSoftLimitEnable = true;
       shoulderConfig.forwardSoftLimitThreshold = kMaxFwd;
@@ -535,8 +552,8 @@ public class Constants {
     public static SupplyCurrentLimitConfiguration getShoulderTalonSupplyLimitConfig() {
       SupplyCurrentLimitConfiguration shoulderSupplyConfig = new SupplyCurrentLimitConfiguration();
 
-      shoulderSupplyConfig.currentLimit = 7; // 5;
-      shoulderSupplyConfig.triggerThresholdCurrent = 7; // 5;
+      shoulderSupplyConfig.currentLimit = 10; // 7;
+      shoulderSupplyConfig.triggerThresholdCurrent = 10; // 7;
       shoulderSupplyConfig.triggerThresholdTime = 0.04; // .1;
       shoulderSupplyConfig.enable = true;
 
@@ -550,11 +567,12 @@ public class Constants {
     public static final int kExtendTalonID = 21;
 
     public static final int kCloseEnoughTicks = 150;
-    public static final int kExtendPosTicks = -1_800;
+    public static final int kExtendPosTicks = -2_000; // -2_000
     public static final int kRetractPosTicks = 0;
     public static final int kPickupPosTicks = -1_800; // -1_000
 
-    public static final double kIntakeSpeed = 0.4; // -0.35
+    public static final double kIntakeDelay = 0.0;
+    public static final double kIntakeSpeed = 0.45; // -0.35
     public static final double kIntakeEjectSpeed = -0.3;
     public static final double kEjectTimerDelaySec = 3;
     public static final double kIntakePickupDelaySec = 0.5;
@@ -628,6 +646,7 @@ public class Constants {
     public static final double kRollerCubeHoldSpeed = 0.15;
     public static final double kRollerPickUp = 0.7;
     public static final double kRollerOff = 0.0;
+    public static final double kRollerDrop = -0.1;
 
     public static final double kMaxFwd = 1100; // 1100
     public static final double kMaxRev = -500; // -1000
@@ -681,8 +700,18 @@ public class Constants {
       return handConfig;
     }
 
+    public static TalonSRXConfiguration getRolleConfig() {
+      TalonSRXConfiguration rollerConfig = new TalonSRXConfiguration();
+      rollerConfig.voltageCompSaturation = 12;
+      rollerConfig.voltageMeasurementFilter = 32;
+      rollerConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
+      rollerConfig.velocityMeasurementWindow = 64;
+      rollerConfig.neutralDeadband = 0.01;
+      return rollerConfig;
+    }
+
     public static SupplyCurrentLimitConfiguration getHandSupplyLimitConfig() {
-      return new SupplyCurrentLimitConfiguration(true, 1, 1, 0.2);
+      return new SupplyCurrentLimitConfiguration(true, 2, 2, 0.3);
     }
 
     public static SupplyCurrentLimitConfiguration getHandZeroSupplyCurrentLimit() {
@@ -699,17 +728,17 @@ public class Constants {
     public static final double kWheelDiameterInches = 3.0 * (490 / 500.0);
 
     // Elbow
-    public static final int kElbowZeroTicks = 730; // 730
+    public static final int kElbowZeroTicks = 1155; // 730
 
     // Shoulder
-    public static final double kShoulderMainZeroTicks = 1472; // FIXME old: 1836
-    public static final double kShoulderFollowerZeroTicks = 3167; // FIXME old: 1836
+    public static final double kShoulderMainZeroTicks = 995;
+    public static final double kShoulderFollowerZeroTicks = 3007;
 
     // Intake
-    public static final int kIntakeZeroTicks = 2238; // GOOD
+    public static final int kIntakeZeroTicks = 2440; // 2238
 
     // Hand
-    public static final double kHandZeroTicks = 975;
+    public static final double kHandZeroTicks = 1010;
   }
 
   public static class ProtoConstants {
@@ -727,6 +756,6 @@ public class Constants {
     public static final int kIntakeZeroTicks = 3150;
 
     // Hand
-    public static final double kHandZeroTicks = 975; // 975
+    public static final double kHandZeroTicks = 963; // 879
   }
 }
