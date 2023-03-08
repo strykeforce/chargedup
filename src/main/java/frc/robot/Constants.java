@@ -558,7 +558,7 @@ public class Constants {
     public static final int kExtendTalonID = 21;
 
     public static final int kCloseEnoughTicks = 150;
-    public static final int kExtendPosTicks = -2_000; // -1_800
+    public static final int kExtendPosTicks = -2_000; // -2_000
     public static final int kRetractPosTicks = 0;
     public static final int kPickupPosTicks = -1_800; // -1_000
 
