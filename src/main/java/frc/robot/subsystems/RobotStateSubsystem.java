@@ -126,6 +126,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   public void setAutoMode(boolean isAuto) {
     this.isAuto = isAuto;
+    if (isAuto) armSubsystem.setReinforceElevator(false);
+    else armSubsystem.setReinforceElevator(true);
   }
 
   @Override
@@ -257,6 +259,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void toReleaseGamepiece() {
     logger.info("{} -> RELEASE_GAME_PIECE", currRobotState);
     currRobotState = RobotState.RELEASE_GAME_PIECE;
+    handSubsystem.runRollers(HandConstants.kRollerDrop);
     handSubsystem.open();
     fastStowAfterScore = true;
     isReleaseDelayTimerRunning = false;
@@ -711,7 +714,6 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           logger.info("Started release timer");
         } else if (isReleaseDelayTimerRunning
             && releaseDelayTimer.hasElapsed(RobotStateConstants.kReleaseDelayTime)) {
-
           isReleaseDelayTimerRunning = false;
           releaseDelayTimer.stop();
           releaseDelayTimer.reset();

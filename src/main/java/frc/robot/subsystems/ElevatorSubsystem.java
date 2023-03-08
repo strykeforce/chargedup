@@ -52,7 +52,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   }
 
   public void setPct(double pct) {
-    logger.info("Elevator moving at {}% speed", pct);
+    logger.info("Elevator moving at {} speed", pct);
     leftMainFalcon.set(TalonFXControlMode.PercentOutput, pct);
   }
 
@@ -69,6 +69,35 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
 
   public boolean isFinished() {
     return Math.abs(desiredPosition - getPos()) <= Constants.ElevatorConstants.kAllowedError;
+  }
+
+  public void unReinforceElevator() {
+    setPct(0.0);
+
+    leftMainFalcon.configForwardSoftLimitEnable(true);
+    leftMainFalcon.configReverseSoftLimitEnable(true);
+    rightFollowFalcon.configForwardSoftLimitEnable(true);
+    rightFollowFalcon.configReverseSoftLimitEnable(true);
+
+    leftMainFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
+    rightFollowFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
+
+    logger.info("Elevator is not reinforcing");
+  }
+
+  public void reinforceElevator() {
+    leftMainFalcon.configForwardSoftLimitEnable(false);
+    leftMainFalcon.configReverseSoftLimitEnable(false);
+    rightFollowFalcon.configForwardSoftLimitEnable(false);
+    rightFollowFalcon.configReverseSoftLimitEnable(false);
+
+    leftMainFalcon.configStatorCurrentLimit(
+        ElevatorConstants.getElevStatorCurrentLimitConfiguration());
+    rightFollowFalcon.configStatorCurrentLimit(
+        ElevatorConstants.getElevStatorCurrentLimitConfiguration());
+
+    setPct(-Constants.ElevatorConstants.kElevatorZeroSpeed);
+    logger.info("Reinforcing Elevator");
   }
 
   public void zeroElevator() {
@@ -129,6 +158,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
         }
 
         if (elevatorZeroStableCounts > Constants.ElevatorConstants.kZeroStableCounts) {
+          setPct(0);
           leftMainFalcon.setSelectedSensorPosition(0.0);
           rightFollowFalcon.setSelectedSensorPosition(0.0);
 
