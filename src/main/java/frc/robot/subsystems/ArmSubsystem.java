@@ -27,7 +27,9 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private boolean isShoulderStaged = false;
   private boolean shouldFastStowArm = false;
   private boolean isArmFastStowing = false;
-  private boolean hasElbowZeroed = false;
+  private boolean hasElbowZeroed = true;
+  private boolean isElbowReinforced = true;
+  private boolean doReinforceElevator = true;
 
   public ArmSubsystem(
       ShoulderSubsystem shoulderSubsystem,
@@ -38,6 +40,11 @@ public class ArmSubsystem extends MeasurableSubsystem {
     this.shoulderSubsystem = shoulderSubsystem;
     this.elevatorSubsystem = elevatorSubsystem;
     this.elbowSubsystem = elbowSubsystem;
+  }
+
+  public void setReinforceElevator(boolean doReinforceElevator) {
+    this.doReinforceElevator = doReinforceElevator;
+    logger.info("Turn Elevator Reinforce: {}", doReinforceElevator);
   }
 
   public void toStowPos() {
@@ -94,11 +101,19 @@ public class ArmSubsystem extends MeasurableSubsystem {
     this.continueToIntake = continueToIntake;
     switch (currState) {
       case STOW:
-        logger.info("{} -> STOW_TO_INTAKE_STAGE", currState);
-        currState = ArmState.STOW_TO_INTAKE_STAGE;
-        currAxis = CurrentAxis.ELBOW;
-        shoulderSubsystem.setPos(ArmState.INTAKE_STAGE.shoulderPos);
-        elbowSubsystem.setPos(ArmState.INTAKE_STAGE.elbowPos);
+        if (isElbowReinforced) {
+          hasElbowZeroed = false;
+          isElbowReinforced = false;
+          elevatorSubsystem.unReinforceElevator();
+          elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+        }
+        if (!isElbowReinforced && elevatorSubsystem.isFinished()) {
+          logger.info("{} -> STOW_TO_INTAKE_STAGE", currState);
+          currAxis = CurrentAxis.ELBOW;
+          shoulderSubsystem.setPos(ArmState.INTAKE_STAGE.shoulderPos);
+          elbowSubsystem.setPos(ArmState.INTAKE_STAGE.elbowPos);
+          currState = ArmState.STOW_TO_INTAKE_STAGE;
+        }
         break;
       default:
         if (continueToIntake) {
@@ -112,26 +127,43 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toIntakePos() {
-    switch (currState) {
-      case INTAKE_STAGE:
-        logger.info("{} -> INTAKE_STAGE_TO_INTAKE", currState);
-        currState = ArmState.INTAKE_STAGE_TO_INTAKE;
-        currAxis = CurrentAxis.ELEVATOR;
-        elevatorSubsystem.setPos(ArmState.INTAKE.elevatorPos);
-        break;
-      default:
-        toIntakeStagePos(true);
-        break;
+    if (isElbowReinforced) {
+      hasElbowZeroed = false;
+      isElbowReinforced = false;
+      elevatorSubsystem.unReinforceElevator();
+      elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+    }
+    if (!isElbowReinforced && elevatorSubsystem.isFinished()) {
+      switch (currState) {
+        case INTAKE_STAGE:
+          logger.info("{} -> INTAKE_STAGE_TO_INTAKE", currState);
+          currState = ArmState.INTAKE_STAGE_TO_INTAKE;
+          currAxis = CurrentAxis.ELEVATOR;
+          elevatorSubsystem.setPos(ArmState.INTAKE.elevatorPos);
+          break;
+        default:
+          toIntakeStagePos(true);
+          break;
+      }
     }
   }
 
   public void toLowPos() {
+    hasElbowZeroed = false;
     switch (currState) {
       case STOW:
-        logger.info("{} -> STOW_TO_LOW", currState);
-        currState = ArmState.STOW_TO_LOW;
-        currAxis = CurrentAxis.ELBOW;
-        elbowSubsystem.setPos(ArmState.LOW.elbowPos);
+        if (isElbowReinforced) {
+          hasElbowZeroed = false;
+          isElbowReinforced = false;
+          elevatorSubsystem.unReinforceElevator();
+          elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+        }
+        if (!isElbowReinforced && elevatorSubsystem.isFinished()) {
+          logger.info("{} -> STOW_TO_LOW", currState);
+          currState = ArmState.STOW_TO_LOW;
+          currAxis = CurrentAxis.ELBOW;
+          elbowSubsystem.setPos(ArmState.LOW.elbowPos);
+        }
         break;
       default:
         toStowPos(ArmState.LOW);
@@ -141,6 +173,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toMidPos(GamePiece currGamePiece) {
+    hasElbowZeroed = false;
     if (currGamePiece == GamePiece.NONE) {
       logger.info("Game piece is unknown yet required (toMidPos())! Defaulting to CONE");
     }
@@ -149,10 +182,18 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
     switch (currState) {
       case STOW:
-        logger.info("{} -> STOW_TO_MID", currState);
-        currState = ArmState.STOW_TO_MID;
-        currAxis = CurrentAxis.ELBOW;
-        elbowSubsystem.setPos(desiredState.elbowPos);
+        if (isElbowReinforced) {
+          hasElbowZeroed = false;
+          isElbowReinforced = false;
+          elevatorSubsystem.unReinforceElevator();
+          elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+        }
+        if (!isElbowReinforced && elevatorSubsystem.isFinished()) {
+          logger.info("{} -> STOW_TO_MID", currState);
+          currState = ArmState.STOW_TO_MID;
+          currAxis = CurrentAxis.ELBOW;
+          elbowSubsystem.setPos(desiredState.elbowPos);
+        }
         break;
       default:
         toStowPos(desiredState);
@@ -161,6 +202,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toHighPos(GamePiece currGamePiece) {
+    hasElbowZeroed = false;
     if (currGamePiece == GamePiece.NONE) {
       logger.info("Game piece is unknown yet required (toHighPos())! Defaulting to CONE");
     }
@@ -170,10 +212,18 @@ public class ArmSubsystem extends MeasurableSubsystem {
     isShoulderStaged = false;
     switch (currState) {
       case STOW:
-        logger.info("{} -> STOW_TO_HIGH", currState);
-        currState = ArmState.STOW_TO_HIGH;
-        currAxis = CurrentAxis.ELBOW;
-        elbowSubsystem.setPos(desiredState.elbowPos);
+        if (isElbowReinforced) {
+          hasElbowZeroed = false;
+          isElbowReinforced = false;
+          elevatorSubsystem.unReinforceElevator();
+          elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+        }
+        if (!isElbowReinforced && elevatorSubsystem.isFinished()) {
+          logger.info("{} -> STOW_TO_HIGH", currState);
+          currState = ArmState.STOW_TO_HIGH;
+          currAxis = CurrentAxis.ELBOW;
+          elbowSubsystem.setPos(desiredState.elbowPos);
+        }
         break;
       default:
         toStowPos(desiredState);
@@ -182,13 +232,22 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toShelfPos() {
+    hasElbowZeroed = false;
     switch (currState) {
       case STOW:
-        logger.info("{} -> STOW_TO_SHELF", currState);
-        currState = ArmState.STOW_TO_SHELF;
-        currAxis = CurrentAxis.ELBOW;
-        elbowSubsystem.setPos(ArmState.SHELF.elbowPos);
-        shoulderSubsystem.setPos(ArmState.SHELF.shoulderPos);
+        if (isElbowReinforced) {
+          hasElbowZeroed = false;
+          isElbowReinforced = false;
+          elevatorSubsystem.unReinforceElevator();
+          elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+        }
+        if (!isElbowReinforced && elevatorSubsystem.isFinished()) {
+          logger.info("{} -> STOW_TO_SHELF", currState);
+          currState = ArmState.STOW_TO_SHELF;
+          currAxis = CurrentAxis.ELBOW;
+          elbowSubsystem.setPos(ArmState.SHELF.elbowPos);
+          shoulderSubsystem.setPos(ArmState.SHELF.shoulderPos);
+        }
         break;
       default:
         toStowPos(ArmState.SHELF);
@@ -198,6 +257,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toFloorPos() {
+    hasElbowZeroed = false;
     toFloorPos(false);
   }
 
@@ -205,10 +265,18 @@ public class ArmSubsystem extends MeasurableSubsystem {
     this.continueToFloorSweep = continueToFloorSweep;
     switch (currState) {
       case STOW:
-        logger.info("{} -> STOW_TO_FLOOR", currState);
-        currState = ArmState.STOW_TO_FLOOR;
-        currAxis = CurrentAxis.ELBOW;
-        elbowSubsystem.setPos(ArmState.FLOOR.elbowPos);
+        if (isElbowReinforced) {
+          hasElbowZeroed = false;
+          isElbowReinforced = false;
+          elevatorSubsystem.unReinforceElevator();
+          elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+        }
+        if (!isElbowReinforced && elevatorSubsystem.isFinished()) {
+          logger.info("{} -> STOW_TO_FLOOR", currState);
+          currState = ArmState.STOW_TO_FLOOR;
+          currAxis = CurrentAxis.ELBOW;
+          elbowSubsystem.setPos(ArmState.FLOOR.elbowPos);
+        }
         break;
       default:
         toStowPos(ArmState.FLOOR);
@@ -346,6 +414,15 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
     switch (currState) {
       case STOW:
+        if (!hasElbowZeroed
+            && !isElbowReinforced
+            && desiredState == ArmState.STOW
+            && doReinforceElevator) {
+          elevatorSubsystem.reinforceElevator();
+          elbowSubsystem.zeroElbowStow();
+          hasElbowZeroed = true;
+          isElbowReinforced = true;
+        }
         switch (desiredState) {
           case LOW:
             toLowPos();
