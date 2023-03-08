@@ -631,6 +631,7 @@ public class Constants {
     public static final double kRollerCubeHoldSpeed = 0.15;
     public static final double kRollerPickUp = 0.7;
     public static final double kRollerOff = 0.0;
+    public static final double kRollerDrop = -0.1;
 
     public static final double kMaxFwd = 1100; // 1100
     public static final double kMaxRev = -500; // -1000

@@ -68,6 +68,7 @@ public class HandSubsystem extends MeasurableSubsystem {
   }
 
   public void runRollers(double percent) {
+    logger.info("Running rollers at {}", percent);
     rollerTalon.set(TalonSRXControlMode.PercentOutput, percent);
   }
 

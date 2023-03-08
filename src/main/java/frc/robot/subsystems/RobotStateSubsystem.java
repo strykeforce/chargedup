@@ -218,6 +218,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void toReleaseGamepiece() {
     logger.info("{} -> RELEASE_GAME_PIECE", currRobotState);
     currRobotState = RobotState.RELEASE_GAME_PIECE;
+    handSubsystem.runRollers(HandConstants.kRollerDrop);
     handSubsystem.open();
   }
 
@@ -608,6 +609,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           isReleaseDelayTimerRunning = true;
         } else if (isReleaseDelayTimerRunning
             && releaseDelayTimer.hasElapsed(RobotStateConstants.kReleaseDelayTime)) {
+          handSubsystem.runRollers(HandConstants.kRollerOff);
           retakeAfterScore = true;
           retakeXIntial = driveSubsystem.getPoseMeters().getX();
           isReleaseDelayTimerRunning = false;
