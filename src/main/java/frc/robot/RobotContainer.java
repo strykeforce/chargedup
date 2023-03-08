@@ -100,7 +100,6 @@ public class RobotContainer {
   private CommunityToDockCommandGroup communityToDockCommandGroup;
   private TwoPieceWithDockAutoCommandGroup twoPieceWithDockAutoCommandGroup;
 
-  private HandSubsystem handSubsystem;
   private ThreePiecePathCommandGroup threePiecePath;
 
   private HandSubsystem handSubsystem;
