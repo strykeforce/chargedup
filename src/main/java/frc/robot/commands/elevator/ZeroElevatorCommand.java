@@ -9,7 +9,6 @@ public class ZeroElevatorCommand extends CommandBase {
 
   public ZeroElevatorCommand(ElevatorSubsystem elevatorSubsystem) {
     this.elevatorSubsystem = elevatorSubsystem;
-
     addRequirements(elevatorSubsystem);
   }
 
