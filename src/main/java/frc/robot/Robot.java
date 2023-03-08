@@ -49,7 +49,7 @@ public class Robot extends TimedRobot {
         haveAlliance = true;
         m_robotContainer.setAllianceColor(alliance);
         logger.info("Set Alliance {}", alliance);
-        m_robotContainer.getAutoSwitch().getAutCommand().generateTrajectory();
+        // m_robotContainer.getAutoSwitch().getAutCommand().generateTrajectory();
       }
     }
   }
@@ -71,11 +71,12 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     logger.info("Autonomous Init");
     m_robotContainer.setAuto(true);
-    m_autonomousCommand = m_robotContainer.getAutoSwitch().getAutCommand();
-    if (m_autonomousCommand != null) {
-      if (!m_autonomousCommand.hasGenerated()) m_autonomousCommand.generateTrajectory();
-      m_autonomousCommand.schedule();
-    }
+    // m_autonomousCommand = m_robotContainer.getAutoSwitch().getAutCommand();
+    // if (m_autonomousCommand != null) {
+    //   if (!m_autonomousCommand.hasGenerated()) m_autonomousCommand.generateTrajectory();
+    //   m_autonomousCommand.schedule();
+    // }
+    m_robotContainer.getAutoCommand().schedule();
   }
 
   @Override
