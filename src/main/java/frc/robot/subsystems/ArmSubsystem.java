@@ -142,7 +142,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
           elevatorSubsystem.setPos(ArmState.INTAKE.elevatorPos);
           break;
         default:
-          toIntakeStagePos();
+          toIntakeStagePos(true);
           break;
       }
     }
