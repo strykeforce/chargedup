@@ -25,6 +25,7 @@ import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.CommunityToDockCommandGroup;
 import frc.robot.commands.auto.ThreePiecePathCommandGroup;
 import frc.robot.commands.auto.TwoPieceAutoPlacePathCommandGroup;
+import frc.robot.commands.auto.TwoPieceLvl3AutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceWithDockAutoCommandGroup;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
@@ -102,6 +103,7 @@ public class RobotContainer {
   private CommunityToDockCommandGroup communityToDockCommandGroup;
   private TwoPieceWithDockAutoCommandGroup twoPieceWithDockAutoCommandGroup;
   private TwoPieceAutoPlacePathCommandGroup twoPieceAutoPlacePathCommandGroup;
+  private TwoPieceLvl3AutoCommandGroup bumpSideTwoPieceCommandGroup;
 
   private ThreePiecePathCommandGroup threePiecePath;
 
@@ -168,7 +170,7 @@ public class RobotContainer {
   }
 
   public AutoCommandInterface getAutoCommand() {
-    return twoPieceWithDockAutoCommandGroup;
+    return bumpSideTwoPieceCommandGroup;
   }
 
   public void zeroElevator() {
@@ -228,6 +230,17 @@ public class RobotContainer {
             elevatorSubsystem,
             "piecePlaceToCommunityPath",
             "communityToDockPath");
+
+    bumpSideTwoPieceCommandGroup =
+        new TwoPieceLvl3AutoCommandGroup(
+            driveSubsystem,
+            robotStateSubsystem,
+            armSubsystem,
+            handSubsystem,
+            intakeSubsystem,
+            elevatorSubsystem,
+            "pieceFetchPath",
+            "pieceOneDeliverBumpPath");
   }
 
   // , "pieceTwoPlacePath"
@@ -572,6 +585,7 @@ public class RobotContainer {
     twoPieceWithDockAutoCommandGroup.generateTrajectory();
     threePiecePath.generateTrajectory();
     twoPieceAutoPlacePathCommandGroup.generateTrajectory();
+    bumpSideTwoPieceCommandGroup.generateTrajectory();
     // autoSwitch.getAutCommand().generateTrajectory();
     // Flips gyro angle if alliance is red team
     if (robotStateSubsystem.getAllianceColor() == Alliance.Red) {

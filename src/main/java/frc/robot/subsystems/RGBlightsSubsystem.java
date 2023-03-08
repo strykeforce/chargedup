@@ -77,12 +77,12 @@ public class RGBlightsSubsystem extends MeasurableSubsystem {
     red_channel_D.updateDutyCycle(red);
     green_channel_D.updateDutyCycle(green);
     blue_channel_D.updateDutyCycle(blue);
-    if (red != redSetpoint || blue != blueSetpoint || green != greenSetpoint) {
+    /*if (red != redSetpoint || blue != blueSetpoint || green != greenSetpoint) {
       logger.info("Lights Changed to: ({}, {}, {})", red, green, blue);
       redSetpoint = red;
       greenSetpoint = green;
       blueSetpoint = blue;
-    }
+    }*/
   }
 
   public void setCubeColor() {
