@@ -45,7 +45,10 @@ public class CommunityToDockCommandGroup extends SequentialCommandGroup {
         new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem),
         firstPath,
         secondPath,
-        new xLockCommand(driveSubsystem));
+        new xLockCommand(driveSubsystem),
+        new ParallelCommandGroup(
+            new SetGamePieceCommand(robotStateSubsystem, GamePiece.NONE),
+            new SetVisionUpdateCommand(driveSubsystem, true)));
   }
 
   public void generateTrajectory() {

@@ -368,14 +368,23 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             }
             break;
           case ARM:
-            if (!armSubsystem.isFastStowing() && shouldFastStowArm())
+            if (!armSubsystem.isFastStowing() && shouldFastStowArm()) {
               armSubsystem.setArmFastStow(true);
+            }
             if (armSubsystem.getCurrState() == ArmState.STOW) {
               armSubsystem.setArmFastStow(false);
               fastStowAfterScore = false;
+              if (isAuto) {
+                currentAxis = CurrentAxis.NONE;
+                logger.info("{} -> STOW", currRobotState);
+                currRobotState = RobotState.STOW;
+                intakeSubsystem.retractIntake();
+                break;
+              }
               currentAxis = CurrentAxis.INTAKE;
               intakeSubsystem.retractIntake();
             }
+
             break;
           case INTAKE:
             if (intakeSubsystem.isFinished()) {
