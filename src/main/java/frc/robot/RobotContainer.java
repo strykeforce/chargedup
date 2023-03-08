@@ -168,9 +168,9 @@ public class RobotContainer {
 
   public void checkCameraOnline() {
     if (visionSubsystem.isCameraWorking()) {
-        rgbLightsSubsystem.setColor(0.0, 0.0, 0.0);
+      rgbLightsSubsystem.setColor(0.0, 0.0, 0.0);
     } else {
-        rgbLightsSubsystem.setColor(0.0, 0.0, 0.0);
+      rgbLightsSubsystem.setColor(0.0, 0.0, 0.0);
     }
   }
 
