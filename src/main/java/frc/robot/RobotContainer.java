@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.RGBlights.RGBsetPieceCommand;
+import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.CommunityToDockCommandGroup;
 import frc.robot.commands.auto.ThreePiecePathCommandGroup;
 import frc.robot.commands.auto.TwoPieceWithDockAutoCommandGroup;
@@ -162,6 +163,10 @@ public class RobotContainer {
 
   public AutoSwitch getAutoSwitch() {
     return autoSwitch;
+  }
+
+  public AutoCommandInterface getAutoCommand() {
+    return twoPieceWithDockAutoCommandGroup;
   }
 
   public void zeroElevator() {
@@ -456,10 +461,10 @@ public class RobotContainer {
         .addBoolean("IsCameraWorking", () -> visionSubsystem.isCameraWorking())
         .withSize(1, 1)
         .withPosition(7, 0);
-    Shuffleboard.getTab("Match")
-        .addBoolean("IsTrajGenerated", () -> autoSwitch.getAutCommand().hasGenerated())
-        .withSize(1, 1)
-        .withPosition(7, 1);
+    // Shuffleboard.getTab("Match")
+    //     .addBoolean("IsTrajGenerated", () -> autoSwitch.getAutCommand().hasGenerated())
+    //     .withSize(1, 1)
+    //     .withPosition(7, 1);
   }
 
   private void configurePitDashboard() {
@@ -554,7 +559,7 @@ public class RobotContainer {
     communityToDockCommandGroup.generateTrajectory();
     twoPieceWithDockAutoCommandGroup.generateTrajectory();
     threePiecePath.generateTrajectory();
-    autoSwitch.getAutCommand().generateTrajectory();
+    // autoSwitch.getAutCommand().generateTrajectory();
     // Flips gyro angle if alliance is red team
     if (robotStateSubsystem.getAllianceColor() == Alliance.Red) {
       driveSubsystem.setGyroOffset(Rotation2d.fromDegrees(180));
