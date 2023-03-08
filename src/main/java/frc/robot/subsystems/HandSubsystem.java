@@ -34,6 +34,7 @@ public class HandSubsystem extends MeasurableSubsystem {
 
   private boolean leftZeroDone;
   private static Constants constants;
+  private double lastPercent = 0.0;
   // private boolean rightZeroDone;
 
   public HandSubsystem(Constants constants) {
@@ -69,7 +70,9 @@ public class HandSubsystem extends MeasurableSubsystem {
   }
 
   public void runRollers(double percent) {
+    if (percent != lastPercent) logger.info("Running rollers at {}", percent);
     rollerTalon.set(TalonSRXControlMode.PercentOutput, percent);
+    lastPercent = percent;
   }
 
   public double getRollersVel() {

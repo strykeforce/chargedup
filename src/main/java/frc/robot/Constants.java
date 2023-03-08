@@ -136,7 +136,7 @@ public class Constants {
     public static final double kElbowIntakeMax = ElbowConstants.kForwardSoftLimit;
 
     public static final double kShelfMove = 1; // FIXME put in real number
-    public static final double kShelfTransitionMove = 0.2;
+    public static final double kShelfTransitionMove = 0.1; // 0.2
     public static final double kSweepTimerElapseSeconds = 0.5;
   }
 
@@ -441,7 +441,7 @@ public class Constants {
     public static final double kLevelTwoConeElbow = 124_638;
     public static final double kLevelTwoCubeElbow = 124_638;
     public static final double kLevelThreeConeElbow = 177_432;
-    public static final double kLevelThreeCubeElbow = kLevelThreeConeElbow;
+    public static final double kLevelThreeCubeElbow = 174_432;
     public static final double kShelfElbow = 114_366;
     public static final double kFloorElbowSweep = 35_000;
 
@@ -737,7 +737,7 @@ public class Constants {
     public static final double kWheelDiameterInches = 3.0 * (490 / 500.0);
 
     // Elbow
-    public static final int kElbowZeroTicks = 1130; // 730
+    public static final int kElbowZeroTicks = 1140; // 1130
 
     // Shoulder
     public static final double kShoulderMainZeroTicks = 1472; // FIXME old: 1836
