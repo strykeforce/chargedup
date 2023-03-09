@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
@@ -66,6 +67,8 @@ import org.strykeforce.healthcheck.HealthCheckCommand;
 import org.strykeforce.telemetry.TelemetryController;
 import org.strykeforce.telemetry.TelemetryService;
 
+import ch.qos.logback.classic.util.ContextInitializer;
+
 public class RobotContainer {
   private final ShoulderSubsystem shoulderSubsystem;
   private final RobotStateSubsystem robotStateSubsystem;
@@ -103,6 +106,13 @@ public class RobotContainer {
   private HandSubsystem handSubsystem;
 
   public RobotContainer() {
+    DigitalInput eventFlag = new DigitalInput(10);
+    boolean isEvent = eventFlag.get();
+    if (isEvent && Constants.isCompBot) {
+      // must be set before the first call to  LoggerFactory.getLogger();
+      System.setProperty(ContextInitializer.CONFIG_FILE_PROPERTY, "logback-event.xml");
+      System.out.println("Event Flag Removed - logging to file in ~lvuser/logs/");
+    }
     constants = new Constants();
     handSubsystem = new HandSubsystem(constants);
     intakeSubsystem = new IntakeSubsystem(constants);
