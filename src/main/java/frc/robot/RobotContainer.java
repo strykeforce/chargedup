@@ -112,6 +112,7 @@ public class RobotContainer {
       System.setProperty(ContextInitializer.CONFIG_FILE_PROPERTY, "logback-event.xml");
       System.out.println("Event Flag Removed - logging to file in ~lvuser/logs/");
     }
+
     constants = new Constants();
     handSubsystem = new HandSubsystem(constants);
     intakeSubsystem = new IntakeSubsystem(constants);
@@ -154,14 +155,16 @@ public class RobotContainer {
     // FIX ME
     robotStateSubsystem.setAllianceColor(Alliance.Blue);
 
-    configureTelemetry();
-    configurePaths();
+    // configurePaths();
     configureDriverButtonBindings();
     configureOperatorButtonBindings();
     configureMatchDashboard();
-    configurePitDashboard();
-    new Trigger(RobotController::getUserButton)
-        .onTrue(new HealthCheckCommand(driveSubsystem, intakeSubsystem));
+    if (!isEvent) {
+      configureTelemetry();
+      configurePitDashboard();
+      new Trigger(RobotController::getUserButton)
+          .onTrue(new HealthCheckCommand(driveSubsystem, intakeSubsystem));
+    }
   }
 
   public void setAuto(boolean isAuto) {
