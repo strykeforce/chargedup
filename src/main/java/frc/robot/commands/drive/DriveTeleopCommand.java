@@ -108,7 +108,7 @@ public class DriveTeleopCommand extends CommandBase {
               * -DriveConstants.kMaxOmega
               * yawLimiter.calculate(
                   MathUtil.applyDeadband(
-                      -joystick.getRawAxis(RobotContainer.Axis.RIGHT_Y.id),
+                      joystick.getRawAxis(RobotContainer.Axis.RIGHT_Y.id),
                       DriveConstants.kDeadbandAllStick)));
     }
   }

@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class Robot extends TimedRobot {
   private AutoCommandInterface m_autonomousCommand;
-  private static final Logger logger = LoggerFactory.getLogger(Robot.class);
+  private static Logger logger;
 
   private RobotContainer m_robotContainer;
   private boolean haveAlliance;
@@ -24,6 +24,13 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
+    logger = LoggerFactory.getLogger(Robot.class);
+    logger.info(
+        "Event: {}, Match Type: {}, Match #: {}, Replay #: {}",
+        DriverStation.getEventName(),
+        DriverStation.getMatchType(),
+        DriverStation.getMatchNumber(),
+        DriverStation.getReplayNumber());
     haveAlliance = false;
 
     Shuffleboard.getTab("Match")

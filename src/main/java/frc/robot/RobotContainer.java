@@ -4,7 +4,9 @@
 
 package frc.robot;
 
+import ch.qos.logback.classic.util.ContextInitializer;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
@@ -103,6 +105,14 @@ public class RobotContainer {
   private HandSubsystem handSubsystem;
 
   public RobotContainer() {
+    DigitalInput eventFlag = new DigitalInput(10);
+    boolean isEvent = eventFlag.get();
+    if (isEvent && Constants.isCompBot) {
+      // must be set before the first call to  LoggerFactory.getLogger();
+      System.setProperty(ContextInitializer.CONFIG_FILE_PROPERTY, "logback-event.xml");
+      System.out.println("Event Flag Removed - logging to file in ~lvuser/logs/");
+    }
+
     constants = new Constants();
     handSubsystem = new HandSubsystem(constants);
     intakeSubsystem = new IntakeSubsystem(constants);
@@ -145,14 +155,16 @@ public class RobotContainer {
     // FIX ME
     robotStateSubsystem.setAllianceColor(Alliance.Blue);
 
-    configureTelemetry();
-    configurePaths();
+    // configurePaths();
     configureDriverButtonBindings();
     configureOperatorButtonBindings();
     configureMatchDashboard();
-    configurePitDashboard();
-    new Trigger(RobotController::getUserButton)
-        .onTrue(new HealthCheckCommand(driveSubsystem, intakeSubsystem));
+    if (!isEvent) {
+      configureTelemetry();
+      configurePitDashboard();
+      new Trigger(RobotController::getUserButton)
+          .onTrue(new HealthCheckCommand(driveSubsystem, intakeSubsystem));
+    }
   }
 
   public void setAuto(boolean isAuto) {
