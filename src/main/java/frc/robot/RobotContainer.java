@@ -4,9 +4,10 @@
 
 package frc.robot;
 
+import ch.qos.logback.classic.util.ContextInitializer;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
@@ -66,8 +67,6 @@ import java.util.Map;
 import org.strykeforce.healthcheck.HealthCheckCommand;
 import org.strykeforce.telemetry.TelemetryController;
 import org.strykeforce.telemetry.TelemetryService;
-
-import ch.qos.logback.classic.util.ContextInitializer;
 
 public class RobotContainer {
   private final ShoulderSubsystem shoulderSubsystem;
