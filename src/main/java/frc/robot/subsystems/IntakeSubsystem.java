@@ -12,7 +12,10 @@ import frc.robot.Constants.IntakeConstants;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.strykeforce.healthcheck.AfterHealthCheck;
+import org.strykeforce.healthcheck.BeforeHealthCheck;
 import org.strykeforce.healthcheck.HealthCheck;
+import org.strykeforce.healthcheck.Position;
 import org.strykeforce.healthcheck.Timed;
 import org.strykeforce.telemetry.TelemetryService;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
@@ -21,13 +24,18 @@ import org.strykeforce.telemetry.measurable.Measure;
 public class IntakeSubsystem extends MeasurableSubsystem {
   private IntakeState currIntakeState = IntakeState.RETRACTED;
 
-  @HealthCheck
+  @HealthCheck(order = 1)
   @Timed(
       percentOutput = {0.5, -0.5},
       duration = 5)
   private TalonFX intakeFalcon;
 
+  @HealthCheck(order = 2)
+  @Position(
+      percentOutput = {-0.1, 0.5},
+      encoderChange = 1000)
   private TalonSRX extendTalon;
+
   private double intakeSetPointTicks;
   private boolean isIntakeExtended = false;
   private Timer ejectTimer = new Timer();
@@ -53,6 +61,18 @@ public class IntakeSubsystem extends MeasurableSubsystem {
     extendTalon.setNeutralMode(NeutralMode.Brake);
 
     zeroIntake();
+  }
+
+  @BeforeHealthCheck
+  public boolean goToZero() {
+    retractIntake();
+    return isFinished();
+  }
+
+  @AfterHealthCheck
+  public boolean returnToZero() {
+    retractIntake();
+    return isFinished();
   }
 
   public void intakeOpenLoop(double percentOutput) {

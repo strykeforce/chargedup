@@ -11,13 +11,28 @@ import frc.robot.Constants.HandConstants;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.strykeforce.healthcheck.AfterHealthCheck;
+import org.strykeforce.healthcheck.BeforeHealthCheck;
+import org.strykeforce.healthcheck.HealthCheck;
+import org.strykeforce.healthcheck.Position;
+import org.strykeforce.healthcheck.Timed;
 import org.strykeforce.telemetry.TelemetryService;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
 import org.strykeforce.telemetry.measurable.Measure;
 
 public class HandSubsystem extends MeasurableSubsystem {
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+  @HealthCheck
+  @Position(
+      percentOutput = {-0.2, 0.2},
+      encoderChange = 300)
   private TalonSRX handLeftTalon;
+
+  @HealthCheck
+  @Timed(
+      percentOutput = {0.3, -0.3},
+      duration = 5)
   private TalonSRX rollerTalon;
   // private TalonSRX handRightTalon;
 
@@ -67,6 +82,18 @@ public class HandSubsystem extends MeasurableSubsystem {
     closingStableCounts = 0;
     zeroHand();
     // handRightZeroStableCounts = 0;
+  }
+
+  @BeforeHealthCheck
+  public boolean goToZero() {
+    setPos(HandConstants.kMaxFwd);
+    return isFinished();
+  }
+
+  @AfterHealthCheck
+  public boolean returnToZero() {
+    setPos(HandConstants.kMaxFwd);
+    return isFinished();
   }
 
   public void runRollers(double percent) {

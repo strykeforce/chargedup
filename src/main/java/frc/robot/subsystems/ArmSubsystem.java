@@ -30,6 +30,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private boolean hasElbowZeroed = true;
   private boolean isElbowReinforced = true;
   private boolean doReinforceElevator = true;
+  private boolean isHealthChecking = false;
 
   public ArmSubsystem(
       ShoulderSubsystem shoulderSubsystem,
@@ -408,16 +409,23 @@ public class ArmSubsystem extends MeasurableSubsystem {
     return shouldFastStowArm;
   }
 
+  public void toggleHealthBoolean() {
+    isHealthChecking = !isHealthChecking;
+  }
+
   @Override
   public void periodic() {
     HandRegion currHandRegion = getHandRegion();
 
-    shoulderSubsystem.setSoftLimits(
-        currHandRegion.minTicksShoulder, currHandRegion.maxTicksShoulder);
-    elevatorSubsystem.setSoftLimits(
-        currHandRegion.minTicksElevator, currHandRegion.maxTicksElevator);
-    elbowSubsystem.setSoftLimits(currHandRegion.minTicksElbow, currHandRegion.maxTicksElbow);
-
+    if (!isHealthChecking) {
+      shoulderSubsystem.setSoftLimits(
+          currHandRegion.minTicksShoulder, currHandRegion.maxTicksShoulder);
+      elevatorSubsystem.setSoftLimits(
+          currHandRegion.minTicksElevator, currHandRegion.maxTicksElevator);
+      elbowSubsystem.setSoftLimits(currHandRegion.minTicksElbow, currHandRegion.maxTicksElbow);
+    } else {
+      shoulderSubsystem.setSoftLimits(-500.0, 3_000.0);
+    }
     switch (currState) {
       case STOW:
         if (!hasElbowZeroed

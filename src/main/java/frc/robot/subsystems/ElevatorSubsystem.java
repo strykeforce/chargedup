@@ -8,14 +8,28 @@ import frc.robot.Constants.ElevatorConstants;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.strykeforce.healthcheck.AfterHealthCheck;
+import org.strykeforce.healthcheck.BeforeHealthCheck;
+import org.strykeforce.healthcheck.Follow;
+import org.strykeforce.healthcheck.HealthCheck;
+import org.strykeforce.healthcheck.Position;
 import org.strykeforce.telemetry.TelemetryService;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
 import org.strykeforce.telemetry.measurable.Measure;
 
 public class ElevatorSubsystem extends MeasurableSubsystem implements ArmComponent {
   private static final Logger logger = LoggerFactory.getLogger(ElevatorSubsystem.class);
+
+  @HealthCheck
+  @Position(
+      percentOutput = {-0.2, 0.2},
+      encoderChange = 3_000)
   private TalonFX leftMainFalcon;
+
+  @HealthCheck
+  @Follow(leader = ElevatorConstants.kLeftMainId)
   private TalonFX rightFollowFalcon;
+
   private double desiredPosition;
   private ElevatorState elevatorState;
   private boolean hasZeroed = false;
@@ -43,6 +57,18 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
     elevatorZeroStableCounts = 0;
     desiredPosition = getPos();
     elevatorState = ElevatorState.IDLE;
+  }
+
+  @BeforeHealthCheck
+  public boolean goToZero() {
+    setPos(ElevatorConstants.kStowElevator);
+    return isFinished();
+  }
+
+  @AfterHealthCheck
+  public boolean returnToZero() {
+    setPos(ElevatorConstants.kStowElevator);
+    return isFinished();
   }
 
   public void setPos(double location) {
