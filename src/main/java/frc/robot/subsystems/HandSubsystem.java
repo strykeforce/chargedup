@@ -25,13 +25,13 @@ public class HandSubsystem extends MeasurableSubsystem {
 
   @HealthCheck
   @Position(
-      percentOutput = {0.1, -0.1},
-      encoderChange = 1000)
+      percentOutput = {-0.2, 0.2},
+      encoderChange = 300)
   private TalonSRX handLeftTalon;
 
   @HealthCheck
   @Timed(
-      percentOutput = {0.5, -0.5},
+      percentOutput = {0.3, -0.3},
       duration = 5)
   private TalonSRX rollerTalon;
   // private TalonSRX handRightTalon;

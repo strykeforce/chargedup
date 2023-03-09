@@ -1,5 +1,0 @@
-public class ShuffleBoardHealthCheckCommandGroup extends CommandGroup {
-    public ShuffleBoardHealthCheckCommandGroup(ElbowSubsystem elbowSubsystem) {
-        addCommands(new HealthCheckCommand(elbowSubsystem));
-    }
-}

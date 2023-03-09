@@ -47,9 +47,9 @@ import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.SetGamePieceCommand;
 import frc.robot.commands.robotState.SetLevelAndColCommandGroup;
 import frc.robot.commands.robotState.ShelfPickupCommand;
+import frc.robot.commands.robotState.ShuffleBoardHealthCheckCommandGroup;
 import frc.robot.commands.robotState.StowRobotCommand;
 import frc.robot.commands.robotState.ToggleIntakeCommand;
-import frc.robot.commands.robotState.ShuffleBoardHealthCheckCommandGroup;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.commands.vision.ToggleUpdateWithVisionCommand;
@@ -548,8 +548,17 @@ public class RobotContainer {
         .withPosition(0, 1);
 
     ShuffleboardLayout HealthCheck =
-        pitTab.getLayout("HealthCheck", BuiltInLayouts.kGrid).withPosition(0, 0).withSize(1, 1);
-    HealthCheck.add("HealthCheck", new ShuffleBoardHealthCheckCommandGroup(elbowSubsystem))
+        pitTab.getLayout("HealthCheck", BuiltInLayouts.kGrid).withPosition(1, 0).withSize(1, 1);
+    HealthCheck.add(
+            "HealthCheck",
+            new ShuffleBoardHealthCheckCommandGroup(
+                elbowSubsystem,
+                shoulderSubsystem,
+                elevatorSubsystem,
+                handSubsystem,
+                driveSubsystem,
+                intakeSubsystem,
+                armSubsystem))
         .withPosition(0, 0);
   }
 

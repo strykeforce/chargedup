@@ -21,7 +21,7 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
 
   @HealthCheck
   @Position(
-      percentOutput = {0.1, -0.1},
+      percentOutput = {0.2, -0.2},
       encoderChange = 1000)
   private TalonSRX leftMainShoulderTalon;
 
