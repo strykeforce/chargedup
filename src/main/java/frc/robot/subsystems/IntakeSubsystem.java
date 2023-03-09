@@ -12,7 +12,10 @@ import frc.robot.Constants.IntakeConstants;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.strykeforce.healthcheck.AfterHealthCheck;
+import org.strykeforce.healthcheck.BeforeHealthCheck;
 import org.strykeforce.healthcheck.HealthCheck;
+import org.strykeforce.healthcheck.Position;
 import org.strykeforce.healthcheck.Timed;
 import org.strykeforce.telemetry.TelemetryService;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
@@ -27,7 +30,12 @@ public class IntakeSubsystem extends MeasurableSubsystem {
       duration = 5)
   private TalonFX intakeFalcon;
 
+  @HealthCheck
+  @Position(
+      percentOutput = {0.1, -0.1},
+      encoderChange = 1000)
   private TalonSRX extendTalon;
+
   private double intakeSetPointTicks;
   private boolean isIntakeExtended = false;
   private Timer ejectTimer = new Timer();
@@ -53,6 +61,20 @@ public class IntakeSubsystem extends MeasurableSubsystem {
     extendTalon.setNeutralMode(NeutralMode.Brake);
 
     zeroIntake();
+  }
+
+  @BeforeHealthCheck
+  public boolean goToZero() {
+    extendTalon.set(ControlMode.MotionMagic, 0.0);
+    return Math.abs(Constants.kIntakeZeroTicks - extendTalon.getSelectedSensorPosition())
+        < IntakeConstants.kCloseEnoughTicks;
+  }
+
+  @AfterHealthCheck
+  public boolean returnToZero() {
+    extendTalon.set(ControlMode.MotionMagic, 0.0);
+    return Math.abs(Constants.kIntakeZeroTicks - extendTalon.getSelectedSensorPosition())
+        < IntakeConstants.kCloseEnoughTicks;
   }
 
   public void intakeOpenLoop(double percentOutput) {

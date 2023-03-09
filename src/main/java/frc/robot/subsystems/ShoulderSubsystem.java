@@ -4,16 +4,31 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import frc.robot.Constants;
+import frc.robot.Constants.ShoulderConstants;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.strykeforce.healthcheck.AfterHealthCheck;
+import org.strykeforce.healthcheck.BeforeHealthCheck;
+import org.strykeforce.healthcheck.Follow;
+import org.strykeforce.healthcheck.HealthCheck;
+import org.strykeforce.healthcheck.Position;
 import org.strykeforce.telemetry.TelemetryService;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
 import org.strykeforce.telemetry.measurable.Measure;
 
 public class ShoulderSubsystem extends MeasurableSubsystem implements ArmComponent {
+
+  @HealthCheck
+  @Position(
+      percentOutput = {0.1, -0.1},
+      encoderChange = 1000)
   private TalonSRX leftMainShoulderTalon;
+
+  @HealthCheck
+  @Follow(leader = ShoulderConstants.kShoulderId)
   private TalonSRX rightFollowerShoulderTalon;
+
   private double desiredPosition;
   private Constants constants;
 
@@ -40,6 +55,18 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
 
     zeroShoulder();
     desiredPosition = getPos();
+  }
+
+  @BeforeHealthCheck
+  public boolean goToZero() {
+    setPos(0.0);
+    return isFinished();
+  }
+
+  @AfterHealthCheck
+  public boolean returnToZero() {
+    setPos(0.0);
+    return isFinished();
   }
 
   public void setPos(double location) {
