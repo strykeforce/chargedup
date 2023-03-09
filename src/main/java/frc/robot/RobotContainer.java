@@ -167,6 +167,14 @@ public class RobotContainer {
     return autoSwitch.getAutoCommand();
   }
 
+  public void checkCameraOnline() {
+    if (visionSubsystem.isCameraWorking()) {
+      rgbLightsSubsystem.setColor(0.0, 0.0, 0.0);
+    } else {
+      rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
+    }
+  }
+
   public void zeroElevator() {
     if (!elevatorSubsystem.hasZeroed()) elevatorSubsystem.zeroElevator();
   }
