@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class Robot extends TimedRobot {
   private AutoCommandInterface m_autonomousCommand;
-  private static final Logger logger = LoggerFactory.getLogger(Robot.class);
+  private static Logger logger;
 
   private RobotContainer m_robotContainer;
   private boolean haveAlliance;
@@ -24,6 +24,13 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
+    logger = LoggerFactory.getLogger(Robot.class);
+    logger.info(
+        "Event: {}, Match Type: {}, Match #: {}, Replay #: {}",
+        DriverStation.getEventName(),
+        DriverStation.getMatchType(),
+        DriverStation.getMatchNumber(),
+        DriverStation.getReplayNumber());
     haveAlliance = false;
 
     Shuffleboard.getTab("Match")
@@ -49,7 +56,7 @@ public class Robot extends TimedRobot {
         haveAlliance = true;
         m_robotContainer.setAllianceColor(alliance);
         logger.info("Set Alliance {}", alliance);
-        // m_robotContainer.getAutoSwitch().getAutCommand().generateTrajectory();
+        m_robotContainer.getAutoSwitch().getAutoCommand().generateTrajectory();
       }
     }
   }
@@ -62,6 +69,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {
     m_robotContainer.getAutoSwitch().checkSwitch();
+    m_robotContainer.checkCameraOnline();
   }
 
   @Override
@@ -71,12 +79,12 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     logger.info("Autonomous Init");
     m_robotContainer.setAuto(true);
-    // m_autonomousCommand = m_robotContainer.getAutoSwitch().getAutCommand();
-    // if (m_autonomousCommand != null) {
-    //   if (!m_autonomousCommand.hasGenerated()) m_autonomousCommand.generateTrajectory();
-    //   m_autonomousCommand.schedule();
-    // }
-    m_robotContainer.getAutoCommand().schedule();
+    m_autonomousCommand = m_robotContainer.getAutoSwitch().getAutoCommand();
+    if (m_autonomousCommand != null) {
+      if (!m_autonomousCommand.hasGenerated()) m_autonomousCommand.generateTrajectory();
+      m_autonomousCommand.schedule();
+    }
+    // m_robotContainer.getAutoCommand().schedule();
   }
 
   @Override
@@ -92,7 +100,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
     m_robotContainer.zeroElevator();
-    // m_robotContainer.setAuto(false); commented out for now - to allow testing in Tele
+    m_robotContainer.setAuto(false); // commented out for now - to allow testing in Tele
   }
 
   @Override

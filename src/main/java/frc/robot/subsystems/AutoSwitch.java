@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.DefaultAutoCommand;
+import frc.robot.commands.auto.TwoPieceLvl3AutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceWithDockAutoCommandGroup;
 import java.util.ArrayList;
 import org.slf4j.Logger;
@@ -30,6 +31,7 @@ public class AutoSwitch {
   private final HandSubsystem handSubsystem;
   private final VisionSubsystem visionSubsystem;
   private final RGBlightsSubsystem rgBlightsSubsystem;
+  AutoCommandInterface defaultCommand;
 
   public AutoSwitch(
       RobotStateSubsystem robotStateSubsystem,
@@ -53,6 +55,10 @@ public class AutoSwitch {
     this.visionSubsystem = visionSubsystem;
     this.rgBlightsSubsystem = rgBlightsSubsystem;
 
+    defaultCommand =
+        new DefaultAutoCommand(
+            driveSubsystem, robotStateSubsystem, elevatorSubsystem, handSubsystem, armSubsystem);
+
     for (int i = AutonConstants.kStartSwitchID; i <= AutonConstants.kEndSwitchId; i++) {
       switchInputs.add(new DigitalInput(i));
     }
@@ -75,8 +81,10 @@ public class AutoSwitch {
     currAutoSwitchPos = -1;
   }
 
-  public AutoCommandInterface getAutCommand() {
-    return autoCommand;
+  public AutoCommandInterface getAutoCommand() {
+    if (autoCommand == null) {
+      return defaultCommand;
+    } else return this.autoCommand;
   }
 
   private boolean hasSwitchChanged() {
@@ -99,7 +107,9 @@ public class AutoSwitch {
 
   private AutoCommandInterface getAutoCommand(int switchPos) {
     switch (switchPos) {
-      case 0x30:
+        // Non-Bump Side
+      case 0x00:
+        // Cone Lvl 3, Cube Lvl 2, Auto Balance
         return new TwoPieceWithDockAutoCommandGroup(
             driveSubsystem,
             robotStateSubsystem,
@@ -110,6 +120,29 @@ public class AutoSwitch {
             "pieceOneFetchPath",
             "pieceOnePlacePath",
             "pieceTwoToDockPath");
+      case 0x01:
+        // Cone Lvl 3, Cube Lvl 3
+        return new TwoPieceLvl3AutoCommandGroup(
+            driveSubsystem,
+            robotStateSubsystem,
+            armSubsystem,
+            handSubsystem,
+            intakeSubsystem,
+            elevatorSubsystem,
+            "pieceOneFetchPath",
+            "pieceOnePlacePath");
+        // Bump Side
+      case 0x20:
+        // Cone Lvl 3, Cube Lvl 3
+        return new TwoPieceLvl3AutoCommandGroup(
+            driveSubsystem,
+            robotStateSubsystem,
+            armSubsystem,
+            handSubsystem,
+            intakeSubsystem,
+            elevatorSubsystem,
+            "pieceFetchPath",
+            "pieceOneDeliverBumpPath");
       default:
         String msg = String.format("no auto command assigned for switch pos: %02X", switchPos);
         DriverStation.reportWarning(msg, false);

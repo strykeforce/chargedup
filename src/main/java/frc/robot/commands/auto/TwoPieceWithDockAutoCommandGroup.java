@@ -2,6 +2,7 @@ package frc.robot.commands.auto;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
 import frc.robot.commands.drive.DriveAutonCommand;
@@ -55,7 +56,7 @@ public class TwoPieceWithDockAutoCommandGroup extends SequentialCommandGroup
             new SetVisionUpdateCommand(driveSubsystem, false)),
         new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem),
         new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem),
-        new ParallelCommandGroup(
+        new ParallelDeadlineGroup(
             firstPath,
             new AutoFloorIntakeCommand(
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),

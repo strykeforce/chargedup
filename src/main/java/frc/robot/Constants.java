@@ -136,7 +136,7 @@ public class Constants {
     public static final double kElbowIntakeMax = ElbowConstants.kForwardSoftLimit;
 
     public static final double kShelfMove = 1; // FIXME put in real number
-    public static final double kShelfTransitionMove = 0.2;
+    public static final double kShelfTransitionMove = 0.1; // 0.2
     public static final double kSweepTimerElapseSeconds = 0.5;
   }
 
@@ -441,7 +441,7 @@ public class Constants {
     public static final double kLevelTwoConeElbow = 124_638;
     public static final double kLevelTwoCubeElbow = 124_638;
     public static final double kLevelThreeConeElbow = 177_432;
-    public static final double kLevelThreeCubeElbow = kLevelThreeConeElbow;
+    public static final double kLevelThreeCubeElbow = 174_432;
     public static final double kShelfElbow = 114_366;
     public static final double kFloorElbowSweep = 35_000;
 
@@ -558,7 +558,7 @@ public class Constants {
     public static final int kExtendTalonID = 21;
 
     public static final int kCloseEnoughTicks = 150;
-    public static final int kExtendPosTicks = -2_000; // -1_800
+    public static final int kExtendPosTicks = -2_000; // -2_000
     public static final int kRetractPosTicks = 0;
     public static final int kPickupPosTicks = -1_800; // -1_000
 
@@ -637,6 +637,7 @@ public class Constants {
     public static final double kRollerCubeHoldSpeed = 0.15;
     public static final double kRollerPickUp = 0.7;
     public static final double kRollerOff = 0.0;
+    public static final double kRollerDrop = -0.1;
 
     public static final double kMaxFwd = 1100; // 1100
     public static final double kMaxRev = -500; // -1000
@@ -718,7 +719,7 @@ public class Constants {
     public static final double kWheelDiameterInches = 3.0 * (490 / 500.0);
 
     // Elbow
-    public static final int kElbowZeroTicks = 1155; // 730
+    public static final int kElbowZeroTicks = 1160; // 730
 
     // Shoulder
     public static final double kShoulderMainZeroTicks = 995;
@@ -736,7 +737,7 @@ public class Constants {
     public static final double kWheelDiameterInches = 3.0 * (490 / 500.0);
 
     // Elbow
-    public static final int kElbowZeroTicks = 1130; // 730
+    public static final int kElbowZeroTicks = 1140; // 1130
 
     // Shoulder
     public static final double kShoulderMainZeroTicks = 1472; // FIXME old: 1836

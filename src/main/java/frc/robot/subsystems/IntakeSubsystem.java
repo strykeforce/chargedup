@@ -114,11 +114,15 @@ public class IntakeSubsystem extends MeasurableSubsystem {
         absPos);
   }
 
-  public void retractIntake() {
+  public void retractIntake(boolean rollersOff) {
     logger.info("Retract Intake to: {}", IntakeConstants.kRetractPosTicks);
     currIntakeState = IntakeState.RETRACTED;
-    intakeOpenLoop(0);
+    if (rollersOff) intakeOpenLoop(0);
     retractClosedLoop(IntakeConstants.kRetractPosTicks);
+  }
+
+  public void retractIntake() {
+    retractIntake(true);
   }
 
   public void retractToPickupFromIntake() {

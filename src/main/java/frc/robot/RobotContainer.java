@@ -4,7 +4,9 @@
 
 package frc.robot;
 
+import ch.qos.logback.classic.util.ContextInitializer;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
@@ -16,16 +18,11 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.RGBlights.RGBsetPieceCommand;
 import frc.robot.commands.auto.AutoCommandInterface;
-import frc.robot.commands.auto.CommunityToDockCommandGroup;
-import frc.robot.commands.auto.ThreePiecePathCommandGroup;
-import frc.robot.commands.auto.TwoPieceWithDockAutoCommandGroup;
-import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
@@ -98,14 +95,25 @@ public class RobotContainer {
   private SuppliedValueWidget<Boolean> currGamePiece;
 
   // Paths
-  private DriveAutonCommand testPath;
-  private CommunityToDockCommandGroup communityToDockCommandGroup;
-  private TwoPieceWithDockAutoCommandGroup twoPieceWithDockAutoCommandGroup;
+  //   private DriveAutonCommand testPath;
+  //   private CommunityToDockCommandGroup communityToDockCommandGroup;
+  //   private TwoPieceWithDockAutoCommandGroup twoPieceWithDockAutoCommandGroup;
+  //   private TwoPieceAutoPlacePathCommandGroup twoPieceAutoPlacePathCommandGroup;
+  //   private TwoPieceLvl3AutoCommandGroup bumpSideTwoPieceCommandGroup;
+
+  //   private ThreePiecePathCommandGroup threePiecePath;
 
   private HandSubsystem handSubsystem;
-  private ThreePiecePathCommandGroup threePiecePath;
 
   public RobotContainer() {
+    DigitalInput eventFlag = new DigitalInput(10);
+    boolean isEvent = eventFlag.get();
+    if (isEvent && Constants.isCompBot) {
+      // must be set before the first call to  LoggerFactory.getLogger();
+      System.setProperty(ContextInitializer.CONFIG_FILE_PROPERTY, "logback-event.xml");
+      System.out.println("Event Flag Removed - logging to file in ~lvuser/logs/");
+    }
+
     constants = new Constants();
     handSubsystem = new HandSubsystem(constants);
     intakeSubsystem = new IntakeSubsystem(constants);
@@ -124,7 +132,8 @@ public class RobotContainer {
             handSubsystem,
             driveSubsystem,
             visionSubsystem,
-            rgbLightsSubsystem);
+            rgbLightsSubsystem,
+            elbowSubsystem);
 
     autoSwitch =
         new AutoSwitch(
@@ -147,13 +156,16 @@ public class RobotContainer {
     // FIX ME
     robotStateSubsystem.setAllianceColor(Alliance.Blue);
 
-    configureTelemetry();
-    configurePaths();
+    // configurePaths();
     configureDriverButtonBindings();
     configureOperatorButtonBindings();
     configureMatchDashboard();
-    configurePitDashboard();
-    new Trigger(RobotController::getUserButton).onTrue(new HealthCheckCommand(elbowSubsystem));
+    if (!isEvent) {
+      configureTelemetry();
+      configurePitDashboard();
+      new Trigger(RobotController::getUserButton)
+          .onTrue(new HealthCheckCommand(driveSubsystem, intakeSubsystem));
+    }
   }
 
   public void setAuto(boolean isAuto) {
@@ -165,7 +177,15 @@ public class RobotContainer {
   }
 
   public AutoCommandInterface getAutoCommand() {
-    return twoPieceWithDockAutoCommandGroup;
+    return autoSwitch.getAutoCommand();
+  }
+
+  public void checkCameraOnline() {
+    if (visionSubsystem.isCameraWorking()) {
+      rgbLightsSubsystem.setColor(0.0, 0.0, 0.0);
+    } else {
+      rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
+    }
   }
 
   public void zeroElevator() {
@@ -187,34 +207,55 @@ public class RobotContainer {
 
   // Path Configuration For Robot Container
   private void configurePaths() {
-    testPath = new DriveAutonCommand(driveSubsystem, "pieceTwoFetchPath", true, true);
-    twoPieceWithDockAutoCommandGroup =
-        new TwoPieceWithDockAutoCommandGroup(
-            driveSubsystem,
-            robotStateSubsystem,
-            armSubsystem,
-            handSubsystem,
-            intakeSubsystem,
-            elevatorSubsystem,
-            "pieceOneFetchPath",
-            "pieceOnePlacePath",
-            "pieceTwoToDockPath");
-    threePiecePath =
-        new ThreePiecePathCommandGroup(
-            driveSubsystem,
-            "pieceOneFetchPath",
-            "pieceOnePlacePath",
-            "pieceTwoFetchPath",
-            "pieceTwoPlacePath");
-    communityToDockCommandGroup =
-        new CommunityToDockCommandGroup(
-            driveSubsystem,
-            robotStateSubsystem,
-            handSubsystem,
-            armSubsystem,
-            elevatorSubsystem,
-            "piecePlaceToCommunityPath",
-            "communityToDockPath");
+    // testPath = new DriveAutonCommand(driveSubsystem, "pieceTwoFetchPath", true, true);
+    // twoPieceAutoPlacePathCommandGroup =
+    //     new TwoPieceAutoPlacePathCommandGroup(
+    //         driveSubsystem,
+    //         robotStateSubsystem,
+    //         armSubsystem,
+    //         handSubsystem,
+    //         intakeSubsystem,
+    //         elevatorSubsystem,
+    //         "pieceFetchPath",
+    //         "readyForAutoPlacePath");
+    // twoPieceWithDockAutoCommandGroup =
+    //     new TwoPieceWithDockAutoCommandGroup(
+    //         driveSubsystem,
+    //         robotStateSubsystem,
+    //         armSubsystem,
+    //         handSubsystem,
+    //         intakeSubsystem,
+    //         elevatorSubsystem,
+    //         "pieceOneFetchPath",
+    //         "pieceOnePlacePath",
+    //         "pieceTwoToDockPath");
+    // threePiecePath =
+    //     new ThreePiecePathCommandGroup(
+    //         driveSubsystem,
+    //         "pieceOneFetchPath",
+    //         "pieceOnePlacePath",
+    //         "pieceTwoFetchPath",
+    //         "pieceTwoPlacePath");
+    // communityToDockCommandGroup =
+    //     new CommunityToDockCommandGroup(
+    //         driveSubsystem,
+    //         robotStateSubsystem,
+    //         handSubsystem,
+    //         armSubsystem,
+    //         elevatorSubsystem,
+    //         "piecePlaceToCommunityPath",
+    //         "communityToDockPath");
+
+    // bumpSideTwoPieceCommandGroup =
+    //     new TwoPieceLvl3AutoCommandGroup(
+    //         driveSubsystem,
+    //         robotStateSubsystem,
+    //         armSubsystem,
+    //         handSubsystem,
+    //         intakeSubsystem,
+    //         elevatorSubsystem,
+    //         "pieceFetchPath",
+    //         "pieceOneDeliverBumpPath");
   }
 
   // , "pieceTwoPlacePath"
@@ -251,10 +292,11 @@ public class RobotContainer {
     // Requires swerve migration to new Pose2D
     // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
     // {driveSubsystem.resetOdometry(new Pose2d());},driveSubsystem);
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-        .onTrue(twoPieceWithDockAutoCommandGroup)
-        .onTrue(
-            new InstantCommand(() -> robotStateSubsystem.setAutoMode(true), robotStateSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+    //     .onTrue(twoPieceAutoPlacePathCommandGroup)
+    //     .onTrue(
+    //         new InstantCommand(() -> robotStateSubsystem.setAutoMode(true),
+    // robotStateSubsystem));
 
     // Hand
     /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
@@ -312,9 +354,9 @@ public class RobotContainer {
     // .onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));
 
     // Toggle auto staging
-    new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
+    new JoystickButton(driveJoystick, Trim.RIGHT_Y_POS.id)
         .onTrue(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem));
-    new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
+    new JoystickButton(driveJoystick, Trim.RIGHT_Y_NEG.id)
         .onTrue(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem));
     // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
     //     .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
@@ -460,10 +502,10 @@ public class RobotContainer {
         .addBoolean("IsCameraWorking", () -> visionSubsystem.isCameraWorking())
         .withSize(1, 1)
         .withPosition(7, 0);
-    // Shuffleboard.getTab("Match")
-    //     .addBoolean("IsTrajGenerated", () -> autoSwitch.getAutCommand().hasGenerated())
-    //     .withSize(1, 1)
-    //     .withPosition(7, 1);
+    Shuffleboard.getTab("Match")
+        .addBoolean("IsTrajGenerated", () -> autoSwitch.getAutoCommand().hasGenerated())
+        .withSize(1, 1)
+        .withPosition(7, 1);
   }
 
   private void configurePitDashboard() {
@@ -568,11 +610,15 @@ public class RobotContainer {
         Map.of(
             "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
     robotStateSubsystem.setAllianceColor(alliance);
-    testPath.generateTrajectory();
-    communityToDockCommandGroup.generateTrajectory();
-    twoPieceWithDockAutoCommandGroup.generateTrajectory();
-    threePiecePath.generateTrajectory();
-    // autoSwitch.getAutCommand().generateTrajectory();
+    // testPath.generateTrajectory();
+    // communityToDockCommandGroup.generateTrajectory();
+    // twoPieceWithDockAutoCommandGroup.generateTrajectory();
+    // threePiecePath.generateTrajectory();
+    // twoPieceAutoPlacePathCommandGroup.generateTrajectory();
+    // bumpSideTwoPieceCommandGroup.generateTrajectory();
+    if (autoSwitch.getAutoCommand() != null) {
+      autoSwitch.getAutoCommand().generateTrajectory();
+    }
     // Flips gyro angle if alliance is red team
     if (robotStateSubsystem.getAllianceColor() == Alliance.Red) {
       driveSubsystem.setGyroOffset(Rotation2d.fromDegrees(180));
