@@ -457,10 +457,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
   public void teleResetGyro() {
     logger.info("Driver Joystick: Reset Gyro");
-    swerveDrive.setGyroOffset(Rotation2d.fromDegrees(0.0));
+    double gyroResetDegs = robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : 180.0;
+    swerveDrive.setGyroOffset(Rotation2d.fromDegrees(gyroResetDegs));
     swerveDrive.resetGyro();
     swerveDrive.resetOdometry(
-        new Pose2d(swerveDrive.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0.0)));
+        new Pose2d(
+            swerveDrive.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(gyroResetDegs)));
   }
 
   public void resetOdometry(Pose2d pose) {
