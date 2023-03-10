@@ -312,7 +312,7 @@ public class RobotContainer {
     //     .onTrue(new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
         .onTrue(new PulseAutoBalancePulseCommand(false, driveSubsystem, robotStateSubsystem));
-    new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id).onTrue(testpath);
+    // new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id).onTrue(testpath);
     // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
@@ -674,7 +674,7 @@ public class RobotContainer {
         Map.of(
             "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
     robotStateSubsystem.setAllianceColor(alliance);
-    testpath.generateTrajectory();
+    // testpath.generateTrajectory();
     // communityToDockCommandGroup.generateTrajectory();
     // twoPieceWithDockAutoCommandGroup.generateTrajectory();
     // threePiecePath.generateTrajectory();

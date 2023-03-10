@@ -403,6 +403,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
           move(0.0, 0.0, 0.0, false);
           logger.info("{} -> AUTO_BALANCE_CHECK", currDriveState);
           currDriveState = DriveStates.AUTO_BALANCE_CHECK;
+          xLock();
           autoBalancePulseTimer.reset();
         }
         break;
