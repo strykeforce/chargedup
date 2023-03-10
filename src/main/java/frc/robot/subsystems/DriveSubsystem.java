@@ -338,10 +338,11 @@ public class DriveSubsystem extends MeasurableSubsystem {
           //   autoBalanceTimer.reset();
           //   autoBalanceTimer.start();
           // }
-          // if (Math.abs(ahrs.getRoll()) >= DriveConstants.kAutoBalanceEnableGyroThresholdDegrees) {
+          // if (Math.abs(ahrs.getRoll()) >= DriveConstants.kAutoBalanceEnableGyroThresholdDegrees)
+          // {
           //   logger.info("Autobalance Enabled Gyro");
           autoBalanceGyroActive = true;
-          //}
+          // }
         }
 
         // if (autoBalanceTimer.hasElapsed(DriveConstants.kAutoBalanceSlowdownTimeSec)
