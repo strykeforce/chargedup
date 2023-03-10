@@ -4,19 +4,35 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import frc.robot.Constants;
+import frc.robot.Constants.ElevatorConstants;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.strykeforce.healthcheck.AfterHealthCheck;
+import org.strykeforce.healthcheck.BeforeHealthCheck;
+import org.strykeforce.healthcheck.Follow;
+import org.strykeforce.healthcheck.HealthCheck;
+import org.strykeforce.healthcheck.Position;
 import org.strykeforce.telemetry.TelemetryService;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
 import org.strykeforce.telemetry.measurable.Measure;
 
 public class ElevatorSubsystem extends MeasurableSubsystem implements ArmComponent {
   private static final Logger logger = LoggerFactory.getLogger(ElevatorSubsystem.class);
+
+  @HealthCheck
+  @Position(
+      percentOutput = {-0.2, 0.2},
+      encoderChange = 3_000)
   private TalonFX leftMainFalcon;
+
+  @HealthCheck
+  @Follow(leader = ElevatorConstants.kLeftMainId)
   private TalonFX rightFollowFalcon;
+
   private double desiredPosition;
   private ElevatorState elevatorState;
+  private boolean hasZeroed = false;
 
   private int elevatorZeroStableCounts;
 
@@ -43,14 +59,26 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
     elevatorState = ElevatorState.IDLE;
   }
 
+  @BeforeHealthCheck
+  public boolean goToZero() {
+    setPos(ElevatorConstants.kStowElevator);
+    return isFinished();
+  }
+
+  @AfterHealthCheck
+  public boolean returnToZero() {
+    setPos(ElevatorConstants.kStowElevator);
+    return isFinished();
+  }
+
   public void setPos(double location) {
-    logger.info("Elevator moving to {}", location);
+    if (desiredPosition != location) logger.info("Elevator moving to {}", location);
     desiredPosition = location;
     leftMainFalcon.set(TalonFXControlMode.MotionMagic, location);
   }
 
   public void setPct(double pct) {
-    logger.info("Elevator moving at {}% speed", pct);
+    logger.info("Elevator moving at {} speed", pct);
     leftMainFalcon.set(TalonFXControlMode.PercentOutput, pct);
   }
 
@@ -69,19 +97,45 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
     return Math.abs(desiredPosition - getPos()) <= Constants.ElevatorConstants.kAllowedError;
   }
 
+  public void unReinforceElevator() {
+    setPct(0.0);
+
+    leftMainFalcon.configForwardSoftLimitEnable(true);
+    leftMainFalcon.configReverseSoftLimitEnable(true);
+    rightFollowFalcon.configForwardSoftLimitEnable(true);
+    rightFollowFalcon.configReverseSoftLimitEnable(true);
+
+    leftMainFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
+    rightFollowFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
+
+    logger.info("Elevator is not reinforcing");
+  }
+
+  public void reinforceElevator() {
+    leftMainFalcon.configForwardSoftLimitEnable(false);
+    leftMainFalcon.configReverseSoftLimitEnable(false);
+    rightFollowFalcon.configForwardSoftLimitEnable(false);
+    rightFollowFalcon.configReverseSoftLimitEnable(false);
+
+    leftMainFalcon.configStatorCurrentLimit(
+        ElevatorConstants.getElevStatorCurrentLimitConfiguration());
+    rightFollowFalcon.configStatorCurrentLimit(
+        ElevatorConstants.getElevStatorCurrentLimitConfiguration());
+
+    setPct(-Constants.ElevatorConstants.kElevatorZeroSpeed);
+    logger.info("Reinforcing Elevator");
+  }
+
   public void zeroElevator() {
     leftMainFalcon.configForwardSoftLimitEnable(false);
     leftMainFalcon.configReverseSoftLimitEnable(false);
     rightFollowFalcon.configForwardSoftLimitEnable(false);
     rightFollowFalcon.configReverseSoftLimitEnable(false);
 
-    leftMainFalcon.configSupplyCurrentLimit(
-        Constants.ElevatorConstants.getElevatorZeroSupplyCurrentLimit(),
-        Constants.kTalonConfigTimeout);
-
-    rightFollowFalcon.configSupplyCurrentLimit(
-        Constants.ElevatorConstants.getElevatorZeroSupplyCurrentLimit(),
-        Constants.kTalonConfigTimeout);
+    leftMainFalcon.configStatorCurrentLimit(
+        ElevatorConstants.getElevStatorCurrentLimitConfiguration());
+    rightFollowFalcon.configStatorCurrentLimit(
+        ElevatorConstants.getElevStatorCurrentLimitConfiguration());
 
     setPct(Constants.ElevatorConstants.kElevatorZeroSpeed);
 
@@ -89,11 +143,19 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
     elevatorState = ElevatorState.ZEROING;
   }
 
+  public boolean hasZeroed() {
+    return hasZeroed;
+  }
+
   public void setSoftLimits(double minTicks, double maxTicks) {
     leftMainFalcon.configForwardSoftLimitThreshold(maxTicks);
     leftMainFalcon.configReverseSoftLimitThreshold(minTicks);
     // rightFollowFalcon.configForwardSoftLimitThreshold(maxTicks);
     // rightFollowFalcon.configReverseSoftLimitThreshold(minTicks);
+  }
+
+  public ElevatorState getElevatorState() {
+    return elevatorState;
   }
 
   @Override
@@ -122,8 +184,13 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
         }
 
         if (elevatorZeroStableCounts > Constants.ElevatorConstants.kZeroStableCounts) {
+          setPct(0);
           leftMainFalcon.setSelectedSensorPosition(0.0);
           rightFollowFalcon.setSelectedSensorPosition(0.0);
+
+          setPct(0);
+          leftMainFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
+          rightFollowFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
           leftMainFalcon.configSupplyCurrentLimit(
               Constants.ElevatorConstants.getElevatorSupplyLimitConfig(),
               Constants.kTalonConfigTimeout);
@@ -135,10 +202,10 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
           leftMainFalcon.configForwardSoftLimitEnable(true);
           leftMainFalcon.configReverseSoftLimitEnable(true);
 
-          setPct(0);
           desiredPosition = 0;
           elevatorState = ElevatorState.ZEROED;
           logger.info("Elevator is zeroed");
+          hasZeroed = true;
           break;
         }
       case ZEROED:

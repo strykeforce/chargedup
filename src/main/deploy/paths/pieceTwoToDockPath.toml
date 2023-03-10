@@ -1,4 +1,4 @@
-max_velocity = 1.0 #m/s
+max_velocity = 1.5 #m/s
 max_acceleration = 2.0 #m/s
 start_velocity = 0.0 #m/s
 end_velocity = 0.0 #m/s
@@ -6,12 +6,12 @@ is_reversed = false
 target_yaw = 0.0 #degrees
 
 [start_pose]
-    x = 2.02 
+    x = 2.02 #FIXME point is from end of floor node to center of robot measured on practice bot
     y = 4.42 
     angle = 0.0
 [end_pose]
-    x = 4.30 
-    y = 3.32
+    x = 5.05 #5.1 
+    y = 3.25
     angle = 0.0
 [[internal_points]]
     x = 2.31

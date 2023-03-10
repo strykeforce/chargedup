@@ -8,15 +8,15 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.robotState.SetAllianceCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
-  private static final Logger logger = LoggerFactory.getLogger(Robot.class);
+  private AutoCommandInterface m_autonomousCommand;
+  private static Logger logger;
 
   private RobotContainer m_robotContainer;
   private boolean haveAlliance;
@@ -24,6 +24,13 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
+    logger = LoggerFactory.getLogger(Robot.class);
+    logger.info(
+        "Event: {}, Match Type: {}, Match #: {}, Replay #: {}",
+        DriverStation.getEventName(),
+        DriverStation.getMatchType(),
+        DriverStation.getMatchNumber(),
+        DriverStation.getReplayNumber());
     haveAlliance = false;
 
     Shuffleboard.getTab("Match")
@@ -49,23 +56,36 @@ public class Robot extends TimedRobot {
         haveAlliance = true;
         m_robotContainer.setAllianceColor(alliance);
         logger.info("Set Alliance {}", alliance);
+        m_robotContainer.getAutoSwitch().getAutoCommand().generateTrajectory();
       }
     }
   }
 
   @Override
   public void disabledInit() {
-    logger.info("Disabled Robot.");
+    logger.info("Disabled Init");
   }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    m_robotContainer.getAutoSwitch().checkSwitch();
+    m_robotContainer.checkCameraOnline();
+  }
 
   @Override
   public void disabledExit() {}
 
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+    logger.info("Autonomous Init");
+    m_robotContainer.setAuto(true);
+    m_autonomousCommand = m_robotContainer.getAutoSwitch().getAutoCommand();
+    if (m_autonomousCommand != null) {
+      if (!m_autonomousCommand.hasGenerated()) m_autonomousCommand.generateTrajectory();
+      m_autonomousCommand.schedule();
+    }
+    // m_robotContainer.getAutoCommand().schedule();
+  }
 
   @Override
   public void autonomousPeriodic() {}
@@ -75,9 +95,18 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    logger.info("Teleop Init");
+    logger.info(
+        "Event: {}, Match Type: {}, Match #: {}, Replay #: {}",
+        DriverStation.getEventName(),
+        DriverStation.getMatchType(),
+        DriverStation.getMatchNumber(),
+        DriverStation.getReplayNumber());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    m_robotContainer.zeroElevator();
+    m_robotContainer.setAuto(false); // commented out for now - to allow testing in Tele
   }
 
   @Override

@@ -1,0 +1,24 @@
+<!-- Logback Configuration for charged up -->
+
+<configuration>
+
+    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" />
+
+    <timestamp key="byMinute" datePattern="yyyyMMdd'T'HHmm"/>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>/home/lvuser/logs/${byMinute}.log</file>
+        <immediateFlush>true</immediateFlush>
+        <encoder>
+            <pattern>%date{mm:ss.SSS} [%thread] %-5level %logger{20} - %message %n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.strykeforce.thirdcoast" level="INFO"/>
+    <logger name="org.eclipse.jetty" level="INFO"/>
+
+    <root level="INFO">
+        <appender-ref ref="FILE"/>
+    </root>
+
+</configuration>

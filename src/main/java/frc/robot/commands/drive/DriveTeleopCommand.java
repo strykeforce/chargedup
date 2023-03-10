@@ -57,7 +57,9 @@ public class DriveTeleopCommand extends CommandBase {
     if (robotStateSubsystem.getRobotState() == RobotState.AUTO_SCORE
         || robotStateSubsystem.getRobotState() == RobotState.MANUAL_SCORE
         || robotStateSubsystem.getRobotState() == RobotState.TO_MANUAL_SCORE
-        || robotStateSubsystem.getRobotState() == RobotState.AUTO_DRIVE) {
+        || robotStateSubsystem.getRobotState() == RobotState.AUTO_DRIVE
+        || robotStateSubsystem.getRobotState() == RobotState.RELEASE_GAME_PIECE
+        || robotStateSubsystem.getRobotState() == RobotState.CHECK_AMBIGUITY) {
       yawPercent = DriveConstants.kPlaceYawPercent;
       movePercent = DriveConstants.kPlaceMovePercent;
     }
@@ -106,7 +108,7 @@ public class DriveTeleopCommand extends CommandBase {
               * -DriveConstants.kMaxOmega
               * yawLimiter.calculate(
                   MathUtil.applyDeadband(
-                      -joystick.getRawAxis(RobotContainer.Axis.RIGHT_Y.id),
+                      joystick.getRawAxis(RobotContainer.Axis.RIGHT_Y.id),
                       DriveConstants.kDeadbandAllStick)));
     }
   }

@@ -10,13 +10,23 @@ import frc.robot.Constants.ElbowConstants;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.strykeforce.healthcheck.AfterHealthCheck;
+import org.strykeforce.healthcheck.BeforeHealthCheck;
+import org.strykeforce.healthcheck.HealthCheck;
+import org.strykeforce.healthcheck.Position;
 import org.strykeforce.telemetry.TelemetryService;
 import org.strykeforce.telemetry.measurable.CanifierMeasurable;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
 import org.strykeforce.telemetry.measurable.Measure;
 
 public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent {
+
+  @HealthCheck
+  @Position(
+      percentOutput = {0.1, -0.1},
+      encoderChange = 5000)
   private TalonFX elbowFalcon;
+
   private double setPointTicks = 0;
   private CANifier remoteEncoder;
   private Logger logger = LoggerFactory.getLogger(ElbowSubsystem.class);
@@ -40,15 +50,33 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
     zeroElbow();
   }
 
+  @BeforeHealthCheck
+  public boolean goToZero() {
+    setPos(0.0);
+    return isFinished();
+  }
+
+  @AfterHealthCheck
+  public boolean returnToZero() {
+    setPos(0.0);
+    return isFinished();
+  }
+
   private int getPulseWidthFor(PWMChannel channel) {
     double[] pulseWidthandPeriod = new double[2];
     remoteEncoder.getPWMInput(channel, pulseWidthandPeriod);
     return (int) pulseWidthandPeriod[0];
   }
 
+  public void zeroElbowStow() {
+    rotateOpenLoop(0.0);
+    zeroElbow();
+  }
+
   private void zeroElbow() {
     int absoluteTicks = getPulseWidthFor(PWMChannel.PWMChannel0);
     int offset = absoluteTicks - constants.kElbowZeroTicks;
+    logger.info("Current Elbow Position: {}", elbowFalcon.getSelectedSensorPosition());
     elbowFalcon.setSelectedSensorPosition(offset * Constants.ElbowConstants.kOffsetFactor);
     remoteEncoder.setQuadraturePosition(offset, 10);
     logger.info(
@@ -64,6 +92,7 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
   }
 
   public void setPos(double posTicks) {
+    if (setPointTicks != posTicks) logger.info("Moving Elbow to: {}", posTicks);
     elbowFalcon.set(ControlMode.MotionMagic, posTicks);
     setPointTicks = posTicks;
   }

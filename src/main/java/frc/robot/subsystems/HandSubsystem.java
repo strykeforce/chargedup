@@ -11,13 +11,28 @@ import frc.robot.Constants.HandConstants;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.strykeforce.healthcheck.AfterHealthCheck;
+import org.strykeforce.healthcheck.BeforeHealthCheck;
+import org.strykeforce.healthcheck.HealthCheck;
+import org.strykeforce.healthcheck.Position;
+import org.strykeforce.healthcheck.Timed;
 import org.strykeforce.telemetry.TelemetryService;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
 import org.strykeforce.telemetry.measurable.Measure;
 
 public class HandSubsystem extends MeasurableSubsystem {
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+  @HealthCheck
+  @Position(
+      percentOutput = {-0.2, 0.2},
+      encoderChange = 300)
   private TalonSRX handLeftTalon;
+
+  @HealthCheck
+  @Timed(
+      percentOutput = {0.3, -0.3},
+      duration = 5)
   private TalonSRX rollerTalon;
   // private TalonSRX handRightTalon;
 
@@ -34,6 +49,7 @@ public class HandSubsystem extends MeasurableSubsystem {
 
   private boolean leftZeroDone;
   private static Constants constants;
+  private double lastPercent = 0.0;
   // private boolean rightZeroDone;
 
   public HandSubsystem(Constants constants) {
@@ -46,11 +62,13 @@ public class HandSubsystem extends MeasurableSubsystem {
 
     rollerTalon = new TalonSRX(HandConstants.kRollerTalonId);
     rollerTalon.configFactoryDefault();
+    rollerTalon.configAllSettings(HandConstants.getRolleConfig());
     rollerTalon.configSupplyCurrentLimit(HandConstants.getRollerSupplyLimitConfig());
     rollerTalon.configForwardLimitSwitchSource(
         LimitSwitchSource.Deactivated, LimitSwitchNormal.Disabled);
     rollerTalon.configReverseLimitSwitchSource(
         LimitSwitchSource.Deactivated, LimitSwitchNormal.Disabled);
+    rollerTalon.setNeutralMode(NeutralMode.Coast);
 
     // handRightTalon = new TalonSRX(Constants.HandConstants.kWristTalonId);
     // handRightTalon.configAllSettings(Constants.HandConstants.getHandTalonConfig());
@@ -66,8 +84,22 @@ public class HandSubsystem extends MeasurableSubsystem {
     // handRightZeroStableCounts = 0;
   }
 
+  @BeforeHealthCheck
+  public boolean goToZero() {
+    setPos(HandConstants.kMaxFwd);
+    return isFinished();
+  }
+
+  @AfterHealthCheck
+  public boolean returnToZero() {
+    setPos(HandConstants.kMaxFwd);
+    return isFinished();
+  }
+
   public void runRollers(double percent) {
+    if (percent != lastPercent) logger.info("Running rollers at {}", percent);
     rollerTalon.set(TalonSRXControlMode.PercentOutput, percent);
+    lastPercent = percent;
   }
 
   public double getRollersVel() {
@@ -75,7 +107,7 @@ public class HandSubsystem extends MeasurableSubsystem {
   }
 
   public void setLeftPos(double location) {
-    logger.info("Hand (left) moving to {}", location);
+    if (leftDesiredPosition != location) logger.info("Hand (left) moving to {}", location);
     leftDesiredPosition = location;
     handLeftTalon.set(ControlMode.MotionMagic, location);
   }
@@ -208,26 +240,36 @@ public class HandSubsystem extends MeasurableSubsystem {
   }
 
   public void grabCube() {
-    logger.info("Grabbing cube");
-    // runRollers(HandConstants.kRollerOutCube);
-    setPos(Constants.HandConstants.kCubeGrabbingPosition /*,
-        Constants.HandConstants.kCubeGrabbingPositionRight*/);
-    desiredState = HandStates.CUBE_CLOSED;
-    handState = HandStates.TRANSITIONING;
+    if (!((desiredState == HandStates.CUBE_CLOSED && handState == HandStates.TRANSITIONING)
+        || (handState == HandStates.CUBE_CLOSED))) {
+      logger.info("Grabbing cube");
+      // runRollers(HandConstants.kRollerOutCube);
+      setPos(Constants.HandConstants.kCubeGrabbingPosition /*,
+          Constants.HandConstants.kCubeGrabbingPositionRight*/);
+      desiredState = HandStates.CUBE_CLOSED;
+      handState = HandStates.TRANSITIONING;
+    }
   }
 
   public void grabCone() {
-    logger.info("Grabbing cone");
-    setPos(Constants.HandConstants.kConeGrabbingPosition /*,
-        Constants.HandConstants.kConeGrabbingPositionRight*/);
-    desiredState = HandStates.CONE_CLOSED;
-    handState = HandStates.TRANSITIONING;
-    closingStableCounts = 0;
-    hasPieceStableCounts = 0;
+    if (!((desiredState == HandStates.CONE_CLOSED && handState == HandStates.TRANSITIONING)
+        || (handState == HandStates.CONE_CLOSED))) {
+      logger.info("Grabbing cone");
+      setPos(Constants.HandConstants.kConeGrabbingPosition /*,
+          Constants.HandConstants.kConeGrabbingPositionRight*/);
+      desiredState = HandStates.CONE_CLOSED;
+      handState = HandStates.TRANSITIONING;
+      closingStableCounts = 0;
+      hasPieceStableCounts = 0;
+    }
   }
 
   public HandStates getHandState() {
     return handState;
+  }
+
+  public HandStates getDesiredHandState() {
+    return desiredState;
   }
 
   @Override

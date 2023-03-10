@@ -1,9 +1,9 @@
 package frc.robot.commands.shoulder;
 
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ShoulderSubsystem;
 
-public class ShoulderToPositionCommand extends InstantCommand {
+public class ShoulderToPositionCommand extends CommandBase {
   private double position;
   private ShoulderSubsystem shoulderSubsystem;
 
@@ -17,5 +17,10 @@ public class ShoulderToPositionCommand extends InstantCommand {
   @Override
   public void initialize() {
     shoulderSubsystem.setPos(position);
+  }
+
+  @Override
+  public boolean isFinished() {
+    return shoulderSubsystem.isFinished();
   }
 }
