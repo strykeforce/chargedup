@@ -6,8 +6,6 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
-
-import ch.qos.logback.core.joran.conditional.ElseAction;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -277,20 +275,20 @@ public class DriveSubsystem extends MeasurableSubsystem {
     this.isOnAllianceSide = isOnAllianceSide;
     if ((isOnAllianceSide && robotStateSubsystem.getAllianceColor() == Alliance.Blue)
         || (robotStateSubsystem.getAllianceColor() == Alliance.Red && !isOnAllianceSide))
-      move(DriveConstants.kAutoBalanceFinalDriveVel, 0, 0,false);
+      move(DriveConstants.kAutoBalanceFinalDriveVel, 0, 0, false);
     // NOT On alliance side of charge station, drive Negative X
     else move(-DriveConstants.kAutoBalanceFinalDriveVel, 0, 0, false);
     logger.info("{} -> AUTO_BALANCE", currDriveState);
     currDriveState = DriveStates.AUTO_BALANCE;
   }
 
-  public void pulseAutoBalance (boolean isOnAllianceSide) {
+  public void pulseAutoBalance(boolean isOnAllianceSide) {
     this.isOnAllianceSide = isOnAllianceSide;
     autoBalancePulseTimer.start();
     autoBalancePulseTimer.reset();
     move(0.0, 0.0, 0.0, false);
     logger.info("{} -> AUTO_BALANCE_CHECK", currDriveState);
-    currDriveState =DriveStates.AUTO_BALANCE_CHECK;
+    currDriveState = DriveStates.AUTO_BALANCE_CHECK;
   }
 
   public boolean isWithinThresholdAutoBalance(double threshold) {
@@ -401,8 +399,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
       case AUTO_BALANCE_FINISHED:
         break;
       case AUTO_BALANCE_PULSE:
-        if (autoBalancePulseTimer.hasElapsed(DriveConstants.kPulseAutoBalanceTime))
-        {
+        if (autoBalancePulseTimer.hasElapsed(DriveConstants.kPulseAutoBalanceTime)) {
           move(0.0, 0.0, 0.0, false);
           logger.info("{} -> AUTO_BALANCE_CHECK", currDriveState);
           currDriveState = DriveStates.AUTO_BALANCE_CHECK;
@@ -410,12 +407,13 @@ public class DriveSubsystem extends MeasurableSubsystem {
         }
         break;
       case AUTO_BALANCE_CHECK:
-      if (isWithinThresholdAutoBalance(DriveConstants.kAutoBalanceCloseEnoughDeg))
-      {
-        autoBalanceStableCounts++;
-      } else {autoBalanceStableCounts = 0;}
-        if (autoBalancePulseTimer.hasElapsed(DriveConstants.kPauseAutoBalanceTime) &&!(autoBalanceStableCounts >= DriveConstants.kAutoBalanceStableCount))
-        {
+        if (isWithinThresholdAutoBalance(DriveConstants.kAutoBalanceCloseEnoughDeg)) {
+          autoBalanceStableCounts++;
+        } else {
+          autoBalanceStableCounts = 0;
+        }
+        if (autoBalancePulseTimer.hasElapsed(DriveConstants.kPauseAutoBalanceTime)
+            && !(autoBalanceStableCounts >= DriveConstants.kAutoBalanceStableCount)) {
           logger.info("{} -> AUTO_BALANCE_PULSE", currDriveState);
           currDriveState = DriveStates.AUTO_BALANCE_PULSE;
           autoBalancePulseTimer.reset();
@@ -425,8 +423,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
           else move(-DriveConstants.kPulseSpeed, 0, 0, false);
           break;
         }
-        if ((autoBalanceStableCounts >= DriveConstants.kAutoBalanceStableCount))
-        {
+        if ((autoBalanceStableCounts >= DriveConstants.kAutoBalanceStableCount)) {
           logger.info("{} -> AUTO_BALANCE_XLOCK", currDriveState);
           currDriveState = DriveStates.AUTO_BALANCE_XLOCK;
           xLock();
@@ -711,7 +708,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
     AUTO_DRIVE_FINISHED,
     AUTO_DRIVE_FAILED,
     AUTO_BALANCE,
-    AUTO_BALANCE_FINISHED, 
+    AUTO_BALANCE_FINISHED,
     AUTO_BALANCE_PULSE,
     AUTO_BALANCE_CHECK,
     AUTO_BALANCE_XLOCK;
