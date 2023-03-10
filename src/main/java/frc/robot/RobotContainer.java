@@ -24,7 +24,9 @@ import frc.robot.Constants.ElbowConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.RGBlights.RGBsetPieceCommand;
 import frc.robot.commands.auto.AutoCommandInterface;
+import frc.robot.commands.auto.GrabCubeBalanceCommand;
 import frc.robot.commands.drive.AutoBalanceCommand;
+import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.LockZeroCommand;
 import frc.robot.commands.drive.ResetOdometryCommand;
@@ -101,7 +103,7 @@ public class RobotContainer {
   private SuppliedValueWidget<Boolean> currGamePiece;
 
   // Paths
-  //   private DriveAutonCommand testPath;
+    private DriveAutonCommand testpath;
   //   private CommunityToDockCommandGroup communityToDockCommandGroup;
   //   private TwoPieceWithDockAutoCommandGroup twoPieceWithDockAutoCommandGroup;
   //   private TwoPieceAutoPlacePathCommandGroup twoPieceAutoPlacePathCommandGroup;
@@ -213,6 +215,7 @@ public class RobotContainer {
 
   // Path Configuration For Robot Container
   private void configurePaths() {
+    testpath = new GrabCubeBalanceCommand(driveSubsystem,robotStateSubsystem, armSubsystem, handSubsystem, intakeSubsystem, elevatorSubsystem, "TestAutoDrivePathOne", "TestAutoDrivePathTwo");
     // testPath = new DriveAutonCommand(driveSubsystem, "pieceTwoFetchPath", true, true);
     // twoPieceAutoPlacePathCommandGroup =
     //     new TwoPieceAutoPlacePathCommandGroup(
@@ -299,7 +302,7 @@ public class RobotContainer {
     //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
     new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
         .onTrue(new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem));
-
+new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id).onTrue(testpath);
     // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
@@ -354,12 +357,12 @@ public class RobotContainer {
     //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
     //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
     // // Elbow testing
-    new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
-        .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.2));
-    new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
-        .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.2));
+    // new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
+    //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
+    //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.2));
+    // new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
+    //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
+    //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.2));
 
     // intake buttons
     // new JoystickButton(xboxController, 3).onTrue(new
@@ -661,7 +664,7 @@ public class RobotContainer {
         Map.of(
             "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
     robotStateSubsystem.setAllianceColor(alliance);
-    // testPath.generateTrajectory();
+    testpath.generateTrajectory();
     // communityToDockCommandGroup.generateTrajectory();
     // twoPieceWithDockAutoCommandGroup.generateTrajectory();
     // threePiecePath.generateTrajectory();

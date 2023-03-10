@@ -274,9 +274,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
     this.isOnAllianceSide = isOnAllianceSide;
     if ((isOnAllianceSide && robotStateSubsystem.getAllianceColor() == Alliance.Blue)
         || (robotStateSubsystem.getAllianceColor() == Alliance.Red && !isOnAllianceSide))
-      drive(DriveConstants.kAutoBalanceFinalDriveVel, 0, 0);
+      move(DriveConstants.kAutoBalanceFinalDriveVel, 0, 0,false);
     // NOT On alliance side of charge station, drive Negative X
-    else drive(-DriveConstants.kAutoBalanceFinalDriveVel, 0, 0);
+    else move(-DriveConstants.kAutoBalanceFinalDriveVel, 0, 0, false);
     logger.info("{} -> AUTO_BALANCE", currDriveState);
     currDriveState = DriveStates.AUTO_BALANCE;
   }
@@ -382,8 +382,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
           autoBalanceReadjust = false;
           if ((!isOnAllianceSide && robotStateSubsystem.getAllianceColor() == Alliance.Blue)
               || (robotStateSubsystem.getAllianceColor() == Alliance.Red && isOnAllianceSide))
-            drive(DriveConstants.kAutoBalanceFinalDriveVel, 0, 0);
-          else drive(-DriveConstants.kAutoBalanceFinalDriveVel, 0, 0);
+            move(DriveConstants.kAutoBalanceFinalDriveVel, 0, 0, false);
+          else move(-DriveConstants.kAutoBalanceFinalDriveVel, 0, 0, false);
         }
         break;
       case AUTO_BALANCE_FINISHED:
