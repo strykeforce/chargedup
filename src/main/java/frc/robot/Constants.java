@@ -660,6 +660,7 @@ public class Constants {
     public static final double kHandOpenPosition = kMaxRev;
     public static final double kIntakeOpenPosition = -500; // 50
     public static final double kCubeGrabbingPosition = 300;
+    public static final double kStowPosition = 1_000;
     public static final double kFloorOpenPosition = 300;
     public static final double kShelfOpenPosition = 0;
     public static final double kConeGrabbingPosition = 1100; // old: 1650
@@ -719,7 +720,7 @@ public class Constants {
     public static final double kWheelDiameterInches = 3.0 * (490 / 500.0);
 
     // Elbow
-    public static final int kElbowZeroTicks = 1160; // 730
+    public static final int kElbowZeroTicks = 1200; // 730 ANGLE:2deg in
 
     // Shoulder
     public static final double kShoulderMainZeroTicks = 995;
@@ -729,7 +730,7 @@ public class Constants {
     public static final int kIntakeZeroTicks = 2440; // 2238
 
     // Hand
-    public static final double kHandZeroTicks = 1010;
+    public static final double kHandZeroTicks = 686;
   }
 
   public static class ProtoConstants {

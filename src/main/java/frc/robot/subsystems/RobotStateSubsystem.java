@@ -198,7 +198,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           handSubsystem.grabCube();
           break;
         case NONE:
-          handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition);
+          handSubsystem.runRollers(0);
+          handSubsystem.stowHand(HandConstants.kStowPosition);
       }
       currentAxis = CurrentAxis.HAND;
     }
@@ -376,7 +377,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
                   handSubsystem.grabCube();
                   break;
                 case NONE:
-                  handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition);
+                  handSubsystem.runRollers(0);
+                  handSubsystem.stowHand(HandConstants.kStowPosition);
               }
               currentAxis = CurrentAxis.HAND;
             }
