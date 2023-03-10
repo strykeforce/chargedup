@@ -218,6 +218,10 @@ public class Constants {
     public static final double kAutoBalanceSlowdownTimeSec = 4.5; // 1/4 second to start
     public static final double kAutoBalanceStartTimerThresholdDeg = 5;
 
+    public static final double kPulseAutoBalanceTime = 0.05;
+    public static final double kPauseAutoBalanceTime = 0.5;
+    public static final double kPulseSpeed = 0.5;
+
     public static TalonSRXConfiguration getAzimuthTalonConfig() {
       // constructor sets encoder to Quad/CTRE_MagEncoder_Relative
       TalonSRXConfiguration azimuthConfig = new TalonSRXConfiguration();

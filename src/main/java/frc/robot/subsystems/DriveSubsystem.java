@@ -6,6 +6,8 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
+
+import ch.qos.logback.core.joran.conditional.ElseAction;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -82,6 +84,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   public boolean autoBalanceGyroActive = false;
   private double autoBalanceStableCounts = 0;
   private Timer autoBalanceTimer = new Timer();
+  private Timer autoBalancePulseTimer = new Timer();
   public boolean autoBalanceReadjust = false;
   public boolean isOnAllianceSide;
   // private boolean isAutoDriveFinished = false;
@@ -281,6 +284,15 @@ public class DriveSubsystem extends MeasurableSubsystem {
     currDriveState = DriveStates.AUTO_BALANCE;
   }
 
+  public void pulseAutoBalance (boolean isOnAllianceSide) {
+    this.isOnAllianceSide = isOnAllianceSide;
+    autoBalancePulseTimer.start();
+    autoBalancePulseTimer.reset();
+    move(0.0, 0.0, 0.0, false);
+    logger.info("{} -> AUTO_BALANCE_CHECK", currDriveState);
+    currDriveState =DriveStates.AUTO_BALANCE_CHECK;
+  }
+
   public boolean isWithinThresholdAutoBalance(double threshold) {
     return (ahrs.getRoll() <= threshold && ahrs.getRoll() >= -threshold);
   }
@@ -387,6 +399,40 @@ public class DriveSubsystem extends MeasurableSubsystem {
         }
         break;
       case AUTO_BALANCE_FINISHED:
+        break;
+      case AUTO_BALANCE_PULSE:
+        if (autoBalancePulseTimer.hasElapsed(DriveConstants.kPulseAutoBalanceTime))
+        {
+          move(0.0, 0.0, 0.0, false);
+          logger.info("{} -> AUTO_BALANCE_CHECK", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE_CHECK;
+          autoBalancePulseTimer.reset();
+        }
+        break;
+      case AUTO_BALANCE_CHECK:
+      if (isWithinThresholdAutoBalance(DriveConstants.kAutoBalanceCloseEnoughDeg))
+      {
+        autoBalanceStableCounts++;
+      } else {autoBalanceStableCounts = 0;}
+        if (autoBalancePulseTimer.hasElapsed(DriveConstants.kPauseAutoBalanceTime) &&!(autoBalanceStableCounts >= DriveConstants.kAutoBalanceStableCount))
+        {
+          logger.info("{} -> AUTO_BALANCE_PULSE", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE_PULSE;
+          autoBalancePulseTimer.reset();
+          if ((!isOnAllianceSide && robotStateSubsystem.getAllianceColor() == Alliance.Blue)
+              || (robotStateSubsystem.getAllianceColor() == Alliance.Red && isOnAllianceSide))
+            move(DriveConstants.kPulseSpeed, 0, 0, false);
+          else move(-DriveConstants.kPulseSpeed, 0, 0, false);
+          break;
+        }
+        if ((autoBalanceStableCounts >= DriveConstants.kAutoBalanceStableCount))
+        {
+          logger.info("{} -> AUTO_BALANCE_XLOCK", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE_XLOCK;
+          xLock();
+        }
+        break;
+      case AUTO_BALANCE_XLOCK:
         break;
       default:
         break;
@@ -665,7 +711,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
     AUTO_DRIVE_FINISHED,
     AUTO_DRIVE_FAILED,
     AUTO_BALANCE,
-    AUTO_BALANCE_FINISHED
+    AUTO_BALANCE_FINISHED, 
+    AUTO_BALANCE_PULSE,
+    AUTO_BALANCE_CHECK,
+    AUTO_BALANCE_XLOCK;
   }
 
   @Override
