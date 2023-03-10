@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.DefaultAutoCommand;
+import frc.robot.commands.auto.DoNothingAutonCommand;
 import frc.robot.commands.auto.TwoPieceLvl3AutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceWithDockAutoCommandGroup;
 import java.util.ArrayList;
@@ -143,6 +144,14 @@ public class AutoSwitch {
             elevatorSubsystem,
             "pieceFetchPath",
             "pieceOneDeliverBumpPath");
+      case 0x30:
+        return new DoNothingAutonCommand(
+            driveSubsystem,
+            robotStateSubsystem,
+            armSubsystem,
+            handSubsystem,
+            intakeSubsystem,
+            elevatorSubsystem);
       default:
         String msg = String.format("no auto command assigned for switch pos: %02X", switchPos);
         DriverStation.reportWarning(msg, false);

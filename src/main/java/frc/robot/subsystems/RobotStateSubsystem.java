@@ -314,6 +314,14 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     currRobotState = RobotState.AUTO_SCORE;
   }
 
+  public void toRetrieveGamepiece() {
+    handSubsystem.stowHand(HandConstants.kRetrieveGamepiecePosition);
+    handSubsystem.runRollers(HandConstants.kRetrieveGamepieceRollerSpeed);
+    logger.info("{} -> RETRIEVE_GAMEPIECE", currRobotState);
+    currRobotState = RobotState.RETRIEVE_GAMEPIECE;
+    armSubsystem.toRetrieveGamepiece();
+  }
+
   public boolean shouldFastStowArm() {
     return (fastStowAfterScore
             && (isBlueAlliance()
@@ -807,6 +815,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
         }
         break;
+      case RETRIEVE_GAMEPIECE:
+        break;
       default:
         break;
     }
@@ -907,7 +917,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     TO_AUTO_SCORE,
     CHECK_AMBIGUITY,
     FLOOR_GRAB_CONE,
-    TO_STOW_SCORE
+    TO_STOW_SCORE,
+    RETRIEVE_GAMEPIECE
   }
 
   public enum CurrentAxis {

@@ -413,6 +413,11 @@ public class ArmSubsystem extends MeasurableSubsystem {
     isHealthChecking = !isHealthChecking;
   }
 
+  public void toRetrieveGamepiece() {
+    logger.info("{} -> RETRIEVE_GAMEPIECE", currState);
+    currState = ArmState.RETRIEVE_GAMEPIECE;
+  }
+
   @Override
   public void periodic() {
     HandRegion currHandRegion = getHandRegion();
@@ -779,6 +784,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
         break;
       case FLOOR_SWEEP:
         break;
+      case RETRIEVE_GAMEPIECE:
+        break;
       default:
         break;
     }
@@ -843,7 +850,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ShoulderConstants.kFloorShoulder,
         ElevatorConstants.kFloorElevator,
         ElbowConstants.kFloorElbowSweep),
-    FLOOR_TO_FLOOR_SWEEP(FLOOR_SWEEP);
+    FLOOR_TO_FLOOR_SWEEP(FLOOR_SWEEP),
+    RETRIEVE_GAMEPIECE(STOW);
 
     public final double shoulderPos;
     public final double elevatorPos;
