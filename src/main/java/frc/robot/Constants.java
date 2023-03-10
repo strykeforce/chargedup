@@ -221,6 +221,7 @@ public class Constants {
     public static final double kPulseAutoBalanceTime = 0.2;
     public static final double kPauseAutoBalanceTime = 1.0;
     public static final double kPulseSpeed = 0.5;
+    public static final double kHoldSpeed = 0.25;
 
     public static TalonSRXConfiguration getAzimuthTalonConfig() {
       // constructor sets encoder to Quad/CTRE_MagEncoder_Relative

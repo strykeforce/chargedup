@@ -24,6 +24,7 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
@@ -122,7 +123,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
       swerveModules[i].loadAndSetAzimuthZeroReference();
     }
-    ahrs = new AHRS();
+    ahrs = new AHRS(SPI.Port.kMXP, (byte) 200);
     swerveDrive = new SwerveDrive(ahrs, swerveModules);
     swerveDrive.resetGyro();
     swerveDrive.setGyroOffset(Rotation2d.fromDegrees(0));
@@ -400,10 +401,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
         break;
       case AUTO_BALANCE_PULSE:
         if (autoBalancePulseTimer.hasElapsed(DriveConstants.kPulseAutoBalanceTime)) {
-          move(0.0, 0.0, 0.0, false);
+          if ((!isOnAllianceSide && robotStateSubsystem.getAllianceColor() == Alliance.Blue)
+              || (robotStateSubsystem.getAllianceColor() == Alliance.Red && isOnAllianceSide))
+            move(DriveConstants.kHoldSpeed, 0, 0, false);
+          else move(-DriveConstants.kHoldSpeed, 0, 0, false);
           logger.info("{} -> AUTO_BALANCE_CHECK", currDriveState);
           currDriveState = DriveStates.AUTO_BALANCE_CHECK;
-          xLock();
           autoBalancePulseTimer.reset();
         }
         break;
