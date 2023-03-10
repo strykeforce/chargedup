@@ -274,9 +274,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
     this.isOnAllianceSide = isOnAllianceSide;
     if ((isOnAllianceSide && robotStateSubsystem.getAllianceColor() == Alliance.Blue)
         || (robotStateSubsystem.getAllianceColor() == Alliance.Red && !isOnAllianceSide))
-      drive(DriveConstants.kAutoBalanceDriveVel, 0, 0);
+      drive(DriveConstants.kAutoBalanceFinalDriveVel, 0, 0);
     // NOT On alliance side of charge station, drive Negative X
-    else drive(-DriveConstants.kAutoBalanceDriveVel, 0, 0);
+    else drive(-DriveConstants.kAutoBalanceFinalDriveVel, 0, 0);
     logger.info("{} -> AUTO_BALANCE", currDriveState);
     currDriveState = DriveStates.AUTO_BALANCE;
   }
@@ -334,24 +334,24 @@ public class DriveSubsystem extends MeasurableSubsystem {
         break;
       case AUTO_BALANCE:
         if (autoBalanceGyroActive == false) {
-          if (Math.abs(ahrs.getRoll()) >= DriveConstants.kAutoBalanceStartTimerThresholdDeg) {
-            autoBalanceTimer.reset();
-            autoBalanceTimer.start();
-          }
-          if (Math.abs(ahrs.getRoll()) >= DriveConstants.kAutoBalanceEnableGyroThresholdDegrees) {
-            logger.info("Autobalance Enabled Gyro");
-            autoBalanceGyroActive = true;
-          }
+          // if (Math.abs(ahrs.getRoll()) >= DriveConstants.kAutoBalanceStartTimerThresholdDeg) {
+          //   autoBalanceTimer.reset();
+          //   autoBalanceTimer.start();
+          // }
+          // if (Math.abs(ahrs.getRoll()) >= DriveConstants.kAutoBalanceEnableGyroThresholdDegrees) {
+          //   logger.info("Autobalance Enabled Gyro");
+          autoBalanceGyroActive = true;
+          //}
         }
 
-        if (autoBalanceTimer.hasElapsed(DriveConstants.kAutoBalanceSlowdownTimeSec)
-            && !isWithinThresholdAutoBalance(DriveConstants.kAutoBalanceCloseEnoughDeg)
-            && !autoBalanceReadjust) {
-          logger.info("Autobalance driving at slower speed");
-          drive(DriveConstants.kAutoBalanceFinalDriveVel, 0, 0);
-          autoBalanceTimer.stop();
-          autoBalanceTimer.reset();
-        }
+        // if (autoBalanceTimer.hasElapsed(DriveConstants.kAutoBalanceSlowdownTimeSec)
+        //     && !isWithinThresholdAutoBalance(DriveConstants.kAutoBalanceCloseEnoughDeg)
+        //     && !autoBalanceReadjust) {
+        //   logger.info("Autobalance driving at slower speed");
+        //   drive(DriveConstants.kAutoBalanceFinalDriveVel, 0, 0);
+        //   autoBalanceTimer.stop();
+        //   autoBalanceTimer.reset();
+        // }
         double autoBalanceStableCountChange = autoBalanceStableCounts;
         if (autoBalanceGyroActive == true
             && isWithinThresholdAutoBalance(DriveConstants.kAutoBalanceCloseEnoughDeg)) {
