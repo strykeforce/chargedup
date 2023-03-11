@@ -24,7 +24,7 @@ import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 
-public class TwoPieceWithDockAutoCommandGroup extends SequentialCommandGroup
+public class TwoPieceWithDockAutoMidCommandGroup extends SequentialCommandGroup
     implements AutoCommandInterface {
 
   DriveAutonCommand firstPath;
@@ -34,7 +34,7 @@ public class TwoPieceWithDockAutoCommandGroup extends SequentialCommandGroup
   private Alliance alliance = Alliance.Invalid;
   private RobotStateSubsystem robotStateSubsystem;
 
-  public TwoPieceWithDockAutoCommandGroup(
+  public TwoPieceWithDockAutoMidCommandGroup(
       DriveSubsystem driveSubsystem,
       RobotStateSubsystem robotStateSubsystem,
       ArmSubsystem armSubsystem,
@@ -53,7 +53,7 @@ public class TwoPieceWithDockAutoCommandGroup extends SequentialCommandGroup
         new ParallelCommandGroup(
             new ZeroGyroCommand(driveSubsystem),
             new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE),
-            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH),
+            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID),
             new ZeroElevatorCommand(elevatorSubsystem),
             new AutoGrabConeCommand(handSubsystem),
             new SetVisionUpdateCommand(driveSubsystem, false)),
@@ -71,7 +71,7 @@ public class TwoPieceWithDockAutoCommandGroup extends SequentialCommandGroup
                     robotStateSubsystem, driveSubsystem, Constants.AutonConstants.kPastXPosition),
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
         new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem),
-        new ParallelRaceGroup(new AutoWaitForMatchTimeCommand(0.5), thirdPath),
+        new ParallelRaceGroup(new AutoWaitForMatchTimeCommand(0.125), thirdPath),
         new xLockCommand(driveSubsystem),
         new ParallelCommandGroup(
             new SetGamePieceCommand(robotStateSubsystem, GamePiece.NONE),

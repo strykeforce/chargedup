@@ -8,6 +8,7 @@ import frc.robot.commands.auto.DefaultAutoCommand;
 import frc.robot.commands.auto.DoNothingAutonCommand;
 import frc.robot.commands.auto.TwoPieceLvl3AutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceWithDockAutoCommandGroup;
+import frc.robot.commands.auto.TwoPieceWithDockAutoMidCommandGroup;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,6 +133,18 @@ public class AutoSwitch {
             elevatorSubsystem,
             "pieceOneFetchPath",
             "pieceOnePlacePath");
+      case 0x02:
+        // Same as 0x00 but scores cone mid
+        return new TwoPieceWithDockAutoMidCommandGroup(
+            driveSubsystem,
+            robotStateSubsystem,
+            armSubsystem,
+            handSubsystem,
+            intakeSubsystem,
+            elevatorSubsystem,
+            "pieceOneFetchPath",
+            "pieceOnePlacePath",
+            "pieceTwoToDockPath");
         // Bump Side
       case 0x20:
         // Cone Lvl 3, Cube Lvl 3

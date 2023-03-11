@@ -398,7 +398,7 @@ public class Constants {
     }
 
     public static StatorCurrentLimitConfiguration getElevStatorCurrentLimitConfiguration() {
-      return new StatorCurrentLimitConfiguration(true, 6.0, 6.0, 0.001);
+      return new StatorCurrentLimitConfiguration(true, 8.0, 8.0, 0.001);
     }
 
     public static StatorCurrentLimitConfiguration getElevStatorTurnOff() {
