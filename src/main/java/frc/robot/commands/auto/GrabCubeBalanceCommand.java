@@ -3,6 +3,7 @@ package frc.robot.commands.auto;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.drive.AutoBalanceCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
@@ -57,7 +58,7 @@ public class GrabCubeBalanceCommand extends SequentialCommandGroup implements Au
             new AutoFloorIntakeCommand(
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem)),
         secondPath,
-        new ParallelDeadlineGroup(
+        new ParallelRaceGroup(
             new WaitForMatchTimeCommand(0.1),
             new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem)),
         new xLockCommand(driveSubsystem));

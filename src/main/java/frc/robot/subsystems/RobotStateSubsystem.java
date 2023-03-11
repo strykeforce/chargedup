@@ -284,9 +284,9 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
    * @param isOnAllianceSide Is the robot on the alliance side of the charge station(Towards Tori)
    */
   public void toAutoBalance(boolean isOnAllianceSide) {
-    driveSubsystem.autoBalance(isOnAllianceSide);
     logger.info("{} -> AUTO_BALANCE", currRobotState);
     currRobotState = RobotState.AUTO_BALANCE;
+    driveSubsystem.autoBalance(isOnAllianceSide);
   }
 
   public void toPulseAutoBalance(boolean isOnAllianceSide) {

@@ -1,7 +1,6 @@
 package frc.robot.commands.auto;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.drive.AutoBalanceCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
@@ -33,7 +32,7 @@ public class TestBalanceCommand extends SequentialCommandGroup implements AutoCo
     this.robotStateSubsystem = robotStateSubsystem;
     addCommands(
         firstPath,
-            new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem),
+        new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem),
         new xLockCommand(driveSubsystem));
   }
 

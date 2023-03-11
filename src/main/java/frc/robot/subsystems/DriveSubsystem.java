@@ -278,6 +278,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
   public void autoBalance(boolean isOnAllianceSide) {
     // On alliance side of charge station, drive Positive X
+    autoBalanceAvgCount = 0;
+    sumRoll = 0;
+    avgStartingRoll = 0;
     this.isOnAllianceSide = isOnAllianceSide;
     tempRoll = Math.abs(getGyroRoll());
     logger.info("Starting AutoBalance: tempRoll: {}", tempRoll);
@@ -363,6 +366,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
       case AUTO_BALANCE_DRIVE:
         if (autoBalanceTimer.hasElapsed(DriveConstants.kAutoBalanceSlowdownTimeSec)) {
           logger.info("{} -> AUTO_BALANCE_AVERAGE", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE_AVERAGE;
         }
         break;
       case AUTO_BALANCE_AVERAGE:
