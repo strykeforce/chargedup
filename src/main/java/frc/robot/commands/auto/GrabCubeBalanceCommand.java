@@ -40,7 +40,7 @@ public class GrabCubeBalanceCommand extends SequentialCommandGroup implements Au
       String pathOne,
       String pathTwo) {
     firstPath = new DriveAutonCommand(driveSubsystem, pathOne, true, true);
-    secondPath = new DriveAutonCommand(driveSubsystem, pathTwo, true, false);
+    secondPath = new DriveAutonCommand(driveSubsystem, pathTwo, false, false);
     this.robotStateSubsystem = robotStateSubsystem;
     addCommands(
         new ParallelCommandGroup(
