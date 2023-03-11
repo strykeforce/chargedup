@@ -33,9 +33,7 @@ public class TestBalanceCommand extends SequentialCommandGroup implements AutoCo
     this.robotStateSubsystem = robotStateSubsystem;
     addCommands(
         firstPath,
-        new ParallelDeadlineGroup(
-            new WaitForMatchTimeCommand(0.1),
-            new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem)),
+            new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem),
         new xLockCommand(driveSubsystem));
   }
 
