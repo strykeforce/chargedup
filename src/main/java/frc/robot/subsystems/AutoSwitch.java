@@ -134,7 +134,7 @@ public class AutoSwitch {
             "pieceOneFetchPath",
             "pieceOnePlacePath");
       case 0x02:
-        //Cone Level 3, Cube in Robot, Balance
+        // Cone Level 3, Cube in Robot, Balance
         return new GrabCubeBalanceCommand(
             driveSubsystem,
             robotStateSubsystem,
