@@ -466,7 +466,7 @@ public class RobotContainer {
 
     // Floor pickup
     Trigger dPadPressed = new Trigger(() -> xboxController.getPOV() != -1);
-    dPadPressed.onTrue(new FloorPickupCommand(robotStateSubsystem));
+    dPadPressed.onTrue(new FloorPickupCommand(armSubsystem, robotStateSubsystem));
 
     // Set game piece
     // new JoystickButton(xboxController, XboxController.Button.kBack.value)
