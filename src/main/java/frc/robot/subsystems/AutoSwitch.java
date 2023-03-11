@@ -6,6 +6,7 @@ import frc.robot.Constants.AutonConstants;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.DefaultAutoCommand;
 import frc.robot.commands.auto.DoNothingAutonCommand;
+import frc.robot.commands.auto.GrabCubeBalanceCommand;
 import frc.robot.commands.auto.TwoPieceLvl3AutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceWithDockAutoCommandGroup;
 import java.util.ArrayList;
@@ -132,6 +133,17 @@ public class AutoSwitch {
             elevatorSubsystem,
             "pieceOneFetchPath",
             "pieceOnePlacePath");
+      case 0x02:
+        //Cone Level 3, Cube in Robot, Balance
+        return new GrabCubeBalanceCommand(
+            driveSubsystem,
+            robotStateSubsystem,
+            armSubsystem,
+            handSubsystem,
+            intakeSubsystem,
+            elevatorSubsystem,
+            "pieceOneFetchPath",
+            "CubeOneToBridge");
         // Bump Side
       case 0x20:
         // Cone Lvl 3, Cube Lvl 3
