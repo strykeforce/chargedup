@@ -54,6 +54,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private double scorePosXIntial = -1.0;
   private Timer floorSweepTimer = new Timer();
   private boolean isAuto = false;
+  private boolean hasShelfExited = false;
   private ElbowSubsystem elbowSubsystem;
 
   public RobotStateSubsystem(
@@ -246,6 +247,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     if (armSubsystem.getCurrState() != ArmState.SHELF) armSubsystem.toShelfPos();
     currentAxis = CurrentAxis.ARM;
     currRobotState = RobotState.TO_MANUAL_SHELF;
+    hasShelfExited = false;
   }
 
   public void toReleaseGamepiece() {
@@ -287,6 +289,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     isAutoPlacing = true; // FIXME
     currentAxis = CurrentAxis.ARM;
     currRobotState = RobotState.TO_AUTO_SHELF;
+    hasShelfExited = false;
   }
 
   public void toAutoScore() {
@@ -593,7 +596,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           handSubsystem.grabCone();
           gamePiece = GamePiece.CONE;
           currPoseX = driveSubsystem.getPoseMeters().getX();
-          rgbLightsSubsystem.setColor(0.0, 1.0, 0.0);
+          // rgbLightsSubsystem.setColor(0.0, 1.0, 0.0);
           logger.info("{} -> SHELF_WAIT_TRANSITION", currRobotState);
           currRobotState = RobotState.SHELF_WAIT_TRANSITION;
         }
@@ -643,7 +646,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           handSubsystem.grabCone();
           gamePiece = GamePiece.CONE;
           currPoseX = driveSubsystem.getPoseMeters().getX();
-          rgbLightsSubsystem.setColor(0.0, 1.0, 0.0);
+          // rgbLightsSubsystem.setColor(0.0, 1.0, 0.0);
           logger.info("{} -> SHELF_WAIT_TRANSITION", currRobotState);
           currRobotState = RobotState.SHELF_WAIT_TRANSITION;
         }
@@ -728,6 +731,14 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         }
         break;
       case SHELF_WAIT_TRANSITION:
+        double[] tempColor = {0.0, 1.0, 0.0};
+        if (handSubsystem.isFinished()
+            && rgbLightsSubsystem.getColor() != tempColor
+            && !hasShelfExited) {
+          rgbLightsSubsystem.setColor(0.0, 1.0, 0.0);
+          hasShelfExited = true;
+          armSubsystem.toShelfExitPos();
+        }
         if (allianceColor == Alliance.Blue) {
           desiredPoseX = currPoseX - Constants.ArmConstants.kShelfTransitionMove;
           if (driveSubsystem.getPoseMeters().getX() <= desiredPoseX) {

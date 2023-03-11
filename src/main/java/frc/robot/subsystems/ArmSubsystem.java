@@ -257,6 +257,22 @@ public class ArmSubsystem extends MeasurableSubsystem {
     desiredState = ArmState.SHELF;
   }
 
+  public void toShelfExitPos() {
+    hasElbowZeroed = false;
+    switch (currState) {
+      case SHELF:
+        logger.info("{} -> SHELF_TO_SHELF_EXIT", currState);
+        currState = ArmState.SHELF_TO_SHELF_EXIT;
+        currAxis = CurrentAxis.ELEVATOR;
+        desiredState = ArmState.SHELF_EXIT;
+        elevatorSubsystem.setPos(desiredState.elevatorPos);
+        break;
+      default:
+        toShelfPos();
+        break;
+    }
+  }
+
   public void toFloorPos() {
     hasElbowZeroed = false;
     toFloorPos(false);
@@ -496,6 +512,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
         break;
       case SHELF:
         break;
+      case SHELF_EXIT:
+        break;
       case FLOOR:
         if (continueToFloorSweep) {
           toFloorSweep();
@@ -606,6 +624,18 @@ public class ArmSubsystem extends MeasurableSubsystem {
               logger.info("{} -> SHELF", currState);
               currState = ArmState.SHELF;
               currAxis = CurrentAxis.NONE;
+            }
+            break;
+          default:
+            break;
+        }
+        break;
+      case SHELF_TO_SHELF_EXIT:
+        switch (currAxis) {
+          case ELEVATOR:
+            if (elevatorSubsystem.isFinished()) {
+              logger.info("{} -> SHELF_EXIT", currState);
+              currState = ArmState.SHELF_EXIT;
             }
             break;
           default:
@@ -828,6 +858,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ShoulderConstants.kShelfShoulder,
         ElevatorConstants.kShelfElevator,
         ElbowConstants.kShelfElbow),
+    SHELF_EXIT(
+        ShoulderConstants.kShelfShoulder,
+        ElevatorConstants.kShelfExitElevator,
+        ElbowConstants.kShelfElbow),
     FLOOR(
         ShoulderConstants.kFloorShoulder,
         ElevatorConstants.kFloorElevator,
@@ -843,6 +877,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
     INTAKE_TO_STOW(STOW),
     SCORE_TO_STOW(STOW),
     SHELF_TO_STOW(STOW),
+    SHELF_TO_SHELF_EXIT(SHELF_EXIT),
     FLOOR_TO_STOW(STOW),
     MANUAL_TO_STOW(STOW),
     SCORE_STOW(STOW),

@@ -364,7 +364,8 @@ public class Constants {
     public static final double kLevelTwoCubeElevator = -40_000; // old -47_674
     public static final double kLevelThreeConeElevator = -1_500;
     public static final double kLevelThreeCubeElevator = kLevelThreeConeElevator;
-    public static final double kShelfElevator = -18_606; // -14_106
+    public static final double kShelfElevator = -18_606; // -14_100
+    public static final double kShelfExitElevator = kShelfElevator + 4000; // +3000
 
     public static TalonFXConfiguration getElevatorFalconConfig() {
       TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
@@ -735,7 +736,7 @@ public class Constants {
     public static final int kIntakeZeroTicks = 2790; // 2440 ->2540
 
     // Hand
-    public static final double kHandZeroTicks = 976; // 686
+    public static final double kHandZeroTicks = 1201; // 686 ->976
   }
 
   public static class ProtoConstants {
