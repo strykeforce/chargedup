@@ -283,7 +283,11 @@ public class DriveSubsystem extends MeasurableSubsystem {
     avgStartingRoll = 0;
     this.isOnAllianceSide = isOnAllianceSide;
     tempRoll = Math.abs(getGyroRoll());
-    logger.info("Starting AutoBalance: tempRoll: {}", tempRoll);
+    logger.info(
+        "Starting AutoBalance: tempRoll: {}, Alliance: {}, isOnAllianceSide: {}",
+        tempRoll,
+        robotStateSubsystem.getAllianceColor(),
+        isOnAllianceSide);
     if ((isOnAllianceSide && robotStateSubsystem.getAllianceColor() == Alliance.Blue)
         || (robotStateSubsystem.getAllianceColor() == Alliance.Red && !isOnAllianceSide))
       move(DriveConstants.kAutoBalanceFinalDriveVel, 0, 0, false);
@@ -356,7 +360,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         break;
       case AUTO_BALANCE_EDGE:
         if (Math.abs(getGyroRoll()) - Math.abs(tempRoll)
-            >= DriveConstants.kAutoBalanceTriggerThreshold) {
+            >= DriveConstants.kAutoBalanceEdgeTriggerThreshold) {
           autoBalanceTimer.reset();
           autoBalanceTimer.start();
           logger.info("{} -> AUTO_BALANCE_DRIVE", currDriveState);

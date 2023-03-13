@@ -217,11 +217,11 @@ public class Constants {
     public static final double kAutoBalanceStartTimerThresholdDeg = 5;
     public static final double kAutoBalanceEnableGyroThresholdDegrees = 8;
 
-    public static final double kAutoBalanceFinalDriveVel = 0.30; // 0.25
-    public static final double kAutoBalanceSlowdownTimeSec = 2.0; // 1/4 second to start
-    public static final double kAutoBalanceStopThresholdDegrees = 1;
-    public static final double kAutoBalanceTriggerThreshold = 1;
-    public static final double kAutoBalanceAvgRollCount = 5;
+    public static final double kAutoBalanceFinalDriveVel = 0.75; // 0.5 0.75
+    public static final double kAutoBalanceSlowdownTimeSec = 1.6; // 2.3  1.6
+    public static final double kAutoBalanceStopThresholdDegrees = 0.6; // 1 0.6
+    public static final double kAutoBalanceEdgeTriggerThreshold = 5; // 5
+    public static final double kAutoBalanceAvgRollCount = 10; // 5 10
 
     public static final double kPulseAutoBalanceTime = 0.2;
     public static final double kPauseAutoBalanceTime = 1.0;
