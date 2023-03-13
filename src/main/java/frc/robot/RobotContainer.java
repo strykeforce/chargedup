@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import ch.qos.logback.classic.util.ContextInitializer;
@@ -45,6 +41,7 @@ import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
+import frc.robot.commands.robotState.AutoPlaceCommandGroup;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.RetrieveGamePieceCommand;
@@ -304,10 +301,10 @@ public class RobotContainer {
             false,
             robotStateSubsystem.getTargetCol(),
             true));*/
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
-    //     .onTrue(
-    //         new AutoPlaceCommandGroup(
-    //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+        .onTrue(
+            new AutoPlaceCommandGroup(
+                driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
     // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
@@ -327,8 +324,10 @@ public class RobotContainer {
     // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-        .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+    //     .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(threePiecePath);
+
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
     // .onTrue(new DriveAutonCommand(driveSubsystem, "straightPathX", true, true));
     // Requires swerve migration to new Pose2D
