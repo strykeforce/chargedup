@@ -213,15 +213,16 @@ public class Constants {
 
     public static final double kAutoBalanceCloseEnoughDeg = 2; // 2
     public static final double kAutoBalanceStableCount = 10;
-    public static final double kAutoBalanceDriveVel = 0.55;
     public static final double kAutoBalanceStartTimerThresholdDeg = 5;
     public static final double kAutoBalanceEnableGyroThresholdDegrees = 8;
 
-    public static final double kAutoBalanceFinalDriveVel = 0.75; // 0.5 0.75
-    public static final double kAutoBalanceSlowdownTimeSec = 1.6; // 2.3  1.6
-    public static final double kAutoBalanceStopThresholdDegrees = 0.6; // 1 0.6
+    public static final double kAutoBalanceSlowDriveVel = 0.6; // 0.5
+    public static final double kAutoBalanceFinalDriveVel = 1.0; // 0.5 0.75
+    public static final double kAutoBalanceSlowdownTimeSec = 1.3; // 2.3  1.6 1.3
+    public static final double kAutoBalanceStopThresholdDegrees = 2.5; // 1 0.6 1.5
     public static final double kAutoBalanceEdgeTriggerThreshold = 5; // 5
-    public static final double kAutoBalanceAvgRollCount = 10; // 5 10
+    public static final double kAutoBalanceAvgRollCount = 7; // 5 10 7
+    public static final double kAutoBalanceLoopFixTimer = 0.140;
 
     public static final double kPulseAutoBalanceTime = 0.2;
     public static final double kPauseAutoBalanceTime = 1.0;

@@ -288,9 +288,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
         tempRoll,
         robotStateSubsystem.getAllianceColor(),
         isOnAllianceSide);
-    if ((isOnAllianceSide && robotStateSubsystem.getAllianceColor() == Alliance.Blue)
-        || (robotStateSubsystem.getAllianceColor() == Alliance.Red && !isOnAllianceSide))
+    if (isOnAllianceSide) {
       move(DriveConstants.kAutoBalanceFinalDriveVel, 0, 0, false);
+      logger.info("DRIVING POSITIVE LIKE ITS SUPPOSED TO");
+    }
     // NOT On alliance side of charge station, drive Negative X
     else move(-DriveConstants.kAutoBalanceFinalDriveVel, 0, 0, false);
     logger.info("{} -> AUTO_BALANCE_EDGE", currDriveState);
@@ -371,16 +372,20 @@ public class DriveSubsystem extends MeasurableSubsystem {
         if (autoBalanceTimer.hasElapsed(DriveConstants.kAutoBalanceSlowdownTimeSec)) {
           logger.info("{} -> AUTO_BALANCE_AVERAGE", currDriveState);
           currDriveState = DriveStates.AUTO_BALANCE_AVERAGE;
+          autoBalanceTimer.restart();
         }
         break;
       case AUTO_BALANCE_AVERAGE:
         sumRoll += getGyroRoll();
         autoBalanceAvgCount++;
-        if (autoBalanceAvgCount >= DriveConstants.kAutoBalanceAvgRollCount) {
+        logger.info("AutoBalanceAvgCount: {}", autoBalanceAvgCount);
+        if (autoBalanceTimer.hasElapsed(DriveConstants.kAutoBalanceLoopFixTimer)) {
           avgStartingRoll = sumRoll / autoBalanceAvgCount;
           logger.info("Average Starting Roll: {}", avgStartingRoll);
           logger.info("{} -> AUTO_BALANCE", currDriveState);
           currDriveState = DriveStates.AUTO_BALANCE;
+          move(DriveConstants.kAutoBalanceSlowDriveVel, 0, 0, false);
+          autoBalanceTimer.reset();
         }
         break;
       case AUTO_BALANCE:
