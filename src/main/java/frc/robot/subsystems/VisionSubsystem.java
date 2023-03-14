@@ -56,7 +56,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
     photonPoseEstimator =
         new PhotonPoseEstimator(
             aprilTagFieldLayout,
-            PoseStrategy.LOWEST_AMBIGUITY,
+            PoseStrategy.AVERAGE_BEST_TARGETS,
             cam1,
             // -.25, .11,0 // 0,10, 187
             new Transform3d(
