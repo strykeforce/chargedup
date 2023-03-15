@@ -17,9 +17,8 @@ public class DriveToPlaceNotPathCommand extends CommandBase {
   private TargetCol targetCol;
 
   public DriveToPlaceNotPathCommand(
-      DriveSubsystem driveSubsystem, RobotStateSubsystem robotStateSubsystem, TargetCol targetCol) {
+      DriveSubsystem driveSubsystem, RobotStateSubsystem robotStateSubsystem) {
     addRequirements(driveSubsystem);
-    this.targetCol = targetCol;
     this.driveSubsystem = driveSubsystem;
     this.robotStateSubsystem = robotStateSubsystem;
   }
@@ -30,16 +29,16 @@ public class DriveToPlaceNotPathCommand extends CommandBase {
       if (driveSubsystem.getPoseMeters().getX() < RobotStateConstants.kFieldMaxX / 2)
         driveSubsystem.driveToPose(
             robotStateSubsystem.getAutoPlaceDriveTarget(
-                driveSubsystem.getPoseMeters().getY(), targetCol));
+                driveSubsystem.getPoseMeters().getY(), robotStateSubsystem.getTargetCol()));
       else driveSubsystem.driveToPose(new Pose2d());
     } else {
       if (driveSubsystem.getPoseMeters().getX() > RobotStateConstants.kFieldMaxX / 2)
         driveSubsystem.driveToPose(
             robotStateSubsystem.getAutoPlaceDriveTarget(
-                driveSubsystem.getPoseMeters().getY(), targetCol));
+                driveSubsystem.getPoseMeters().getY(), robotStateSubsystem.getTargetCol()));
       else driveSubsystem.driveToPose(new Pose2d());
     }
-    logger.info("Moving to place");
+    logger.info("Moving to place Drive.");
   }
 
   @Override

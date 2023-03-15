@@ -5,7 +5,6 @@ import static frc.robot.Constants.kTalonConfigTimeout;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
@@ -134,21 +133,19 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
     xAutoDriveController =
         new ProfiledPIDController(
-            DriveConstants.kPOmega,
-            DriveConstants.kIOmega,
-            DriveConstants.kDOmega,
-            new TrapezoidProfile.Constraints(
-                DriveConstants.kMaxOmega, DriveConstants.kMaxAccelOmega));
-    //xAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
+            DriveConstants.kPHolonomic,
+            DriveConstants.kIHolonomic,
+            DriveConstants.kDHolonomic,
+            new TrapezoidProfile.Constraints(1, 1));
+    // xAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
 
     yAutoDriveController =
         new ProfiledPIDController(
-            DriveConstants.kPOmega,
-            DriveConstants.kIOmega,
-            DriveConstants.kDOmega,
-            new TrapezoidProfile.Constraints(
-              DriveConstants.kMaxOmega, DriveConstants.kMaxAccelOmega));
-    //yAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
+            DriveConstants.kPHolonomic,
+            DriveConstants.kIHolonomic,
+            DriveConstants.kDHolonomic,
+            new TrapezoidProfile.Constraints(1, 1));
+    // yAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
 
     omegaController =
         new ProfiledPIDController(
@@ -212,6 +209,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
     setAutoDriving(true);
     autoDriveTimer.reset();
     autoDriveTimer.start();
+    logger.info("{} -> AUTO_DRIVE", currDriveState);
+    currDriveState = DriveStates.AUTO_DRIVE;
     // autoDriveTimer.reset();
     // autoDriveTimer.start();
   }
@@ -221,15 +220,17 @@ public class DriveSubsystem extends MeasurableSubsystem {
     if (place != null) {
       // if (autoDriveTimer.hasElapsed(place.getTotalTimeSeconds())) setAutoDriving(false);
       return inScorePosition();
-      //return autoDriveTimer.hasElapsed(place.getTotalTimeSeconds());
+      // return autoDriveTimer.hasElapsed(place.getTotalTimeSeconds());
     } else return false;
   }
 
   public boolean inScorePosition() {
     Transform2d pathError = endAutoDrivePose.minus(getPoseMeters());
     if (Math.abs(pathError.getX()) <= DriveConstants.kPathErrorThreshold
-        && Math.abs(pathError.getY()) <= DriveConstants.kPathErrorThreshold) {//&& Math.abs(pathError.getRotation().getDegrees())
-            //<= DriveConstants.kPathErrorOmegaThresholdDegrees) {
+        && Math.abs(pathError.getY())
+            <= DriveConstants
+                .kPathErrorThreshold) { // && Math.abs(pathError.getRotation().getDegrees())
+      // <= DriveConstants.kPathErrorOmegaThresholdDegrees) {
       return true;
     } else return false;
   }
@@ -289,7 +290,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   //       omegaAutoDriveController.calculate(
   //           MathUtil.angleModulus(robotRotation.getRadians()),
   //           robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
-    
+
   //   move(xCalc, yCalc, omegaCalc, true);
 
   //   // logger.info("X accel {}, Y accel", moveTranslation.getX(), moveTranslation.getY());
@@ -318,27 +319,29 @@ public class DriveSubsystem extends MeasurableSubsystem {
       case IDLE:
         break;
       case AUTO_DRIVE:
-      if (isAutoDriveFinished()) {
-        visionSubsystem.setOdomAutoBool(false);
-        drive(0, 0, 0);
-        visionUpdates = true;
-        setAutoDriving(false);
-        logger.info("End Trajectory {}", autoDriveTimer.get());
-        autoDriveTimer.stop();
-        autoDriveTimer.reset();
-        logger.info("DRIVESUB: {} -> AUTO_DRIVE_FINISHED", currDriveState);
-        currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
-        break;
-      }
-      if (autoDriving && !visionUpdates && visionSubsystem.getOdomAutoBool()) {
-          double xCalc = xAutoDriveController.calculate(getPoseMeters().getX(),endAutoDrivePose.getX());
-          double yCalc = xAutoDriveController.calculate(getPoseMeters().getY(),endAutoDrivePose.getY());
+        if (isAutoDriveFinished()) {
+          visionSubsystem.setOdomAutoBool(false);
+          drive(0, 0, 0);
+          visionUpdates = true;
+          setAutoDriving(false);
+          logger.info("End Trajectory {}", autoDriveTimer.get());
+          autoDriveTimer.stop();
+          autoDriveTimer.reset();
+          logger.info("DRIVESUB: {} -> AUTO_DRIVE_FINISHED", currDriveState);
+          currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
+          break;
+        }
+        if (autoDriving && visionUpdates && visionSubsystem.getOdomAutoBool()) {
+          double xCalc =
+              xAutoDriveController.calculate(getPoseMeters().getX(), endAutoDrivePose.getX());
+          double yCalc =
+              xAutoDriveController.calculate(getPoseMeters().getY(), endAutoDrivePose.getY());
           double omegaCalc =
               omegaAutoDriveController.calculate(
                   MathUtil.angleModulus(getGyroRotation2d().getRadians()),
                   robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
           move(xCalc, yCalc, omegaCalc, true);
-          //calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
+          // calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
         }
         if (autoDriving
             && !visionUpdates
