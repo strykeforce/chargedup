@@ -94,6 +94,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
     this.desiredState = desiredState;
   }
 
+  public void toCubeStabPos() {
+    
+  }
+
   public void toIntakeStagePos() {
     toIntakeStagePos(false);
   }
@@ -797,6 +801,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ShoulderConstants.kIntakeShoulder,
         ElevatorConstants.kStowElevator,
         ElbowConstants.kIntakeStageElbow),
+    CUBE_STAB(INTAKE), // FIXME use correct values for stabbing position
+    CUBE_STAB_STAGE(INTAKE_STAGE),
     LOW(
         ShoulderConstants.kLevelOneShoulder,
         ElevatorConstants.kLevelOneElevator,

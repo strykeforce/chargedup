@@ -438,7 +438,47 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             break;
         }
         break;
+      case TO_CUBE_STAB:
+        // move arm to position, goto CUBE_STAB
+        // (wait) for arm to get to stab state
+        // (wait) for hand to open
+        // (to) CUBE_STAB
+
+        switch (currentAxis) {
+          case INTAKE:
+            // this state was used so armSubsystem.toCubeStabPos(); is only called once because I didn't want to make another boolean
+            armSubsystem.toIntakeStagePos(true);
+            currentAxis = CurrentAxis.ARM;
+            break;
+          case ARM:
+            if (armSubsystem.getCurrState() == ArmState.INTAKE) {
+              hasIntakeDelayPassed = false;
+              currentAxis = CurrentAxis.HAND;
+              handSubsystem.openIntake();
+              break;
+            }
+            break;
+          case HAND:
+            if (handSubsystem.isFinished()) {
+              currentAxis = CurrentAxis.NONE;
+              logger.info("{} -> INTAKE_STAGE", currRobotState);
+              currRobotState = RobotState.INTAKE_STAGE;
+            }
+            break;
+          default:
+            break;
+        }
+        break;
+      case CUBE_STAB:
+        // wait for cube grab, goto TO_STOW
+        break;
       case TO_INTAKE_STAGE:
+        // (wait) extend intake
+        // (wait) for timer
+        // (wait) for arm to get to intake state
+        // (wait) for hand to open
+        // (to) INTAKE_STAGE
+
         switch (currentAxis) {
           case INTAKE:
             if (intakeSubsystem.isFinished()) {
@@ -478,7 +518,6 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         break;
 
       case INTAKE_STAGE:
-        // (from) TO_INTAKE_STAGE
         // (wait) beam break
         // (to) PICKUP_FROM_INTAKE
 
@@ -495,13 +534,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         break;
 
       case PICKUP_FROM_INTAKE:
-        // (from) INTAKE_STAGE
-        // (wait) intake retract
-        // (wait) elevator down
-        // (wait) hand close
-        // (wait) small delay
-        // set game piece cube
-        // (to) STOW
+        // (wait) hand to close
+        // (wait) delay timer
+        // set rollers to hold speed
+        // (to) 
 
         switch (currentAxis) {
           case INTAKE:
@@ -577,7 +613,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       case MANUAL_SHELF:
         // (from) TO_MANUAL_SHELF
         // grab game piece
-        // (to) SHELF_WAIT
+        // (to) SHELF_WAIT_TRANSITION
         handSubsystem.runRollers(HandConstants.kRollerPickUp);
         if (handSubsystem.hasCone()) {
           handSubsystem.grabCone();
@@ -885,6 +921,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     TO_INTAKE_STAGE,
     INTAKE_STAGE,
     PICKUP_FROM_INTAKE,
+    TO_CUBE_STAB,
+    CUBE_STAB,
     MANUAL_SCORE,
     MANUAL_SHELF,
     AUTO_SCORE,
@@ -905,7 +943,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     TO_AUTO_SCORE,
     CHECK_AMBIGUITY,
     FLOOR_GRAB_CONE,
-    TO_STOW_SCORE
+    TO_STOW_SCORE;
   }
 
   public enum CurrentAxis {
