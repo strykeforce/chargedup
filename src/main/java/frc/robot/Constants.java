@@ -364,7 +364,8 @@ public class Constants {
     public static final double kLevelTwoCubeElevator = -40_000; // old -47_674
     public static final double kLevelThreeConeElevator = -1_500;
     public static final double kLevelThreeCubeElevator = kLevelThreeConeElevator;
-    public static final double kShelfElevator = -12_606; // -14_106
+    public static final double kShelfElevator = -18_606; // -14_100
+    public static final double kShelfExitElevator = kShelfElevator + 4000; // +3000
 
     public static TalonFXConfiguration getElevatorFalconConfig() {
       TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
@@ -398,7 +399,7 @@ public class Constants {
     }
 
     public static StatorCurrentLimitConfiguration getElevStatorCurrentLimitConfiguration() {
-      return new StatorCurrentLimitConfiguration(true, 6.0, 6.0, 0.001);
+      return new StatorCurrentLimitConfiguration(true, 8.0, 8.0, 0.001);
     }
 
     public static StatorCurrentLimitConfiguration getElevStatorTurnOff() {
@@ -444,6 +445,8 @@ public class Constants {
     public static final double kLevelThreeCubeElbow = 84_106;
     public static final double kShelfElbow = 55_144;
     public static final double kFloorElbowSweep = 16_876;
+
+    public static final double kRetrieveGamepiecePercentOutput = 0.2;
 
     public static TalonFXConfiguration getElbowFalonConfig() {
 
@@ -558,9 +561,9 @@ public class Constants {
     public static final int kExtendTalonID = 21;
 
     public static final int kCloseEnoughTicks = 150;
-    public static final int kExtendPosTicks = -2_000; // -2_000
+    public static final int kExtendPosTicks = -2_100; // -2_000
     public static final int kRetractPosTicks = 0;
-    public static final int kPickupPosTicks = -1_800; // -1_000
+    public static final int kPickupPosTicks = kExtendPosTicks; // -1_000
 
     public static final double kIntakeDelay = 0.0;
     public static final double kIntakeSpeed = 0.45; // -0.35
@@ -639,7 +642,7 @@ public class Constants {
     public static final double kRollerOff = 0.0;
     public static final double kRollerDrop = -0.1;
 
-    public static final double kMaxFwd = 1100; // 1100
+    public static final double kMaxFwd = 1250; // 1100
     public static final double kMaxRev = -500; // -1000
 
     public static final double kHasPieceMinTicks = 450;
@@ -655,15 +658,19 @@ public class Constants {
     public static final int kHoldingStableCounts = 5; // FIXME
     public static final int kHoldingTickThreshold = 200;
 
-    public static final double kAllowedError = 150; // FIXME
+    public static final double kAllowedError = 250; // 150
 
     public static final double kHandOpenPosition = kMaxRev;
     public static final double kIntakeOpenPosition = -500; // 50
     public static final double kCubeGrabbingPosition = 300;
+    public static final double kStowPosition = 1_000;
     public static final double kFloorOpenPosition = 300;
     public static final double kShelfOpenPosition = 0;
-    public static final double kConeGrabbingPosition = 1100; // old: 1650
+    public static final double kConeGrabbingPosition = 1200; // old: 1650
     public static final double kConeVelLimit = 50;
+
+    public static final double kRetrieveGamepiecePosition = 800;
+    public static final double kRetrieveGamepieceRollerSpeed = 0.8;
 
     public static TalonSRXConfiguration getHandTalonConfig() {
       TalonSRXConfiguration handConfig = new TalonSRXConfiguration();
@@ -726,10 +733,10 @@ public class Constants {
     public static final double kShoulderFollowerZeroTicks = 3007;
 
     // Intake
-    public static final int kIntakeZeroTicks = 2440; // 2238
+    public static final int kIntakeZeroTicks = 2790; // 2440 ->2540
 
     // Hand
-    public static final double kHandZeroTicks = 1010;
+    public static final double kHandZeroTicks = 1201; // 686 ->976
   }
 
   public static class ProtoConstants {

@@ -7,11 +7,11 @@ target_yaw = 0.0 #degrees
 
 [start_pose]
     x = 7.0 #7.07
-    y = 4.58
+    y = 4.48 # 4.58
     angle = 180.0
 
 [end_pose]
-    x = 2.02 #FIXME point is from end of floor node to center of robot measured on practice bot
+    x = 2.02 #2.02
     y = 4.42
     angle = 180.0
 
