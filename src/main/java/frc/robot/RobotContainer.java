@@ -20,14 +20,17 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.ElbowConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.RGBlights.RGBsetPieceCommand;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.DriveToPlaceNotPathCommand;
+import frc.robot.commands.drive.LockZeroCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elbow.ElbowOpenLoopCommand;
+import frc.robot.commands.elbow.ElbowRetrieveGamepieceCommand;
 import frc.robot.commands.elevator.AdjustElevatorCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.HoldPositionCommand;
@@ -35,12 +38,14 @@ import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.commands.hand.GrabConeCommand;
 import frc.robot.commands.hand.GrabCubeCommand;
 import frc.robot.commands.hand.HandLeftSpeedCommand;
+import frc.robot.commands.hand.HandLeftToPositionCommand;
 import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
+import frc.robot.commands.robotState.RetrieveGamePieceCommand;
 import frc.robot.commands.robotState.SetGamePieceCommand;
 import frc.robot.commands.robotState.SetLevelAndColCommandGroup;
 import frc.robot.commands.robotState.ShelfPickupCommand;
@@ -434,7 +439,7 @@ public class RobotContainer {
 
     // Floor pickup
     Trigger dPadPressed = new Trigger(() -> xboxController.getPOV() != -1);
-    dPadPressed.onTrue(new FloorPickupCommand(robotStateSubsystem));
+    dPadPressed.onTrue(new FloorPickupCommand(armSubsystem, robotStateSubsystem));
 
     // Set game piece
     // new JoystickButton(xboxController, XboxController.Button.kBack.value)
@@ -459,6 +464,23 @@ public class RobotContainer {
         new Trigger(() -> xboxController.getLeftY() >= 0.1)
             .onTrue(new AdjustElevatorCommand(elevatorSubsystem, 1000))
             .onFalse(new HoldPositionCommand(elevatorSubsystem));
+
+    Trigger rightRight =
+        new Trigger(() -> xboxController.getRightX() <= -0.1)
+            .onTrue(
+                new ElbowRetrieveGamepieceCommand(
+                    elbowSubsystem,
+                    robotStateSubsystem,
+                    ElbowConstants.kRetrieveGamepiecePercentOutput))
+            .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0.0));
+    Trigger rightLeft =
+        new Trigger(() -> xboxController.getRightX() >= 0.1)
+            .onTrue(
+                new ElbowRetrieveGamepieceCommand(
+                    elbowSubsystem,
+                    robotStateSubsystem,
+                    -ElbowConstants.kRetrieveGamepiecePercentOutput))
+            .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0.0));
   }
 
   public Command getAutonomousCommand() {
@@ -576,6 +598,9 @@ public class RobotContainer {
         .withPosition(0, 5);
     handCommands.add("Grab Cube", new GrabCubeCommand(handSubsystem)).withPosition(0, 7);
     handCommands.add("Grab Cone", new GrabConeCommand(handSubsystem)).withPosition(0, 8);
+    handCommands
+        .add("Hand 0 Check", new HandLeftToPositionCommand(handSubsystem, 0))
+        .withPosition(1, 7);
 
     // Set game piece
     ShuffleboardLayout gamePieceCommands =
@@ -600,6 +625,19 @@ public class RobotContainer {
                 intakeSubsystem,
                 armSubsystem))
         .withPosition(0, 0);
+    HealthCheck.add("LockZero", new LockZeroCommand(driveSubsystem)).withPosition(0, 2);
+  }
+
+  public void configureDebugDashboard() {
+    ShuffleboardTab debugTab = Shuffleboard.getTab("Debug");
+    ShuffleboardLayout retrieveGamepiece =
+        debugTab.getLayout("Retrieve", BuiltInLayouts.kGrid).withPosition(0, 0).withSize(1, 1);
+    retrieveGamepiece
+        .add(
+            "Retrieve GamePiece",
+            new RetrieveGamePieceCommand(armSubsystem, handSubsystem, robotStateSubsystem))
+        .withPosition(0, 0)
+        .withSize(1, 1);
   }
 
   public void setAllianceColor(Alliance alliance) {
