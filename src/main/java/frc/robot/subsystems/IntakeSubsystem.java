@@ -33,7 +33,7 @@ public class IntakeSubsystem extends MeasurableSubsystem {
   @HealthCheck(order = 2)
   @Position(
       percentOutput = {-0.1, 0.5},
-      encoderChange = 1000)
+      encoderChange = 2000)
   private TalonSRX extendTalon;
 
   private double intakeSetPointTicks;

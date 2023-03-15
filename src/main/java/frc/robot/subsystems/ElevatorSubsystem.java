@@ -23,7 +23,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   @HealthCheck
   @Position(
       percentOutput = {-0.2, 0.2},
-      encoderChange = 3_000)
+      encoderChange = 18_000)
   private TalonFX leftMainFalcon;
 
   @HealthCheck

@@ -23,8 +23,8 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
 
   @HealthCheck
   @Position(
-      percentOutput = {0.1, -0.1},
-      encoderChange = 5000)
+      percentOutput = {0.1, -0.1, 0.1},
+      encoderChange = 55_104)
   private TalonFX elbowFalcon;
 
   private double setPointTicks = 0;
@@ -56,11 +56,11 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
     return isFinished();
   }
 
-  @AfterHealthCheck
-  public boolean returnToZero() {
-    setPos(0.0);
-    return isFinished();
-  }
+  // @AfterHealthCheck
+  // public boolean returnToZero() {
+  //   setPos(0.0);
+  //   return isFinished();
+  // }
 
   private int getPulseWidthFor(PWMChannel channel) {
     double[] pulseWidthandPeriod = new double[2];
