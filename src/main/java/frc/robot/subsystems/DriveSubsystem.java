@@ -201,8 +201,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
     return visionUpdates;
   }
 
-  public void driveToPose(Pose2d endPose) {
-    endAutoDrivePose = endPose;
+  public void driveToPose(TargetCol targetCol) {
+    endAutoDrivePose =
+        robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
     omegaAutoDriveController.reset(getPoseMeters().getRotation().getRadians());
     xAutoDriveController.reset(getPoseMeters().getX());
     yAutoDriveController.reset(getPoseMeters().getY());
@@ -327,7 +328,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
           logger.info("End Trajectory {}", autoDriveTimer.get());
           autoDriveTimer.stop();
           autoDriveTimer.reset();
-          logger.info("DRIVESUB: {} -> AUTO_DRIVE_FINISHED", currDriveState);
+          logger.info("{} -> AUTO_DRIVE_FINISHED", currDriveState);
           currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
           break;
         }
@@ -335,7 +336,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
           double xCalc =
               xAutoDriveController.calculate(getPoseMeters().getX(), endAutoDrivePose.getX());
           double yCalc =
-              xAutoDriveController.calculate(getPoseMeters().getY(), endAutoDrivePose.getY());
+              yAutoDriveController.calculate(getPoseMeters().getY(), endAutoDrivePose.getY());
           double omegaCalc =
               omegaAutoDriveController.calculate(
                   MathUtil.angleModulus(getGyroRotation2d().getRadians()),
@@ -353,7 +354,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
           logger.info("End Trajectory {}", autoDriveTimer.get());
           autoDriveTimer.stop();
           autoDriveTimer.reset();
-          logger.info("DRIVESUB: {} -> AUTO_DRIVE_FAILED", currDriveState);
+          logger.info("{} -> AUTO_DRIVE_FAILED", currDriveState);
           setDriveState(DriveStates.AUTO_DRIVE_FAILED);
           // currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
           break;
@@ -696,6 +697,15 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("Auto Drive End X", () -> endAutoDrivePose.getX()),
         new Measure("Auto Drive End Y", () -> endAutoDrivePose.getY()),
         new Measure("Auto Drive Timer", () -> autoDriveTimer.get()),
+        new Measure("AutoDrive Goal X", () -> xAutoDriveController.getGoal().position),
+        new Measure("AutoDrive Goal Y", () -> yAutoDriveController.getGoal().position),
+        new Measure("AutoDrive Pos Error Y", () -> yAutoDriveController.getPositionError()),
+        new Measure("AutoDrive Pos Error X", () -> xAutoDriveController.getPositionError()),
+        new Measure("AutoDrive SetPoint Y", () -> yAutoDriveController.getSetpoint().position),
+        new Measure("AutoDrive SetPoint X", () -> xAutoDriveController.getSetpoint().position),
+        new Measure("AutoDrive Velocity Err Y", () -> yAutoDriveController.getVelocityError()),
+        new Measure("AutoDrive Velocity Err X", () -> xAutoDriveController.getVelocityError()),
         new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()));
+        
   }
 }

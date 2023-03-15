@@ -276,7 +276,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     if (Math.abs(driveSubsystem.getSpeedMPS()) <= DriveConstants.kMaxSpeedToAutoDrive) {
       if (gamePiece != GamePiece.CUBE) tempTargetCol = getTargetCol();
       logger.info("Gamepiece toAutodrive: {}", gamePiece.toString());
-      driveSubsystem.autoDrive((gamePiece == GamePiece.NONE), tempTargetCol); // FIXME
+      driveSubsystem.driveToPose(tempTargetCol); // FIXME
     }
   }
 
@@ -845,7 +845,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       rotation = 0;
     }
     int multiplier = 0;
-    logger.info("tempTargetCol: {}", tempTargetCol.name());
+    // logger.info("tempTargetCol: {}", tempTargetCol.name());
     if (tempTargetCol.equals(TargetCol.LEFT)) multiplier = 1;
     if (tempTargetCol.equals(TargetCol.RIGHT)) multiplier = -1;
     if (!isBlueAlliance()) multiplier *= -1;
