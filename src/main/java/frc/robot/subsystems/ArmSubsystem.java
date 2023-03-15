@@ -560,21 +560,15 @@ public class ArmSubsystem extends MeasurableSubsystem {
       case STOW_TO_HIGH:
         switch (currAxis) {
           case ELBOW:
-            if (elbowSubsystem.isFinished()) {
+            if (elbowSubsystem.canStartParallel(ElbowConstants.kLevelTwoConeElbow)) { 
               currAxis = CurrentAxis.ELEVATOR;
-              elevatorSubsystem.setPos(desiredState.elevatorPos);
-            }
-            if (elbowSubsystem.getPos() >= ElbowConstants.kLevelTwoConeElbow && !isShoulderStaged) {
-              isShoulderStaged = true;
-              shoulderSubsystem.setPos(desiredState.shoulderPos);
               elevatorSubsystem.setPos(desiredState.elevatorPos);
             }
             break;
           case ELEVATOR:
-            if (elevatorSubsystem.isFinished()) {
+            if (elevatorSubsystem.canStartParallel(ElevatorConstants.kStowToHighElevatorParallel)) {
               currAxis = CurrentAxis.SHOULDER;
-
-              if (!isShoulderStaged) shoulderSubsystem.setPos(desiredState.shoulderPos);
+              shoulderSubsystem.setPos(desiredState.shoulderPos);
             }
             break;
           case SHOULDER:
@@ -610,13 +604,13 @@ public class ArmSubsystem extends MeasurableSubsystem {
       case STOW_TO_FLOOR:
         switch (currAxis) {
           case ELBOW:
-            if (elbowSubsystem.isFinished()) {
+            if (elbowSubsystem.canStartParallel(ElbowConstants.kFloorPickupParallel)) {
               currAxis = CurrentAxis.SHOULDER;
               shoulderSubsystem.setPos(ArmState.FLOOR.shoulderPos);
             }
             break;
           case SHOULDER:
-            if (shoulderSubsystem.isFinished()) {
+            if (shoulderSubsystem.canStartParallel(ShoulderConstants.kFloorPickupParallel)) {
               currAxis = CurrentAxis.ELEVATOR;
               elevatorSubsystem.setPos(ArmState.FLOOR.elevatorPos);
             }

@@ -97,6 +97,10 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
     return Math.abs(desiredPosition - getPos()) <= Constants.ElevatorConstants.kAllowedError;
   }
 
+  public boolean canStartParallel(double wentPastPos) {
+    return Math.abs(wentPastPos - getPos()) <= Constants.ElevatorConstants.kAllowedError;
+  }
+
   public void unReinforceElevator() {
     setPct(0.0);
 

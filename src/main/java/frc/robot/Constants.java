@@ -366,6 +366,9 @@ public class Constants {
     public static final double kLevelThreeCubeElevator = kLevelThreeConeElevator;
     public static final double kShelfElevator = -12_606; // -14_106
 
+    // Parallel Movement Constants
+    public static final double kStowToHighElevatorParallel = -1900;
+
     public static TalonFXConfiguration getElevatorFalconConfig() {
       TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
 
@@ -445,6 +448,11 @@ public class Constants {
     public static final double kShelfElbow = 114_366;
     public static final double kFloorElbowSweep = 35_000;
 
+    // Parallel Movement of Elbow Positions
+    public static final double kAboveConeNodeParallel = 124_638; 
+    public static final double kFloorPickupParallel = 30_000;
+    
+
     public static TalonFXConfiguration getElbowFalonConfig() {
 
       TalonFXConfiguration elbowConfig = new TalonFXConfiguration();
@@ -513,6 +521,9 @@ public class Constants {
     public static final double kLevelThreeConeShoulder = 3900; // old 3000
     public static final double kLevelThreeCubeShoulder = kLevelThreeConeShoulder;
     public static final double kShelfShoulder = 0;
+
+    // Allow Parallel Movement Ticks
+    public static final double kFloorPickupParallel = 2000;
 
     public static TalonSRXConfiguration getShoulderTalonConfig() {
       TalonSRXConfiguration shoulderConfig = new TalonSRXConfiguration();
@@ -750,3 +761,4 @@ public class Constants {
     public static final double kHandZeroTicks = 963; // 879
   }
 }
+

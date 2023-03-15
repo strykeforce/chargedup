@@ -100,6 +100,10 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
     return Math.abs(desiredPosition - getPos()) <= Constants.ShoulderConstants.kAllowedError;
   }
 
+  public boolean canStartParallel(double wentPastPos) {
+    return Math.abs(wentPastPos - getPos()) <= ShoulderConstants.kAllowedError;
+  }
+
   public void zeroShoulder() {
     double absoluteMain =
         leftMainShoulderTalon.getSensorCollection().getPulseWidthPosition() & 0xFFF;

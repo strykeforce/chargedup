@@ -97,6 +97,10 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
     setPointTicks = posTicks;
   }
 
+  public boolean canStartParallel(double wentPastPos) {
+    return Math.abs(wentPastPos - getPos()) <= ElbowConstants.kCloseEnoughTicks;
+  }
+
   public double getRelativeDegs() {
     return ElbowConstants.kZeroDegs
         + remoteEncoder.getQuadraturePosition() / ElbowConstants.kTicksPerDeg;
