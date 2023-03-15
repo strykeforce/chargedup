@@ -31,6 +31,7 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
 
   private double desiredPosition;
   private Constants constants;
+  private boolean setToGreaterPos = false;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -71,6 +72,7 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
 
   public void setPos(double location) {
     if (location != desiredPosition) logger.info("Moving Shoulder to: {}", location);
+    setToGreaterPos = location > getPos();
     desiredPosition = location;
     leftMainShoulderTalon.set(ControlMode.MotionMagic, location);
   }
@@ -100,8 +102,8 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
     return Math.abs(desiredPosition - getPos()) <= Constants.ShoulderConstants.kAllowedError;
   }
 
-  public boolean canStartParallel(double wentPastPos) {
-    return Math.abs(wentPastPos - getPos()) <= ShoulderConstants.kAllowedError;
+  public boolean canStartNextAxis(double canStartTicks) {
+    return getPos() >= canStartTicks && setToGreaterPos || getPos() <= canStartTicks && !setToGreaterPos;
   }
 
   public void zeroShoulder() {

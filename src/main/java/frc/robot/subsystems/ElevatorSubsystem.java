@@ -33,6 +33,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   private double desiredPosition;
   private ElevatorState elevatorState;
   private boolean hasZeroed = false;
+  private boolean setToGreaterPos = false;
 
   private int elevatorZeroStableCounts;
 
@@ -73,6 +74,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
 
   public void setPos(double location) {
     if (desiredPosition != location) logger.info("Elevator moving to {}", location);
+    setToGreaterPos = location > getPos();
     desiredPosition = location;
     leftMainFalcon.set(TalonFXControlMode.MotionMagic, location);
   }
@@ -97,8 +99,8 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
     return Math.abs(desiredPosition - getPos()) <= Constants.ElevatorConstants.kAllowedError;
   }
 
-  public boolean canStartParallel(double wentPastPos) {
-    return Math.abs(wentPastPos - getPos()) <= Constants.ElevatorConstants.kAllowedError;
+  public boolean canStartNextAxis(double canStartTicks) {
+    return getPos() >= canStartTicks && setToGreaterPos || getPos() <= canStartTicks && !setToGreaterPos;
   }
 
   public void unReinforceElevator() {

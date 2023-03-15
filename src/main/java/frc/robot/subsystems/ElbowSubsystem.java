@@ -31,6 +31,7 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
   private CANifier remoteEncoder;
   private Logger logger = LoggerFactory.getLogger(ElbowSubsystem.class);
   private Constants constants;
+  private boolean setToGreaterPos = false;
 
   public ElbowSubsystem(Constants constants) {
     this.constants = constants;
@@ -93,12 +94,13 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
 
   public void setPos(double posTicks) {
     if (setPointTicks != posTicks) logger.info("Moving Elbow to: {}", posTicks);
+    setToGreaterPos = posTicks > getPos();
     elbowFalcon.set(ControlMode.MotionMagic, posTicks);
     setPointTicks = posTicks;
   }
 
-  public boolean canStartParallel(double wentPastPos) {
-    return Math.abs(wentPastPos - getPos()) <= ElbowConstants.kCloseEnoughTicks;
+  public boolean canStartNextAxis(double canStartTicks) {
+    return getPos() >= canStartTicks && setToGreaterPos || getPos() <= canStartTicks && !setToGreaterPos;
   }
 
   public double getRelativeDegs() {

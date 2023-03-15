@@ -367,7 +367,13 @@ public class Constants {
     public static final double kShelfElevator = -12_606; // -14_106
 
     // Parallel Movement Constants
-    public static final double kStowToHighElevatorParallel = -1900;
+    public static final double kStowToHighElevatorParallelAllowed = -1900;
+    public static final double kStowToMidParallelAllowed = kLevelTwoConeElevator;
+    public static final double kFloorToStowParallelAllowed = kStowElevator;
+    public static final double kScoreToStowParallelAllowed = kStowElevator;
+    public static final double kIntakeStageToIntakeParallelAllowed = kIntakeElevator;
+    public static final double kIntakeToStowParallelAllowed = kStowElevator;
+    public static final double kShelfToStowParallelAllowed = kStowElevator;
 
     public static TalonFXConfiguration getElevatorFalconConfig() {
       TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
@@ -449,9 +455,13 @@ public class Constants {
     public static final double kFloorElbowSweep = 35_000;
 
     // Parallel Movement of Elbow Positions
-    public static final double kAboveConeNodeParallel = 124_638; 
-    public static final double kFloorPickupParallel = 30_000;
-    
+    public static final double kAboveConeNodeParallelAllowed = 124_638; 
+    public static final double kFloorPickupParallelAllowed = 30_000;
+    public static final double kStowToShelfParallelAllowed = kShelfElbow; // FIXME
+    public static final double kStowToLowParallelAllowed = kLevelOneElbow;
+    public static final double kStowToMidParallelAllowed = kLevelTwoConeElbow;
+    public static final double kStowToHighParallelAllowed = kLevelThreeConeElbow;
+    public static final double kIntakeStageToIntakeParallelAllowed = kIntakeElbow;
 
     public static TalonFXConfiguration getElbowFalonConfig() {
 
@@ -523,7 +533,12 @@ public class Constants {
     public static final double kShelfShoulder = 0;
 
     // Allow Parallel Movement Ticks
-    public static final double kFloorPickupParallel = 2000;
+    public static final double kFloorPickupParallelAllowed = 2000;
+    public static final double kStowToLowParallelAllowed = kLevelOneShoulder;
+    public static final double kFloorToStowParallelAllowed = kStowShoulder;
+    public static final double kScoreToStowParallelAllowed = kStowShoulder;
+    public static final double kIntakeToStowParallelAllowed = kStowShoulder;
+    public static final double kShelfToStowParallelAllowed = kStowShoulder;
 
     public static TalonSRXConfiguration getShoulderTalonConfig() {
       TalonSRXConfiguration shoulderConfig = new TalonSRXConfiguration();
