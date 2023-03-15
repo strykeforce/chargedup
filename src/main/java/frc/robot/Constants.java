@@ -421,35 +421,35 @@ public class Constants {
 
     // zero=up&slightly towards the elevator
 
-    public static final int kForwardSoftLimit = 187_094; // 150_000
-    public static final int kReverseSoftLimit = -44_847; // -506
+    public static final int kForwardSoftLimit = 90_211; // 187_094
+    public static final int kReverseSoftLimit = -21_624; // -506
 
     public static final double kZeroDegs = -90; // FIXME
     public static final double kTicksPerDeg = 4096.0 / 360; // FIXME
     public static final double kLength = 0.9; // 0.7855 m
 
-    public static final double kOffsetFactor = 217.35 / 2;
+    public static final double kOffsetFactor = 52.4 / 1; // 217.35 / 2
 
     public static final int kCloseEnoughTicks = 2000;
 
     // Elbow Positions
-    public static final double kIntakeStageElbow = -30_000;
-    public static final double kIntakeElbow = -40_000; // -43_200
+    public static final double kIntakeStageElbow = -14_465;
+    public static final double kIntakeElbow = -19_287; // -43_200
     public static final double kStowElbow = 0;
-    public static final double kFloorElbow = 44_152; // 43_214
-    public static final double kLevelOneElbow = 42_615;
-    public static final double kLevelTwoConeElbow = 124_638;
-    public static final double kLevelTwoCubeElbow = 124_638;
-    public static final double kLevelThreeConeElbow = 177_432;
-    public static final double kLevelThreeCubeElbow = 174_432;
-    public static final double kShelfElbow = 114_366;
-    public static final double kFloorElbowSweep = 35_000;
+    public static final double kFloorElbow = 21_289; // 43_214
+    public static final double kLevelOneElbow = 20_548;
+    public static final double kLevelTwoConeElbow = 60_097;
+    public static final double kLevelTwoCubeElbow = 60_097;
+    public static final double kLevelThreeConeElbow = 85_553;
+    public static final double kLevelThreeCubeElbow = 84_106;
+    public static final double kShelfElbow = 55_144;
+    public static final double kFloorElbowSweep = 16_876;
 
     public static TalonFXConfiguration getElbowFalonConfig() {
 
       TalonFXConfiguration elbowConfig = new TalonFXConfiguration();
 
-      elbowConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 40, 40, .2);
+      elbowConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 10, 50, 1.0);
       elbowConfig.voltageMeasurementFilter = 32;
       elbowConfig.voltageCompSaturation = 12;
       elbowConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
@@ -464,8 +464,8 @@ public class Constants {
       elbowConfig.slot0.maxIntegralAccumulator = 40_000.0;
       elbowConfig.slot0.allowableClosedloopError = 150.0;
 
-      elbowConfig.motionAcceleration = 35_000; // 50_000
-      elbowConfig.motionCruiseVelocity = 14_000;
+      elbowConfig.motionAcceleration = 25_000; // 50_000
+      elbowConfig.motionCruiseVelocity = 7_000;
       elbowConfig.forwardSoftLimitEnable = true;
       elbowConfig.forwardSoftLimitThreshold = kForwardSoftLimit;
       elbowConfig.reverseSoftLimitEnable = true;
@@ -719,7 +719,7 @@ public class Constants {
     public static final double kWheelDiameterInches = 3.0 * (490 / 500.0);
 
     // Elbow
-    public static final int kElbowZeroTicks = 1160; // 730
+    public static final int kElbowZeroTicks = 1183; // 730
 
     // Shoulder
     public static final double kShoulderMainZeroTicks = 995;
