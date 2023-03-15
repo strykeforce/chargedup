@@ -5,6 +5,8 @@ import static frc.robot.Constants.kTalonConfigTimeout;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -54,6 +56,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private final PIDController xController;
   private final PIDController yController;
   private final ProfiledPIDController omegaAutoDriveController;
+  private final ProfiledPIDController xAutoDriveController;
+  private final ProfiledPIDController yAutoDriveController;
   private RobotStateSubsystem robotStateSubsystem;
 
   // Grapher Variables
@@ -128,6 +132,24 @@ public class DriveSubsystem extends MeasurableSubsystem {
                 DriveConstants.kMaxOmega, DriveConstants.kMaxAccelOmega));
     omegaAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
 
+    xAutoDriveController =
+        new ProfiledPIDController(
+            DriveConstants.kPOmega,
+            DriveConstants.kIOmega,
+            DriveConstants.kDOmega,
+            new TrapezoidProfile.Constraints(
+                DriveConstants.kMaxOmega, DriveConstants.kMaxAccelOmega));
+    //xAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
+
+    yAutoDriveController =
+        new ProfiledPIDController(
+            DriveConstants.kPOmega,
+            DriveConstants.kIOmega,
+            DriveConstants.kDOmega,
+            new TrapezoidProfile.Constraints(
+              DriveConstants.kMaxOmega, DriveConstants.kMaxAccelOmega));
+    //yAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
+
     omegaController =
         new ProfiledPIDController(
             DriveConstants.kPOmega,
@@ -185,7 +207,11 @@ public class DriveSubsystem extends MeasurableSubsystem {
   public void driveToPose(Pose2d endPose) {
     endAutoDrivePose = endPose;
     omegaAutoDriveController.reset(getPoseMeters().getRotation().getRadians());
+    xAutoDriveController.reset(getPoseMeters().getX());
+    yAutoDriveController.reset(getPoseMeters().getY());
     setAutoDriving(true);
+    autoDriveTimer.reset();
+    autoDriveTimer.start();
     // autoDriveTimer.reset();
     // autoDriveTimer.start();
   }
@@ -194,16 +220,16 @@ public class DriveSubsystem extends MeasurableSubsystem {
     // autoDriving &&
     if (place != null) {
       // if (autoDriveTimer.hasElapsed(place.getTotalTimeSeconds())) setAutoDriving(false);
-      return autoDriveTimer.hasElapsed(place.getTotalTimeSeconds());
+      return inScorePosition();
+      //return autoDriveTimer.hasElapsed(place.getTotalTimeSeconds());
     } else return false;
   }
 
   public boolean inScorePosition() {
-    Transform2d pathError = holoContInput.poseMeters.minus(getPoseMeters());
+    Transform2d pathError = endAutoDrivePose.minus(getPoseMeters());
     if (Math.abs(pathError.getX()) <= DriveConstants.kPathErrorThreshold
-        && Math.abs(pathError.getY()) <= DriveConstants.kPathErrorThreshold
-        && Math.abs(pathError.getRotation().getDegrees())
-            <= DriveConstants.kPathErrorOmegaThresholdDegrees) {
+        && Math.abs(pathError.getY()) <= DriveConstants.kPathErrorThreshold) {//&& Math.abs(pathError.getRotation().getDegrees())
+            //<= DriveConstants.kPathErrorOmegaThresholdDegrees) {
       return true;
     } else return false;
   }
@@ -255,92 +281,20 @@ public class DriveSubsystem extends MeasurableSubsystem {
   // private void autoDrive() {
   //   Pose2d currentPose = getPoseMeters();
   //   Rotation2d robotRotation = getGyroRotation2d();
-  //   Transform2d poseDifference = currentPose.minus(endAutoDrivePose);
 
   //   // holoContInput =
-  //   double result =
+  //   double xCalc = xAutoDriveController.calculate(currentPose.getX(),endAutoDrivePose.getX());
+  //   double yCalc = xAutoDriveController.calculate(currentPose.getY(),endAutoDrivePose.getY());
+  //   double omegaCalc =
   //       omegaAutoDriveController.calculate(
   //           MathUtil.angleModulus(robotRotation.getRadians()),
   //           robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
-  //   result = 0.0;
-  //   double straightDist =
-  //       Math.sqrt(
-  //           poseDifference.getX() * poseDifference.getX()
-  //               + poseDifference.getY() * poseDifference.getY());
+    
+  //   move(xCalc, yCalc, omegaCalc, true);
 
-  //   double angle = Math.atan2(poseDifference.getY(), poseDifference.getX());
-  //   logger.info("Angle is {}", angle);
+  //   // logger.info("X accel {}, Y accel", moveTranslation.getX(), moveTranslation.getY());
+  //   // logger.info(" X Dif: {}, Y Dif: {}", poseDifference.getX(), poseDifference.getY());
 
-  //   double speedMPS =
-  //       Math.sqrt(
-  //           (straightDist + DriveConstants.kAutoEquationOffset)
-  //               * (2 * DriveConstants.kMaxAutoAccel));
-  //   logger.info("Predicted speed is {}", speedMPS);
-  //   double currentXvel = speedMPS * Math.cos(angle);
-  //   double currentYvel = speedMPS * Math.sin(angle);
-
-  //   speedMPS =
-  //       Math.sqrt(
-  //           Math.pow(
-  //                   lastXSpeed
-  //                       + Math.copySign(
-  //                           DriveConstants.kMaxAutoAccel / 50, currentXvel - lastXSpeed),
-  //                   2)
-  //               + Math.pow(currentYvel, 2));
-  //   currentXvel =
-  //       lastXSpeed + Math.copySign(DriveConstants.kMaxAutoAccel / 50, currentXvel - lastXSpeed);
-
-  //   speedMPS =
-  //       Math.sqrt(
-  //           Math.pow(currentXvel, 2)
-  //               + Math.pow(
-  //                   lastYSpeed
-  //                       + Math.copySign(
-  //                           DriveConstants.kMaxAutoAccel / 50, currentYvel - lastYSpeed),
-  //                   2));
-  //   currentYvel =
-  //       lastYSpeed + Math.copySign(DriveConstants.kMaxAutoAccel / 50, currentYvel - lastYSpeed);
-
-  //   if (Math.abs(speedMPS) > 1) {
-  //     speedMPS = Math.copySign(1, speedMPS);
-  //     double tempAngle = Math.atan2(currentYvel, currentXvel);
-  //     currentXvel = speedMPS * Math.cos(tempAngle);
-  //     currentYvel = speedMPS * Math.sin(tempAngle);
-  //   }
-  //   speedMPSglobal = speedMPS;
-  //   lastXSpeed = currentXvel;
-  //   lastYSpeed = currentYvel;
-
-  //   Translation2d moveTranslation = new Translation2d(currentXvel, currentYvel);
-
-  //   if (Math.abs(poseDifference.getX()) <= DriveConstants.kAutoDistanceLimit)
-  //     moveTranslation = new Translation2d(0, moveTranslation.getY());
-  //   if (Math.abs(poseDifference.getY()) <= DriveConstants.kAutoDistanceLimit)
-  //     moveTranslation = new Translation2d(moveTranslation.getX(), 0.0);
-
-  //   // Translation2d moveTranslation =
-  //   // new Translation2d(poseDifference.getX() * 0.25, poseDifference.getY() * 0.25);
-  //   move(moveTranslation.getX(), moveTranslation.getY(), result, true);
-
-  //   logger.info("X accel {}, Y accel", moveTranslation.getX(), moveTranslation.getY());
-  //   logger.info(" X Dif: {}, Y Dif: {}", poseDifference.getX(), poseDifference.getY());
-
-  //   if (Math.abs(poseDifference.getX()) <= DriveConstants.kAutoDistanceLimit
-  //       && Math.abs(poseDifference.getY()) <= DriveConstants.kAutoDistanceLimit
-  //   // && Math.abs(
-  //   //         robotRotation.getRadians()
-  //   //             - (robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI))
-  //   //     <= Math.toRadians(DriveConstants.kMaxAngleOff)
-  //   ) {
-  //     autoDriveTimer.stop();
-  //     autoDriveTimer.reset();
-  //     autoDriving = false;
-  //     visionUpdates = true;
-  //     logger.info("Autodrive Finished");
-  //     lastXSpeed = 0.0;
-  //     speedMPSglobal = 0.0;
-  //     lastYSpeed = 0.0;
-  //   }
   // }
 
   public boolean isAutoDriving() {
@@ -364,29 +318,32 @@ public class DriveSubsystem extends MeasurableSubsystem {
       case IDLE:
         break;
       case AUTO_DRIVE:
-        if (isAutoDriveFinished()) {
-          visionSubsystem.setOdomAutoBool(false);
-          grapherTrajectoryActive(false);
-          setEnableHolo(false);
-          drive(0, 0, 0);
-          visionUpdates = true;
-          setAutoDriving(false);
-          logger.info("End Trajectory {}", autoDriveTimer.get());
-          autoDriveTimer.stop();
-          autoDriveTimer.reset();
-          logger.info("DRIVESUB: {} -> AUTO_DRIVE_FINISHED", currDriveState);
-          currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
-          break;
-        }
-        if (autoDriving && !visionUpdates && visionSubsystem.getOdomAutoBool()) {
-          calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
+      if (isAutoDriveFinished()) {
+        visionSubsystem.setOdomAutoBool(false);
+        drive(0, 0, 0);
+        visionUpdates = true;
+        setAutoDriving(false);
+        logger.info("End Trajectory {}", autoDriveTimer.get());
+        autoDriveTimer.stop();
+        autoDriveTimer.reset();
+        logger.info("DRIVESUB: {} -> AUTO_DRIVE_FINISHED", currDriveState);
+        currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
+        break;
+      }
+      if (autoDriving && !visionUpdates && visionSubsystem.getOdomAutoBool()) {
+          double xCalc = xAutoDriveController.calculate(getPoseMeters().getX(),endAutoDrivePose.getX());
+          double yCalc = xAutoDriveController.calculate(getPoseMeters().getY(),endAutoDrivePose.getY());
+          double omegaCalc =
+              omegaAutoDriveController.calculate(
+                  MathUtil.angleModulus(getGyroRotation2d().getRadians()),
+                  robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
+          move(xCalc, yCalc, omegaCalc, true);
+          //calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
         }
         if (autoDriving
             && !visionUpdates
             && (!visionSubsystem.getOdomAutoBool() || !visionSubsystem.isCameraWorking())) {
           visionSubsystem.setOdomAutoBool(false);
-          grapherTrajectoryActive(false);
-          setEnableHolo(false);
           drive(0, 0, 0);
           visionUpdates = true;
           setAutoDriving(false);
@@ -402,6 +359,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
       case AUTO_DRIVE_FAILED:
         break;
       case AUTO_DRIVE_FINISHED:
+        autoDriving = false;
+        visionUpdates = true;
+        logger.info("Autodrive Finished");
+        lastXSpeed = 0.0;
+        speedMPSglobal = 0.0;
+        lastYSpeed = 0.0;
         break;
       default:
         break;

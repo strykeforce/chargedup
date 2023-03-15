@@ -185,7 +185,7 @@ public class Constants {
     public static final double kDriveGearRatio =
         (kDriveMotorOutputGear / kDriveInputGear) * (kBevelInputGear / kBevelOutputGear);
     public static double kMaxSpeedToAutoDrive = 4; // FIXME WRoNG VAL
-    public static double kPathErrorThreshold = 4; // FIXME WRONG VAL
+    public static double kPathErrorThreshold = 0.1; // FIXME WRONG VAL
     public static double kPathErrorOmegaThresholdDegrees = 5; // FIXME WRONG VAL
 
     public static Translation2d[] getWheelLocationMeters() {

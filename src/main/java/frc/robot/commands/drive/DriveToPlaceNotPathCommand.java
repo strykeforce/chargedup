@@ -44,12 +44,12 @@ public class DriveToPlaceNotPathCommand extends CommandBase {
 
   @Override
   public boolean isFinished() {
-    return !driveSubsystem.autoDriving;
+    return !driveSubsystem.isAutoDriving();
   }
 
   @Override
   public void end(boolean interrupted) {
-    driveSubsystem.autoDriving = false;
+    driveSubsystem.setAutoDriving(false);
     driveSubsystem.drive(0, 0, 0);
     // driveSubsystem.grapherTrajectoryActive(false);
     logger.info("End Trajectory {}"); // timer.get());
