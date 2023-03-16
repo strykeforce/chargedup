@@ -744,14 +744,14 @@ public class Constants {
     public static final double kWheelDiameterInches = 3.0 * (490 / 500.0);
 
     // Elbow
-    public static final int kElbowZeroTicks = 1140; // 1130
+    public static final int kElbowZeroTicks = 1105; // 1130
 
     // Shoulder
     public static final double kShoulderMainZeroTicks = 1472; // FIXME old: 1836
     public static final double kShoulderFollowerZeroTicks = 3167; // FIXME old: 1836
 
     // Intake
-    public static final int kIntakeZeroTicks = 3150;
+    public static final int kIntakeZeroTicks = 639;
 
     // Hand
     public static final double kHandZeroTicks = 963; // 879
