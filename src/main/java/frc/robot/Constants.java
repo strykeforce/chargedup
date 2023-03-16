@@ -209,6 +209,9 @@ public class Constants {
     // public static final double kRateLimitMove = 0.3;
     public static final double kExpoScaleYawFactor = 0.75;
 
+    public static final double kAutoDriveMaxVelocity = 2;
+    public static final double kAutoDriveMaxAccel = 2;
+
     public static TalonSRXConfiguration getAzimuthTalonConfig() {
       // constructor sets encoder to Quad/CTRE_MagEncoder_Relative
       TalonSRXConfiguration azimuthConfig = new TalonSRXConfiguration();

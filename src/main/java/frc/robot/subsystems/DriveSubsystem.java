@@ -136,7 +136,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
             DriveConstants.kPHolonomic,
             DriveConstants.kIHolonomic,
             DriveConstants.kDHolonomic,
-            new TrapezoidProfile.Constraints(1, 1));
+            new TrapezoidProfile.Constraints(
+                DriveConstants.kAutoDriveMaxVelocity, DriveConstants.kAutoDriveMaxAccel));
     // xAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
 
     yAutoDriveController =
@@ -144,7 +145,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
             DriveConstants.kPHolonomic,
             DriveConstants.kIHolonomic,
             DriveConstants.kDHolonomic,
-            new TrapezoidProfile.Constraints(1, 1));
+            new TrapezoidProfile.Constraints(
+                DriveConstants.kAutoDriveMaxVelocity, DriveConstants.kAutoDriveMaxAccel));
     // yAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
 
     omegaController =
@@ -706,6 +708,5 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("AutoDrive Velocity Err Y", () -> yAutoDriveController.getVelocityError()),
         new Measure("AutoDrive Velocity Err X", () -> xAutoDriveController.getVelocityError()),
         new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()));
-        
   }
 }
