@@ -80,8 +80,8 @@ public class IntakeSubsystem extends MeasurableSubsystem {
   }
 
   public void extendClosedLoop() {
-    extendTalon.set(ControlMode.MotionMagic, IntakeConstants.kExtendPosTicks);
-    intakeSetPointTicks = IntakeConstants.kExtendPosTicks;
+    extendTalon.set(ControlMode.MotionMagic, Constants.kExtendPosTicks);
+    intakeSetPointTicks = Constants.kExtendPosTicks;
     isIntakeExtended = true;
     // logger.info("Intake is extending to {}", IntakeConstants.kExtendPosTicks);
   }

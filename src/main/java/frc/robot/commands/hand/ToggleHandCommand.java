@@ -6,6 +6,7 @@ import frc.robot.subsystems.HandSubsystem;
 import frc.robot.subsystems.HandSubsystem.HandStates;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
+import frc.robot.subsystems.RobotStateSubsystem.RobotState;
 
 public class ToggleHandCommand extends CommandBase {
   private HandSubsystem handSubsystem;
@@ -22,7 +23,8 @@ public class ToggleHandCommand extends CommandBase {
 
   @Override
   public void initialize() {
-    if (handSubsystem.getHandState() == HandStates.OPEN) {
+    if (handSubsystem.getHandState() == HandStates.OPEN
+        || robotStateSubsystem.getRobotState() == RobotState.RETRIEVE_GAMEPIECE) {
       robotStateSubsystem.toGrabGamepiece(GamePiece.CONE);
     } else if (handSubsystem.getHandState() == HandStates.CUBE_CLOSED
         || handSubsystem.getHandState() == HandStates.CONE_CLOSED) {
