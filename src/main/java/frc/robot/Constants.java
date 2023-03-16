@@ -426,7 +426,7 @@ public class Constants {
     // zero=up&slightly towards the elevator
 
     public static final int kForwardSoftLimit = 90_211; // 187_094
-    public static final int kReverseSoftLimit = -21_624; // -506
+    public static final int kReverseSoftLimit = -22_624; // -506
 
     public static final double kZeroDegs = -90; // FIXME
     public static final double kTicksPerDeg = 4096.0 / 360; // FIXME
@@ -438,7 +438,7 @@ public class Constants {
 
     // Elbow Positions
     public static final double kIntakeStageElbow = -14_465;
-    public static final double kIntakeElbow = -19_287; // -43_200
+    public static final double kIntakeElbow = -21_087; // -43_200
     public static final double kStowElbow = 0;
     public static final double kFloorElbow = 21_289; // 43_214
     public static final double kLevelOneElbow = 20_548;
