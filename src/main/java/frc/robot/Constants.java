@@ -365,6 +365,7 @@ public class Constants {
     public static final double kLevelThreeConeElevator = -1_500;
     public static final double kLevelThreeCubeElevator = kLevelThreeConeElevator;
     public static final double kShelfElevator = -12_606; // -14_106
+    public static final double kCubeStabElevator = -23_500; //FIXME need to test values for stab position
 
     public static TalonFXConfiguration getElevatorFalconConfig() {
       TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
@@ -444,6 +445,7 @@ public class Constants {
     public static final double kLevelThreeCubeElbow = 174_432;
     public static final double kShelfElbow = 114_366;
     public static final double kFloorElbowSweep = 35_000;
+    public static final double kCubeStabElbow = -30_000; //FIXME need to test values for stab position
 
     public static TalonFXConfiguration getElbowFalonConfig() {
 
@@ -513,6 +515,7 @@ public class Constants {
     public static final double kLevelThreeConeShoulder = 3900; // old 3000
     public static final double kLevelThreeCubeShoulder = kLevelThreeConeShoulder;
     public static final double kShelfShoulder = 0;
+    public static final double kCubeStabShoulder = 0; //FIXME need to test values for stab position
 
     public static TalonSRXConfiguration getShoulderTalonConfig() {
       TalonSRXConfiguration shoulderConfig = new TalonSRXConfiguration();
