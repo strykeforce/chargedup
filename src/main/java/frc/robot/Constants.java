@@ -43,6 +43,7 @@ public class Constants {
   public static double kShoulderFollowerZeroTicks = 3167;
   public static int kIntakeZeroTicks = 3150;
   public static double kHandZeroTicks = 975;
+  public static double kExtendPosTicks = -2_100;
 
   public Constants() {
     if (isCompBot) {
@@ -53,6 +54,7 @@ public class Constants {
       kShoulderFollowerZeroTicks = CompConstants.kShoulderFollowerZeroTicks;
       kIntakeZeroTicks = CompConstants.kIntakeZeroTicks;
       kHandZeroTicks = CompConstants.kHandZeroTicks;
+      kExtendPosTicks = CompConstants.kExtendPosTicks;
     } else {
       logger.info("Using Proto Robot Constants.");
       kWheelDiameterInches = ProtoConstants.kWheelDiameterInches;
@@ -61,6 +63,7 @@ public class Constants {
       kShoulderFollowerZeroTicks = ProtoConstants.kShoulderFollowerZeroTicks;
       kIntakeZeroTicks = ProtoConstants.kIntakeZeroTicks;
       kHandZeroTicks = ProtoConstants.kHandZeroTicks;
+      kExtendPosTicks = ProtoConstants.kExtendPosTicks;
     }
   }
 
@@ -423,7 +426,7 @@ public class Constants {
     // zero=up&slightly towards the elevator
 
     public static final int kForwardSoftLimit = 90_211; // 187_094
-    public static final int kReverseSoftLimit = -21_624; // -506
+    public static final int kReverseSoftLimit = -22_624; // -506
 
     public static final double kZeroDegs = -90; // FIXME
     public static final double kTicksPerDeg = 4096.0 / 360; // FIXME
@@ -435,7 +438,7 @@ public class Constants {
 
     // Elbow Positions
     public static final double kIntakeStageElbow = -14_465;
-    public static final double kIntakeElbow = -19_287; // -43_200
+    public static final double kIntakeElbow = -21_087; // -43_200
     public static final double kStowElbow = 0;
     public static final double kFloorElbow = 21_289; // 43_214
     public static final double kLevelOneElbow = 20_548;
@@ -734,6 +737,7 @@ public class Constants {
 
     // Intake
     public static final int kIntakeZeroTicks = 2790; // 2440 ->2540
+    public static final double kExtendPosTicks = -2_100;
 
     // Hand
     public static final double kHandZeroTicks = 1201; // 686 ->976
@@ -744,14 +748,15 @@ public class Constants {
     public static final double kWheelDiameterInches = 3.0 * (490 / 500.0);
 
     // Elbow
-    public static final int kElbowZeroTicks = 1140; // 1130
+    public static final int kElbowZeroTicks = 1105; // 1130
 
     // Shoulder
     public static final double kShoulderMainZeroTicks = 1472; // FIXME old: 1836
     public static final double kShoulderFollowerZeroTicks = 3167; // FIXME old: 1836
 
     // Intake
-    public static final int kIntakeZeroTicks = 3150;
+    public static final int kIntakeZeroTicks = 940;
+    public static final double kExtendPosTicks = -1_950;
 
     // Hand
     public static final double kHandZeroTicks = 963; // 879
