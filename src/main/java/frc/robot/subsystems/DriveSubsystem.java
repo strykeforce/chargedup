@@ -784,6 +784,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("Auto Drive Timer", () -> autoDriveTimer.get()),
         new Measure("Robot Roll Deg", () -> getGyroRoll()),
         new Measure("Drive State", () -> currDriveState.ordinal()),
-        new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()));
+        new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()),
+        new Measure("Magnetic Disturbance (GYRO)", () -> ahrs.isMagneticDisturbance() ? 1.0 : 0.0));
   }
 }
