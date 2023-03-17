@@ -446,6 +446,8 @@ public class Constants {
     public static final double kShelfElbow = 55_144;
     public static final double kFloorElbowSweep = 16_876;
 
+    public static final double kRetrieveGamepiecePercentOutput = 0.2;
+
     public static TalonFXConfiguration getElbowFalonConfig() {
 
       TalonFXConfiguration elbowConfig = new TalonFXConfiguration();
