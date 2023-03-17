@@ -72,6 +72,12 @@ public class ArmSubsystem extends MeasurableSubsystem {
         shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
         elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
         break;
+      case CUBE_STAB:
+        logger.info("{} -> CUBE_STAB_TO_STOW");
+        currState = ArmState.CUBE_STAB_TO_STOW;
+        currAxis = CurrentAxis.ELEVATOR;
+        shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
+        elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
       case SHELF:
         logger.info("{} -> SHELF_TO_STOW", currState);
         currState = ArmState.SHELF_TO_STOW;
@@ -92,10 +98,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
         break;
     }
     this.desiredState = desiredState;
-  }
-
-  public void toCubeStabPos() {
-    
   }
 
   public void toIntakeStagePos() {
@@ -150,6 +152,29 @@ public class ArmSubsystem extends MeasurableSubsystem {
           toIntakeStagePos(true);
           break;
       }
+    }
+  }
+
+  public void toCubeStabPos() {
+    switch (currState) {
+      case STOW:
+        if (isElbowReinforced) {
+          hasElbowZeroed = false;
+          isElbowReinforced = false;
+          elevatorSubsystem.unReinforceElevator();
+          elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+        }
+        if (!isElbowReinforced && elevatorSubsystem.isFinished()) {
+          logger.info("{} -> STOW_TO_CUB_STAB", currState);
+          currAxis = CurrentAxis.ELBOW;
+          shoulderSubsystem.setPos(ArmState.CUBE_STAB.shoulderPos);
+          elbowSubsystem.setPos(ArmState.CUBE_STAB.elbowPos);
+          currState = ArmState.STOW_TO_CUBE_STAB;
+        }
+        break;
+      default:
+        toStowPos(ArmState.CUBE_STAB);
+        break;
     }
   }
 
@@ -471,6 +496,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
           case FLOOR:
             toFloorPos();
             break;
+          case CUBE_STAB:
+            toCubeStabPos();
           default:
             break;
         }
@@ -482,6 +509,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
         break;
       case INTAKE:
+        break;
+      case CUBE_STAB:
         break;
       case LOW:
         break;
@@ -508,6 +537,30 @@ public class ArmSubsystem extends MeasurableSubsystem {
           currState = ArmState.INTAKE_STAGE;
           currAxis = CurrentAxis.NONE;
           logger.info("Continue to Intake: {}", continueToIntake);
+        }
+        break;
+      case STOW_TO_CUBE_STAB:
+        switch (currAxis) {
+          case ELBOW:
+            if (elbowSubsystem.isFinished()) {
+              currAxis = CurrentAxis.SHOULDER;
+            }
+            break;
+          case SHOULDER:
+            if (shoulderSubsystem.isFinished()) {
+              currAxis = CurrentAxis.ELEVATOR;
+              elevatorSubsystem.setPos(ArmState.CUBE_STAB.elevatorPos);
+            }
+            break;
+          case ELEVATOR:
+            if (elevatorSubsystem.isFinished()) {
+              logger.info("{} -> CUBE_STAB", currState);
+              currState = ArmState.CUBE_STAB;
+              currAxis = CurrentAxis.NONE;
+            }
+            break;
+          default:
+            break;
         }
         break;
       case STOW_TO_LOW:
@@ -743,7 +796,26 @@ public class ArmSubsystem extends MeasurableSubsystem {
             break;
         }
         break;
-
+      case CUBE_STAB_TO_STOW:
+        switch (currAxis) {
+          case ELEVATOR:
+          case SHOULDER: // Fall through
+            if (elevatorSubsystem.isFinished() && shoulderSubsystem.isFinished()) {
+              elbowSubsystem.setPos(ArmState.STOW.elbowPos);
+              currAxis = CurrentAxis.ELBOW;
+            }
+            break;
+          case ELBOW:
+            if (elbowSubsystem.isFinished()) {
+              logger.info("{} -> STOW", currState);
+              currState = ArmState.STOW;
+              currAxis = CurrentAxis.NONE;
+            }
+            break;
+          default:
+            break;
+        }
+        break;
       case SHELF_TO_STOW:
         switch (currAxis) {
           case SHOULDER:
@@ -801,8 +873,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ShoulderConstants.kIntakeShoulder,
         ElevatorConstants.kStowElevator,
         ElbowConstants.kIntakeStageElbow),
-    CUBE_STAB(INTAKE), // FIXME use correct values for stabbing position
-    CUBE_STAB_STAGE(INTAKE_STAGE),
+    CUBE_STAB(
+        ShoulderConstants.kCubeStabShoulder,
+        ElevatorConstants.kCubeStabElevator,
+        ElbowConstants.kCubeStabElbow), // FIXME use correct values for stabbing position
     LOW(
         ShoulderConstants.kLevelOneShoulder,
         ElevatorConstants.kLevelOneElevator,
@@ -833,6 +907,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ElbowConstants.kFloorElbow),
     MANUAL(0, 0, 0),
     STOW_TO_INTAKE_STAGE(INTAKE_STAGE),
+    STOW_TO_CUBE_STAB(CUBE_STAB),
     STOW_TO_LOW(LOW),
     STOW_TO_MID(MID_CONE), // Do not use for arm position
     STOW_TO_HIGH(HIGH_CONE), // Do not use for arm position
@@ -840,6 +915,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
     STOW_TO_FLOOR(FLOOR),
     INTAKE_STAGE_TO_INTAKE(INTAKE),
     INTAKE_TO_STOW(STOW),
+    CUBE_STAB_TO_STOW(STOW),
     SCORE_TO_STOW(STOW),
     SHELF_TO_STOW(STOW),
     FLOOR_TO_STOW(STOW),

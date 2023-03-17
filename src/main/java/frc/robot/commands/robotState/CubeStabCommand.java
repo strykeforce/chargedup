@@ -4,11 +4,11 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.RobotStateSubsystem;
 
 public class CubeStabCommand extends CommandBase {
-    private RobotStateSubsystem robotStateSubsystem;
+  private RobotStateSubsystem robotStateSubsystem;
 
-    public CubeStabCommand(RobotStateSubsystem robotStateSubsystem) {
-        addRequirements(robotStateSubsystem);
+  public CubeStabCommand(RobotStateSubsystem robotStateSubsystem) {
+    addRequirements(robotStateSubsystem);
 
-        this.robotStateSubsystem = robotStateSubsystem;
-    }
+    this.robotStateSubsystem = robotStateSubsystem;
+  }
 }

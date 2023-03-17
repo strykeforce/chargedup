@@ -157,6 +157,17 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     }
   }
 
+  public void toCubeStab() {
+    logger.info("{} -> TO_CUBE_STAB", currRobotState);
+    currRobotState = RobotState.TO_CUBE_STAB;
+    currentAxis = CurrentAxis.ARM;
+    if (handSubsystem.getHandState() == HandStates.OPEN
+        || handSubsystem.getDesiredHandState() == HandStates.OPEN) {
+      handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition);
+    }
+    armSubsystem.toCubeStabPos();
+  }
+
   public void toManualStage() {
     rgbLightsSubsystem.setOff();
     if (gamePiece != GamePiece.NONE) {
@@ -442,27 +453,21 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // move arm to position, goto CUBE_STAB
         // (wait) for arm to get to stab state
         // (wait) for hand to open
+        // start rollers
         // (to) CUBE_STAB
 
         switch (currentAxis) {
-          case INTAKE:
-            // this state was used so armSubsystem.toCubeStabPos(); is only called once because I didn't want to make another boolean
-            armSubsystem.toIntakeStagePos(true);
-            currentAxis = CurrentAxis.ARM;
-            break;
           case ARM:
-            if (armSubsystem.getCurrState() == ArmState.INTAKE) {
-              hasIntakeDelayPassed = false;
+            if (armSubsystem.getCurrState() == ArmState.CUBE_STAB) {
               currentAxis = CurrentAxis.HAND;
               handSubsystem.openIntake();
-              break;
             }
             break;
           case HAND:
             if (handSubsystem.isFinished()) {
               currentAxis = CurrentAxis.NONE;
-              logger.info("{} -> INTAKE_STAGE", currRobotState);
-              currRobotState = RobotState.INTAKE_STAGE;
+              logger.info("{} -> CUBE_STAB", currRobotState);
+              currRobotState = RobotState.CUBE_STAB;
             }
             break;
           default:
@@ -470,7 +475,15 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         }
         break;
       case CUBE_STAB:
-        // wait for cube grab, goto TO_STOW
+        // wait for cube grab (beambreak), goto PICKUP_FROM_CUBE_STAB
+        handSubsystem.runRollers(HandConstants.kRollerPickUp);
+        if (handSubsystem.hasCube()) {
+          logger.info("{} -> PICKUP_FROM_CUBE_STAB", currRobotState);
+          currRobotState = RobotState.PICKUP_FROM_CUBE_STAB;
+          handSubsystem.grabCube();
+          setGamePiece(GamePiece.CUBE);
+          currentAxis = CurrentAxis.HAND;
+        }
         break;
       case TO_INTAKE_STAGE:
         // (wait) extend intake
@@ -537,7 +550,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // (wait) hand to close
         // (wait) delay timer
         // set rollers to hold speed
-        // (to) 
+        // (to)
 
         switch (currentAxis) {
           case INTAKE:
@@ -573,6 +586,33 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             break;
         }
 
+        break;
+      case PICKUP_FROM_CUBE_STAB:
+        // (wait) hand to close
+        // (wait) delay timer
+        // set rollers to hold speed
+        // (to)
+
+        switch (currentAxis) {
+          case HAND:
+            if (handSubsystem.isFinished()) {
+              currentAxis = CurrentAxis.NONE;
+              logger.info("Starting Intake Timer");
+              intakeDelayTimer.reset();
+              intakeDelayTimer.start();
+            }
+            break;
+          case NONE:
+            if (intakeDelayTimer.hasElapsed(IntakeConstants.kIntakePickupDelaySec)) {
+              intakeDelayTimer.stop();
+              handSubsystem.runRollers(HandConstants.kRollerCubeHoldSpeed);
+              setGamePiece(GamePiece.CUBE);
+              toStowIntake();
+            }
+            break;
+          default:
+            break;
+        }
         break;
       case TO_MANUAL_SCORE:
         if (armSubsystem.getCurrState() == ArmState.LOW
@@ -923,6 +963,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     PICKUP_FROM_INTAKE,
     TO_CUBE_STAB,
     CUBE_STAB,
+    PICKUP_FROM_CUBE_STAB,
     MANUAL_SCORE,
     MANUAL_SHELF,
     AUTO_SCORE,
