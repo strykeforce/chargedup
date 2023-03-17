@@ -10,8 +10,6 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.HandSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShoulderSubsystem;
-import okhttp3.Handshake;
-
 import org.strykeforce.healthcheck.HealthCheckCommand;
 
 public class ShuffleBoardHealthCheckCommandGroup extends SequentialCommandGroup {
@@ -25,7 +23,13 @@ public class ShuffleBoardHealthCheckCommandGroup extends SequentialCommandGroup 
       ArmSubsystem armSubsystem) {
     addCommands(
         new toggleHealthBoolean(armSubsystem),
-        new HealthCheckCommand(driveSubsystem, handSubsystem, shoulderSubsystem, intakeSubsystem, elbowSubsystem, elevatorSubsystem),
+        new HealthCheckCommand(
+            driveSubsystem,
+            handSubsystem,
+            shoulderSubsystem,
+            intakeSubsystem,
+            elbowSubsystem,
+            elevatorSubsystem),
         new LockZeroCommand(driveSubsystem),
         new ElbowToPositionCommand(elbowSubsystem, 0.0),
         new toggleHealthBoolean(armSubsystem));
