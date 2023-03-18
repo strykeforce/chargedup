@@ -435,6 +435,7 @@ public class Constants {
     public static final double kOffsetFactor = 52.4 / 1; // 217.35 / 2
 
     public static final int kCloseEnoughTicks = 2000;
+    public static final int kDummyConstant = 10;
 
     // Elbow Positions
     public static final double kIntakeStageElbow = -14_465;
