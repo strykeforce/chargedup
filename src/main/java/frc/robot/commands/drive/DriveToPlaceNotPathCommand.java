@@ -12,7 +12,7 @@ public class DriveToPlaceNotPathCommand extends CommandBase {
 
   private final DriveSubsystem driveSubsystem;
   private final RobotStateSubsystem robotStateSubsystem;
-  private static final Logger logger = LoggerFactory.getLogger(DriveAutonCommand.class);
+  private static final Logger logger = LoggerFactory.getLogger(DriveToPlaceNotPathCommand.class);
   private TargetCol targetCol;
 
   public DriveToPlaceNotPathCommand(
@@ -54,6 +54,6 @@ public class DriveToPlaceNotPathCommand extends CommandBase {
     driveSubsystem.setAutoDriving(false);
     driveSubsystem.drive(0, 0, 0);
     // driveSubsystem.grapherTrajectoryActive(false);
-    logger.info("End Trajectory {}"); // timer.get());
+    logger.info("AutoDrive Command Ended"); // timer.get());
   }
 }

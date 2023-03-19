@@ -57,6 +57,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private final ProfiledPIDController omegaAutoDriveController;
   private final ProfiledPIDController xAutoDriveController;
   private final ProfiledPIDController yAutoDriveController;
+  private double xCalc;
+  private double yCalc;
+  private double omegaCalc;
   private RobotStateSubsystem robotStateSubsystem;
 
   // Grapher Variables
@@ -74,6 +77,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private Pose2d endAutoDrivePose;
   private double lastXSpeed = 0.0, lastYSpeed = 0.0, speedMPSglobal = 0.0;
   private Timer autoDriveTimer = new Timer();
+  private double lastAutoDriveTimer = 0;
   private Rotation2d desiredHeading;
   private Trajectory place;
   public DriveStates currDriveState = DriveStates.IDLE;
@@ -133,18 +137,18 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
     xAutoDriveController =
         new ProfiledPIDController(
-            DriveConstants.kPHolonomic,
-            DriveConstants.kIHolonomic,
-            DriveConstants.kDHolonomic,
+            DriveConstants.kPAutoDrive,
+            DriveConstants.kIAutoDrive,
+            DriveConstants.kDAutoDrive,
             new TrapezoidProfile.Constraints(
                 DriveConstants.kAutoDriveMaxVelocity, DriveConstants.kAutoDriveMaxAccel));
     // xAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
 
     yAutoDriveController =
         new ProfiledPIDController(
-            DriveConstants.kPHolonomic,
-            DriveConstants.kIHolonomic,
-            DriveConstants.kDHolonomic,
+            DriveConstants.kPAutoDrive,
+            DriveConstants.kIAutoDrive,
+            DriveConstants.kDAutoDrive,
             new TrapezoidProfile.Constraints(
                 DriveConstants.kAutoDriveMaxVelocity, DriveConstants.kAutoDriveMaxAccel));
     // yAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
@@ -207,8 +211,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
     endAutoDrivePose =
         robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
     omegaAutoDriveController.reset(getPoseMeters().getRotation().getRadians());
-    xAutoDriveController.reset(getPoseMeters().getX());
-    yAutoDriveController.reset(getPoseMeters().getY());
+    xAutoDriveController.reset(getPoseMeters().getX(), getFieldRelSpeed().vxMetersPerSecond);
+    yAutoDriveController.reset(getPoseMeters().getY(), getFieldRelSpeed().vyMetersPerSecond);
+    // xAutoDriveController.reset(getPoseMeters().getX());
+    // yAutoDriveController.reset(getPoseMeters().getY());
     setAutoDriving(true);
     autoDriveTimer.reset();
     autoDriveTimer.start();
@@ -220,11 +226,15 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
   public boolean isAutoDriveFinished() {
     // autoDriving &&
-    if (place != null) {
-      // if (autoDriveTimer.hasElapsed(place.getTotalTimeSeconds())) setAutoDriving(false);
-      return inScorePosition();
-      // return autoDriveTimer.hasElapsed(place.getTotalTimeSeconds());
-    } else return false;
+    // if (place != null) {
+    // if (autoDriveTimer.hasElapsed(place.getTotalTimeSeconds())) setAutoDriving(false);
+    return inScorePosition();
+    // return autoDriveTimer.hasElapsed(place.getTotalTimeSeconds());
+    // } else return false;
+  }
+
+  public double getFinalAutoDriveTime() {
+    return lastAutoDriveTimer;
   }
 
   public boolean inScorePosition() {
@@ -277,7 +287,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
     place = TrajectoryGenerator.generateTrajectory(start, points, endPose, config);
     autoDriveTimer.reset();
     autoDriveTimer.start();
-    logger.info("DRIVESUB: {} -> AUTO_DRIVE", currDriveState);
+    logger.info("{} -> AUTO_DRIVE", currDriveState);
     currDriveState = DriveStates.AUTO_DRIVE;
     grapherTrajectoryActive(true);
     // calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
@@ -328,6 +338,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
           visionUpdates = true;
           setAutoDriving(false);
           logger.info("End Trajectory {}", autoDriveTimer.get());
+          lastAutoDriveTimer = autoDriveTimer.get();
           autoDriveTimer.stop();
           autoDriveTimer.reset();
           logger.info("{} -> AUTO_DRIVE_FINISHED", currDriveState);
@@ -335,6 +346,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
           break;
         }
         if (autoDriving && visionUpdates && visionSubsystem.getOdomAutoBool()) {
+          lastAutoDriveTimer = autoDriveTimer.get();
           double xCalc =
               xAutoDriveController.calculate(getPoseMeters().getX(), endAutoDrivePose.getX());
           double yCalc =
@@ -343,6 +355,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
               omegaAutoDriveController.calculate(
                   MathUtil.angleModulus(getGyroRotation2d().getRadians()),
                   robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
+          logger.info("AutoPlace: xCalc: {}, yCalc: {}, omegaCalc: {}", xCalc, yCalc, omegaCalc);
+          this.xCalc = xCalc;
+          this.yCalc = yCalc;
+          this.omegaCalc = omegaCalc;
           move(xCalc, yCalc, omegaCalc, true);
           // calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
         }
@@ -367,7 +383,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
       case AUTO_DRIVE_FINISHED:
         autoDriving = false;
         visionUpdates = true;
-        logger.info("Autodrive Finished");
+        // logger.info("Autodrive Finished");
         lastXSpeed = 0.0;
         speedMPSglobal = 0.0;
         lastYSpeed = 0.0;
@@ -698,7 +714,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("Auto Drive Speed Y", () -> getLastYSpeed()),
         new Measure("Auto Drive End X", () -> endAutoDrivePose.getX()),
         new Measure("Auto Drive End Y", () -> endAutoDrivePose.getY()),
-        new Measure("Auto Drive Timer", () -> autoDriveTimer.get()),
+        new Measure("Auto Drive Timer", () -> getFinalAutoDriveTime()),
         new Measure("AutoDrive Goal X", () -> xAutoDriveController.getGoal().position),
         new Measure("AutoDrive Goal Y", () -> yAutoDriveController.getGoal().position),
         new Measure("AutoDrive Pos Error Y", () -> yAutoDriveController.getPositionError()),
@@ -707,6 +723,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("AutoDrive SetPoint X", () -> xAutoDriveController.getSetpoint().position),
         new Measure("AutoDrive Velocity Err Y", () -> yAutoDriveController.getVelocityError()),
         new Measure("AutoDrive Velocity Err X", () -> xAutoDriveController.getVelocityError()),
+        new Measure("AutoDrive xCalc", () -> xCalc),
+        new Measure("AutoDrive yCalc", () -> yCalc),
         new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()));
   }
 }

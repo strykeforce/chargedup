@@ -136,7 +136,7 @@ public class Constants {
     public static final double kElbowIntakeMax = ElbowConstants.kForwardSoftLimit;
 
     public static final double kShelfMove = 1; // FIXME put in real number
-    public static final double kShelfTransitionMove = 0.1; // 0.2
+    public static final double kShelfTransitionMove = 0.06; // 0.2
     public static final double kSweepTimerElapseSeconds = 0.5;
   }
 
@@ -185,7 +185,7 @@ public class Constants {
     public static final double kDriveGearRatio =
         (kDriveMotorOutputGear / kDriveInputGear) * (kBevelInputGear / kBevelOutputGear);
     public static double kMaxSpeedToAutoDrive = 4; // FIXME WRoNG VAL
-    public static double kPathErrorThreshold = 0.1; // FIXME WRONG VAL
+    public static double kPathErrorThreshold = 0.04; // FIXME WRONG VAL 0.03
     public static double kPathErrorOmegaThresholdDegrees = 5; // FIXME WRONG VAL
 
     public static Translation2d[] getWheelLocationMeters() {
@@ -208,9 +208,6 @@ public class Constants {
     //    public static final double kExpoScaleMoveFactor = 0.6; // .6
     // public static final double kRateLimitMove = 0.3;
     public static final double kExpoScaleYawFactor = 0.75;
-
-    public static final double kAutoDriveMaxVelocity = 2;
-    public static final double kAutoDriveMaxAccel = 2;
 
     public static TalonSRXConfiguration getAzimuthTalonConfig() {
       // constructor sets encoder to Quad/CTRE_MagEncoder_Relative
@@ -276,6 +273,13 @@ public class Constants {
     //    public static final double kMaxVelOmega = kMaxOmega / 2.0;
     public static final double kMaxAccelOmega = 5.0; // 3.14
 
+    // AUTODRIVE ProfiledPID Constants
+    public static final double kPAutoDrive = 2.75; // 1
+    public static final double kIAutoDrive = 0.0000;
+    public static final double kDAutoDrive = 0.00; // kPHolonomic/100
+
+    public static final double kAutoDriveMaxVelocity = 2;
+    public static final double kAutoDriveMaxAccel = 2;
     // Default safety path constants
     public static final Pose2d startPose2d = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
     public static final Pose2d endPose2d = new Pose2d(-1, 0, Rotation2d.fromDegrees(0));
