@@ -80,8 +80,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
       case SHELF:
         logger.info("{} -> SHELF_TO_STOW", currState);
         currState = ArmState.SHELF_TO_STOW;
-        currAxis = CurrentAxis.ELEVATOR;
-        shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
+        currAxis = CurrentAxis.SHOULDER;
+        // shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
         elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
       case FLOOR:
         logger.info("{} -> FLOOR_TO_STOW", currState);
@@ -682,7 +682,15 @@ public class ArmSubsystem extends MeasurableSubsystem {
             }
             break;
           case ELEVATOR:
-            if (elevatorSubsystem.isFinished()) {
+            if (elevatorSubsystem.canStartNextAxis(ElevatorConstants.kStowToShelfParallelAllowed)) {
+              logger.info(
+                  "{}: {}: {} -> SHOULDER", currState, currAxis, elevatorSubsystem.getPos());
+              shoulderSubsystem.setPos(ArmState.SHELF.shoulderPos);
+              currAxis = CurrentAxis.SHOULDER;
+            }
+            break;
+          case SHOULDER:
+            if (shoulderSubsystem.isFinished()) {
               logger.info("{} -> SHELF", currState);
               currState = ArmState.SHELF;
               currAxis = CurrentAxis.NONE;
