@@ -362,8 +362,8 @@ public class Constants {
     public static final double kIntakeElevator = -23_500; // intake 9.75 gap
     public static final double kStowElevator = -2_000;
     public static final double kFloorElevator = -27_000; // 32648
-    public static final double kLevelOneElevator = -1_500;
-    public static final double kLevelTwoConeElevator = -11_674;
+    public static final double kLevelOneElevator = -16_500;
+    public static final double kLevelTwoConeElevator = -23_674;
     public static final double kLevelTwoCubeElevator = -40_000; // old -47_674
     public static final double kLevelThreeConeElevator = -1_500;
     public static final double kLevelThreeCubeElevator = kLevelThreeConeElevator;
@@ -451,7 +451,7 @@ public class Constants {
     public static final double kIntakeElbow = -21_087; // -43_200
     public static final double kStowElbow = 0;
     public static final double kFloorElbow = 21_289; // 43_214
-    public static final double kLevelOneElbow = 20_548;
+    public static final double kLevelOneElbow = 18_548;
     public static final double kLevelTwoConeElbow = 60_097;
     public static final double kLevelTwoCubeElbow = 60_097;
     public static final double kLevelThreeConeElbow = 85_553;
@@ -532,7 +532,7 @@ public class Constants {
     public static final double kIntakeShoulder = 0; // 0
     public static final double kStowShoulder = 0; // 0
     public static final double kFloorShoulder = 5_250; // 3500
-    public static final double kLevelOneShoulder = 4_500; // 3000
+    public static final double kLevelOneShoulder = 0; // 3000
     public static final double kLevelTwoConeShoulder = 1_085; // 723
     public static final double kLevelTwoCubeShoulder = 1_085; // 723
     public static final double kLevelThreeConeShoulder = 5_850; // 3900
