@@ -103,7 +103,10 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
   }
 
   public boolean canStartNextAxis(double canStartTicks) {
-    return getPos() >= canStartTicks && setToGreaterPos || getPos() <= canStartTicks && !setToGreaterPos;
+    return getPos() >= (canStartTicks - Constants.ShoulderConstants.kAllowedError)
+            && setToGreaterPos
+        || getPos() <= (canStartTicks + Constants.ShoulderConstants.kAllowedError)
+            && !setToGreaterPos;
   }
 
   public void zeroShoulder() {

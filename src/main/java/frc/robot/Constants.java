@@ -89,7 +89,7 @@ public class Constants {
   }
 
   public static final class ArmConstants {
-    public static final double kFrontBumperX = 0.30; // old: 0.25
+    public static final double kFrontBumperX = 0.25; // 0.3
     public static final double kCamY = 0.26; // Old: 0.21
 
     public static final double kHouseLineSlope = -2.125;
@@ -104,7 +104,7 @@ public class Constants {
     public static final double kShoulderVerticalMin = ShoulderConstants.kMaxRev; // -1580
     public static final double kShoulderVerticalMax = 1200; // -1200
 
-    public static final double kElevatorHouseMin = -10_306;
+    public static final double kElevatorHouseMin = -23_000; // -10_306
     public static final double kElevatorHouseMax = ElevatorConstants.kMaxFwd;
 
     public static final double kElbowPhysicalMin = ElbowConstants.kReverseSoftLimit;
@@ -114,7 +114,7 @@ public class Constants {
     public static final double kShoulderPhysicalMin = ShoulderConstants.kMaxRev;
     public static final double kShoulderPhysicalMax = ShoulderConstants.kMaxFwd;
 
-    public static final double kElevatorBumperMin = -40_000; // -46_258
+    public static final double kElevatorBumperMin = -50_000; // -46_258
     public static final double kElevatorBumperMax = ElevatorConstants.kMaxFwd;
 
     public static final double kElbowBumperMin = ElbowConstants.kReverseSoftLimit;
@@ -371,11 +371,12 @@ public class Constants {
     public static final double kShelfExitElevator = kShelfElevator + 4000; // +3000
 
     // Parallel Movement Constants
-    public static final double kStowToHighElevatorParallelAllowed = -1900;
-    public static final double kStowToMidParallelAllowed = kLevelTwoConeElevator;
+    public static final double kStowToHighElevatorParallelAllowed = kStowElevator;
+    public static final double kStowToMidParallelAllowed = kStowElevator;
     public static final double kFloorToStowParallelAllowed = kStowElevator;
     public static final double kScoreToStowParallelAllowed = kStowElevator;
-    public static final double kIntakeStageToIntakeParallelAllowed = kIntakeElevator;
+    public static final double kHighToStowParallelAllowed = kStowElevator;
+    public static final double kIntakeStageToIntakeParallelAllowed = -10_000;
     public static final double kIntakeToStowParallelAllowed = kStowElevator;
     public static final double kShelfToStowParallelAllowed = kStowElevator;
 
@@ -461,12 +462,13 @@ public class Constants {
     public static final double kRetrieveGamepiecePercentOutput = 0.2;
 
     // Parallel Movement of Elbow Positions
-    public static final double kAboveConeNodeParallelAllowed = 124_638; 
-    public static final double kFloorPickupParallelAllowed = 30_000;
-    public static final double kStowToShelfParallelAllowed = kShelfElbow; // FIXME
+    public static final double kAboveConeNodeParallelAllowed = 124_638; // NOT USED
+    public static final double kFloorPickupParallelAllowed = 5_000; // 30_000
+    public static final double kStowToShelfParallelAllowed = 20_000; // FIXME
     public static final double kStowToLowParallelAllowed = kLevelOneElbow;
-    public static final double kStowToMidParallelAllowed = kLevelTwoConeElbow;
-    public static final double kStowToHighParallelAllowed = kLevelThreeConeElbow;
+    public static final double kStowToMidParallelAllowed = 27_000;
+    public static final double kStowToHighParallelAllowed = kStowToMidParallelAllowed;
+    public static final double kStowToIntakeStageParallelAllowed = -10_000;
     public static final double kIntakeStageToIntakeParallelAllowed = kIntakeElbow;
 
     public static TalonFXConfiguration getElbowFalonConfig() {
@@ -538,10 +540,11 @@ public class Constants {
     public static final double kShelfShoulder = 0; // 0
 
     // Allow Parallel Movement Ticks
-    public static final double kFloorPickupParallelAllowed = 2000;
+    public static final double kFloorPickupParallelAllowed = 2_000;
     public static final double kStowToLowParallelAllowed = kLevelOneShoulder;
     public static final double kFloorToStowParallelAllowed = kStowShoulder;
     public static final double kScoreToStowParallelAllowed = kStowShoulder;
+    public static final double kHighToStowParallelAllowed = 3_000;
     public static final double kIntakeToStowParallelAllowed = kStowShoulder;
     public static final double kShelfToStowParallelAllowed = kStowShoulder;
 
@@ -787,4 +790,3 @@ public class Constants {
     public static final double kHandZeroTicks = 963; // 879
   }
 }
-

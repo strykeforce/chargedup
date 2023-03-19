@@ -99,10 +99,6 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
     setPointTicks = posTicks;
   }
 
-  public boolean canStartNextAxis(double canStartTicks) {
-    return getPos() >= canStartTicks && setToGreaterPos || getPos() <= canStartTicks && !setToGreaterPos;
-  }
-
   public double getRelativeDegs() {
     return ElbowConstants.kZeroDegs
         + remoteEncoder.getQuadraturePosition() / ElbowConstants.kTicksPerDeg;
@@ -124,6 +120,13 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
 
   public boolean isFinished() {
     return Math.abs(setPointTicks - getPos()) <= Constants.ElbowConstants.kCloseEnoughTicks;
+  }
+
+  public boolean canStartNextAxis(double canStartTicks) {
+    return getPos() >= (canStartTicks - Constants.ElbowConstants.kCloseEnoughTicks)
+            && setToGreaterPos
+        || getPos() <= (canStartTicks + Constants.ElbowConstants.kCloseEnoughTicks)
+            && !setToGreaterPos;
   }
 
   public void setSoftLimits(double minTicks, double maxTicks) {

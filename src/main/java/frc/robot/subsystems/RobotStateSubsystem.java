@@ -659,7 +659,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
               armSubsystem.toFloorPos();
               handSubsystem.runRollers(HandConstants.kRollerPickUp);
               currentAxis = CurrentAxis.ARM;
-            } 
+            }
             break;
           case ARM:
             if (armSubsystem.getCurrState() == ArmState.FLOOR) {

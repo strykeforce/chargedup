@@ -100,7 +100,10 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   }
 
   public boolean canStartNextAxis(double canStartTicks) {
-    return getPos() >= canStartTicks && setToGreaterPos || getPos() <= canStartTicks && !setToGreaterPos;
+    return getPos() >= (canStartTicks - Constants.ElevatorConstants.kAllowedError)
+            && setToGreaterPos
+        || getPos() <= (canStartTicks + Constants.ElevatorConstants.kAllowedError)
+            && !setToGreaterPos;
   }
 
   public void unReinforceElevator() {
@@ -108,8 +111,8 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
 
     leftMainFalcon.configForwardSoftLimitEnable(true);
     leftMainFalcon.configReverseSoftLimitEnable(true);
-    rightFollowFalcon.configForwardSoftLimitEnable(true);
-    rightFollowFalcon.configReverseSoftLimitEnable(true);
+    // rightFollowFalcon.configForwardSoftLimitEnable(true);
+    // rightFollowFalcon.configReverseSoftLimitEnable(true);
 
     leftMainFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
     rightFollowFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
@@ -120,13 +123,13 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   public void reinforceElevator() {
     leftMainFalcon.configForwardSoftLimitEnable(false);
     leftMainFalcon.configReverseSoftLimitEnable(false);
-    rightFollowFalcon.configForwardSoftLimitEnable(false);
-    rightFollowFalcon.configReverseSoftLimitEnable(false);
+    // rightFollowFalcon.configForwardSoftLimitEnable(false);
+    // rightFollowFalcon.configReverseSoftLimitEnable(false);
 
     leftMainFalcon.configStatorCurrentLimit(
         ElevatorConstants.getElevStatorCurrentLimitConfiguration());
-    rightFollowFalcon.configStatorCurrentLimit(
-        ElevatorConstants.getElevStatorCurrentLimitConfiguration());
+    // rightFollowFalcon.configStatorCurrentLimit(
+    //     ElevatorConstants.getElevStatorCurrentLimitConfiguration());
 
     setPct(-Constants.ElevatorConstants.kElevatorZeroSpeed);
     logger.info("Reinforcing Elevator");
