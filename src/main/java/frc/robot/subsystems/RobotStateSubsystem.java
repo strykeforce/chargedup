@@ -272,13 +272,26 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public void toAutoDrive() {
-    logger.info("{} -> AUTO_DRIVE", currRobotState);
-    currRobotState = RobotState.AUTO_DRIVE;
-    isAutoPlacing = true;
     TargetCol tempTargetCol = TargetCol.NONE;
-    if (Math.abs(driveSubsystem.getSpeedMPS()) <= DriveConstants.kMaxSpeedToAutoDrive) {
+    if (Math.abs(driveSubsystem.getFieldRelSpeed().vxMetersPerSecond)
+            <= DriveConstants.kMaxSpeedToAutoDrive
+        && Math.abs(driveSubsystem.getFieldRelSpeed().vyMetersPerSecond)
+            <= DriveConstants.kMaxSpeedToAutoDrive
+        && visionSubsystem.lastUpdateWithinThresholdTime()) {
       if (gamePiece != GamePiece.CUBE) tempTargetCol = getTargetCol();
-      logger.info("Gamepiece toAutodrive: {}", gamePiece.toString());
+      logger.info("{} -> AUTO_DRIVE", currRobotState);
+      currRobotState = RobotState.AUTO_DRIVE;
+      isAutoPlacing = true;
+      // logger.info("Gamepiece toAutodrive: {}", gamePiece.toString());
+      logger.info(
+          "failedSpeed: {}, failedVision: {}",
+          Math.abs(
+                      driveSubsystem.getFieldRelSpeed()
+                          .vxMetersPerSecond) // FIXME TEMP CHECK IF STATEMENT
+                  <= DriveConstants.kMaxSpeedToAutoDrive
+              && Math.abs(driveSubsystem.getFieldRelSpeed().vyMetersPerSecond)
+                  <= DriveConstants.kMaxSpeedToAutoDrive,
+          visionSubsystem.lastUpdateWithinThresholdTime());
       driveSubsystem.driveToPose(tempTargetCol); // FIXME
     }
   }

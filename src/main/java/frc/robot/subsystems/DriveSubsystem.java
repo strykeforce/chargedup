@@ -208,18 +208,32 @@ public class DriveSubsystem extends MeasurableSubsystem {
   }
 
   public void driveToPose(TargetCol targetCol) {
-    endAutoDrivePose =
-        robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
     omegaAutoDriveController.reset(getPoseMeters().getRotation().getRadians());
     xAutoDriveController.reset(getPoseMeters().getX(), getFieldRelSpeed().vxMetersPerSecond);
     yAutoDriveController.reset(getPoseMeters().getY(), getFieldRelSpeed().vyMetersPerSecond);
     // xAutoDriveController.reset(getPoseMeters().getX());
     // yAutoDriveController.reset(getPoseMeters().getY());
+    // if (Math.abs(getFieldRelSpeed().vxMetersPerSecond) // FIXME TEMP CHECK IF STATEMENT
+    //         <= DriveConstants.kMaxSpeedToAutoDrive
+    //     && Math.abs(getFieldRelSpeed().vyMetersPerSecond) <= DriveConstants.kMaxSpeedToAutoDrive
+    //     && visionSubsystem.lastUpdateWithinThresholdTime()) {
     setAutoDriving(true);
+    endAutoDrivePose =
+        robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
     autoDriveTimer.reset();
     autoDriveTimer.start();
     logger.info("{} -> AUTO_DRIVE", currDriveState);
     currDriveState = DriveStates.AUTO_DRIVE;
+    // } else { // FIXME TEMP FOR TESTING
+    //   logger.info(
+    //       "failedSpeed: {}, failedVision: {}",
+    //       Math.abs(getFieldRelSpeed().vxMetersPerSecond) // FIXME TEMP CHECK IF STATEMENT
+    //               <= DriveConstants.kMaxSpeedToAutoDrive
+    //           && Math.abs(getFieldRelSpeed().vyMetersPerSecond)
+    //               <= DriveConstants.kMaxSpeedToAutoDrive,
+    //       visionSubsystem.lastUpdateWithinThresholdTime());
+    //   endAutoDrivePose = getPoseMeters();
+    // }
     // autoDriveTimer.reset();
     // autoDriveTimer.start();
   }
@@ -345,7 +359,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
           currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
           break;
         }
-        if (autoDriving && visionUpdates && visionSubsystem.getOdomAutoBool()) {
+        if (autoDriving && visionUpdates) {
           lastAutoDriveTimer = autoDriveTimer.get();
           double xCalc =
               xAutoDriveController.calculate(getPoseMeters().getX(), endAutoDrivePose.getX());
@@ -355,13 +369,19 @@ public class DriveSubsystem extends MeasurableSubsystem {
               omegaAutoDriveController.calculate(
                   MathUtil.angleModulus(getGyroRotation2d().getRadians()),
                   robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
-          logger.info("AutoPlace: xCalc: {}, yCalc: {}, omegaCalc: {}", xCalc, yCalc, omegaCalc);
+          // logger.info("AutoPlace: xCalc: {}, yCalc: {}, omegaCalc: {}", xCalc, yCalc, omegaCalc);
           this.xCalc = xCalc;
           this.yCalc = yCalc;
           this.omegaCalc = omegaCalc;
           move(xCalc, yCalc, omegaCalc, true);
           // calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
         }
+        // if (autoDriving
+        //     && !visionSubsystem.lastUpdateWithinThresholdTime()) { // FIXME TEMP CHECK FOR
+        // AUTODRIVE TESTING
+        //   logger.info("{} -> AUTO_DRIVE_FAILED", currDriveState); // FIXME
+        //   currDriveState = DriveStates.AUTO_DRIVE_FAILED; // FIXME
+        // }
         if (autoDriving
             && !visionUpdates
             && (!visionSubsystem.getOdomAutoBool() || !visionSubsystem.isCameraWorking())) {
@@ -709,6 +729,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("FWD Vel", () -> lastVelocity[0]),
         new Measure("STR Vel", () -> lastVelocity[1]),
         new Measure("YAW Vel", () -> lastVelocity[2]),
+        new Measure("Field Rel Velocity", () -> getFieldRelSpeed().vxMetersPerSecond),
         new Measure("Gyro Rate", () -> getGyroRate()),
         new Measure("Auto Drive Speed X", () -> getLastXSpeed()),
         new Measure("Auto Drive Speed Y", () -> getLastYSpeed()),

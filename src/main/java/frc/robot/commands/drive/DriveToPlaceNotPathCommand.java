@@ -1,8 +1,8 @@
 package frc.robot.commands.drive;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.DriveSubsystem.DriveStates;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import org.slf4j.Logger;
@@ -37,16 +37,17 @@ public class DriveToPlaceNotPathCommand extends CommandBase {
     //             driveSubsystem.getPoseMeters().getY(), robotStateSubsystem.getTargetCol()));
     //   else driveSubsystem.driveToPose(new Pose2d());
     // }
-    Pose2d endPose =
-        robotStateSubsystem.getAutoPlaceDriveTarget(
-            driveSubsystem.getPoseMeters().getY(), robotStateSubsystem.getTargetCol());
+    // Pose2d endPose =
+    //     robotStateSubsystem.getAutoPlaceDriveTarget(
+    //         driveSubsystem.getPoseMeters().getY(), robotStateSubsystem.getTargetCol());
     driveSubsystem.driveToPose(robotStateSubsystem.getTargetCol());
     logger.info("Moving to place Drive.");
   }
 
   @Override
   public boolean isFinished() {
-    return driveSubsystem.isAutoDriveFinished();
+    return driveSubsystem.isAutoDriveFinished()
+        || driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FAILED;
   }
 
   @Override

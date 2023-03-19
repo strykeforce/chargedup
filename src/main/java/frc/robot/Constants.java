@@ -187,7 +187,7 @@ public class Constants {
 
     public static final double kDriveGearRatio =
         (kDriveMotorOutputGear / kDriveInputGear) * (kBevelInputGear / kBevelOutputGear);
-    public static double kMaxSpeedToAutoDrive = 4; // FIXME WRoNG VAL
+    public static double kMaxSpeedToAutoDrive = 1.5; // FIXME WRoNG VAL
     public static double kPathErrorThreshold = 0.04; // FIXME WRONG VAL 0.03
     public static double kPathErrorOmegaThresholdDegrees = 5; // FIXME WRONG VAL
 
@@ -277,7 +277,7 @@ public class Constants {
     public static final double kMaxAccelOmega = 5.0; // 3.14
 
     // AUTODRIVE ProfiledPID Constants
-    public static final double kPAutoDrive = 2.75; // 1
+    public static final double kPAutoDrive = 3.0; // 1
     public static final double kIAutoDrive = 0.0000;
     public static final double kDAutoDrive = 0.00; // kPHolonomic/100
 
@@ -328,6 +328,7 @@ public class Constants {
 
     public static final double kCameraOffset = .335; // was .273 on driveChasis
     public static final double kCameraAngleOffset = 0; // DEGREES was 24 on driveChasis
+    public static final double kLastUpdateCloseEnoughThreshold = 1; // IN SECONDS
     public static int kBufferLookupOffset = 2;
 
     public static Matrix<N3, N1> kStateStdDevs =
