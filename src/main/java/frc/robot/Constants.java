@@ -43,6 +43,7 @@ public class Constants {
   public static double kShoulderFollowerZeroTicks = 3167;
   public static int kIntakeZeroTicks = 3150;
   public static double kHandZeroTicks = 975;
+  public static double kExtendPosTicks = -2_100;
 
   public Constants() {
     if (isCompBot) {
@@ -53,6 +54,7 @@ public class Constants {
       kShoulderFollowerZeroTicks = CompConstants.kShoulderFollowerZeroTicks;
       kIntakeZeroTicks = CompConstants.kIntakeZeroTicks;
       kHandZeroTicks = CompConstants.kHandZeroTicks;
+      kExtendPosTicks = CompConstants.kExtendPosTicks;
     } else {
       logger.info("Using Proto Robot Constants.");
       kWheelDiameterInches = ProtoConstants.kWheelDiameterInches;
@@ -61,6 +63,7 @@ public class Constants {
       kShoulderFollowerZeroTicks = ProtoConstants.kShoulderFollowerZeroTicks;
       kIntakeZeroTicks = ProtoConstants.kIntakeZeroTicks;
       kHandZeroTicks = ProtoConstants.kHandZeroTicks;
+      kExtendPosTicks = ProtoConstants.kExtendPosTicks;
     }
   }
 
@@ -86,7 +89,7 @@ public class Constants {
   }
 
   public static final class ArmConstants {
-    public static final double kFrontBumperX = 0.30; // old: 0.25
+    public static final double kFrontBumperX = 0.25; // 0.3
     public static final double kCamY = 0.26; // Old: 0.21
 
     public static final double kHouseLineSlope = -2.125;
@@ -98,10 +101,10 @@ public class Constants {
     // public static final double kIntakeY = 0.32;
 
     // house limits
-    public static final double kShoulderVerticalMin = -1580;
-    public static final double kShoulderVerticalMax = -1200; // old: -1290
+    public static final double kShoulderVerticalMin = ShoulderConstants.kMaxRev; // -1580
+    public static final double kShoulderVerticalMax = 1200; // -1200
 
-    public static final double kElevatorHouseMin = -10_306;
+    public static final double kElevatorHouseMin = -23_000; // -10_306
     public static final double kElevatorHouseMax = ElevatorConstants.kMaxFwd;
 
     public static final double kElbowPhysicalMin = ElbowConstants.kReverseSoftLimit;
@@ -111,7 +114,7 @@ public class Constants {
     public static final double kShoulderPhysicalMin = ShoulderConstants.kMaxRev;
     public static final double kShoulderPhysicalMax = ShoulderConstants.kMaxFwd;
 
-    public static final double kElevatorBumperMin = -40_000; // -46_258
+    public static final double kElevatorBumperMin = -50_000; // -46_258
     public static final double kElevatorBumperMax = ElevatorConstants.kMaxFwd;
 
     public static final double kElbowBumperMin = ElbowConstants.kReverseSoftLimit;
@@ -167,7 +170,7 @@ public class Constants {
         new Pose2d(
             new Translation2d(RobotStateConstants.kFieldMaxX - 1.80, 0.39), new Rotation2d());
 
-    public static final double kShelfMovePercent = 0.2;
+    public static final double kShelfMovePercent = 0.5;
     public static final double kShelfYawPercent = 0.2;
     public static final double kPlaceMovePercent = 0.2;
     public static final double kPlaceYawPercent = 0.2;
@@ -366,13 +369,24 @@ public class Constants {
     public static final double kIntakeElevator = -23_500; // intake 9.75 gap
     public static final double kStowElevator = -2_000;
     public static final double kFloorElevator = -27_000; // 32648
-    public static final double kLevelOneElevator = -1_500;
-    public static final double kLevelTwoConeElevator = -11_674;
+    public static final double kLevelOneElevator = -16_500;
+    public static final double kLevelTwoConeElevator = -23_674;
     public static final double kLevelTwoCubeElevator = -40_000; // old -47_674
     public static final double kLevelThreeConeElevator = -1_500;
     public static final double kLevelThreeCubeElevator = kLevelThreeConeElevator;
-    public static final double kShelfElevator = -18_606; // -14_100
+    public static final double kShelfElevator = -2_000; // -18_606
     public static final double kShelfExitElevator = kShelfElevator + 4000; // +3000
+
+    // Parallel Movement Constants
+    public static final double kStowToHighElevatorParallelAllowed = kStowElevator;
+    public static final double kStowToMidParallelAllowed = kStowElevator;
+    public static final double kFloorToStowParallelAllowed = kStowElevator;
+    public static final double kScoreToStowParallelAllowed = kStowElevator;
+    public static final double kHighToStowParallelAllowed = kStowElevator;
+    public static final double kIntakeStageToIntakeParallelAllowed = -10_000;
+    public static final double kIntakeToStowParallelAllowed = kStowElevator;
+    public static final double kShelfToStowParallelAllowed = kStowElevator;
+    public static final double kStowToShelfParallelAllowed = kStowElevator;
 
     public static TalonFXConfiguration getElevatorFalconConfig() {
       TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
@@ -430,7 +444,7 @@ public class Constants {
     // zero=up&slightly towards the elevator
 
     public static final int kForwardSoftLimit = 90_211; // 187_094
-    public static final int kReverseSoftLimit = -21_624; // -506
+    public static final int kReverseSoftLimit = -22_624; // -506
 
     public static final double kZeroDegs = -90; // FIXME
     public static final double kTicksPerDeg = 4096.0 / 360; // FIXME
@@ -442,18 +456,28 @@ public class Constants {
 
     // Elbow Positions
     public static final double kIntakeStageElbow = -14_465;
-    public static final double kIntakeElbow = -19_287; // -43_200
+    public static final double kIntakeElbow = -21_087; // -43_200
     public static final double kStowElbow = 0;
     public static final double kFloorElbow = 21_289; // 43_214
-    public static final double kLevelOneElbow = 20_548;
+    public static final double kLevelOneElbow = 18_548;
     public static final double kLevelTwoConeElbow = 60_097;
     public static final double kLevelTwoCubeElbow = 60_097;
     public static final double kLevelThreeConeElbow = 85_553;
     public static final double kLevelThreeCubeElbow = 84_106;
-    public static final double kShelfElbow = 55_144;
+    public static final double kShelfElbow = 41_000;
     public static final double kFloorElbowSweep = 16_876;
 
     public static final double kRetrieveGamepiecePercentOutput = 0.2;
+
+    // Parallel Movement of Elbow Positions
+    public static final double kAboveConeNodeParallelAllowed = 124_638; // NOT USED
+    public static final double kFloorPickupParallelAllowed = 5_000; // 30_000
+    public static final double kStowToShelfParallelAllowed = 20_000; // FIXME
+    public static final double kStowToLowParallelAllowed = kLevelOneElbow;
+    public static final double kStowToMidParallelAllowed = 27_000;
+    public static final double kStowToHighParallelAllowed = kStowToMidParallelAllowed;
+    public static final double kStowToIntakeStageParallelAllowed = -10_000;
+    public static final double kIntakeStageToIntakeParallelAllowed = kIntakeElbow;
 
     public static TalonFXConfiguration getElbowFalonConfig() {
 
@@ -474,8 +498,8 @@ public class Constants {
       elbowConfig.slot0.maxIntegralAccumulator = 40_000.0;
       elbowConfig.slot0.allowableClosedloopError = 150.0;
 
-      elbowConfig.motionAcceleration = 25_000; // 50_000
-      elbowConfig.motionCruiseVelocity = 7_000;
+      elbowConfig.motionAcceleration = 38_000; // 50_000
+      elbowConfig.motionCruiseVelocity = 13_000;
       elbowConfig.forwardSoftLimitEnable = true;
       elbowConfig.forwardSoftLimitThreshold = kForwardSoftLimit;
       elbowConfig.reverseSoftLimitEnable = true;
@@ -493,15 +517,14 @@ public class Constants {
     public static final int kShoulderId = 30; // FIXME
     public static final int kFollowerShoulderId = 34; // FIXME
 
-    public static final double kMaxFwd = 5000; //
-    public static final double kMaxRev = -100; // 0
+    public static final double kMaxFwd = 8_000; // 5000
+    public static final double kMaxRev = -3_000; // -100
 
     public static final double kZeroDegs = 0; // FIXME
 
-    public static final double kTicksPerDeg =
-        142.2; // 35.55556; // FIXME old: 70.0 / 20.0 * 4096.0 / 360.0
+    public static final double kTicksPerDeg = 213.3; // old: 142.2 (ratio = 1.5)
 
-    public static final double kAllowedError = 300;
+    public static final double kAllowedError = 450; // old: 300
 
     public static final double kShoulderLen = 0.20; // a 0.21
     public static final double kShoulderLowerToElevatorLowerPivotDist = 0.242; // d 0.245
@@ -514,28 +537,37 @@ public class Constants {
         Math.toDegrees(Math.asin(0.06 / kShoulderLowerToElevatorLowerPivotDist));
 
     // Shoulder Positions
-    public static final double kIntakeShoulder = 0;
-    public static final double kStowShoulder = 0;
-    public static final double kFloorShoulder = 3500;
-    public static final double kLevelOneShoulder = 3000;
-    public static final double kLevelTwoConeShoulder = 723;
-    public static final double kLevelTwoCubeShoulder = 723;
-    public static final double kLevelThreeConeShoulder = 3900; // old 3000
+    public static final double kIntakeShoulder = 0; // 0
+    public static final double kStowShoulder = 0; // 0
+    public static final double kFloorShoulder = 5_250; // 3500
+    public static final double kLevelOneShoulder = 0; // 3000
+    public static final double kLevelTwoConeShoulder = 1_085; // 723
+    public static final double kLevelTwoCubeShoulder = 1_085; // 723
+    public static final double kLevelThreeConeShoulder = 5_850; // 3900
     public static final double kLevelThreeCubeShoulder = kLevelThreeConeShoulder;
-    public static final double kShelfShoulder = 0;
+    public static final double kShelfShoulder = -2_800; // 0
+
+    // Allow Parallel Movement Ticks
+    public static final double kFloorPickupParallelAllowed = 2_000;
+    public static final double kStowToLowParallelAllowed = kLevelOneShoulder;
+    public static final double kFloorToStowParallelAllowed = kStowShoulder;
+    public static final double kScoreToStowParallelAllowed = kStowShoulder;
+    public static final double kHighToStowParallelAllowed = 3_000;
+    public static final double kIntakeToStowParallelAllowed = kStowShoulder;
+    public static final double kShelfToStowParallelAllowed = kStowShoulder;
 
     public static TalonSRXConfiguration getShoulderTalonConfig() {
       TalonSRXConfiguration shoulderConfig = new TalonSRXConfiguration();
 
-      shoulderConfig.slot0.kP = 5.0; // OLD 2.0
+      shoulderConfig.slot0.kP = 2.0; // OLD 5.0
       shoulderConfig.slot0.kI = 0.0;
-      shoulderConfig.slot0.kD = 10.0; // OLD 0.0
-      shoulderConfig.slot0.kF = 2.5; // OLD 2.0
+      shoulderConfig.slot0.kD = 40.0; // OLD 10.0
+      shoulderConfig.slot0.kF = 0.7; // OLD 2.5
       shoulderConfig.slot0.integralZone = 0;
       shoulderConfig.slot0.maxIntegralAccumulator = 0;
       shoulderConfig.slot0.allowableClosedloopError = 0;
-      shoulderConfig.motionCruiseVelocity = 375.0; // 200
-      shoulderConfig.motionAcceleration = 1000.0; // 200
+      shoulderConfig.motionCruiseVelocity = 1200.0; // 375
+      shoulderConfig.motionAcceleration = 5000.0; // 1000
 
       shoulderConfig.forwardSoftLimitEnable = true;
       shoulderConfig.forwardSoftLimitThreshold = kMaxFwd;
@@ -553,9 +585,9 @@ public class Constants {
     public static SupplyCurrentLimitConfiguration getShoulderTalonSupplyLimitConfig() {
       SupplyCurrentLimitConfiguration shoulderSupplyConfig = new SupplyCurrentLimitConfiguration();
 
-      shoulderSupplyConfig.currentLimit = 10; // 7;
-      shoulderSupplyConfig.triggerThresholdCurrent = 10; // 7;
-      shoulderSupplyConfig.triggerThresholdTime = 0.04; // .1;
+      shoulderSupplyConfig.currentLimit = 8; // 10
+      shoulderSupplyConfig.triggerThresholdCurrent = 30; // 10
+      shoulderSupplyConfig.triggerThresholdTime = 0.5; // 0.04
       shoulderSupplyConfig.enable = true;
 
       return shoulderSupplyConfig;
@@ -741,6 +773,7 @@ public class Constants {
 
     // Intake
     public static final int kIntakeZeroTicks = 2790; // 2440 ->2540
+    public static final double kExtendPosTicks = -2_100;
 
     // Hand
     public static final double kHandZeroTicks = 1201; // 686 ->976
@@ -751,14 +784,15 @@ public class Constants {
     public static final double kWheelDiameterInches = 3.0 * (490 / 500.0);
 
     // Elbow
-    public static final int kElbowZeroTicks = 1140; // 1130
+    public static final int kElbowZeroTicks = 1128; // 1105
 
     // Shoulder
-    public static final double kShoulderMainZeroTicks = 1472; // FIXME old: 1836
-    public static final double kShoulderFollowerZeroTicks = 3167; // FIXME old: 1836
+    public static final double kShoulderMainZeroTicks = 1909; // old: 1472
+    public static final double kShoulderFollowerZeroTicks = 2152; // old: 3167
 
     // Intake
-    public static final int kIntakeZeroTicks = 3150;
+    public static final int kIntakeZeroTicks = 940;
+    public static final double kExtendPosTicks = -1_950;
 
     // Hand
     public static final double kHandZeroTicks = 963; // 879
