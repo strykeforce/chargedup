@@ -445,8 +445,12 @@ public class ArmSubsystem extends MeasurableSubsystem {
     differenceInShoulder = 0.0;
   }
 
+  public void twistShoulder(double change) {
+    shoulderSubsystem.twistShoulder(change);
+  }
+
   public boolean canTwist(double change) {
-    return differenceInShoulder + change < 1500; 
+    return differenceInShoulder + change < ShoulderConstants.kMaxTwistTicks;
   }
 
   public void toRetrieveGamepiece() {

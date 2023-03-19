@@ -153,10 +153,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     currRobotState = RobotState.TO_INTAKE_STAGE;
     currentAxis = CurrentAxis.INTAKE;
     intakeSubsystem.startIntaking();
-    if (handSubsystem.getHandState() == HandStates.OPEN
-        || handSubsystem.getDesiredHandState() == HandStates.OPEN) {
-      handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition);
-    }
+    handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition);
   }
 
   public void toManualStage() {
@@ -418,6 +415,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         switch (currentAxis) {
           case HAND:
             if (handSubsystem.isFinished()) {
+              handSubsystem.zeroHand();
               currentAxis = CurrentAxis.ARM;
               if (shouldFastStowArm()) {
                 armSubsystem.setArmFastStow(true);
@@ -567,8 +565,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         break;
 
       case MANUAL_SCORE:
-        if (armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER)
-        {
+        if (armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER) {
           armSubsystem.toTwistShoulder();
         }
         break;
@@ -812,7 +809,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED) {
           // logger.info("Set RGB OFF");
           rgbLightsSubsystem.setOff();
-          if (armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER) armSubsystem.toTwistShoulder();
+          if (armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER)
+            armSubsystem.toTwistShoulder();
           // driveSubsystem.currDriveState = DriveStates.IDLE;
           // Start Arm Stuff.
           isAutoPlacing = false;
