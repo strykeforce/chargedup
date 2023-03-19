@@ -682,6 +682,7 @@ public class Constants {
 
     public static final double kHasPieceMinTicks = 450;
 
+    public static final double kHandVelocityThreshold = 10;
     public static final double kHandZeroSpeed = 0.1;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
     public static final int kZeroStableCounts = 1592;

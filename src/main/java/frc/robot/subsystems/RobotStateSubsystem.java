@@ -56,6 +56,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private boolean isAuto = false;
   private boolean hasShelfExited = false;
   private boolean startHand = false;
+  private boolean hasZeroedHand = false;
   private ElbowSubsystem elbowSubsystem;
 
   public RobotStateSubsystem(
@@ -346,6 +347,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void periodic() {
     switch (currRobotState) {
       case STOW:
+        if (!hasZeroedHand && handSubsystem.getVel() <= HandConstants.kHandVelocityThreshold) {
+          handSubsystem.zeroHand();
+          hasZeroedHand = true;
+        }
         if (currRobotState != nextRobotState) {
           switch (nextRobotState) {
             case INTAKE_STAGE:
@@ -380,6 +385,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         switch (currentAxis) {
           case ARM:
             if (armSubsystem.getCurrState() == ArmState.STOW) {
+              hasZeroedHand = false;
               switch (gamePiece) {
                 case CONE:
                   handSubsystem.grabCone();
@@ -415,7 +421,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         switch (currentAxis) {
           case HAND:
             if (handSubsystem.isFinished()) {
-              handSubsystem.zeroHand();
+              hasZeroedHand = false;
               currentAxis = CurrentAxis.ARM;
               if (shouldFastStowArm()) {
                 armSubsystem.setArmFastStow(true);
@@ -475,6 +481,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
               hasIntakeDelayPassed = false;
               currentAxis = CurrentAxis.HAND;
               if (isAuto) armSubsystem.setArmFastStow(false);
+              hasZeroedHand = false;
               handSubsystem.openIntake();
               break;
             }
@@ -533,6 +540,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             break;
           case HAND:
             if (handSubsystem.isFinished() || isAuto) {
+              hasZeroedHand = false;
               currentAxis = CurrentAxis.NONE;
               logger.info("Starting Intake Timer");
               intakeDelayTimer.reset();
@@ -584,6 +592,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             break;
           case HAND:
             if (handSubsystem.isFinished()) {
+              hasZeroedHand = false;
               currentAxis = CurrentAxis.NONE;
               logger.info("{} -> MANUAL_SHELF", currRobotState);
               currRobotState = RobotState.MANUAL_SHELF;
@@ -640,6 +649,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             break;
           case HAND:
             if (handSubsystem.isFinished()) {
+              hasZeroedHand = false;
               currentAxis = CurrentAxis.NONE;
               isAutoStageFinished = true;
               logger.info("TO_AUTO_SHELF: hand finished");
@@ -668,6 +678,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         switch (currentAxis) {
           case HAND:
             if (handSubsystem.isFinished()) {
+              hasZeroedHand = false;
               armSubsystem.toFloorPos();
               handSubsystem.runRollers(HandConstants.kRollerPickUp);
               currentAxis = CurrentAxis.ARM;
@@ -705,7 +716,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             }
             break;
           case HAND:
-            if (handSubsystem.isFinished()) toStowIntake();
+            if (handSubsystem.isFinished()) {
+              hasZeroedHand = false;
+              toStowIntake();
+            }
             break;
         }
         break;
