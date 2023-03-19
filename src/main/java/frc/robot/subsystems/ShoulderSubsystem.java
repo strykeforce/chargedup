@@ -52,7 +52,6 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
         Constants.ShoulderConstants.getShoulderTalonSupplyLimitConfig());
     rightFollowerShoulderTalon.setNeutralMode(NeutralMode.Brake);
     rightFollowerShoulderTalon.setInverted(true);
-    rightFollowerShoulderTalon.follow(leftMainShoulderTalon);
 
     zeroShoulder();
     desiredPosition = getPos();
@@ -75,6 +74,7 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
     setToGreaterPos = location > getPos();
     desiredPosition = location;
     leftMainShoulderTalon.set(ControlMode.MotionMagic, location);
+    rightFollowerShoulderTalon.set(ControlMode.MotionMagic, location);
   }
 
   public void setPct(double pct) {
@@ -109,11 +109,16 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
             && !setToGreaterPos;
   }
 
+  public void unTwist(double origin) {
+    rightFollowerShoulderTalon.set(ControlMode.MotionMagic, origin);
+    leftMainShoulderTalon.set(ControlMode.MotionMagic, origin);
+  }
+
   public void twistShoulder(double change) {
     leftMainShoulderTalon.set(
         ControlMode.MotionMagic, leftMainShoulderTalon.getSelectedSensorPosition() + change);
     rightFollowerShoulderTalon.set(
-        ControlMode.MotionMagic, rightFollowerShoulderTalon.getSelectedSensorPosition() + -change);
+        ControlMode.MotionMagic, rightFollowerShoulderTalon.getSelectedSensorPosition() - change);
   }
 
   public void zeroShoulder() {

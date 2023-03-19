@@ -179,7 +179,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public void toStowIntake(RobotState nextState) {
-    // currRobotState = RobotState.TO_STOW_SCORE;
+    // currRobotState = RbotState.TO_STOW_SCORE;
     if (elbowSubsystem.getPos() >= 0) {
       logger.info("{} --> TO_STOW_SCORE", currRobotState);
       currRobotState = RobotState.TO_STOW_SCORE;

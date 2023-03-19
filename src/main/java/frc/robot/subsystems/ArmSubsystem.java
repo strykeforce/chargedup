@@ -32,6 +32,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private boolean doReinforceElevator = true;
   private boolean isHealthChecking = false;
   private double differenceInShoulder = 0.0;
+  private double originOfShoulder = 0.0;
+  private ArmState beforeTwistState;
 
   public ArmSubsystem(
       ShoulderSubsystem shoulderSubsystem,
@@ -61,6 +63,11 @@ public class ArmSubsystem extends MeasurableSubsystem {
     switch (currState) {
       case LOW: // Fall through
       case MID_CONE:
+      case TWIST_SHOULDER:
+        logger.info("{} -> TWIST_TO_STOW", currState);
+        currState = ArmState.TWIST_TO_STOW;
+        currAxis = CurrentAxis.SHOULDER;
+        shoulderSubsystem.unTwist(originOfShoulder);
       case MID_CUBE:
         logger.info("{} -> SCORE_TO_STOW", currState);
         currState = ArmState.SCORE_TO_STOW;
@@ -441,8 +448,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
   public void toTwistShoulder() {
     logger.info("{} -> TWIST_SHOULDER", currState);
+    beforeTwistState = currState;
     currState = ArmState.TWIST_SHOULDER;
     differenceInShoulder = 0.0;
+    originOfShoulder = shoulderSubsystem.getPos();
   }
 
   public void twistShoulder(double change) {
@@ -821,6 +830,36 @@ public class ArmSubsystem extends MeasurableSubsystem {
             break;
         }
         break;
+      case TWIST_TO_STOW:
+        switch (currAxis) {
+          case SHOULDER:
+            if (shoulderSubsystem.isFinished()) {
+              currAxis = CurrentAxis.ELEVATOR;
+            }
+            break;
+          case ELEVATOR:
+            if (elevatorSubsystem.isFinished()) {
+              currAxis = CurrentAxis.ELBOW;
+            }
+            break;
+          case ELBOW:
+            if (elbowSubsystem.isFinished()) {
+              if (beforeTwistState == ArmState.HIGH_CONE
+                  || beforeTwistState == ArmState.HIGH_CUBE) {
+                logger.info("{} -> HIGH_TO_STOW", currState);
+                currState = ArmState.HIGH_TO_STOW;
+              } else {
+                logger.info("{} -> SCORE_TO_STOW", currState);
+                currState = ArmState.SCORE_TO_STOW;
+              }
+            }
+            break;
+          default:
+            logger.info("{} -> ANY_TO_STOW", currState);
+            currState = ArmState.ANY_TO_STOW;
+            break;
+        }
+        break;
       case HIGH_TO_STOW:
         switch (currAxis) {
           case SHOULDER:
@@ -1015,7 +1054,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
     FLOOR_TO_FLOOR_SWEEP(FLOOR_SWEEP),
     RETRIEVE_GAMEPIECE(STOW),
     ANY_TO_STOW(STOW),
-    TWIST_SHOULDER(STOW);
+    TWIST_SHOULDER(STOW),
+    TWIST_TO_STOW(STOW);
 
     public final double shoulderPos;
     public final double elevatorPos;

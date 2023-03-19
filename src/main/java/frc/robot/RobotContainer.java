@@ -53,6 +53,8 @@ import frc.robot.commands.robotState.ShuffleBoardHealthCheckCommandGroup;
 import frc.robot.commands.robotState.StowRobotCommand;
 import frc.robot.commands.robotState.ToggleIntakeCommand;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
+import frc.robot.commands.shoulder.StopTwistCommand;
+import frc.robot.commands.shoulder.TwistShoulderCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.commands.vision.ToggleUpdateWithVisionCommand;
 import frc.robot.subsystems.ArmSubsystem;
@@ -484,6 +486,9 @@ public class RobotContainer {
         new Trigger(() -> xboxController.getRightY() >= 0.1)
             .onTrue(new JogElbowCommand(elbowSubsystem, robotStateSubsystem, -1))
             .onFalse(new ElbowHoldPosCommand(elbowSubsystem));
+
+    Trigger rightRight = new Trigger(() -> xboxController.getRightX() <= -0.1).onTrue(new TwistShoulderCommand(shoulderSubsystem, armSubsystem, -1)).onFalse(new StopTwistCommand(shoulderSubsystem, armSubsystem));
+    Trigger rightLeft = new Trigger(() -> xboxController.getRightX() >= 0.1).onTrue(new TwistShoulderCommand(shoulderSubsystem, armSubsystem, 1)).onFalse(new StopTwistCommand(shoulderSubsystem, armSubsystem));
   }
 
   public Command getAutonomousCommand() {
