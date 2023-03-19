@@ -55,6 +55,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private Timer floorSweepTimer = new Timer();
   private boolean isAuto = false;
   private boolean hasShelfExited = false;
+  private boolean startHand = false;
   private ElbowSubsystem elbowSubsystem;
 
   public RobotStateSubsystem(
@@ -245,6 +246,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void toManualShelf() {
     logger.info("{} --> TO_MANUAL_SHELF", currRobotState);
     if (armSubsystem.getCurrState() != ArmState.SHELF) armSubsystem.toShelfPos();
+    startHand = false;
     currentAxis = CurrentAxis.ARM;
     currRobotState = RobotState.TO_MANUAL_SHELF;
     hasShelfExited = false;
@@ -286,6 +288,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void toAutoShelf() {
     logger.info("{} --> TO_AUTO_SHELF", currRobotState);
     if (armSubsystem.getCurrState() != ArmState.SHELF) armSubsystem.toShelfPos();
+    startHand = false;
     isAutoPlacing = true; // FIXME
     currentAxis = CurrentAxis.ARM;
     currRobotState = RobotState.TO_AUTO_SHELF;
@@ -564,11 +567,19 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         break;
 
       case MANUAL_SCORE:
+        if (armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER)
+        {
+          armSubsystem.toTwistShoulder();
+        }
         break;
 
       case TO_MANUAL_SHELF:
         switch (currentAxis) {
           case ARM:
+            if (armSubsystem.checkIfElbowPositive() && !startHand) {
+              startHand = true;
+              handSubsystem.openShelf();
+            }
             if (armSubsystem.getCurrState() == ArmState.SHELF) {
               handSubsystem.openShelf();
               currentAxis = CurrentAxis.HAND;
@@ -620,6 +631,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       case TO_AUTO_SHELF:
         switch (currentAxis) {
           case ARM:
+            if (armSubsystem.checkIfElbowPositive() && !startHand) {
+              startHand = true;
+              handSubsystem.openShelf();
+            }
             if (armSubsystem.getCurrState() == ArmState.SHELF) {
               handSubsystem.openShelf();
               currentAxis = CurrentAxis.HAND;
@@ -797,6 +812,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED) {
           // logger.info("Set RGB OFF");
           rgbLightsSubsystem.setOff();
+          if (armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER) armSubsystem.toTwistShoulder();
           // driveSubsystem.currDriveState = DriveStates.IDLE;
           // Start Arm Stuff.
           isAutoPlacing = false;

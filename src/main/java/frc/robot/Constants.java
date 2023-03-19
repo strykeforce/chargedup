@@ -448,6 +448,7 @@ public class Constants {
     public static final int kCloseEnoughTicks = 2000;
 
     // Elbow Positions
+    public static final double kJogElbowTicks = 500.0;
     public static final double kIntakeStageElbow = -14_465;
     public static final double kIntakeElbow = -21_087; // -43_200
     public static final double kStowElbow = 0;
@@ -455,7 +456,7 @@ public class Constants {
     public static final double kLevelOneElbow = 18_548;
     public static final double kLevelTwoConeElbow = 60_097;
     public static final double kLevelTwoCubeElbow = 60_097;
-    public static final double kLevelThreeConeElbow = 85_553;
+    public static final double kLevelThreeConeElbow = 84_553;
     public static final double kLevelThreeCubeElbow = 84_106;
     public static final double kShelfElbow = 41_000;
     public static final double kFloorElbowSweep = 16_876;

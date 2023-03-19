@@ -31,6 +31,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private boolean isElbowReinforced = true;
   private boolean doReinforceElevator = true;
   private boolean isHealthChecking = false;
+  private double differenceInShoulder = 0.0;
 
   public ArmSubsystem(
       ShoulderSubsystem shoulderSubsystem,
@@ -50,6 +51,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
   public void toStowPos() {
     toStowPos(ArmState.STOW);
+  }
+
+  public boolean checkIfElbowPositive() {
+    return elbowSubsystem.getPos() >= 0;
   }
 
   public void toStowPos(ArmState desiredState) {
@@ -432,6 +437,16 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
   public void toggleHealthBoolean() {
     isHealthChecking = !isHealthChecking;
+  }
+
+  public void toTwistShoulder() {
+    logger.info("{} -> TWIST_SHOULDER", currState);
+    currState = ArmState.TWIST_SHOULDER;
+    differenceInShoulder = 0.0;
+  }
+
+  public boolean canTwist(double change) {
+    return differenceInShoulder + change < 1500; 
   }
 
   public void toRetrieveGamepiece() {
@@ -995,7 +1010,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ElbowConstants.kFloorElbowSweep),
     FLOOR_TO_FLOOR_SWEEP(FLOOR_SWEEP),
     RETRIEVE_GAMEPIECE(STOW),
-    ANY_TO_STOW(STOW);
+    ANY_TO_STOW(STOW),
+    TWIST_SHOULDER(STOW);
 
     public final double shoulderPos;
     public final double elevatorPos;
