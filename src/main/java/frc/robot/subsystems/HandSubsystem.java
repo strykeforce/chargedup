@@ -118,6 +118,10 @@ public class HandSubsystem extends MeasurableSubsystem {
   //   handRightTalon.set(ControlMode.MotionMagic, location);
   // }
 
+  public double getVel() {
+    return handLeftTalon.getSelectedSensorVelocity();
+  }
+
   private void setPos(double leftLocation /*, double rightLocation*/) {
     setLeftPos(leftLocation);
     // setRightPos(rightLocation);

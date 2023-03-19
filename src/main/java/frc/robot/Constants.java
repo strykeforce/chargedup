@@ -456,6 +456,7 @@ public class Constants {
     public static final int kCloseEnoughTicks = 2000;
 
     // Elbow Positions
+    public static final double kJogElbowTicks = 500.0;
     public static final double kIntakeStageElbow = -14_465;
     public static final double kIntakeElbow = -21_087; // -43_200
     public static final double kStowElbow = 0;
@@ -463,7 +464,7 @@ public class Constants {
     public static final double kLevelOneElbow = 18_548;
     public static final double kLevelTwoConeElbow = 60_097;
     public static final double kLevelTwoCubeElbow = 60_097;
-    public static final double kLevelThreeConeElbow = 85_553;
+    public static final double kLevelThreeConeElbow = 84_553;
     public static final double kLevelThreeCubeElbow = 84_106;
     public static final double kShelfElbow = 41_000;
     public static final double kFloorElbowSweep = 16_876;
@@ -520,6 +521,8 @@ public class Constants {
 
     public static final double kMaxFwd = 8_000; // 5000
     public static final double kMaxRev = -3_000; // -100
+    public static final double kMaxTwistTicks = 750.0;
+    public static final double kTwistBy = 10.0;
 
     public static final double kZeroDegs = 0; // FIXME
 
@@ -687,6 +690,7 @@ public class Constants {
 
     public static final double kHasPieceMinTicks = 450;
 
+    public static final double kHandVelocityThreshold = 10;
     public static final double kHandZeroSpeed = 0.1;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
     public static final int kZeroStableCounts = 1592;
