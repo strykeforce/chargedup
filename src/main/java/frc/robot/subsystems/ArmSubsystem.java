@@ -8,6 +8,8 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ShoulderConstants;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import java.util.Set;
+
+import org.opencv.core.Mat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
@@ -426,7 +428,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
         new Measure("Hand X", () -> getHandPosition().getX()),
         new Measure("Hand Y", () -> getHandPosition().getY()),
         new Measure("Hand region", () -> getHandRegion().ordinal()),
-        new Measure("Arm State", () -> currState.ordinal()));
+        new Measure("Arm State", () -> currState.ordinal()),
+        new Measure("Difference in Shoulder", () -> differenceInShoulder));
   }
 
   public ArmState getCurrState() {
@@ -452,16 +455,17 @@ public class ArmSubsystem extends MeasurableSubsystem {
     currState = ArmState.TWIST_SHOULDER;
     differenceInShoulder = 0.0;
     originOfShoulder = shoulderSubsystem.getPos();
+    shoulderSubsystem.setTwist(originOfShoulder);
   }
 
   public void twistShoulder(double change) {
     differenceInShoulder += change;
-    shoulderSubsystem.twistShoulder(change);
+    shoulderSubsystem.twistShoulder(differenceInShoulder);
   }
 
   public boolean canTwist(double change) {
-    return Math.abs(originOfShoulder - shoulderSubsystem.getPos())
-        < ShoulderConstants.kMaxTwistTicks;
+    return Math.abs(differenceInShoulder + change)
+        < ShoulderConstants.kMaxTwistTicks || Math.abs(differenceInShoulder + change) < Math.abs(differenceInShoulder);
   }
 
   public void toRetrieveGamepiece() {
