@@ -8,8 +8,6 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ShoulderConstants;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import java.util.Set;
-
-import org.opencv.core.Mat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
@@ -464,8 +462,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public boolean canTwist(double change) {
-    return Math.abs(differenceInShoulder + change)
-        < ShoulderConstants.kMaxTwistTicks || Math.abs(differenceInShoulder + change) < Math.abs(differenceInShoulder);
+    return Math.abs(differenceInShoulder + change) <= ShoulderConstants.kMaxTwistTicks
+        || Math.abs(differenceInShoulder + change) <= Math.abs(differenceInShoulder);
   }
 
   public void toRetrieveGamepiece() {

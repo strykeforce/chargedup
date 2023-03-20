@@ -6,9 +6,6 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import frc.robot.Constants;
 import frc.robot.Constants.ShoulderConstants;
 import java.util.Set;
-
-import javax.swing.event.ChangeListener;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.strykeforce.healthcheck.AfterHealthCheck;
@@ -125,10 +122,8 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
   }
 
   public void twistShoulder(double change) {
-    leftMainShoulderTalon.set(
-        ControlMode.MotionMagic, leftTwist + change);
-    rightFollowerShoulderTalon.set(
-        ControlMode.MotionMagic, rightTwist - change);
+    leftMainShoulderTalon.set(ControlMode.MotionMagic, leftTwist + change);
+    rightFollowerShoulderTalon.set(ControlMode.MotionMagic, rightTwist - change);
   }
 
   public void zeroShoulder() {
