@@ -513,7 +513,7 @@ public class Constants {
 
     public static final double kMaxFwd = 8_000; // 5000
     public static final double kMaxRev = -3_000; // -100
-    public static final double kMaxTwistTicks = 750.0;
+    public static final double kMaxTwistTicks = 500.0;
     public static final double kTwistBy = 10.0;
 
     public static final double kZeroDegs = 0; // FIXME

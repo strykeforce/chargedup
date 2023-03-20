@@ -565,7 +565,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         break;
 
       case MANUAL_SCORE:
-        if (armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER) {
+        if (armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER
+            && armSubsystem.getCurrState() != ArmState.LOW) {
           armSubsystem.toTwistShoulder();
         }
         break;
@@ -809,8 +810,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED) {
           // logger.info("Set RGB OFF");
           rgbLightsSubsystem.setOff();
-          if (armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER)
-            armSubsystem.toTwistShoulder();
+          if (armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER
+              && armSubsystem.getCurrState() != ArmState.LOW) armSubsystem.toTwistShoulder();
           // driveSubsystem.currDriveState = DriveStates.IDLE;
           // Start Arm Stuff.
           isAutoPlacing = false;

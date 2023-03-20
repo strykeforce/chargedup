@@ -460,7 +460,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public boolean canTwist(double change) {
-    return differenceInShoulder + change < ShoulderConstants.kMaxTwistTicks;
+    return Math.abs(originOfShoulder - shoulderSubsystem.getPos())
+        < ShoulderConstants.kMaxTwistTicks;
   }
 
   public void toRetrieveGamepiece() {
@@ -836,10 +837,34 @@ public class ArmSubsystem extends MeasurableSubsystem {
           case SHOULDER:
             if (shoulderSubsystem.isFinished()) {
               currAxis = CurrentAxis.ELEVATOR;
+              switch (beforeTwistState) {
+                case HIGH_CONE:
+                  elevatorSubsystem.setPos(ArmState.HIGH_CONE.elevatorPos);
+                case HIGH_CUBE:
+                  elevatorSubsystem.setPos(ArmState.HIGH_CUBE.elevatorPos);
+                case MID_CONE:
+                  elevatorSubsystem.setPos(ArmState.MID_CONE.elevatorPos);
+                case MID_CUBE:
+                  elevatorSubsystem.setPos(ArmState.MID_CUBE.elevatorPos);
+                default:
+                  elevatorSubsystem.setPos(ArmState.HIGH_CONE.elevatorPos);
+              }
             }
             break;
           case ELEVATOR:
             if (elevatorSubsystem.isFinished()) {
+              switch (beforeTwistState) {
+                case HIGH_CONE:
+                  elbowSubsystem.setPos(ArmState.HIGH_CONE.elbowPos);
+                case HIGH_CUBE:
+                  elbowSubsystem.setPos(ArmState.HIGH_CUBE.elbowPos);
+                case MID_CONE:
+                  elbowSubsystem.setPos(ArmState.MID_CONE.elbowPos);
+                case MID_CUBE:
+                  elbowSubsystem.setPos(ArmState.MID_CUBE.elbowPos);
+                default:
+                  elbowSubsystem.setPos(ArmState.HIGH_CONE.elbowPos);
+              }
               currAxis = CurrentAxis.ELBOW;
             }
             break;

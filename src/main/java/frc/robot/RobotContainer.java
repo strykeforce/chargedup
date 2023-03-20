@@ -487,8 +487,14 @@ public class RobotContainer {
             .onTrue(new JogElbowCommand(elbowSubsystem, robotStateSubsystem, -1))
             .onFalse(new ElbowHoldPosCommand(elbowSubsystem));
 
-    Trigger rightRight = new Trigger(() -> xboxController.getRightX() <= -0.1).onTrue(new TwistShoulderCommand(shoulderSubsystem, armSubsystem, -1)).onFalse(new StopTwistCommand(shoulderSubsystem, armSubsystem));
-    Trigger rightLeft = new Trigger(() -> xboxController.getRightX() >= 0.1).onTrue(new TwistShoulderCommand(shoulderSubsystem, armSubsystem, 1)).onFalse(new StopTwistCommand(shoulderSubsystem, armSubsystem));
+    Trigger rightRight =
+        new Trigger(() -> xboxController.getRightX() <= -0.1)
+            .onTrue(new TwistShoulderCommand(shoulderSubsystem, armSubsystem, -1))
+            .onFalse(new StopTwistCommand(shoulderSubsystem, armSubsystem));
+    Trigger rightLeft =
+        new Trigger(() -> xboxController.getRightX() >= 0.1)
+            .onTrue(new TwistShoulderCommand(shoulderSubsystem, armSubsystem, 1))
+            .onFalse(new StopTwistCommand(shoulderSubsystem, armSubsystem));
   }
 
   public Command getAutonomousCommand() {
