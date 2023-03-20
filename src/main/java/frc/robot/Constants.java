@@ -688,6 +688,7 @@ public class Constants {
     public static final int kZeroStableCounts = 1592;
     public static final int kHasConeStableCounts = 2;
     public static final int kHasCubeStableCounts = 2;
+    public static final int kHandVelStable = 10;
 
     public static final double kHandHoldingPercent = 0.1; // FIXME
     public static final double kHoldingVelocityThreshold = 50; // FIXME
