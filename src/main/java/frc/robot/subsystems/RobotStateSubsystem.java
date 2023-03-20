@@ -57,6 +57,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private boolean startHand = false;
   private boolean hasZeroedHand = false;
   private ElbowSubsystem elbowSubsystem;
+  public int stableHandVel = 0;
 
   public RobotStateSubsystem(
       IntakeSubsystem intakeSubsystem,
@@ -345,10 +346,14 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void periodic() {
     switch (currRobotState) {
       case STOW:
-        if (!hasZeroedHand && handSubsystem.getVel() <= HandConstants.kHandVelocityThreshold) {
-          handSubsystem.zeroHand();
-          hasZeroedHand = true;
-        }
+        // if (!hasZeroedHand && handSubsystem.getVel() <= HandConstants.kHandVelocityThreshold) {
+        //   stableHandVel++;
+        //   if (stableHandVel >= HandConstants.kHandVelStable) {
+        //     stableHandVel = 0;
+        //     handSubsystem.zeroHand();
+        //     hasZeroedHand = true;
+        //   }
+        // }
         if (currRobotState != nextRobotState) {
           switch (nextRobotState) {
             case INTAKE_STAGE:

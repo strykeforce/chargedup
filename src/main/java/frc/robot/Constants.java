@@ -690,12 +690,13 @@ public class Constants {
 
     public static final double kHasPieceMinTicks = 450;
 
-    public static final double kHandVelocityThreshold = 10;
+    public static final double kHandVelocityThreshold = 5;
     public static final double kHandZeroSpeed = 0.1;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
     public static final int kZeroStableCounts = 1592;
     public static final int kHasConeStableCounts = 2;
     public static final int kHasCubeStableCounts = 2;
+    public static final int kHandVelStable = 50;
 
     public static final double kHandHoldingPercent = 0.1; // FIXME
     public static final double kHoldingVelocityThreshold = 50; // FIXME
