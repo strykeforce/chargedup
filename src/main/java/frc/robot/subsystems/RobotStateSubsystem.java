@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.AutonConstants;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
@@ -273,27 +272,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   public void toAutoDrive() {
     TargetCol tempTargetCol = TargetCol.NONE;
-    if (Math.abs(driveSubsystem.getFieldRelSpeed().vxMetersPerSecond)
-            <= DriveConstants.kMaxSpeedToAutoDrive
-        && Math.abs(driveSubsystem.getFieldRelSpeed().vyMetersPerSecond)
-            <= DriveConstants.kMaxSpeedToAutoDrive
-        && visionSubsystem.lastUpdateWithinThresholdTime()) {
-      if (gamePiece != GamePiece.CUBE) tempTargetCol = getTargetCol();
-      logger.info("{} -> AUTO_DRIVE", currRobotState);
-      currRobotState = RobotState.AUTO_DRIVE;
-      isAutoPlacing = true;
-      // logger.info("Gamepiece toAutodrive: {}", gamePiece.toString());
-      logger.info(
-          "failedSpeed: {}, failedVision: {}",
-          Math.abs(
-                      driveSubsystem.getFieldRelSpeed()
-                          .vxMetersPerSecond) // FIXME TEMP CHECK IF STATEMENT
-                  <= DriveConstants.kMaxSpeedToAutoDrive
-              && Math.abs(driveSubsystem.getFieldRelSpeed().vyMetersPerSecond)
-                  <= DriveConstants.kMaxSpeedToAutoDrive,
-          visionSubsystem.lastUpdateWithinThresholdTime());
-      driveSubsystem.driveToPose(tempTargetCol); // FIXME
-    }
+    if (gamePiece != GamePiece.CUBE) tempTargetCol = getTargetCol();
+    logger.info("{} -> AUTO_DRIVE", currRobotState);
+    currRobotState = RobotState.AUTO_DRIVE;
+    isAutoPlacing = true;
+    logger.info(
+        "Starting AutoDrive. Gamepiece: {}, TargetCol: {}", gamePiece.toString(), tempTargetCol);
+    driveSubsystem.driveToPose(tempTargetCol); // FIXME
   }
 
   public void toAutoShelf() {

@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -211,31 +212,42 @@ public class DriveSubsystem extends MeasurableSubsystem {
     omegaAutoDriveController.reset(getPoseMeters().getRotation().getRadians());
     xAutoDriveController.reset(getPoseMeters().getX(), getFieldRelSpeed().vxMetersPerSecond);
     yAutoDriveController.reset(getPoseMeters().getY(), getFieldRelSpeed().vyMetersPerSecond);
-    // xAutoDriveController.reset(getPoseMeters().getX());
-    // yAutoDriveController.reset(getPoseMeters().getY());
-    // if (Math.abs(getFieldRelSpeed().vxMetersPerSecond) // FIXME TEMP CHECK IF STATEMENT
-    //         <= DriveConstants.kMaxSpeedToAutoDrive
-    //     && Math.abs(getFieldRelSpeed().vyMetersPerSecond) <= DriveConstants.kMaxSpeedToAutoDrive
-    //     && visionSubsystem.lastUpdateWithinThresholdTime()) {
-    setAutoDriving(true);
-    endAutoDrivePose =
-        robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
-    autoDriveTimer.reset();
-    autoDriveTimer.start();
-    logger.info("{} -> AUTO_DRIVE", currDriveState);
-    currDriveState = DriveStates.AUTO_DRIVE;
-    // } else { // FIXME TEMP FOR TESTING
-    //   logger.info(
-    //       "failedSpeed: {}, failedVision: {}",
-    //       Math.abs(getFieldRelSpeed().vxMetersPerSecond) // FIXME TEMP CHECK IF STATEMENT
-    //               <= DriveConstants.kMaxSpeedToAutoDrive
-    //           && Math.abs(getFieldRelSpeed().vyMetersPerSecond)
-    //               <= DriveConstants.kMaxSpeedToAutoDrive,
-    //       visionSubsystem.lastUpdateWithinThresholdTime());
-    //   endAutoDrivePose = getPoseMeters();
-    // }
-    // autoDriveTimer.reset();
-    // autoDriveTimer.start();
+    if (Math.abs(getFieldRelSpeed().vxMetersPerSecond) // FIXME TEMP CHECK IF STATEMENT
+            <= DriveConstants.kMaxSpeedToAutoDrive
+        && Math.abs(getFieldRelSpeed().vyMetersPerSecond) <= DriveConstants.kMaxSpeedToAutoDrive
+        && visionSubsystem.lastUpdateWithinThresholdTime()) {
+      setAutoDriving(true);
+      if (robotStateSubsystem.getGamePiece() != GamePiece.NONE) {
+        endAutoDrivePose =
+            robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
+        logger.info("AutoDrive Scoring Gamepiece.");
+      } else {
+        endAutoDrivePose =
+            robotStateSubsystem.getShelfPosAutoDrive(
+                targetCol, robotStateSubsystem.isBlueAlliance());
+        logger.info("AutoDrive Going to Shelf.");
+      }
+      logger.info(
+          "endAutoDrivePose X: {}, endAutoDrivePose Y: {}",
+          endAutoDrivePose.getX(),
+          endAutoDrivePose.getY());
+      // endAutoDrivePose =
+      //     robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
+      autoDriveTimer.reset();
+      autoDriveTimer.start();
+      logger.info("{} -> AUTO_DRIVE", currDriveState);
+      currDriveState = DriveStates.AUTO_DRIVE;
+    } else {
+      logger.info(
+          "Autodrive Failed. failedSpeed: {}, failedVision: {}",
+          Math.abs(getFieldRelSpeed().vxMetersPerSecond) // FIXME TEMP CHECK IF STATEMENT
+                  <= DriveConstants.kMaxSpeedToAutoDrive
+              && Math.abs(getFieldRelSpeed().vyMetersPerSecond)
+                  <= DriveConstants.kMaxSpeedToAutoDrive,
+          visionSubsystem.lastUpdateWithinThresholdTime());
+      logger.info("{} -> AUTO_DRIVE_FAILED", currDriveState);
+      currDriveState = DriveStates.AUTO_DRIVE_FAILED;
+    }
   }
 
   public boolean isAutoDriveFinished() {
