@@ -455,6 +455,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void twistShoulder(double change) {
+    differenceInShoulder += change;
     shoulderSubsystem.twistShoulder(change);
   }
 
