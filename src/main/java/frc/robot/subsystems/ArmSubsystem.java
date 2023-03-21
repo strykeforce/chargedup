@@ -1,6 +1,9 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElbowConstants;
@@ -33,12 +36,17 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private boolean isHealthChecking = false;
   private double differenceInShoulder = 0.0;
   private double originOfShoulder = 0.0;
+  private XboxController xboxController;
   private ArmState beforeTwistState;
+  private boolean unTwistAtEnd = false;
+  private Timer twistTimer = new Timer();
 
   public ArmSubsystem(
       ShoulderSubsystem shoulderSubsystem,
       ElevatorSubsystem elevatorSubsystem,
-      ElbowSubsystem elbowSubsystem) {
+      ElbowSubsystem elbowSubsystem,
+      XboxController xboxController) {
+    this.xboxController = xboxController;
     this.currState = ArmState.STOW; // Maybe not?
     this.desiredState = ArmState.STOW;
     this.shoulderSubsystem = shoulderSubsystem;
@@ -65,6 +73,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
       case MID_CONE:
       case TWIST_SHOULDER:
         logger.info("{} -> TWIST_TO_STOW", currState);
+        xboxController.setRumble(RumbleType.kBothRumble, 0.0);
         currState = ArmState.TWIST_TO_STOW;
         currAxis = CurrentAxis.SHOULDER;
         shoulderSubsystem.unTwist(originOfShoulder);
@@ -142,6 +151,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
         break;
     }
     desiredState = ArmState.INTAKE_STAGE;
+  }
+
+  public void setTwistEnd(boolean temp) {
+    unTwistAtEnd = temp;
   }
 
   public void toIntakePos() {
@@ -452,6 +465,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
     beforeTwistState = currState;
     currState = ArmState.TWIST_SHOULDER;
     differenceInShoulder = 0.0;
+    twistTimer.reset();
+    twistTimer.start();
     originOfShoulder = shoulderSubsystem.getPos();
     shoulderSubsystem.setTwist(originOfShoulder);
   }
@@ -1002,10 +1017,21 @@ public class ArmSubsystem extends MeasurableSubsystem {
               currState = ArmState.FLOOR_SWEEP;
               currAxis = CurrentAxis.NONE;
             }
+          default:
             break;
         }
         break;
       case FLOOR_SWEEP:
+        break;
+      case TWIST_SHOULDER:
+        if (twistTimer.hasElapsed(ShoulderConstants.kTimeTwist)) {
+          if (unTwistAtEnd) {
+            shoulderSubsystem.unTwist(originOfShoulder);
+            twistTimer.reset();
+          } else {
+            xboxController.setRumble(RumbleType.kBothRumble, 1.1);
+          }
+        }
         break;
       case RETRIEVE_GAMEPIECE:
         break;

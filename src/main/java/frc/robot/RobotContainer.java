@@ -130,7 +130,8 @@ public class RobotContainer {
     elevatorSubsystem = new ElevatorSubsystem();
     elbowSubsystem = new ElbowSubsystem(constants);
     shoulderSubsystem = new ShoulderSubsystem(constants);
-    armSubsystem = new ArmSubsystem(shoulderSubsystem, elevatorSubsystem, elbowSubsystem);
+    armSubsystem =
+        new ArmSubsystem(shoulderSubsystem, elevatorSubsystem, elbowSubsystem, xboxController);
     rgbLightsSubsystem = new RGBlightsSubsystem();
     robotStateSubsystem =
         new RobotStateSubsystem(
@@ -168,6 +169,7 @@ public class RobotContainer {
     configureOperatorButtonBindings();
     configureMatchDashboard();
     if (!isEvent || !Constants.isCompBot) {
+      armSubsystem.setTwistEnd(true);
       configureTelemetry();
       configurePitDashboard();
       new Trigger(RobotController::getUserButton)
