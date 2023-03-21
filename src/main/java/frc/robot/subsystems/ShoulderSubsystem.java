@@ -22,7 +22,7 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
   @HealthCheck
   @Position(
       percentOutput = {0.2, -0.2},
-      encoderChange = 2000)
+      encoderChange = (int)ShoulderConstants.kLevelThreeCubeShoulder)
   private TalonSRX leftMainShoulderTalon;
 
   @HealthCheck
