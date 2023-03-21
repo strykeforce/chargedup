@@ -849,11 +849,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           logger.info("{} -> SHELF_WAIT_TRANSITION", currRobotState);
           currRobotState = RobotState.SHELF_WAIT_TRANSITION;
         }
-        if (visionSubsystem.getAmbiguity() <= 0.15) {
+        if (visionSubsystem.lastUpdateWithinThresholdTime()) {
           rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
           // toAutoDrive();
-        }
-        if (visionSubsystem.getAmbiguity() > 0.15) {
+        } else {
           rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
         }
         break;

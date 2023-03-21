@@ -222,10 +222,11 @@ public class DriveSubsystem extends MeasurableSubsystem {
             robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
         logger.info("AutoDrive Scoring Gamepiece.");
       } else {
-        endAutoDrivePose =
-            robotStateSubsystem.getShelfPosAutoDrive(
-                targetCol, robotStateSubsystem.isBlueAlliance());
-        logger.info("AutoDrive Going to Shelf.");
+        // endAutoDrivePose =
+        //     robotStateSubsystem.getShelfPosAutoDrive(
+        //         targetCol, robotStateSubsystem.isBlueAlliance());
+        // logger.info("AutoDrive Going to Shelf.");
+        endAutoDrivePose = getPoseMeters();
       }
       logger.info(
           "endAutoDrivePose X: {}, endAutoDrivePose Y: {}",
