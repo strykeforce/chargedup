@@ -11,6 +11,7 @@ import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.ReleaseGamepieceCommand;
 import frc.robot.commands.robotState.SetGamePieceCommand;
 import frc.robot.commands.robotState.SetTargetLevelCommand;
+import frc.robot.commands.robotState.ShootGamepieceCommand;
 import frc.robot.commands.vision.SetVisionUpdateCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -64,7 +65,7 @@ public class TwoPieceLvl3AutoCommandGroup extends SequentialCommandGroup
                 new PastXPositionCommand(
                     robotStateSubsystem, driveSubsystem, Constants.AutonConstants.kPastXPosition),
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
-        new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem),
+        new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
         new ParallelCommandGroup(
             new SetGamePieceCommand(robotStateSubsystem, GamePiece.NONE),
             new SetVisionUpdateCommand(driveSubsystem, true)));

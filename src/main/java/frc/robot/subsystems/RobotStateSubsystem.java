@@ -235,8 +235,9 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         break;
       case HIGH:
         if (armSubsystem.getCurrState() != ArmState.HIGH_CONE
-            && armSubsystem.getCurrState() != ArmState.HIGH_CUBE)
-          armSubsystem.toHighPos(getGamePiece());
+            && armSubsystem.getCurrState() != ArmState.HIGH_CUBE
+            && armSubsystem.getCurrState() != ArmState.AUTO_HIGH_CUBE)
+          armSubsystem.toHighPos(getGamePiece(), isAuto);
         break;
     }
     currRobotState = RobotState.TO_MANUAL_SCORE;
@@ -255,6 +256,20 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     currRobotState = RobotState.RELEASE_GAME_PIECE;
     handSubsystem.runRollers(HandConstants.kRollerDrop);
     handSubsystem.open();
+    rgbLightsSubsystem.setOff();
+    fastStowAfterScore = true;
+    isReleaseDelayTimerRunning = false;
+    releaseDelayTimer.stop();
+    releaseDelayTimer.reset();
+    scorePosXIntial = driveSubsystem.getPoseMeters().getX();
+    logger.info("Score Pos X: {}", scorePosXIntial);
+  }
+
+  public void toShootCube() {
+    logger.info("{} -> RELEASE_GAME_PIECE", currRobotState);
+    currRobotState = RobotState.RELEASE_GAME_PIECE;
+    handSubsystem.runRollers(HandConstants.kRollerShoot);
+    handSubsystem.stowHand(currPoseX);
     rgbLightsSubsystem.setOff();
     fastStowAfterScore = true;
     isReleaseDelayTimerRunning = false;
@@ -310,8 +325,9 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         break;
       case HIGH:
         if (armSubsystem.getCurrState() != ArmState.HIGH_CONE
-            && armSubsystem.getCurrState() != ArmState.HIGH_CUBE)
-          armSubsystem.toHighPos(getGamePiece());
+            && armSubsystem.getCurrState() != ArmState.HIGH_CUBE
+            && armSubsystem.getCurrState() != ArmState.AUTO_HIGH_CUBE)
+          armSubsystem.toHighPos(getGamePiece(), isAuto);
         break;
     }
     currRobotState = RobotState.AUTO_SCORE;

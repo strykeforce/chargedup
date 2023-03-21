@@ -369,6 +369,7 @@ public class Constants {
     public static final double kLevelThreeCubeElevator = kLevelThreeConeElevator;
     public static final double kShelfElevator = -2_000; // -18_606
     public static final double kShelfExitElevator = kShelfElevator + 4000; // +3000
+    public static final double kAutoHighCubeElevator = -2_000;
 
     // Parallel Movement Constants
     public static final double kStowToHighElevatorParallelAllowed = kStowElevator;
@@ -459,6 +460,7 @@ public class Constants {
     public static final double kLevelThreeCubeElbow = 84_106;
     public static final double kShelfElbow = 41_000;
     public static final double kFloorElbowSweep = 16_876;
+    public static final double kAutoHighCubeElbow = 60_097;
 
     public static final double kRetrieveGamepiecePercentOutput = 0.2;
 
@@ -539,6 +541,7 @@ public class Constants {
     public static final double kLevelThreeConeShoulder = 5_850; // 3900
     public static final double kLevelThreeCubeShoulder = kLevelThreeConeShoulder;
     public static final double kShelfShoulder = -2_800; // 0
+    public static final double kAutoHighCubeShoulder = 0;
 
     // Allow Parallel Movement Ticks
     public static final double kFloorPickupParallelAllowed = 2_000;
@@ -673,6 +676,7 @@ public class Constants {
     public static final double kRollerPickUp = 0.7;
     public static final double kRollerOff = 0.0;
     public static final double kRollerDrop = -0.1;
+    public static final double kRollerShoot = -1.0;
 
     public static final double kMaxFwd = 1250; // 1100
     public static final double kMaxRev = -500; // -1000
@@ -695,6 +699,7 @@ public class Constants {
     public static final double kHandOpenPosition = kMaxRev;
     public static final double kIntakeOpenPosition = -500; // 50
     public static final double kCubeGrabbingPosition = 300;
+    public static final double kCubeShootingPosition = 100;
     public static final double kStowPosition = 1_000;
     public static final double kFloorOpenPosition = 300;
     public static final double kShelfOpenPosition = 0;
@@ -761,8 +766,8 @@ public class Constants {
     public static final int kElbowZeroTicks = 1183; // 730
 
     // Shoulder
-    public static final double kShoulderMainZeroTicks = 995;
-    public static final double kShoulderFollowerZeroTicks = 3007;
+    public static final double kShoulderMainZeroTicks = 2050;
+    public static final double kShoulderFollowerZeroTicks = 2057;
 
     // Intake
     public static final int kIntakeZeroTicks = 2790; // 2440 ->2540
