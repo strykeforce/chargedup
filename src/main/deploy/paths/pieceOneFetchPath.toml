@@ -1,5 +1,5 @@
 max_velocity = 1.5 #m/s 3.0
-max_acceleration = 1.75 #m/s 2.75
+max_acceleration = 1.65 #m/s 2.75
 start_velocity = 0.0 #m/s
 end_velocity = 0.0 #m/s 
 is_reversed = false
