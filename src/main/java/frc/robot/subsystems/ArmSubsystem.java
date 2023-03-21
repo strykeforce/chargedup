@@ -472,6 +472,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void twistShoulder(double change) {
+    twistTimer.start();
     differenceInShoulder += change;
     shoulderSubsystem.twistShoulder(differenceInShoulder);
   }
@@ -1028,8 +1029,9 @@ public class ArmSubsystem extends MeasurableSubsystem {
           if (unTwistAtEnd) {
             shoulderSubsystem.unTwist(originOfShoulder);
             twistTimer.reset();
+            twistTimer.stop();
           } else {
-            xboxController.setRumble(RumbleType.kBothRumble, 1.1);
+            xboxController.setRumble(RumbleType.kBothRumble, 1.0);
           }
         }
         break;
