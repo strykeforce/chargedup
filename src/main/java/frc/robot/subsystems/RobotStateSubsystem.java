@@ -106,6 +106,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     return targetCol;
   }
 
+  public void clearGamePiece() {
+    this.gamePiece = GamePiece.NONE;
+    logger.info("Cleared Gamepiece");
+  }
+
   public void setGamePiece(GamePiece gamePiece) {
     if (gamePiece == GamePiece.NONE) handSubsystem.runRollers(HandConstants.kRollerOff);
     this.gamePiece = gamePiece;
@@ -269,7 +274,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     logger.info("{} -> RELEASE_GAME_PIECE", currRobotState);
     currRobotState = RobotState.RELEASE_GAME_PIECE;
     handSubsystem.runRollers(HandConstants.kRollerShoot);
-    handSubsystem.stowHand(currPoseX);
+    handSubsystem.openCubeShoot();
     rgbLightsSubsystem.setOff();
     fastStowAfterScore = true;
     isReleaseDelayTimerRunning = false;
@@ -724,7 +729,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
         if (handSubsystem.isFinished() && !isReleaseDelayTimerRunning) {
           rgbLightsSubsystem.setColor(0.0, 0.0, 0.0);
-          setGamePiece(GamePiece.NONE);
+          clearGamePiece();
           releaseDelayTimer.reset();
           releaseDelayTimer.start();
           isReleaseDelayTimerRunning = true;

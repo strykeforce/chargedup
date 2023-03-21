@@ -699,7 +699,7 @@ public class Constants {
     public static final double kHandOpenPosition = kMaxRev;
     public static final double kIntakeOpenPosition = -500; // 50
     public static final double kCubeGrabbingPosition = 300;
-    public static final double kCubeShootingPosition = 100;
+    public static final double kCubeShootingPosition = 200;
     public static final double kStowPosition = 1_000;
     public static final double kFloorOpenPosition = 300;
     public static final double kShelfOpenPosition = 0;

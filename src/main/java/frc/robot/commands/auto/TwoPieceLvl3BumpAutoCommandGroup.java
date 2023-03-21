@@ -7,6 +7,7 @@ import frc.robot.Constants;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
+import frc.robot.commands.robotState.ClearGamePieceCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.ReleaseGamepieceCommand;
 import frc.robot.commands.robotState.SetGamePieceCommand;
@@ -70,7 +71,7 @@ public class TwoPieceLvl3BumpAutoCommandGroup extends SequentialCommandGroup
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
         new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
         new ParallelCommandGroup(
-            new SetGamePieceCommand(robotStateSubsystem, GamePiece.NONE),
+            new ClearGamePieceCommand(robotStateSubsystem),
             new SetVisionUpdateCommand(driveSubsystem, true)));
   }
 

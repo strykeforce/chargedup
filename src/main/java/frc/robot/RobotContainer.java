@@ -302,10 +302,8 @@ public class RobotContainer {
     //     .onTrue(
     //         new InstantCommand(() -> robotStateSubsystem.setAutoMode(true),
     // robotStateSubsystem));
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-        .onTrue(
-            new StowRobotCommand(
-                robotStateSubsystem, armSubsystem, intakeSubsystem, handSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+    //     .onTrue(new ShootGamepieceCommand(handSubsystem, robotStateSubsystem));
 
     // Hand
     /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
