@@ -450,7 +450,8 @@ public class RobotContainer {
     //     .onTrue(new ElbowToPositionCommand(elbowSubsystem, Constants.ElbowConstants.kStowElbow));
     // Set auto staging target
     // Left column
-    new JoystickButton(xboxController, XboxController.Button.kRightStick.value).onTrue(new RetrieveGamePieceCommand(armSubsystem, handSubsystem, robotStateSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kRightStick.value)
+        .onTrue(new RetrieveGamePieceCommand(armSubsystem, handSubsystem, robotStateSubsystem));
 
     new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value)
         .onTrue(

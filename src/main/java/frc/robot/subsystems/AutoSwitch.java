@@ -6,7 +6,6 @@ import frc.robot.Constants.AutonConstants;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.DefaultAutoCommand;
 import frc.robot.commands.auto.DoNothingAutonCommand;
-import frc.robot.commands.auto.GrabCubeBalanceCommand;
 import frc.robot.commands.auto.TwoPieceLvl3AutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceWithDockAutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceWithDockAutoMidCommandGroup;
