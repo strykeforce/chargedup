@@ -212,6 +212,26 @@ public class Constants {
     // public static final double kRateLimitMove = 0.3;
     public static final double kExpoScaleYawFactor = 0.75;
 
+    // AutoBalance Constants
+
+    public static final double kAutoBalanceCloseEnoughDeg = 2; // 2
+    public static final double kAutoBalanceStableCount = 10;
+    public static final double kAutoBalanceStartTimerThresholdDeg = 5;
+    public static final double kAutoBalanceEnableGyroThresholdDegrees = 8;
+
+    public static final double kAutoBalanceSlowDriveVel = 0.6; // 0.5
+    public static final double kAutoBalanceFinalDriveVel = 1.0; // 0.5 0.75
+    public static final double kAutoBalanceSlowdownTimeSec = 1.3; // 2.3  1.6 1.3
+    public static final double kAutoBalanceStopThresholdDegrees = 2.5; // 1 0.6 1.5
+    public static final double kAutoBalanceEdgeTriggerThreshold = 5; // 5
+    public static final double kAutoBalanceAvgRollCount = 7; // 5 10 7
+    public static final double kAutoBalanceLoopFixTimer = 0.140;
+
+    public static final double kPulseAutoBalanceTime = 0.2;
+    public static final double kPauseAutoBalanceTime = 1.0;
+    public static final double kPulseSpeed = 0.5;
+    public static final double kHoldSpeed = 0.1;
+
     public static TalonSRXConfiguration getAzimuthTalonConfig() {
       // constructor sets encoder to Quad/CTRE_MagEncoder_Relative
       TalonSRXConfiguration azimuthConfig = new TalonSRXConfiguration();

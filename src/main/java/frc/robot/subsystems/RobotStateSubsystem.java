@@ -302,6 +302,20 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       driveSubsystem.autoDrive((gamePiece == GamePiece.NONE), tempTargetCol); // FIXME
     }
   }
+  /**
+   * @param isOnAllianceSide Is the robot on the alliance side of the charge station(Towards Tori)
+   */
+  public void toAutoBalance(boolean isOnAllianceSide) {
+    logger.info("{} -> AUTO_BALANCE", currRobotState);
+    currRobotState = RobotState.AUTO_BALANCE;
+    driveSubsystem.autoBalance(isOnAllianceSide);
+  }
+
+  public void toPulseAutoBalance(boolean isOnAllianceSide) {
+    driveSubsystem.pulseAutoBalance(isOnAllianceSide);
+    logger.info("{} -> AUTO_BALANCE", currRobotState);
+    currRobotState = RobotState.AUTO_BALANCE;
+  }
 
   public void toAutoShelf() {
     logger.info("{} --> TO_AUTO_SHELF", currRobotState);
@@ -816,19 +830,20 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
         }
         if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED) {
-          // logger.info("Set RGB OFF");
           rgbLightsSubsystem.setOff();
-          // driveSubsystem.currDriveState = DriveStates.IDLE;
-          // Start Arm Stuff.
           isAutoPlacing = false;
-          // isAutoStageFinished = true;
-          // if (gamePiece == GamePiece.NONE) toAutoShelf();
-          // else toAutoScore();
           if (gamePiece == GamePiece.NONE) {
             logger.info("{} -> AUTO_SHELF", currRobotState);
             currRobotState = RobotState.AUTO_SHELF;
           }
         } // FIXME ELSE??
+        break;
+      case AUTO_BALANCE:
+        // INDICATOR STATE
+
+        // if (driveSubsystem.currDriveState == DriveStates.AUTO_BALANCE_FINISHED) {
+        //   //Auto_Balance_Finished
+        // }
         break;
       case CHECK_AMBIGUITY:
         if (gamePiece == GamePiece.NONE && handSubsystem.hasCone()) {
@@ -949,6 +964,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     TO_AUTO_SCORE,
     CHECK_AMBIGUITY,
     FLOOR_GRAB_CONE,
+    AUTO_BALANCE,
     TO_STOW_SCORE,
     RETRIEVE_GAMEPIECE
   }
