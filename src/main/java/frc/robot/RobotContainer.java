@@ -302,6 +302,10 @@ public class RobotContainer {
     //     .onTrue(
     //         new InstantCommand(() -> robotStateSubsystem.setAutoMode(true),
     // robotStateSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+        .onTrue(
+            new StowRobotCommand(
+                robotStateSubsystem, armSubsystem, intakeSubsystem, handSubsystem));
 
     // Hand
     /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
@@ -431,6 +435,11 @@ public class RobotContainer {
                 new SetLevelAndColCommandGroup(
                     robotStateSubsystem, TargetLevel.HIGH, TargetCol.RIGHT));
 
+    // Floor place
+    Trigger floorPlace = new Trigger(() -> xboxController.getPOV() == 0);
+    floorPlace.onTrue(
+        new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.LOW, TargetCol.MID));
+
     // Hand
     new JoystickButton(xboxController, XboxController.Button.kA.value)
         .onTrue(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem));
@@ -440,7 +449,7 @@ public class RobotContainer {
         .onTrue(new ShelfPickupCommand(robotStateSubsystem));
 
     // Floor pickup
-    Trigger dPadPressed = new Trigger(() -> xboxController.getPOV() != -1);
+    Trigger dPadPressed = new Trigger(() -> xboxController.getPOV() == 180);
     dPadPressed.onTrue(new FloorPickupCommand(armSubsystem, robotStateSubsystem));
 
     // Set game piece

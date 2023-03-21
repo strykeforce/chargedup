@@ -16,6 +16,7 @@ import frc.robot.Constants.VisionConstants;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -42,6 +43,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   PhotonPoseEstimator photonPoseEstimator;
   private boolean buffersFull = false;
   private boolean hasResetOdomAuto = false;
+  private EstimatedRobotPose savedOffRobotEstimation;
   Translation2d robotPose = new Translation2d(2767, 2767);
 
   public VisionSubsystem(DriveSubsystem driveSubsystem) {
@@ -56,7 +58,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
     photonPoseEstimator =
         new PhotonPoseEstimator(
             aprilTagFieldLayout,
-            PoseStrategy.LOWEST_AMBIGUITY,
+            PoseStrategy.MULTI_TAG_PNP,
             cam1,
             // -.25, .11,0 // 0,10, 187
             new Transform3d(
@@ -172,8 +174,11 @@ public class VisionSubsystem extends MeasurableSubsystem {
     }
     double x = robotPose.getX(), y = robotPose.getY();
     try {
-      if (result.hasTargets() && result.getBestTarget().getPoseAmbiguity() <= 0.15) {
-        Pose3d cameraPose = photonPoseEstimator.update().get().estimatedPose;
+      savedOffRobotEstimation = photonPoseEstimator.update().get();
+      if (result.hasTargets()
+          && (result.getBestTarget().getPoseAmbiguity() <= 0.15
+              || savedOffRobotEstimation.targetsUsed.size() > 1)) {
+        Pose3d cameraPose = savedOffRobotEstimation.estimatedPose;
         y = cameraPose.getY();
         x = cameraPose.getX();
         // y = photonPoseEstimator.update().get().estimatedPose.getY();
@@ -238,6 +243,12 @@ public class VisionSubsystem extends MeasurableSubsystem {
         new Measure("Camera Latency", () -> result.getLatencyMillis()),
         new Measure("Camera Odometry X (NO OFFSET)", () -> getOdometry().getX()),
         new Measure("hasResetOdomAuto", () -> (getOdomAutoBool() ? 1 : 0)),
-        new Measure("Camera Odometry Y (NO OFFSET)", () -> getOdometry().getY()));
+        new Measure("Camera Odometry Y (NO OFFSET)", () -> getOdometry().getY()),
+        new Measure(
+            "Num targets",
+            () ->
+                savedOffRobotEstimation == null
+                    ? 2767.0
+                    : savedOffRobotEstimation.targetsUsed.size()));
   }
 }
