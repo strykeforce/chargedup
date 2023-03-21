@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.ElbowConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.RGBlights.RGBsetPieceCommand;
 import frc.robot.commands.auto.AutoCommandInterface;
@@ -28,8 +27,9 @@ import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.LockZeroCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
+import frc.robot.commands.elbow.ElbowHoldPosCommand;
 import frc.robot.commands.elbow.ElbowOpenLoopCommand;
-import frc.robot.commands.elbow.ElbowRetrieveGamepieceCommand;
+import frc.robot.commands.elbow.JogElbowCommand;
 import frc.robot.commands.elevator.AdjustElevatorCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.HoldPositionCommand;
@@ -53,6 +53,8 @@ import frc.robot.commands.robotState.ShuffleBoardHealthCheckCommandGroup;
 import frc.robot.commands.robotState.StowRobotCommand;
 import frc.robot.commands.robotState.ToggleIntakeCommand;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
+import frc.robot.commands.shoulder.StopTwistCommand;
+import frc.robot.commands.shoulder.TwistShoulderCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.commands.vision.ToggleUpdateWithVisionCommand;
 import frc.robot.subsystems.ArmSubsystem;
@@ -128,7 +130,8 @@ public class RobotContainer {
     elevatorSubsystem = new ElevatorSubsystem();
     elbowSubsystem = new ElbowSubsystem(constants);
     shoulderSubsystem = new ShoulderSubsystem(constants);
-    armSubsystem = new ArmSubsystem(shoulderSubsystem, elevatorSubsystem, elbowSubsystem);
+    armSubsystem =
+        new ArmSubsystem(shoulderSubsystem, elevatorSubsystem, elbowSubsystem, xboxController);
     rgbLightsSubsystem = new RGBlightsSubsystem();
     robotStateSubsystem =
         new RobotStateSubsystem(
@@ -166,6 +169,7 @@ public class RobotContainer {
     configureOperatorButtonBindings();
     configureMatchDashboard();
     if (!isEvent || !Constants.isCompBot) {
+      armSubsystem.setTwistEnd(true);
       configureTelemetry();
       configurePitDashboard();
       new Trigger(RobotController::getUserButton)
@@ -476,22 +480,23 @@ public class RobotContainer {
             .onTrue(new AdjustElevatorCommand(elevatorSubsystem, 1000))
             .onFalse(new HoldPositionCommand(elevatorSubsystem));
 
+    Trigger rightDown =
+        new Trigger(() -> xboxController.getRightY() <= -0.1)
+            .onTrue(new JogElbowCommand(elbowSubsystem, robotStateSubsystem, 1))
+            .onFalse(new ElbowHoldPosCommand(elbowSubsystem));
+    Trigger rightUp =
+        new Trigger(() -> xboxController.getRightY() >= 0.1)
+            .onTrue(new JogElbowCommand(elbowSubsystem, robotStateSubsystem, -1))
+            .onFalse(new ElbowHoldPosCommand(elbowSubsystem));
+
     Trigger rightRight =
         new Trigger(() -> xboxController.getRightX() <= -0.1)
-            .onTrue(
-                new ElbowRetrieveGamepieceCommand(
-                    elbowSubsystem,
-                    robotStateSubsystem,
-                    ElbowConstants.kRetrieveGamepiecePercentOutput))
-            .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0.0));
+            .onTrue(new TwistShoulderCommand(shoulderSubsystem, armSubsystem, -1))
+            .onFalse(new StopTwistCommand(shoulderSubsystem, armSubsystem));
     Trigger rightLeft =
         new Trigger(() -> xboxController.getRightX() >= 0.1)
-            .onTrue(
-                new ElbowRetrieveGamepieceCommand(
-                    elbowSubsystem,
-                    robotStateSubsystem,
-                    -ElbowConstants.kRetrieveGamepiecePercentOutput))
-            .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0.0));
+            .onTrue(new TwistShoulderCommand(shoulderSubsystem, armSubsystem, 1))
+            .onFalse(new StopTwistCommand(shoulderSubsystem, armSubsystem));
   }
 
   public Command getAutonomousCommand() {
