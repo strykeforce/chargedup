@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.AutonConstants;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
@@ -273,15 +272,14 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public void toAutoDrive() {
+    TargetCol tempTargetCol = TargetCol.NONE;
+    if (gamePiece != GamePiece.CUBE) tempTargetCol = getTargetCol();
     logger.info("{} -> AUTO_DRIVE", currRobotState);
     currRobotState = RobotState.AUTO_DRIVE;
     isAutoPlacing = true;
-    TargetCol tempTargetCol = TargetCol.NONE;
-    if (Math.abs(driveSubsystem.getSpeedMPS()) <= DriveConstants.kMaxSpeedToAutoDrive) {
-      if (gamePiece != GamePiece.CUBE) tempTargetCol = getTargetCol();
-      logger.info("Gamepiece toAutodrive: {}", gamePiece.toString());
-      driveSubsystem.autoDrive((gamePiece == GamePiece.NONE), tempTargetCol); // FIXME
-    }
+    logger.info(
+        "Starting AutoDrive. Gamepiece: {}, TargetCol: {}", gamePiece.toString(), tempTargetCol);
+    driveSubsystem.driveToPose(tempTargetCol); // FIXME
   }
 
   public void toAutoShelf() {
@@ -844,11 +842,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           logger.info("{} -> SHELF_WAIT_TRANSITION", currRobotState);
           currRobotState = RobotState.SHELF_WAIT_TRANSITION;
         }
-        if (visionSubsystem.getAmbiguity() <= 0.15) {
+        if (visionSubsystem.lastUpdateWithinThresholdTime()) {
           rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
           // toAutoDrive();
-        }
-        if (visionSubsystem.getAmbiguity() > 0.15) {
+        } else {
           rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
         }
         break;
@@ -894,7 +891,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       rotation = 0;
     }
     int multiplier = 0;
-    logger.info("tempTargetCol: {}", tempTargetCol.name());
+    // logger.info("tempTargetCol: {}", tempTargetCol.name());
     if (tempTargetCol.equals(TargetCol.LEFT)) multiplier = 1;
     if (tempTargetCol.equals(TargetCol.RIGHT)) multiplier = -1;
     if (!isBlueAlliance()) multiplier *= -1;
