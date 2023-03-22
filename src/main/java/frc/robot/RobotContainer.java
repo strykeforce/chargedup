@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import ch.qos.logback.classic.util.ContextInitializer;
@@ -20,16 +16,16 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.ElbowConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.RGBlights.RGBsetPieceCommand;
 import frc.robot.commands.auto.AutoCommandInterface;
+import frc.robot.commands.auto.TestBalanceCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.LockZeroCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
-import frc.robot.commands.elbow.ElbowOpenLoopCommand;
-import frc.robot.commands.elbow.ElbowRetrieveGamepieceCommand;
+import frc.robot.commands.elbow.ElbowHoldPosCommand;
+import frc.robot.commands.elbow.JogElbowCommand;
 import frc.robot.commands.elevator.AdjustElevatorCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.HoldPositionCommand;
@@ -42,7 +38,6 @@ import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
-import frc.robot.commands.robotState.AutoPlaceCommandGroup;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.RetrieveGamePieceCommand;
@@ -100,7 +95,8 @@ public class RobotContainer {
   private SuppliedValueWidget<Boolean> currGamePiece;
 
   // Paths
-  //   private DriveAutonCommand testPath;
+  //   private GrabCubeBalanceCommand testpath;
+  private TestBalanceCommand balancepath;
   //   private CommunityToDockCommandGroup communityToDockCommandGroup;
   //   private TwoPieceWithDockAutoCommandGroup twoPieceWithDockAutoCommandGroup;
   //   private TwoPieceAutoPlacePathCommandGroup twoPieceAutoPlacePathCommandGroup;
@@ -161,7 +157,7 @@ public class RobotContainer {
     // FIX ME
     robotStateSubsystem.setAllianceColor(Alliance.Blue);
 
-    // configurePaths();
+    configurePaths();
     configureDriverButtonBindings();
     configureOperatorButtonBindings();
     configureMatchDashboard();
@@ -212,6 +208,26 @@ public class RobotContainer {
 
   // Path Configuration For Robot Container
   private void configurePaths() {
+    // testpath =
+    //     new GrabCubeBalanceCommand(
+    //         driveSubsystem,
+    //         robotStateSubsystem,
+    //         armSubsystem,
+    //         handSubsystem,
+    //         intakeSubsystem,
+    //         elevatorSubsystem,
+    //         "TestAutoDrivePathOne",
+    //         "TestAutoDrivePathTwo");
+    balancepath =
+        new TestBalanceCommand(
+            driveSubsystem,
+            robotStateSubsystem,
+            armSubsystem,
+            handSubsystem,
+            intakeSubsystem,
+            elevatorSubsystem,
+            "TestAutoDrivePathTwo",
+            "TestAutoDrivePathTwo");
     // testPath = new DriveAutonCommand(driveSubsystem, "pieceTwoFetchPath", true, true);
     // twoPieceAutoPlacePathCommandGroup =
     //     new TwoPieceAutoPlacePathCommandGroup(
@@ -281,10 +297,26 @@ public class RobotContainer {
             false,
             robotStateSubsystem.getTargetCol(),
             true));*/
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
-        .onTrue(
-            new AutoPlaceCommandGroup(
-                driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+    //     .onTrue(
+    //         new AutoPlaceCommandGroup(
+    //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
+    // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.X.id)
+        .onTrue(new xLockCommand(driveSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+    //     .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(threePiecePath);
+
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+    //     .onTrue(
+    //         new AutoPlaceCommandGroup(
+    //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+    //     .onTrue(new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+    //     .onTrue(new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id).onTrue(balancepath);
     // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
@@ -302,10 +334,8 @@ public class RobotContainer {
     //     .onTrue(
     //         new InstantCommand(() -> robotStateSubsystem.setAutoMode(true),
     // robotStateSubsystem));
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-        .onTrue(
-            new StowRobotCommand(
-                robotStateSubsystem, armSubsystem, intakeSubsystem, handSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+    //     .onTrue(new ShootGamepieceCommand(handSubsystem, robotStateSubsystem));
 
     // Hand
     /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
@@ -345,12 +375,12 @@ public class RobotContainer {
     //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
     //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
     // // Elbow testing
-    new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
-        .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.2));
-    new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
-        .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-        .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.2));
+    // new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
+    //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
+    //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.2));
+    // new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
+    //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
+    //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.2));
 
     // intake buttons
     // new JoystickButton(xboxController, 3).onTrue(new
@@ -416,6 +446,9 @@ public class RobotContainer {
     //     .onTrue(new ElbowToPositionCommand(elbowSubsystem, Constants.ElbowConstants.kStowElbow));
     // Set auto staging target
     // Left column
+    new JoystickButton(xboxController, XboxController.Button.kRightStick.value)
+        .onTrue(new RetrieveGamePieceCommand(armSubsystem, handSubsystem, robotStateSubsystem));
+
     new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value)
         .onTrue(
             new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID, TargetCol.LEFT));
@@ -476,22 +509,14 @@ public class RobotContainer {
             .onTrue(new AdjustElevatorCommand(elevatorSubsystem, 1000))
             .onFalse(new HoldPositionCommand(elevatorSubsystem));
 
-    Trigger rightRight =
-        new Trigger(() -> xboxController.getRightX() <= -0.1)
-            .onTrue(
-                new ElbowRetrieveGamepieceCommand(
-                    elbowSubsystem,
-                    robotStateSubsystem,
-                    ElbowConstants.kRetrieveGamepiecePercentOutput))
-            .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0.0));
-    Trigger rightLeft =
-        new Trigger(() -> xboxController.getRightX() >= 0.1)
-            .onTrue(
-                new ElbowRetrieveGamepieceCommand(
-                    elbowSubsystem,
-                    robotStateSubsystem,
-                    -ElbowConstants.kRetrieveGamepiecePercentOutput))
-            .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0.0));
+    Trigger rightDown =
+        new Trigger(() -> xboxController.getRightY() <= -0.1)
+            .onTrue(new JogElbowCommand(elbowSubsystem, robotStateSubsystem, 1))
+            .onFalse(new ElbowHoldPosCommand(elbowSubsystem));
+    Trigger rightUp =
+        new Trigger(() -> xboxController.getRightY() >= 0.1)
+            .onTrue(new JogElbowCommand(elbowSubsystem, robotStateSubsystem, -1))
+            .onFalse(new ElbowHoldPosCommand(elbowSubsystem));
   }
 
   public Command getAutonomousCommand() {
@@ -657,7 +682,8 @@ public class RobotContainer {
         Map.of(
             "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
     robotStateSubsystem.setAllianceColor(alliance);
-    // testPath.generateTrajectory();
+    // testpath.generateTrajectory();
+    balancepath.generateTrajectory();
     // communityToDockCommandGroup.generateTrajectory();
     // twoPieceWithDockAutoCommandGroup.generateTrajectory();
     // threePiecePath.generateTrajectory();

@@ -118,6 +118,10 @@ public class HandSubsystem extends MeasurableSubsystem {
   //   handRightTalon.set(ControlMode.MotionMagic, location);
   // }
 
+  public double getVel() {
+    return handLeftTalon.getSelectedSensorVelocity();
+  }
+
   private void setPos(double leftLocation /*, double rightLocation*/) {
     setLeftPos(leftLocation);
     // setRightPos(rightLocation);
@@ -215,6 +219,13 @@ public class HandSubsystem extends MeasurableSubsystem {
   public void openShelf() {
     logger.info("Opening Hand to Shelf Position");
     setPos(Constants.HandConstants.kShelfOpenPosition);
+    desiredState = HandStates.OPEN;
+    handState = HandStates.TRANSITIONING;
+  }
+
+  public void openCubeShoot() {
+    logger.info("Opening Hand for Cube Shooting Position");
+    setPos(Constants.HandConstants.kCubeShootingPosition);
     desiredState = HandStates.OPEN;
     handState = HandStates.TRANSITIONING;
   }
