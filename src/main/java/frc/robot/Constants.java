@@ -212,6 +212,26 @@ public class Constants {
     // public static final double kRateLimitMove = 0.3;
     public static final double kExpoScaleYawFactor = 0.75;
 
+    // AutoBalance Constants
+
+    public static final double kAutoBalanceCloseEnoughDeg = 2; // 2
+    public static final double kAutoBalanceStableCount = 10;
+    public static final double kAutoBalanceStartTimerThresholdDeg = 5;
+    public static final double kAutoBalanceEnableGyroThresholdDegrees = 8;
+
+    public static final double kAutoBalanceSlowDriveVel = 0.6; // 0.5
+    public static final double kAutoBalanceFinalDriveVel = 1.0; // 0.5 0.75
+    public static final double kAutoBalanceSlowdownTimeSec = 1.15; // 2.3  1.6 1.3
+    public static final double kAutoBalanceStopThresholdDegrees = 2.0; // 1 0.6 1.5
+    public static final double kAutoBalanceEdgeTriggerThreshold = 5; // 5
+    public static final double kAutoBalanceAvgRollCount = 7; // 5 10 7
+    public static final double kAutoBalanceLoopFixTimer = 0.140;
+
+    public static final double kPulseAutoBalanceTime = 0.2;
+    public static final double kPauseAutoBalanceTime = 1.0;
+    public static final double kPulseSpeed = 0.5;
+    public static final double kHoldSpeed = 0.1;
+
     public static TalonSRXConfiguration getAzimuthTalonConfig() {
       // constructor sets encoder to Quad/CTRE_MagEncoder_Relative
       TalonSRXConfiguration azimuthConfig = new TalonSRXConfiguration();
@@ -369,6 +389,7 @@ public class Constants {
     public static final double kLevelThreeCubeElevator = kLevelThreeConeElevator;
     public static final double kShelfElevator = -2_000; // -18_606
     public static final double kShelfExitElevator = kShelfElevator + 4000; // +3000
+    public static final double kAutoHighCubeElevator = -2_000;
 
     // Parallel Movement Constants
     public static final double kStowToHighElevatorParallelAllowed = kStowElevator;
@@ -448,6 +469,7 @@ public class Constants {
     public static final int kCloseEnoughTicks = 2000;
 
     // Elbow Positions
+    public static final double kJogElbowTicks = 500.0;
     public static final double kIntakeStageElbow = -14_465;
     public static final double kIntakeElbow = -21_087; // -43_200
     public static final double kStowElbow = 0;
@@ -455,10 +477,11 @@ public class Constants {
     public static final double kLevelOneElbow = 18_548;
     public static final double kLevelTwoConeElbow = 60_097;
     public static final double kLevelTwoCubeElbow = 60_097;
-    public static final double kLevelThreeConeElbow = 85_553;
+    public static final double kLevelThreeConeElbow = 84_553;
     public static final double kLevelThreeCubeElbow = 84_106;
     public static final double kShelfElbow = 41_000;
     public static final double kFloorElbowSweep = 16_876;
+    public static final double kAutoHighCubeElbow = 60_097;
 
     public static final double kRetrieveGamepiecePercentOutput = 0.2;
 
@@ -512,6 +535,8 @@ public class Constants {
 
     public static final double kMaxFwd = 8_000; // 5000
     public static final double kMaxRev = -3_000; // -100
+    public static final double kMaxTwistTicks = 750.0;
+    public static final double kTwistBy = 10.0;
 
     public static final double kZeroDegs = 0; // FIXME
 
@@ -539,6 +564,7 @@ public class Constants {
     public static final double kLevelThreeConeShoulder = 5_850; // 3900
     public static final double kLevelThreeCubeShoulder = kLevelThreeConeShoulder;
     public static final double kShelfShoulder = -2_800; // 0
+    public static final double kAutoHighCubeShoulder = 0;
 
     // Allow Parallel Movement Ticks
     public static final double kFloorPickupParallelAllowed = 2_000;
@@ -673,17 +699,20 @@ public class Constants {
     public static final double kRollerPickUp = 0.7;
     public static final double kRollerOff = 0.0;
     public static final double kRollerDrop = -0.1;
+    public static final double kRollerShoot = -1.0;
 
     public static final double kMaxFwd = 1250; // 1100
     public static final double kMaxRev = -500; // -1000
 
     public static final double kHasPieceMinTicks = 450;
 
+    public static final double kHandVelocityThreshold = 5;
     public static final double kHandZeroSpeed = 0.1;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
     public static final int kZeroStableCounts = 1592;
     public static final int kHasConeStableCounts = 2;
     public static final int kHasCubeStableCounts = 2;
+    public static final int kHandVelStable = 50;
 
     public static final double kHandHoldingPercent = 0.1; // FIXME
     public static final double kHoldingVelocityThreshold = 50; // FIXME
@@ -695,6 +724,7 @@ public class Constants {
     public static final double kHandOpenPosition = kMaxRev;
     public static final double kIntakeOpenPosition = -500; // 50
     public static final double kCubeGrabbingPosition = 300;
+    public static final double kCubeShootingPosition = 200;
     public static final double kStowPosition = 1_000;
     public static final double kFloorOpenPosition = 300;
     public static final double kShelfOpenPosition = 0;
@@ -761,15 +791,15 @@ public class Constants {
     public static final int kElbowZeroTicks = 1183; // 730
 
     // Shoulder
-    public static final double kShoulderMainZeroTicks = 995;
-    public static final double kShoulderFollowerZeroTicks = 3007;
+    public static final double kShoulderMainZeroTicks = 2050;
+    public static final double kShoulderFollowerZeroTicks = 2057;
 
     // Intake
     public static final int kIntakeZeroTicks = 2790; // 2440 ->2540
     public static final double kExtendPosTicks = -2_100;
 
     // Hand
-    public static final double kHandZeroTicks = 1201; // 686 ->976
+    public static final double kHandZeroTicks = 935; // 686 ->976
   }
 
   public static class ProtoConstants {
