@@ -7,6 +7,7 @@ import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.DefaultAutoCommand;
 import frc.robot.commands.auto.DoNothingAutonCommand;
 import frc.robot.commands.auto.TwoPieceLvl3AutoCommandGroup;
+import frc.robot.commands.auto.TwoPieceLvl3BumpAutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceWithDockAutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceWithDockAutoMidCommandGroup;
 import java.util.ArrayList;
@@ -111,7 +112,7 @@ public class AutoSwitch {
     switch (switchPos) {
         // Non-Bump Side
       case 0x00:
-        // Cone Lvl 3, Cube Lvl 2, Auto Balance
+        // Cone Lvl 3, Cube Lvl 3, Auto Balance
         return new TwoPieceWithDockAutoCommandGroup(
             driveSubsystem,
             robotStateSubsystem,
@@ -148,7 +149,7 @@ public class AutoSwitch {
         // Bump Side
       case 0x20:
         // Cone Lvl 3, Cube Lvl 3
-        return new TwoPieceLvl3AutoCommandGroup(
+        return new TwoPieceLvl3BumpAutoCommandGroup(
             driveSubsystem,
             robotStateSubsystem,
             armSubsystem,
@@ -156,7 +157,8 @@ public class AutoSwitch {
             intakeSubsystem,
             elevatorSubsystem,
             "pieceFetchPath",
-            "pieceOneDeliverBumpPath");
+            "pieceOneDeliverBumpPathPt1",
+            "pieceOneDeliverBumpPathPt2");
       case 0x30:
         return new DoNothingAutonCommand(
             driveSubsystem,

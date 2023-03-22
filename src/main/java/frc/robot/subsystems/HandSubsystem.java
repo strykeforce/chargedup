@@ -223,6 +223,13 @@ public class HandSubsystem extends MeasurableSubsystem {
     handState = HandStates.TRANSITIONING;
   }
 
+  public void openCubeShoot() {
+    logger.info("Opening Hand for Cube Shooting Position");
+    setPos(Constants.HandConstants.kCubeShootingPosition);
+    desiredState = HandStates.OPEN;
+    handState = HandStates.TRANSITIONING;
+  }
+
   public double getSensor() {
     return handLeftTalon.getSensorCollection().getAnalogInRaw();
   }
