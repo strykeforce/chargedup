@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
+import com.kauailabs.navx.frc.AHRS.SerialDataType;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -24,7 +25,7 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
@@ -128,7 +129,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
       swerveModules[i].loadAndSetAzimuthZeroReference();
     }
-    ahrs = new AHRS(SPI.Port.kMXP, (byte) 200);
+    ahrs = new AHRS(SerialPort.Port.kUSB1, SerialDataType.kProcessedData, (byte) 200);
     swerveDrive = new SwerveDrive(ahrs, swerveModules);
     swerveDrive.resetGyro();
     swerveDrive.setGyroOffset(Rotation2d.fromDegrees(0));
@@ -282,7 +283,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
     sumRoll = 0;
     avgStartingRoll = 0;
     this.isOnAllianceSide = isOnAllianceSide;
-    tempRoll = Math.abs(getGyroRoll());
+    tempRoll = Math.abs(getGyroPitch());
     logger.info(
         "Starting AutoBalance: tempRoll: {}, Alliance: {}, isOnAllianceSide: {}",
         tempRoll,
@@ -302,7 +303,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
     this.isOnAllianceSide = isOnAllianceSide;
     autoBalancePulseTimer.start();
     autoBalancePulseTimer.reset();
-    tempRoll = Math.abs(getGyroRoll());
+    tempRoll = Math.abs(getGyroPitch());
     move(0.0, 0.0, 0.0, false);
     logger.info("{} -> AUTO_BALANCE_CHECK", currDriveState);
     currDriveState = DriveStates.AUTO_BALANCE_CHECK;
@@ -360,7 +361,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
       case AUTO_DRIVE_FINISHED:
         break;
       case AUTO_BALANCE_EDGE:
-        if (Math.abs(getGyroRoll()) - Math.abs(tempRoll)
+        if (Math.abs(getGyroPitch()) - Math.abs(tempRoll)
             >= DriveConstants.kAutoBalanceEdgeTriggerThreshold) {
           autoBalanceTimer.reset();
           autoBalanceTimer.start();
@@ -376,7 +377,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         }
         break;
       case AUTO_BALANCE_AVERAGE:
-        sumRoll += getGyroRoll();
+        sumRoll += getGyroPitch();
         autoBalanceAvgCount++;
         logger.info("AutoBalanceAvgCount: {}", autoBalanceAvgCount);
         if (autoBalanceTimer.hasElapsed(DriveConstants.kAutoBalanceLoopFixTimer)) {
@@ -389,14 +390,14 @@ public class DriveSubsystem extends MeasurableSubsystem {
         }
         break;
       case AUTO_BALANCE:
-        if (Math.abs(avgStartingRoll) - Math.abs(getGyroRoll())
+        if (Math.abs(avgStartingRoll) - Math.abs(getGyroPitch())
             >= DriveConstants.kAutoBalanceStopThresholdDegrees) {
           drive(0, 0, 0);
           xLock();
           logger.info(
               "AutoBalance Stop: Gyro Roll: {}, trigger Difference: {}",
-              getGyroRoll(),
-              Math.abs(avgStartingRoll) - Math.abs(getGyroRoll()));
+              getGyroPitch(),
+              Math.abs(avgStartingRoll) - Math.abs(getGyroPitch()));
           logger.info("{} -> AUTO_BALANCE_FINISHED", currDriveState);
           currDriveState = DriveStates.AUTO_BALANCE_FINISHED;
         }
@@ -428,7 +429,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         if (autoBalancePulseTimer.hasElapsed(DriveConstants.kPauseAutoBalanceTime)
             && !(autoBalanceStableCounts >= DriveConstants.kAutoBalanceStableCount)) {
           double tempSpeed = DriveConstants.kPulseSpeed;
-          if (Math.abs(getGyroRoll()) - 2.9 <= 10) {
+          if (Math.abs(getGyroPitch()) - 2.9 <= 10) {
             logger.info("AutoBalance Slowing to temp speed");
             tempSpeed = 0.3;
           }
@@ -518,8 +519,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
     return swerveDrive.getHeading();
   }
 
-  public double getGyroRoll() {
-    return ahrs.getRoll();
+  public double getGyroPitch() {
+    return ahrs.getPitch();
   }
 
   public void lockZero() {
@@ -782,7 +783,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("Auto Drive End X", () -> endAutoDrivePose.getX()),
         new Measure("Auto Drive End Y", () -> endAutoDrivePose.getY()),
         new Measure("Auto Drive Timer", () -> autoDriveTimer.get()),
-        new Measure("Robot Roll Deg", () -> getGyroRoll()),
+        new Measure("Robot Roll Deg", () -> getGyroPitch()),
         new Measure("Drive State", () -> currDriveState.ordinal()),
         new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()));
   }

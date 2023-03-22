@@ -5,8 +5,8 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.drive.AutoBalanceCommand;
 import frc.robot.Constants;
+import frc.robot.commands.drive.AutoBalanceCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
@@ -74,7 +74,10 @@ public class TwoPieceWithDockAutoCommandGroup extends SequentialCommandGroup
                     robotStateSubsystem, driveSubsystem, Constants.AutonConstants.kPastXPosition),
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
         new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
-        new ParallelRaceGroup(new AutoWaitForMatchTimeCommand(0.1), new SequentialCommandGroup(thirdPath, new AutoBalanceCommand(true, driveSubsystem, robotStateSubsystem))),
+        new ParallelRaceGroup(
+            new AutoWaitForMatchTimeCommand(0.1),
+            new SequentialCommandGroup(
+                thirdPath, new AutoBalanceCommand(true, driveSubsystem, robotStateSubsystem))),
         new xLockCommand(driveSubsystem),
         new ParallelCommandGroup(
             new ClearGamePieceCommand(robotStateSubsystem),

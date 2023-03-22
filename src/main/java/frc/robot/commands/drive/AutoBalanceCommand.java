@@ -32,10 +32,10 @@ public class AutoBalanceCommand extends CommandBase {
 
   @Override
   public void execute() {
-    if (driveSubsystem.currDriveState == DriveStates.AUTO_BALANCE_FINISHED) {
-      driveSubsystem.autoBalanceReadjust = false;
-      driveSubsystem.autoBalanceGyroActive = false;
-    }
+    // if (driveSubsystem.currDriveState == DriveStates.AUTO_BALANCE_FINISHED) {
+    //   driveSubsystem.autoBalanceReadjust = false;
+    //   driveSubsystem.autoBalanceGyroActive = false;
+    // }
   }
 
   @Override

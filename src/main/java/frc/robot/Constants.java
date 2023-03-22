@@ -221,8 +221,8 @@ public class Constants {
 
     public static final double kAutoBalanceSlowDriveVel = 0.6; // 0.5
     public static final double kAutoBalanceFinalDriveVel = 1.0; // 0.5 0.75
-    public static final double kAutoBalanceSlowdownTimeSec = 1.3; // 2.3  1.6 1.3
-    public static final double kAutoBalanceStopThresholdDegrees = 2.5; // 1 0.6 1.5
+    public static final double kAutoBalanceSlowdownTimeSec = 1.15; // 2.3  1.6 1.3
+    public static final double kAutoBalanceStopThresholdDegrees = 2.0; // 1 0.6 1.5
     public static final double kAutoBalanceEdgeTriggerThreshold = 5; // 5
     public static final double kAutoBalanceAvgRollCount = 7; // 5 10 7
     public static final double kAutoBalanceLoopFixTimer = 0.140;
@@ -794,7 +794,7 @@ public class Constants {
     public static final double kExtendPosTicks = -2_100;
 
     // Hand
-    public static final double kHandZeroTicks = 1201; // 686 ->976
+    public static final double kHandZeroTicks = 935; // 686 ->976
   }
 
   public static class ProtoConstants {
