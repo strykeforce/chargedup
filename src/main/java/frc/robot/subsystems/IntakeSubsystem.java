@@ -32,8 +32,8 @@ public class IntakeSubsystem extends MeasurableSubsystem {
 
   @HealthCheck(order = 2)
   @Position(
-      percentOutput = {-0.1, 0.5},
-      encoderChange = IntakeConstants.kExtendPosTicks)
+      percentOutput = {-0.5, 0.5},
+      encoderChange = 2_000)
   private TalonSRX extendTalon;
 
   private double intakeSetPointTicks;

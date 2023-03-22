@@ -24,6 +24,7 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.Timer;
@@ -40,7 +41,10 @@ import net.consensys.cava.toml.TomlTable;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.strykeforce.healthcheck.Follow;
 import org.strykeforce.healthcheck.HealthCheck;
+import org.strykeforce.healthcheck.Position;
+import org.strykeforce.healthcheck.Timed;
 import org.strykeforce.swerve.PoseEstimatorOdometryStrategy;
 import org.strykeforce.swerve.SwerveDrive;
 import org.strykeforce.swerve.SwerveModule;
@@ -58,6 +62,36 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private final PIDController yController;
   private final ProfiledPIDController omegaAutoDriveController;
   private RobotStateSubsystem robotStateSubsystem;
+
+  //HEALTHCHECK FIX
+  @HealthCheck 
+  @Timed(percentOutput = {0.15,0.5,0.75,1, -0.15,-0.5,-0.75,-1}, duration = 2)
+  private TalonSRX azimuthZero;
+
+  @HealthCheck
+  @Follow(leader = 0)
+  private TalonSRX azimuthOne;
+
+  @HealthCheck @Follow(leader = 0)
+  private TalonSRX azimuthTwo;
+
+  @HealthCheck @Follow(leader = 0)
+  private TalonSRX azimuthThree;
+
+  //HEALTHCHECK FIX
+  @HealthCheck 
+  @Timed(percentOutput = {0.15,0.5,0.75,1, -0.15,-0.5,-0.75,-1}, duration = 2)
+  private TalonFX driveZero;
+
+  @HealthCheck
+  @Follow(leader = 10)
+  private TalonFX driveOne;
+
+  @HealthCheck @Follow(leader = 10)
+  private TalonFX driveTwo;
+
+  @HealthCheck @Follow(leader = 10)
+  private TalonFX driveThree;
 
   // Grapher Variables
   private ChassisSpeeds holoContOutput = new ChassisSpeeds();
@@ -107,6 +141,11 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
     for (int i = 0; i < 4; i++) {
       var azimuthTalon = new TalonSRX(i);
+
+      if (i == 0) azimuthZero = azimuthTalon;
+      else if (i == 1) azimuthOne = azimuthTalon;
+      else if (i == 2) azimuthTwo = azimuthTalon;
+      else if (i == 3) azimuthThree = azimuthTalon;
       azimuthTalon.configFactoryDefault(kTalonConfigTimeout);
       azimuthTalon.configAllSettings(DriveConstants.getAzimuthTalonConfig(), kTalonConfigTimeout);
       azimuthTalon.enableCurrentLimit(true);
@@ -114,6 +153,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
       azimuthTalon.setNeutralMode(NeutralMode.Coast);
 
       var driveTalon = new TalonFX(i + 10);
+
+      if (i == 0) driveZero = driveTalon;
+      else if (i == 1) driveOne = driveTalon;
+      else if (i == 2) driveTwo = driveTalon;
+      else if (i == 3) driveThree = driveTalon;
+
       driveTalon.configFactoryDefault(kTalonConfigTimeout);
       driveTalon.configAllSettings(
           DriveConstants.getDriveTalonConfig(), Constants.kTalonConfigTimeout);

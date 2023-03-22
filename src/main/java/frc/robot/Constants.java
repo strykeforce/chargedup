@@ -499,7 +499,7 @@ public class Constants {
 
       TalonFXConfiguration elbowConfig = new TalonFXConfiguration();
 
-      elbowConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 10, 50, 1.0);
+      elbowConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 10, 60, 1.0);
       elbowConfig.voltageMeasurementFilter = 32;
       elbowConfig.voltageCompSaturation = 12;
       elbowConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
@@ -737,7 +737,7 @@ public class Constants {
     public static TalonSRXConfiguration getHandTalonConfig() {
       TalonSRXConfiguration handConfig = new TalonSRXConfiguration();
 
-      handConfig.slot0.kP = 1.3;
+      handConfig.slot0.kP = 2.0;
       handConfig.slot0.kI = 0.0;
       handConfig.slot0.kD = 50.0;
       handConfig.slot0.kF = 0.85;
