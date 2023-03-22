@@ -8,6 +8,7 @@ import frc.robot.commands.auto.DefaultAutoCommand;
 import frc.robot.commands.auto.DoNothingAutonCommand;
 import frc.robot.commands.auto.TwoPieceLvl3AutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceLvl3BumpAutoCommandGroup;
+import frc.robot.commands.auto.TwoPieceMiddleBalanceAutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceWithDockAutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceWithDockAutoMidCommandGroup;
 import java.util.ArrayList;
@@ -146,6 +147,17 @@ public class AutoSwitch {
             "pieceOneFetchPath",
             "pieceOnePlacePath",
             "pieceTwoToDockPath");
+      case 0x10:
+        // Cone lvl 3, cube lvl 3, balance
+        return new TwoPieceMiddleBalanceAutoCommandGroup(
+            driveSubsystem,
+            robotStateSubsystem,
+            armSubsystem,
+            handSubsystem,
+            intakeSubsystem,
+            elevatorSubsystem,
+            "pieceFetchChargeStation",
+            "pieceScoreChargeStation");
         // Bump Side
       case 0x20:
         // Cone Lvl 3, Cube Lvl 3
