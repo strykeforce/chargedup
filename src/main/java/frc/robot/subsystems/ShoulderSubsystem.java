@@ -109,6 +109,13 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
             && !setToGreaterPos;
   }
 
+  public void twistShoulder(double change) {
+    leftMainShoulderTalon.set(
+        ControlMode.MotionMagic, leftMainShoulderTalon.getSelectedSensorPosition() + change);
+    rightFollowerShoulderTalon.set(
+        ControlMode.MotionMagic, rightFollowerShoulderTalon.getSelectedSensorPosition() + -change);
+  }
+
   public void zeroShoulder() {
     double absoluteMain =
         leftMainShoulderTalon.getSensorCollection().getPulseWidthPosition() & 0xFFF;
