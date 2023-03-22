@@ -377,6 +377,7 @@ public class Constants {
     public static final double kLevelThreeCubeElevator = kLevelThreeConeElevator;
     public static final double kShelfElevator = -2_000; // -18_606
     public static final double kShelfExitElevator = kShelfElevator + 4000; // +3000
+    public static final double kShelfMinimumShelfPosition = -43_000;
 
     // Parallel Movement Constants
     public static final double kStowToHighElevatorParallelAllowed = kStowElevator;
@@ -450,6 +451,7 @@ public class Constants {
     public static final double kZeroDegs = -90; // FIXME
     public static final double kTicksPerDeg = 4096.0 / 360; // FIXME
     public static final double kLength = 0.9; // 0.7855 m
+    public static final double kMaxErrorInElbow = 1_000;
 
     public static final double kOffsetFactor = 52.4 / 1; // 217.35 / 2
 
@@ -775,15 +777,15 @@ public class Constants {
     public static final int kElbowZeroTicks = 1183; // 730
 
     // Shoulder
-    public static final double kShoulderMainZeroTicks = 995;
-    public static final double kShoulderFollowerZeroTicks = 3007;
+    public static final double kShoulderMainZeroTicks = 2050;
+    public static final double kShoulderFollowerZeroTicks = 2057;
 
     // Intake
     public static final int kIntakeZeroTicks = 2790; // 2440 ->2540
     public static final double kExtendPosTicks = -2_100;
 
     // Hand
-    public static final double kHandZeroTicks = 1201; // 686 ->976
+    public static final double kHandZeroTicks = 935; // 686 ->976
   }
 
   public static class ProtoConstants {

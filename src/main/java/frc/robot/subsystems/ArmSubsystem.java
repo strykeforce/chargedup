@@ -36,6 +36,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private boolean isHealthChecking = false;
   private double differenceInShoulder = 0.0;
   private double originOfShoulder = 0.0;
+  private double errorInElbow = 0.0;
   private XboxController xboxController;
   private ArmState beforeTwistState;
   private boolean unTwistAtEnd = false;
@@ -487,6 +488,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
     currState = ArmState.RETRIEVE_GAMEPIECE;
   }
 
+  public boolean isElbowOk() {
+    return errorInElbow <= ElbowConstants.kMaxErrorInElbow;
+  }
+
   @Override
   public void periodic() {
     HandRegion currHandRegion = getHandRegion();
@@ -494,8 +499,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
     if (!isHealthChecking) {
       shoulderSubsystem.setSoftLimits(
           currHandRegion.minTicksShoulder, currHandRegion.maxTicksShoulder);
-      elevatorSubsystem.setSoftLimits(
-          currHandRegion.minTicksElevator, currHandRegion.maxTicksElevator);
+      if (!elevatorSubsystem.isElevatorReinforcing())
+        elevatorSubsystem.setSoftLimits(
+            currHandRegion.minTicksElevator, currHandRegion.maxTicksElevator);
+      else elevatorSubsystem.setSoftLimits(ElevatorConstants.kShelfMinimumShelfPosition, 0.0);
       elbowSubsystem.setSoftLimits(currHandRegion.minTicksElbow, currHandRegion.maxTicksElbow);
     } else {
       shoulderSubsystem.setSoftLimits(-500.0, 3_000.0);
@@ -508,10 +515,12 @@ public class ArmSubsystem extends MeasurableSubsystem {
             && desiredState == ArmState.STOW
             && doReinforceElevator) {
           elevatorSubsystem.reinforceElevator();
-          elbowSubsystem.zeroElbowStow();
+          // elbowSubsystem.zeroElbowStow();
           hasElbowZeroed = true;
+          errorInElbow = elbowSubsystem.printElbowError();
           isElbowReinforced = true;
         }
+
         switch (desiredState) {
           case LOW:
             toLowPos();
@@ -739,6 +748,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
             break;
           case SHOULDER:
             if (shoulderSubsystem.isFinished()) {
+              if (elbowSubsystem.isFinished())
+                logger.info("Elbow at Shelf at {}", elbowSubsystem.getAbsoluteEncoder());
               logger.info("{} -> SHELF", currState);
               currState = ArmState.SHELF;
               currAxis = CurrentAxis.NONE;

@@ -27,10 +27,10 @@ import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.InterruptDriveCommand;
 import frc.robot.commands.drive.LockZeroCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
-import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elbow.ElbowHoldPosCommand;
 import frc.robot.commands.elbow.ElbowOpenLoopCommand;
 import frc.robot.commands.elbow.JogElbowCommand;
+import frc.robot.commands.elbow.ZeroElbowCommand;
 import frc.robot.commands.elevator.AdjustElevatorCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.HoldPositionCommand;
@@ -291,8 +291,10 @@ public class RobotContainer {
             new AutoPlaceCommand(driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem))
         .onFalse(new InterruptDriveCommand(driveSubsystem));
     // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.X.id)
+    //     .onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
-        .onTrue(new xLockCommand(driveSubsystem));
+        .onTrue(new ZeroElbowCommand(elbowSubsystem));
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
     //     .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(threePiecePath);
@@ -543,6 +545,10 @@ public class RobotContainer {
         .addBoolean("IsTrajGenerated", () -> autoSwitch.getAutoCommand().hasGenerated())
         .withSize(1, 1)
         .withPosition(7, 1);
+    Shuffleboard.getTab("Match")
+        .addBoolean("Is Elbow Ok?", () -> armSubsystem.isElbowOk())
+        .withSize(1, 1)
+        .withPosition(8, 0);
   }
 
   private void configurePitDashboard() {
