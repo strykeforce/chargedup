@@ -26,7 +26,7 @@ public class HandSubsystem extends MeasurableSubsystem {
   @HealthCheck
   @Position(
       percentOutput = {-0.2, 0.2},
-      encoderChange = (int)HandConstants.kConeGrabbingPosition)
+      encoderChange = (int) HandConstants.kConeGrabbingPosition)
   private TalonSRX handLeftTalon;
 
   @HealthCheck
