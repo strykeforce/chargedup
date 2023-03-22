@@ -664,6 +664,26 @@ public class RobotContainer {
     HealthCheck.add("LockZero", new LockZeroCommand(driveSubsystem)).withPosition(0, 2);
   }
 
+  private void configurePitImportantDashboard() {
+
+    ShuffleboardTab pitImportantTab = Shuffleboard.getTab("PitImportant");
+    pitImportantTab.add(
+        "HealthCheck",
+        new ShuffleBoardHealthCheckCommandGroup(
+            elbowSubsystem,
+            shoulderSubsystem,
+            elevatorSubsystem,
+            handSubsystem,
+            driveSubsystem,
+            intakeSubsystem,
+            armSubsystem))
+    .withPosition(0, 0);
+
+    pitImportantTab.add("Grab Cube", new GrabCubeCommand(handSubsystem)).withPosition(0, 7);
+    pitImportantTab.add("Grab Cone", new GrabConeCommand(handSubsystem)).withPosition(0, 8);
+    pitImportantTab.add("Hand Zero", new ZeroHandCommand(handSubsystem)).withPosition(0, 2);
+  }
+
   public void configureDebugDashboard() {
     ShuffleboardTab debugTab = Shuffleboard.getTab("Debug");
     ShuffleboardLayout retrieveGamepiece =
