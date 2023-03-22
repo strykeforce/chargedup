@@ -679,9 +679,9 @@ public class RobotContainer {
             armSubsystem))
     .withPosition(0, 0);
 
-    pitImportantTab.add("Grab Cube", new GrabCubeCommand(handSubsystem)).withPosition(0, 7);
-    pitImportantTab.add("Grab Cone", new GrabConeCommand(handSubsystem)).withPosition(0, 8);
-    pitImportantTab.add("Hand Zero", new ZeroHandCommand(handSubsystem)).withPosition(0, 2);
+    pitImportantTab.add("Grab Cube", new GrabCubeCommand(handSubsystem)).withPosition(1, 0);
+    pitImportantTab.add("Grab Cone", new GrabConeCommand(handSubsystem)).withPosition(2, 0);
+    pitImportantTab.add("Hand Zero", new ZeroHandCommand(handSubsystem)).withPosition(3, 0);
   }
 
   public void configureDebugDashboard() {
