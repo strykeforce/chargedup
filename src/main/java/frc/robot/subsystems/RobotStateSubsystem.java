@@ -235,7 +235,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       case MID:
         if (armSubsystem.getCurrState() != ArmState.MID_CONE
             && armSubsystem.getCurrState() != ArmState.MID_CUBE) {
-          armSubsystem.toMidPos(getGamePiece());
+          armSubsystem.toMidPos(getGamePiece(), isAuto);
         }
         break;
       case HIGH:
@@ -341,7 +341,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       case MID:
         if (armSubsystem.getCurrState() != ArmState.MID_CONE
             && armSubsystem.getCurrState() != ArmState.MID_CUBE) {
-          armSubsystem.toMidPos(getGamePiece());
+          armSubsystem.toMidPos(getGamePiece(), isAuto);
         }
         break;
       case HIGH:
