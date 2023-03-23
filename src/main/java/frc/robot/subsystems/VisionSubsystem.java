@@ -45,6 +45,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   private boolean hasResetOdomAuto = false;
   private EstimatedRobotPose savedOffRobotEstimation;
   Translation2d robotPose = new Translation2d(2767, 2767);
+  private int gyroBufferId = 0;
 
   public VisionSubsystem(DriveSubsystem driveSubsystem) {
     this.driveSubsystem = driveSubsystem;
@@ -164,6 +165,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
     try {
       result = cam1.getLatestResult();
       if (canFillBuffers) fillBuffers();
+      logger.info("Filled Gyro Buffer: {}", canFillBuffers);
     } catch (Exception e) {
       // logger.info("VISION : GET LATEST FAILED");
     }
@@ -171,6 +173,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
       targets = result.getTargets();
       bestTarget = result.getBestTarget();
       timeStamp = result.getTimestampSeconds();
+      gyroBufferId = (int) (result.getLatencyMillis() / 20);
     }
     double x = robotPose.getX(), y = robotPose.getY();
     try {
@@ -186,14 +189,15 @@ public class VisionSubsystem extends MeasurableSubsystem {
         if (driveSubsystem.canGetVisionUpdates())
           driveSubsystem.updateOdometryWithVision(
               new Pose2d(
-                  new Translation2d(x, y).plus(cameraOffset()), driveSubsystem.getGyroRotation2d()),
+                  new Translation2d(x, y).plus(cameraOffset()),
+                  new Rotation2d(gyroBuffer.get(gyroBufferId))),
               (long) timeStamp);
 
         if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.isAutoDriving()) {
           driveSubsystem.resetOdometryNoLog( // FIXME
               new Pose2d(
                   new Translation2d(x, y).plus(cameraOffset()),
-                  driveSubsystem.getGyroRotation2d()));
+                  new Rotation2d(gyroBuffer.get(gyroBufferId))));
           setOdomAutoBool(true);
         }
       }
@@ -252,6 +256,8 @@ public class VisionSubsystem extends MeasurableSubsystem {
         new Measure("Camera Latency", () -> result.getLatencyMillis()),
         new Measure("Camera Odometry X (NO OFFSET)", () -> getOdometry().getX()),
         new Measure("hasResetOdomAuto", () -> (getOdomAutoBool() ? 1 : 0)),
+        new Measure("gyro bufferId", () -> gyroBufferId),
+        new Measure("Gyro Buffer", () -> gyroBuffer.get(gyroBufferId)),
         new Measure("Camera Odometry Y (NO OFFSET)", () -> getOdometry().getY()),
         new Measure(
             "Num targets",
