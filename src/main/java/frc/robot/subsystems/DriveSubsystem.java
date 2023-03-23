@@ -599,7 +599,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   }
   // Closed-Loop (Velocity Controlled) Swerve Movement
   public void move(double vXmps, double vYmps, double vOmegaRadps, boolean isFieldOriented) {
-    swerveDrive.move(vXmps, vYmps, vOmegaRadps, false);
+    swerveDrive.move(vXmps, vYmps, vOmegaRadps, isFieldOriented);
   }
 
   public void resetGyro() {
