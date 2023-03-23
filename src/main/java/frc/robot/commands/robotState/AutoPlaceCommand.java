@@ -57,5 +57,6 @@ public class AutoPlaceCommand extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     robotStateSubsystem.endAutoPlace(interrupted);
+    driveSubsystem.setAutoDriving(false);
   }
 }

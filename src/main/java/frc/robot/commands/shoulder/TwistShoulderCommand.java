@@ -5,11 +5,14 @@ import frc.robot.Constants.ShoulderConstants;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.ShoulderSubsystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TwistShoulderCommand extends CommandBase {
   private ArmSubsystem armSubsystem;
   private ShoulderSubsystem shoulderSubsystem;
   private int sign;
+  private Logger logger = LoggerFactory.getLogger(TwistShoulderCommand.class);
 
   public TwistShoulderCommand(
       ShoulderSubsystem shoulderSubsystem, ArmSubsystem armSubsystem, int sign) {

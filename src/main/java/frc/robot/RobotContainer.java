@@ -21,11 +21,12 @@ import frc.robot.commands.RGBlights.RGBsetPieceCommand;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.TestBalanceCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
+import frc.robot.commands.drive.InterruptDriveCommand;
 import frc.robot.commands.drive.LockZeroCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
-import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elbow.ElbowHoldPosCommand;
 import frc.robot.commands.elbow.JogElbowCommand;
+import frc.robot.commands.elbow.ZeroElbowCommand;
 import frc.robot.commands.elevator.AdjustElevatorCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.HoldPositionCommand;
@@ -38,6 +39,7 @@ import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
+import frc.robot.commands.robotState.AutoPlaceCommand;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.RetrieveGamePieceCommand;
@@ -48,6 +50,8 @@ import frc.robot.commands.robotState.ShuffleBoardHealthCheckCommandGroup;
 import frc.robot.commands.robotState.StowRobotCommand;
 import frc.robot.commands.robotState.ToggleIntakeCommand;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
+import frc.robot.commands.shoulder.StopTwistCommand;
+import frc.robot.commands.shoulder.TwistShoulderCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.commands.vision.ToggleUpdateWithVisionCommand;
 import frc.robot.subsystems.ArmSubsystem;
@@ -124,7 +128,8 @@ public class RobotContainer {
     elevatorSubsystem = new ElevatorSubsystem();
     elbowSubsystem = new ElbowSubsystem(constants);
     shoulderSubsystem = new ShoulderSubsystem(constants);
-    armSubsystem = new ArmSubsystem(shoulderSubsystem, elevatorSubsystem, elbowSubsystem);
+    armSubsystem =
+        new ArmSubsystem(shoulderSubsystem, elevatorSubsystem, elbowSubsystem, xboxController);
     rgbLightsSubsystem = new RGBlightsSubsystem();
     robotStateSubsystem =
         new RobotStateSubsystem(
@@ -162,6 +167,7 @@ public class RobotContainer {
     configureOperatorButtonBindings();
     configureMatchDashboard();
     if (!isEvent || !Constants.isCompBot) {
+      armSubsystem.setTwistEnd(true);
       configureTelemetry();
       configurePitDashboard();
       new Trigger(RobotController::getUserButton)
@@ -301,9 +307,31 @@ public class RobotContainer {
     //     .onTrue(
     //         new AutoPlaceCommandGroup(
     //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+        .onTrue(
+            new AutoPlaceCommand(driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem))
+        .onFalse(new InterruptDriveCommand(driveSubsystem));
+    // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.X.id)
+    //     .onTrue(new xLockCommand(driveSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.X.id)
+        .onTrue(new ZeroElbowCommand(elbowSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+    //     .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(threePiecePath);
+
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+    //     .onTrue(
+    //         new AutoPlaceCommandGroup(
+    //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+    //     .onTrue(new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+    //     .onTrue(new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id).onTrue(balancepath);
     // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
-        .onTrue(new xLockCommand(driveSubsystem));
+        .onTrue(new ZeroElbowCommand(elbowSubsystem));
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
     //     .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(threePiecePath);
@@ -517,6 +545,15 @@ public class RobotContainer {
         new Trigger(() -> xboxController.getRightY() >= 0.1)
             .onTrue(new JogElbowCommand(elbowSubsystem, robotStateSubsystem, -1))
             .onFalse(new ElbowHoldPosCommand(elbowSubsystem));
+
+    Trigger rightRight =
+        new Trigger(() -> xboxController.getRightX() <= -0.1)
+            .onTrue(new TwistShoulderCommand(shoulderSubsystem, armSubsystem, -1))
+            .onFalse(new StopTwistCommand(shoulderSubsystem, armSubsystem));
+    Trigger rightLeft =
+        new Trigger(() -> xboxController.getRightX() >= 0.1)
+            .onTrue(new TwistShoulderCommand(shoulderSubsystem, armSubsystem, 1))
+            .onFalse(new StopTwistCommand(shoulderSubsystem, armSubsystem));
   }
 
   public Command getAutonomousCommand() {
@@ -562,6 +599,10 @@ public class RobotContainer {
         .addBoolean("IsTrajGenerated", () -> autoSwitch.getAutoCommand().hasGenerated())
         .withSize(1, 1)
         .withPosition(7, 1);
+    Shuffleboard.getTab("Match")
+        .addBoolean("Is Elbow Ok?", () -> armSubsystem.isElbowOk())
+        .withSize(1, 1)
+        .withPosition(8, 0);
   }
 
   private void configurePitDashboard() {

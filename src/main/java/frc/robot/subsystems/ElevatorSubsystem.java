@@ -34,6 +34,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   private ElevatorState elevatorState;
   private boolean hasZeroed = false;
   private boolean setToGreaterPos = false;
+  private boolean isElevatorReinforcing = false;
 
   private int elevatorZeroStableCounts;
 
@@ -106,7 +107,12 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
             && !setToGreaterPos;
   }
 
+  public boolean isElevatorReinforcing() {
+    return isElevatorReinforcing;
+  }
+
   public void unReinforceElevator() {
+    isElevatorReinforcing = false;
     setPct(0.0);
 
     leftMainFalcon.configForwardSoftLimitEnable(true);
@@ -121,8 +127,9 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   }
 
   public void reinforceElevator() {
-    leftMainFalcon.configForwardSoftLimitEnable(false);
-    leftMainFalcon.configReverseSoftLimitEnable(false);
+    isElevatorReinforcing = true;
+    leftMainFalcon.configForwardSoftLimitEnable(true);
+    leftMainFalcon.configReverseSoftLimitEnable(true);
     // rightFollowFalcon.configForwardSoftLimitEnable(false);
     // rightFollowFalcon.configReverseSoftLimitEnable(false);
 
