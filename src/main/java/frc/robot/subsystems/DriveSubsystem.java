@@ -360,6 +360,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
     currDriveState = driveStates;
   }
 
+  public DriveStates getDriveState() {
+    return currDriveState;
+  }
+
   public void setAutoDriving(boolean autoDrive) {
     autoDriving = autoDrive;
   }

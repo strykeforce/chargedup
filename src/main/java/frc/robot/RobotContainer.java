@@ -24,6 +24,7 @@ import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.InterruptDriveCommand;
 import frc.robot.commands.drive.LockZeroCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
+import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elbow.ElbowHoldPosCommand;
 import frc.robot.commands.elbow.JogElbowCommand;
 import frc.robot.commands.elbow.ZeroElbowCommand;

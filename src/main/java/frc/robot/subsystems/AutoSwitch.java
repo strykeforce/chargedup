@@ -157,7 +157,8 @@ public class AutoSwitch {
             intakeSubsystem,
             elevatorSubsystem,
             "pieceFetchChargeStation",
-            "pieceScoreChargeStation");
+            "pieceScoreChargeStation",
+            "pieceScoreWithoutAutoChargeStation");
         // Bump Side
       case 0x20:
         // Cone Lvl 3, Cube Lvl 3
