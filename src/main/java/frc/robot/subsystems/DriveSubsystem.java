@@ -319,24 +319,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
     grapherTrajectoryActive(true);
     // calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
   }
-  // private void autoDrive() {
-  //   Pose2d currentPose = getPoseMeters();
-  //   Rotation2d robotRotation = getGyroRotation2d();
-
-  //   // holoContInput =
-  //   double xCalc = xAutoDriveController.calculate(currentPose.getX(),endAutoDrivePose.getX());
-  //   double yCalc = xAutoDriveController.calculate(currentPose.getY(),endAutoDrivePose.getY());
-  //   double omegaCalc =
-  //       omegaAutoDriveController.calculate(
-  //           MathUtil.angleModulus(robotRotation.getRadians()),
-  //           robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
-
-  //   move(xCalc, yCalc, omegaCalc, true);
-
-  //   // logger.info("X accel {}, Y accel", moveTranslation.getX(), moveTranslation.getY());
-  //   // logger.info(" X Dif: {}, Y Dif: {}", poseDifference.getX(), poseDifference.getY());
-
-  // }
 
   public boolean isAutoDriving() {
     return autoDriving;
@@ -389,12 +371,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
           move(xCalc, yCalc, omegaCalc, true);
           // calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
         }
-        // if (autoDriving
-        //     && !visionSubsystem.lastUpdateWithinThresholdTime()) { // FIXME TEMP CHECK FOR
-        // AUTODRIVE TESTING
-        //   logger.info("{} -> AUTO_DRIVE_FAILED", currDriveState); // FIXME
-        //   currDriveState = DriveStates.AUTO_DRIVE_FAILED; // FIXME
-        // }
         if (autoDriving
             && !visionUpdates
             && (!visionSubsystem.getOdomAutoBool() || !visionSubsystem.isCameraWorking())) {
@@ -407,7 +383,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
           autoDriveTimer.reset();
           logger.info("{} -> AUTO_DRIVE_FAILED", currDriveState);
           setDriveState(DriveStates.AUTO_DRIVE_FAILED);
-          // currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
           break;
         }
         break;
@@ -424,13 +399,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
       default:
         break;
     }
-    // if (autoDriving && autoDriveTimer.hasElapsed(5.0)) visionUpdates = false;
-    // autoDrive();
-
-    // double xSpeed = getFieldRelSpeed().vxMetersPerSecond;
-    // double ySpeed = getFieldRelSpeed().vyMetersPerSecond;
-    // Pose2d endPoint = new Pose2d();
-    // }
   }
 
   public double getSpeedMPS() {
@@ -462,7 +430,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   }
   // Closed-Loop (Velocity Controlled) Swerve Movement
   public void move(double vXmps, double vYmps, double vOmegaRadps, boolean isFieldOriented) {
-    swerveDrive.move(vXmps, vYmps, vOmegaRadps, false);
+    swerveDrive.move(vXmps, vYmps, vOmegaRadps, isFieldOriented);
   }
 
   public void resetGyro() {

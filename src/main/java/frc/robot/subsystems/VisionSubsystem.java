@@ -213,7 +213,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   }
 
   public boolean lastUpdateWithinThresholdTime() {
-    return RobotController.getFPGATime() / 1000000 - timeStamp
+    return (RobotController.getFPGATime() / 1000000) - timeStamp
         <= VisionConstants.kLastUpdateCloseEnoughThreshold;
   }
 

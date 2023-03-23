@@ -277,7 +277,7 @@ public class Constants {
     public static final double kMaxAccelOmega = 5.0; // 3.14
 
     // AUTODRIVE ProfiledPID Constants
-    public static final double kPAutoDrive = 3.0; // 1
+    public static final double kPAutoDrive = 0.5; // 3
     public static final double kIAutoDrive = 0.0000;
     public static final double kDAutoDrive = 0.00; // kPHolonomic/100
 
@@ -328,7 +328,7 @@ public class Constants {
 
     public static final double kCameraOffset = .335; // was .273 on driveChasis
     public static final double kCameraAngleOffset = 0; // DEGREES was 24 on driveChasis
-    public static final double kLastUpdateCloseEnoughThreshold = 1; // IN SECONDS
+    public static final double kLastUpdateCloseEnoughThreshold = 15.0; // IN SECONDS
     public static int kBufferLookupOffset = 2;
 
     public static Matrix<N3, N1> kStateStdDevs =
@@ -487,7 +487,7 @@ public class Constants {
 
       TalonFXConfiguration elbowConfig = new TalonFXConfiguration();
 
-      elbowConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 10, 50, 1.0);
+      elbowConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(true, 10, 60, 1.0);
       elbowConfig.voltageMeasurementFilter = 32;
       elbowConfig.voltageCompSaturation = 12;
       elbowConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
@@ -723,7 +723,7 @@ public class Constants {
     public static TalonSRXConfiguration getHandTalonConfig() {
       TalonSRXConfiguration handConfig = new TalonSRXConfiguration();
 
-      handConfig.slot0.kP = 1.3;
+      handConfig.slot0.kP = 2; // 1.3
       handConfig.slot0.kI = 0.0;
       handConfig.slot0.kD = 50.0;
       handConfig.slot0.kF = 0.85;
@@ -785,7 +785,7 @@ public class Constants {
     public static final double kExtendPosTicks = -2_100;
 
     // Hand
-    public static final double kHandZeroTicks = 935; // 686 ->976
+    public static final double kHandZeroTicks = 1230; // 686 ->976
   }
 
   public static class ProtoConstants {
@@ -793,7 +793,7 @@ public class Constants {
     public static final double kWheelDiameterInches = 3.0 * (490 / 500.0);
 
     // Elbow
-    public static final int kElbowZeroTicks = 1128; // 1105
+    public static final int kElbowZeroTicks = 1135; // 1105
 
     // Shoulder
     public static final double kShoulderMainZeroTicks = 1909; // old: 1472

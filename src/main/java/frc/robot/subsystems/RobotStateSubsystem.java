@@ -820,7 +820,12 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           // logger.info("Set RGB OFF");
           rgbLightsSubsystem.setOff();
           if (armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER
-              && armSubsystem.getCurrState() != ArmState.LOW) armSubsystem.toTwistShoulder();
+              && armSubsystem.getCurrState() != ArmState.LOW
+              && (armSubsystem.getCurrState() == ArmState.HIGH_CONE
+                  || armSubsystem.getCurrState() == ArmState.HIGH_CUBE
+                  || armSubsystem.getCurrState() == ArmState.MID_CONE
+                  || armSubsystem.getCurrState() == ArmState.MID_CUBE))
+            armSubsystem.toTwistShoulder();
           // driveSubsystem.currDriveState = DriveStates.IDLE;
           // Start Arm Stuff.
           isAutoPlacing = false;
@@ -884,6 +889,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     double targetX = Constants.RobotStateConstants.kAutoPlaceX;
     double rotation = Math.PI;
     if (!isBlueAlliance()) rotation = 0.0;
+    logger.info("getAutoPlaceDriveTarget Fed in Y: {}", yCoord);
 
     if (!isBlueAlliance()) {
       targetX = Constants.RobotStateConstants.kFieldMaxX - targetX;
