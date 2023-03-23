@@ -60,6 +60,7 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
 
   @BeforeHealthCheck
   public boolean goToZero() {
+    rightFollowerShoulderTalon.follow(leftMainShoulderTalon);
     leftMainShoulderTalon.configForwardSoftLimitEnable(false);
     rightFollowerShoulderTalon.configForwardSoftLimitEnable(false);
     setPos(0.0);
