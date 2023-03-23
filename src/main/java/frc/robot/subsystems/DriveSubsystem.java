@@ -77,7 +77,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
       new TimestampedPose(RobotController.getFPGATime(), new Pose2d());
   public VisionSubsystem visionSubsystem;
   private double distanceVisionWheelOdom = 0.0;
-  public boolean autoDriving = false, visionUpdates = true;
+  public boolean autoDriving = false,
+      visionUpdates = false; // FIXME NEEDS TO BE TRUE FOR EVERY OTHER BRANCH
   private Pose2d endAutoDrivePose;
   private double lastXSpeed = 0.0, lastYSpeed = 0.0, speedMPSglobal = 0.0;
   private Timer autoDriveTimer = new Timer();
@@ -88,6 +89,17 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private boolean isShelf;
   private Constants constants;
   private AHRS ahrs;
+  public boolean autoBalanceGyroActive = false;
+  private double autoBalanceStableCounts = 0;
+  private Timer autoBalanceTimer = new Timer();
+  private Timer autoBalancePulseTimer = new Timer();
+  public boolean autoBalanceReadjust = false;
+  public boolean isOnAllianceSide;
+  public boolean autoBalanceTempStable = false;
+  public double tempRoll;
+  private double autoBalanceAvgCount = 0;
+  private double sumRoll = 0;
+  private double avgStartingRoll = 0;
   // private boolean isAutoDriveFinished = false;
 
   public DriveSubsystem(Constants constants) {
@@ -287,9 +299,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
       desiredHeading = new Rotation2d(desiredHeading.getRadians() == Math.PI ? 0.0 : Math.PI);
     setEnableHolo(true);
     resetHolonomicController();
-    // driveSubsystem.grapherTrajectoryActive(true);
-    // driveSubsystem.lockZero();
-
     logger.info("Moving to place");
     TrajectoryConfig config = new TrajectoryConfig(2.5, 1.5);
     config.setEndVelocity(0);
@@ -335,6 +344,42 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
   public void setAutoDriving(boolean autoDrive) {
     autoDriving = autoDrive;
+  }
+
+  public void autoBalance(boolean isOnAllianceSide) {
+    // On alliance side of charge station, drive Positive X
+    autoBalanceAvgCount = 0;
+    sumRoll = 0;
+    avgStartingRoll = 0;
+    this.isOnAllianceSide = isOnAllianceSide;
+    tempRoll = Math.abs(getGyroPitch());
+    logger.info(
+        "Starting AutoBalance: tempRoll: {}, Alliance: {}, isOnAllianceSide: {}",
+        tempRoll,
+        robotStateSubsystem.getAllianceColor(),
+        isOnAllianceSide);
+    if (isOnAllianceSide) {
+      move(DriveConstants.kAutoBalanceFinalDriveVel, 0, 0, false);
+      logger.info("DRIVING POSITIVE LIKE ITS SUPPOSED TO");
+    }
+    // NOT On alliance side of charge station, drive Negative X
+    else move(-DriveConstants.kAutoBalanceFinalDriveVel, 0, 0, false);
+    logger.info("{} -> AUTO_BALANCE_EDGE", currDriveState);
+    currDriveState = DriveStates.AUTO_BALANCE_EDGE;
+  }
+
+  public void pulseAutoBalance(boolean isOnAllianceSide) {
+    this.isOnAllianceSide = isOnAllianceSide;
+    autoBalancePulseTimer.start();
+    autoBalancePulseTimer.reset();
+    tempRoll = Math.abs(getGyroPitch());
+    move(0.0, 0.0, 0.0, false);
+    logger.info("{} -> AUTO_BALANCE_CHECK", currDriveState);
+    currDriveState = DriveStates.AUTO_BALANCE_CHECK;
+  }
+
+  public boolean isWithinThresholdAutoBalance(double threshold) {
+    return (ahrs.getRoll() <= threshold && ahrs.getRoll() >= -threshold);
   }
 
   @Override
@@ -399,6 +444,97 @@ public class DriveSubsystem extends MeasurableSubsystem {
         lastXSpeed = 0.0;
         speedMPSglobal = 0.0;
         lastYSpeed = 0.0;
+        break;
+      case AUTO_BALANCE_EDGE:
+        if (Math.abs(getGyroPitch()) - Math.abs(tempRoll)
+            >= DriveConstants.kAutoBalanceEdgeTriggerThreshold) {
+          autoBalanceTimer.reset();
+          autoBalanceTimer.start();
+          logger.info("{} -> AUTO_BALANCE_DRIVE", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE_DRIVE;
+        }
+        break;
+      case AUTO_BALANCE_DRIVE:
+        if (autoBalanceTimer.hasElapsed(DriveConstants.kAutoBalanceSlowdownTimeSec)) {
+          logger.info("{} -> AUTO_BALANCE_AVERAGE", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE_AVERAGE;
+          autoBalanceTimer.restart();
+        }
+        break;
+      case AUTO_BALANCE_AVERAGE:
+        sumRoll += getGyroPitch();
+        autoBalanceAvgCount++;
+        logger.info("AutoBalanceAvgCount: {}", autoBalanceAvgCount);
+        if (autoBalanceTimer.hasElapsed(DriveConstants.kAutoBalanceLoopFixTimer)) {
+          avgStartingRoll = sumRoll / autoBalanceAvgCount;
+          logger.info("Average Starting Roll: {}", avgStartingRoll);
+          logger.info("{} -> AUTO_BALANCE", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE;
+          move(DriveConstants.kAutoBalanceSlowDriveVel, 0, 0, false);
+          autoBalanceTimer.reset();
+        }
+        break;
+      case AUTO_BALANCE:
+        if (Math.abs(avgStartingRoll) - Math.abs(getGyroPitch())
+            >= DriveConstants.kAutoBalanceStopThresholdDegrees) {
+          drive(0, 0, 0);
+          xLock();
+          logger.info(
+              "AutoBalance Stop: Gyro Roll: {}, trigger Difference: {}",
+              getGyroPitch(),
+              Math.abs(avgStartingRoll) - Math.abs(getGyroPitch()));
+          logger.info("{} -> AUTO_BALANCE_FINISHED", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE_FINISHED;
+        }
+        break;
+      case AUTO_BALANCE_FINISHED:
+        autoBalanceAvgCount = 0;
+        sumRoll = 0;
+        avgStartingRoll = 0;
+        break;
+      case AUTO_BALANCE_PULSE:
+        if (!autoBalanceTempStable
+            && autoBalancePulseTimer.hasElapsed(DriveConstants.kPulseAutoBalanceTime)) {
+          if ((!isOnAllianceSide && robotStateSubsystem.getAllianceColor() == Alliance.Blue)
+              || (robotStateSubsystem.getAllianceColor() == Alliance.Red && isOnAllianceSide))
+            move(DriveConstants.kHoldSpeed, 0, 0, false);
+          else move(-DriveConstants.kHoldSpeed, 0, 0, false);
+          logger.info("{} -> AUTO_BALANCE_CHECK", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE_CHECK;
+          autoBalancePulseTimer.reset();
+        }
+        break;
+      case AUTO_BALANCE_CHECK:
+        if (isWithinThresholdAutoBalance(DriveConstants.kAutoBalanceCloseEnoughDeg)) {
+          autoBalanceStableCounts++;
+          autoBalanceTempStable = true;
+        } else {
+          autoBalanceStableCounts = 0;
+        }
+        if (autoBalancePulseTimer.hasElapsed(DriveConstants.kPauseAutoBalanceTime)
+            && !(autoBalanceStableCounts >= DriveConstants.kAutoBalanceStableCount)) {
+          double tempSpeed = DriveConstants.kPulseSpeed;
+          if (Math.abs(getGyroPitch()) - 2.9 <= 10) {
+            logger.info("AutoBalance Slowing to temp speed");
+            tempSpeed = 0.3;
+          }
+          logger.info("{} -> AUTO_BALANCE_PULSE", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE_PULSE;
+          autoBalancePulseTimer.reset();
+          if ((!isOnAllianceSide && robotStateSubsystem.getAllianceColor() == Alliance.Blue)
+              || (robotStateSubsystem.getAllianceColor() == Alliance.Red && isOnAllianceSide))
+            move(tempSpeed, 0, 0, false);
+          else move(-tempSpeed, 0, 0, false);
+          break;
+        }
+        if ((autoBalanceStableCounts >= DriveConstants.kAutoBalanceStableCount)) {
+          logger.info("{} -> AUTO_BALANCE_XLOCK", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE_XLOCK;
+          drive(0, 0, 0);
+          xLock();
+        }
+        break;
+      case AUTO_BALANCE_XLOCK:
         break;
       default:
         break;
@@ -466,6 +602,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
   public Rotation2d getGyroRotation2d() {
     return swerveDrive.getHeading();
+  }
+
+  public double getGyroPitch() {
+    return ahrs.getPitch();
   }
 
   public void lockZero() {
@@ -671,7 +811,15 @@ public class DriveSubsystem extends MeasurableSubsystem {
     IDLE,
     AUTO_DRIVE,
     AUTO_DRIVE_FINISHED,
-    AUTO_DRIVE_FAILED
+    AUTO_DRIVE_FAILED,
+    AUTO_BALANCE_EDGE,
+    AUTO_BALANCE_DRIVE,
+    AUTO_BALANCE_AVERAGE,
+    AUTO_BALANCE,
+    AUTO_BALANCE_FINISHED,
+    AUTO_BALANCE_PULSE,
+    AUTO_BALANCE_CHECK,
+    AUTO_BALANCE_XLOCK;
   }
 
   @Override
@@ -731,6 +879,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("AutoDrive Velocity Err X", () -> xAutoDriveController.getVelocityError()),
         new Measure("AutoDrive xCalc", () -> xCalc),
         new Measure("AutoDrive yCalc", () -> yCalc),
+        new Measure("Auto Drive Timer", () -> autoDriveTimer.get()),
+        new Measure("Robot Roll Deg", () -> getGyroPitch()),
+        new Measure("Drive State", () -> currDriveState.ordinal()),
         new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()));
   }
 }

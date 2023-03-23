@@ -23,16 +23,17 @@ import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 
-public class TwoPieceLvl3AutoCommandGroup extends SequentialCommandGroup
+public class TwoPieceLvl3BumpAutoCommandGroup extends SequentialCommandGroup
     implements AutoCommandInterface {
 
   DriveAutonCommand firstPath;
   DriveAutonCommand secondPath;
+  DriveAutonCommand thirdPath;
   private boolean hasGenerated = false;
   private Alliance alliance = Alliance.Invalid;
   private RobotStateSubsystem robotStateSubsystem;
 
-  public TwoPieceLvl3AutoCommandGroup(
+  public TwoPieceLvl3BumpAutoCommandGroup(
       DriveSubsystem driveSubsystem,
       RobotStateSubsystem robotStateSubsystem,
       ArmSubsystem armSubsystem,
@@ -40,9 +41,11 @@ public class TwoPieceLvl3AutoCommandGroup extends SequentialCommandGroup
       IntakeSubsystem intakeSubsystem,
       ElevatorSubsystem elevatorSubsystem,
       String pathOne,
-      String pathTwo) {
+      String pathTwo,
+      String pathThree) {
     firstPath = new DriveAutonCommand(driveSubsystem, pathOne, true, true);
     secondPath = new DriveAutonCommand(driveSubsystem, pathTwo, true, false);
+    thirdPath = new DriveAutonCommand(driveSubsystem, pathThree, true, false);
     this.robotStateSubsystem = robotStateSubsystem;
 
     addCommands(
@@ -61,7 +64,7 @@ public class TwoPieceLvl3AutoCommandGroup extends SequentialCommandGroup
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH)),
         new ParallelCommandGroup(
-            secondPath,
+            new SequentialCommandGroup(secondPath, thirdPath),
             new SequentialCommandGroup(
                 new PastXPositionCommand(
                     robotStateSubsystem, driveSubsystem, Constants.AutonConstants.kPastXPosition),
@@ -75,6 +78,7 @@ public class TwoPieceLvl3AutoCommandGroup extends SequentialCommandGroup
   public void generateTrajectory() {
     firstPath.generateTrajectory();
     secondPath.generateTrajectory();
+    thirdPath.generateTrajectory();
     hasGenerated = true;
     alliance = robotStateSubsystem.getAllianceColor();
   }

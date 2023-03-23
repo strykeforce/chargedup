@@ -205,12 +205,19 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toMidPos(GamePiece currGamePiece) {
+    toMidPos(currGamePiece, false);
+  }
+
+  public void toMidPos(GamePiece currGamePiece, boolean isAuto) {
     hasElbowZeroed = false;
     if (currGamePiece == GamePiece.NONE) {
       logger.info("Game piece is unknown yet required (toMidPos())! Defaulting to CONE");
     }
 
     desiredState = (currGamePiece == GamePiece.CUBE) ? ArmState.MID_CUBE : ArmState.MID_CONE;
+    if (isAuto && currGamePiece == GamePiece.CONE) {
+      desiredState = ArmState.AUTO_MID_CONE;
+    }
 
     switch (currState) {
       case STOW:
@@ -234,12 +241,22 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toHighPos(GamePiece currGamePiece) {
+    toHighPos(currGamePiece, false);
+  }
+
+  public void toHighPos(GamePiece currGamePiece, boolean isAuto) {
     hasElbowZeroed = false;
     if (currGamePiece == GamePiece.NONE) {
       logger.info("Game piece is unknown yet required (toHighPos())! Defaulting to CONE");
     }
 
     desiredState = currGamePiece == GamePiece.CUBE ? ArmState.HIGH_CUBE : ArmState.HIGH_CONE;
+    if (isAuto && currGamePiece == GamePiece.CUBE) {
+      desiredState = ArmState.AUTO_HIGH_CUBE;
+    }
+    if (isAuto && currGamePiece == GamePiece.CONE) {
+      desiredState = ArmState.AUTO_HIGH_CONE;
+    }
 
     isShoulderStaged = false;
     switch (currState) {
@@ -431,7 +448,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
   public void stowShoulder() {
     currAxis = CurrentAxis.SHOULDER;
     shoulderSubsystem.zeroShoulder();
-    ;
   }
 
   @Override
@@ -525,16 +541,19 @@ public class ArmSubsystem extends MeasurableSubsystem {
           case LOW:
             toLowPos();
             break;
+          case AUTO_MID_CONE: // fall-through
           case MID_CONE:
             toMidPos(GamePiece.CONE);
             break;
           case MID_CUBE:
             toMidPos(GamePiece.CUBE);
             break;
+          case AUTO_HIGH_CONE: // fall-through
           case HIGH_CONE:
             toHighPos(GamePiece.CONE);
             break;
-          case HIGH_CUBE:
+          case HIGH_CUBE: // fall-through
+          case AUTO_HIGH_CUBE:
             toHighPos(GamePiece.CUBE);
             break;
           case INTAKE_STAGE:
@@ -567,6 +586,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
       case HIGH_CONE:
         break;
       case HIGH_CUBE:
+        break;
+      case AUTO_HIGH_CUBE:
         break;
       case SHELF:
         break;
@@ -1074,6 +1095,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ShoulderConstants.kLevelTwoConeShoulder,
         ElevatorConstants.kLevelTwoConeElevator,
         ElbowConstants.kLevelTwoConeElbow),
+    AUTO_MID_CONE(
+        ShoulderConstants.kAutoLevelTwoConeShoulder,
+        ElevatorConstants.kAutoLevelTwoConeElevator,
+        ElbowConstants.kAutoLevelTwoConeElbow),
     MID_CUBE(
         ShoulderConstants.kLevelTwoCubeShoulder,
         ElevatorConstants.kLevelTwoCubeElevator,
@@ -1082,10 +1107,18 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ShoulderConstants.kLevelThreeConeShoulder,
         ElevatorConstants.kLevelThreeConeElevator,
         ElbowConstants.kLevelThreeConeElbow),
+    AUTO_HIGH_CONE(
+        ShoulderConstants.kAutoLevelThreeConeShoulder,
+        ElevatorConstants.kAutoLevelThreeConeElevator,
+        ElbowConstants.kAutoLevelThreeConeElbow),
     HIGH_CUBE(
         ShoulderConstants.kLevelThreeCubeShoulder,
         ElevatorConstants.kLevelThreeCubeElevator,
         ElbowConstants.kLevelThreeCubeElbow),
+    AUTO_HIGH_CUBE(
+        ShoulderConstants.kAutoHighCubeShoulder,
+        ElevatorConstants.kAutoHighCubeElevator,
+        ElbowConstants.kAutoHighCubeElbow),
     SHELF(
         ShoulderConstants.kShelfShoulder,
         ElevatorConstants.kShelfElevator,
