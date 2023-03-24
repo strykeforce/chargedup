@@ -51,6 +51,16 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
     zeroElbow();
   }
 
+  public void setMotionMagic(boolean isAuto) {
+    if (isAuto) {
+      elbowFalcon.configMotionAcceleration(ElbowConstants.kElbowAutoMotionAcceleration);
+      elbowFalcon.configMotionCruiseVelocity(ElbowConstants.kElbowAutoMotionCruiseVelocity);
+    } else {
+      elbowFalcon.configMotionAcceleration(ElbowConstants.kElbowTeleMotionAcceleration);
+      elbowFalcon.configMotionCruiseVelocity(ElbowConstants.kElbowTeleMotionCruiseVelocity);
+    }
+  }
+
   @BeforeHealthCheck
   public boolean goToZero() {
     setPos(0.0);

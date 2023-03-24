@@ -499,6 +499,11 @@ public class Constants {
     public static final double kStowToIntakeStageParallelAllowed = -10_000;
     public static final double kIntakeStageToIntakeParallelAllowed = kIntakeElbow;
 
+    public static final double kElbowTeleMotionCruiseVelocity = 13_000.0;
+    public static final double kElbowTeleMotionAcceleration = 3_800.0;
+    public static final double kElbowAutoMotionCruiseVelocity = 13_000.0;
+    public static final double kElbowAutoMotionAcceleration = 3_800.0;
+
     public static TalonFXConfiguration getElbowFalonConfig() {
 
       TalonFXConfiguration elbowConfig = new TalonFXConfiguration();
@@ -518,8 +523,8 @@ public class Constants {
       elbowConfig.slot0.maxIntegralAccumulator = 40_000.0;
       elbowConfig.slot0.allowableClosedloopError = 150.0;
 
-      elbowConfig.motionAcceleration = 38_000; // 50_000
-      elbowConfig.motionCruiseVelocity = 13_000;
+      elbowConfig.motionAcceleration = kElbowAutoMotionAcceleration; // 50_000
+      elbowConfig.motionCruiseVelocity = kElbowAutoMotionCruiseVelocity;
       elbowConfig.forwardSoftLimitEnable = true;
       elbowConfig.forwardSoftLimitThreshold = kForwardSoftLimit;
       elbowConfig.reverseSoftLimitEnable = true;
@@ -581,6 +586,11 @@ public class Constants {
     public static final double kIntakeToStowParallelAllowed = kStowShoulder;
     public static final double kShelfToStowParallelAllowed = kStowShoulder;
 
+    public static final double kShoulderTeleMotionCruiseVelocity = 1_200.0;
+    public static final double kShoulderTeleMotionAcceleration = 3_750.0;
+    public static final double kShoulderAutoMotionCruiseVelocity = 1_200.0;
+    public static final double kShoulderAutoMotionAcceleration = 5_000.0;
+
     public static TalonSRXConfiguration getShoulderTalonConfig() {
       TalonSRXConfiguration shoulderConfig = new TalonSRXConfiguration();
 
@@ -591,8 +601,8 @@ public class Constants {
       shoulderConfig.slot0.integralZone = 0;
       shoulderConfig.slot0.maxIntegralAccumulator = 0;
       shoulderConfig.slot0.allowableClosedloopError = 0;
-      shoulderConfig.motionCruiseVelocity = 1200.0; // 375
-      shoulderConfig.motionAcceleration = 5000.0; // 1000
+      shoulderConfig.motionCruiseVelocity = kShoulderAutoMotionCruiseVelocity; // 375
+      shoulderConfig.motionAcceleration = kShoulderAutoMotionAcceleration; // 1000
 
       shoulderConfig.forwardSoftLimitEnable = true;
       shoulderConfig.forwardSoftLimitThreshold = kMaxFwd;
