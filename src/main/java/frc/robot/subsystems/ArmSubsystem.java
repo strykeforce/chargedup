@@ -32,6 +32,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private boolean isArmFastStowing = false;
   private boolean hasElbowZeroed = true;
   private boolean isElbowReinforced = true;
+  private boolean wasAuto = false;
   private boolean doReinforceElevator = true;
   private boolean isHealthChecking = false;
   private double differenceInShoulder = 0.0;
@@ -234,11 +235,12 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toHighPos(GamePiece currGamePiece) {
-    toHighPos(currGamePiece, false);
+    toHighPos(currGamePiece, wasAuto);
   }
 
   public void toHighPos(GamePiece currGamePiece, boolean isAuto) {
     hasElbowZeroed = false;
+    wasAuto = isAuto;
     if (currGamePiece == GamePiece.NONE) {
       logger.info("Game piece is unknown yet required (toHighPos())! Defaulting to CONE");
     }

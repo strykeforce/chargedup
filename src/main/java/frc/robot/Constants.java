@@ -799,7 +799,7 @@ public class Constants {
     public static final double kWheelDiameterInches = 3.0 * (490 / 500.0);
 
     // Elbow
-    public static final int kElbowZeroTicks = 1183; // 730
+    public static final int kElbowZeroTicks = 1150; // 730
 
     // Shoulder
     public static final double kShoulderMainZeroTicks = 2050;
