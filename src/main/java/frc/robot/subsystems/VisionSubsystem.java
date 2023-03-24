@@ -32,8 +32,8 @@ public class VisionSubsystem extends MeasurableSubsystem {
   PhotonCamera cam1 = new PhotonCamera("OV9281");
   private static final Logger logger = LoggerFactory.getLogger(VisionSubsystem.class);
   public static DriveSubsystem driveSubsystem;
-  private CircularBuffer gyroBuffer;
-  private CircularBuffer timestampBuffer;
+  private CircularBuffer gyroBuffer = new CircularBuffer(10000);
+  private CircularBuffer timestampBuffer = new CircularBuffer(10000);
   private boolean canFillBuffers = false;
   List<PhotonTrackedTarget> targets;
   PhotonTrackedTarget bestTarget;
@@ -153,6 +153,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   }
 
   public void setFillBuffers(boolean set) {
+    logger.info("Set Fill Buffers: {}", set);
     canFillBuffers = set;
   }
 
@@ -165,15 +166,15 @@ public class VisionSubsystem extends MeasurableSubsystem {
     try {
       result = cam1.getLatestResult();
       if (canFillBuffers) fillBuffers();
-      logger.info("Filled Gyro Buffer: {}", canFillBuffers);
+      // logger.info("Filled Gyro Buffer: {}", canFillBuffers);
     } catch (Exception e) {
-      // logger.info("VISION : GET LATEST FAILED");
     }
+    // logger.info("VISION : GET LATEST FAILED");
     if (result.hasTargets()) {
       targets = result.getTargets();
       bestTarget = result.getBestTarget();
       timeStamp = result.getTimestampSeconds();
-      gyroBufferId = (int) (result.getLatencyMillis() / 20);
+      gyroBufferId = (int) Math.floor(result.getLatencyMillis() / 20);
     }
     double x = robotPose.getX(), y = robotPose.getY();
     try {
@@ -257,7 +258,8 @@ public class VisionSubsystem extends MeasurableSubsystem {
         new Measure("Camera Odometry X (NO OFFSET)", () -> getOdometry().getX()),
         new Measure("hasResetOdomAuto", () -> (getOdomAutoBool() ? 1 : 0)),
         new Measure("gyro bufferId", () -> gyroBufferId),
-        new Measure("Gyro Buffer", () -> gyroBuffer.get(gyroBufferId)),
+        new Measure("Gyro Buffer", () -> new Rotation2d(gyroBuffer.get(gyroBufferId)).getDegrees()),
+        new Measure("canFillBuffers", () -> canFillBuffers ? 1 : 0),
         new Measure("Camera Odometry Y (NO OFFSET)", () -> getOdometry().getY()),
         new Measure(
             "Num targets",

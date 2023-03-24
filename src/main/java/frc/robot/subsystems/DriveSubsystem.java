@@ -258,9 +258,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
       logger.info(
           "Autodrive Failed. failedSpeed: {}, failedVision: {}",
           Math.abs(getFieldRelSpeed().vxMetersPerSecond) // FIXME TEMP CHECK IF STATEMENT
-                  <= DriveConstants.kMaxSpeedToAutoDrive
+                  > DriveConstants.kMaxSpeedToAutoDrive
               && Math.abs(getFieldRelSpeed().vyMetersPerSecond)
-                  <= DriveConstants.kMaxSpeedToAutoDrive,
+                  > DriveConstants.kMaxSpeedToAutoDrive,
           visionSubsystem.lastUpdateWithinThresholdTime());
       logger.info("{} -> AUTO_DRIVE_FAILED", currDriveState);
       currDriveState = DriveStates.AUTO_DRIVE_FAILED;
