@@ -5,6 +5,8 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import frc.robot.Constants;
 import frc.robot.Constants.ShoulderConstants;
+import frc.robot.RobotContainer.Shoulder;
+
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +59,20 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
 
     zeroShoulder();
     desiredPosition = getPos();
+  }
+
+  public void setMotionMagic(boolean isAuto) {
+    if (isAuto) {
+      leftMainShoulderTalon.configMotionAcceleration(ShoulderConstants.kShoulderAutoMotionAcceleration);
+      leftMainShoulderTalon.configMotionCruiseVelocity(ShoulderConstants.kShoulderAutoMotionCruiseVelocity);
+      rightFollowerShoulderTalon.configMotionAcceleration(ShoulderConstants.kShoulderAutoMotionAcceleration);
+      rightFollowerShoulderTalon.configMotionCruiseVelocity(ShoulderConstants.kShoulderAutoMotionCruiseVelocity);
+    } else {
+      leftMainShoulderTalon.configMotionAcceleration(ShoulderConstants.kShoulderTeleMotionAcceleration);
+      leftMainShoulderTalon.configMotionCruiseVelocity(ShoulderConstants.kShoulderTeleMotionCruiseVelocity);
+      rightFollowerShoulderTalon.configMotionAcceleration(ShoulderConstants.kShoulderTeleMotionAcceleration);
+      rightFollowerShoulderTalon.configMotionCruiseVelocity(ShoulderConstants.kShoulderTeleMotionCruiseVelocity);
+    }
   }
 
   @BeforeHealthCheck
