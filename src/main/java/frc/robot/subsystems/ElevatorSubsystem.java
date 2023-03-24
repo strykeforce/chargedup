@@ -138,7 +138,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
     // rightFollowFalcon.configStatorCurrentLimit(
     //     ElevatorConstants.getElevStatorCurrentLimitConfiguration());
 
-    setPct(-Constants.ElevatorConstants.kElevatorZeroSpeed);
+    setPct(Constants.ElevatorConstants.kElevatorReinforceSpeed);
     logger.info("Reinforcing Elevator");
   }
 
@@ -183,7 +183,9 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
 
   @Override
   public Set<Measure> getMeasures() {
-    return Set.of(new Measure("Extension meters", () -> getExtensionMeters()));
+    return Set.of(
+        new Measure("Extension meters", () -> getExtensionMeters()),
+        new Measure("Elevator State", () -> getElevatorState().ordinal()));
   }
 
   @Override

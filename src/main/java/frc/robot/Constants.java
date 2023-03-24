@@ -377,6 +377,7 @@ public class Constants {
     public static final double kAllowedError = 1500;
 
     public static final double kElevatorZeroSpeed = 0.20;
+    public static final double kElevatorReinforceSpeed = -0.20;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
     public static final int kZeroStableCounts = 10; // old 25
 
