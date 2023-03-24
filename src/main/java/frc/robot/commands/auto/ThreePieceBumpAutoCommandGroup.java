@@ -5,12 +5,9 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants;
 import frc.robot.commands.drive.DriveAutonCommand;
-import frc.robot.commands.drive.InterruptDriveCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
-import frc.robot.commands.robotState.AutoPlaceCommandGroup;
 import frc.robot.commands.robotState.ClearGamePieceCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.ReleaseGamepieceCommand;
@@ -36,6 +33,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
   DriveAutonCommand thirdPath;
   DriveAutonCommand fourthPath;
   DriveAutonCommand fallbackPath;
+  DriveAutonCommand fallbackPath2;
   private boolean hasGenerated = false;
   private Alliance alliance = Alliance.Invalid;
   private RobotStateSubsystem robotStateSubsystem;
@@ -58,6 +56,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
     thirdPath = new DriveAutonCommand(driveSubsystem, pathThree, true, false);
     fourthPath = new DriveAutonCommand(driveSubsystem, pathFour, false, false);
     fallbackPath = new DriveAutonCommand(driveSubsystem, pathFallback, true, false);
+    fallbackPath2 = new DriveAutonCommand(driveSubsystem, pathFallback, true, false);
     this.robotStateSubsystem = robotStateSubsystem;
 
     addCommands(
@@ -75,24 +74,36 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new AutoFloorIntakeCommand(
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH)),
+        secondPath,
         new ParallelCommandGroup(
-            secondPath,
             new SetVisionUpdateCommand(driveSubsystem, true),
-            new PastXPositionCommand(
-                robotStateSubsystem, driveSubsystem, Constants.AutonConstants.kPastXPosition)),
-        new AutoPlaceCommandGroup(driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem),
-        new ConditionalCommand(
-            fallbackPath,
-            new InterruptDriveCommand(driveSubsystem),
-            () -> !visionSubsystem.isCameraWorking()),
-        new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
-        new ClearGamePieceCommand(robotStateSubsystem),
+            new ConditionalCommand(
+                fallbackPath,
+                new AutoPlaceAutonCommand(
+                        driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
+                    .withTimeout(0.75),
+                () -> !visionSubsystem.isCameraWorking())),
+        new ParallelCommandGroup(
+            new SetVisionUpdateCommand(driveSubsystem, false),
+            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem)),
         // Cube 2
         new ParallelDeadlineGroup(
             thirdPath,
             new AutoFloorIntakeCommand(
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
-            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID))
+            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID)),
+        fourthPath,
+        new ParallelCommandGroup(
+            new SetVisionUpdateCommand(driveSubsystem, true),
+            new ConditionalCommand(
+                fallbackPath2,
+                new AutoPlaceAutonCommand(
+                        driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
+                    .withTimeout(0.75),
+                () -> !visionSubsystem.isCameraWorking())),
+        new ParallelCommandGroup(
+            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
+            new ClearGamePieceCommand(robotStateSubsystem))
         /*,new ParallelCommandGroup(
             fourthPath,
             new PastXPositionCommand(
@@ -107,6 +118,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
     thirdPath.generateTrajectory();
     fourthPath.generateTrajectory();
     fallbackPath.generateTrajectory();
+    fallbackPath2.generateTrajectory();
     hasGenerated = true;
     alliance = robotStateSubsystem.getAllianceColor();
   }

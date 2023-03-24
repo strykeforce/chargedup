@@ -740,6 +740,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
       // Create a the generated trajectory and return it along with the target yaw
       Trajectory trajectoryGenerated =
           TrajectoryGenerator.generateTrajectory(startPose, path, endPose, trajectoryConfig);
+
+      logger.info("Total Time: {}", trajectoryGenerated.getTotalTimeSeconds());
       return new PathData(target_yaw, trajectoryGenerated);
     } catch (Exception error) {
       logger.error(error.toString());
