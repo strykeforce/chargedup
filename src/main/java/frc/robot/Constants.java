@@ -483,6 +483,7 @@ public class Constants {
     public static final double kLevelThreeCubeElbow = 84_106;
     public static final double kShelfElbow = 41_000;
     public static final double kFloorElbowSweep = 16_876;
+    public static final double kCubeStabElbow = -30_000;
     public static final double kAutoHighCubeElbow = 60_097;
 
     public static final double kRetrieveGamepiecePercentOutput = 0.2;
