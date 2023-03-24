@@ -175,6 +175,11 @@ public class RobotContainer {
     }
   }
 
+  public void configureMotionMagic(boolean isAuto) {
+    shoulderSubsystem.setMotionMagic(isAuto);
+    elbowSubsystem.setMotionMagic(isAuto);
+  }
+
   public void setAuto(boolean isAuto) {
     robotStateSubsystem.setAutoMode(isAuto);
   }
