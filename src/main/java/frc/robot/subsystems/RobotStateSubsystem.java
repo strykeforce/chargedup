@@ -362,6 +362,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public boolean shouldFastStowArm() {
+    if (!isAuto) return false;
     return (fastStowAfterScore
             && (isBlueAlliance()
                     && driveSubsystem.getPoseMeters().getX()
@@ -953,28 +954,21 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             + ((yCoord > Constants.RobotStateConstants.kBound2Y) ? 1 : 0);
     // CHECK VISION
     double tempYaw = driveSubsystem.getGyroRotation2d().getDegrees();
-    if (getAllianceColor() == Alliance.Red) {
+    if (getAllianceColor() == Alliance.Red)
       tempYaw = driveSubsystem.getGyroRotation2d().getDegrees() - 180;
-    }
     logger.info("grid Index: {}", gridIndex);
-    if (!visionSubsystem.lastUpdateWithinThresholdTime(0.1)
-        && visionSubsystem.getHasTargets() == 0) {
+    if (!visionSubsystem.lastUpdateWithinThresholdTime(0.05)) {
+      // && visionSubsystem.getHasTargets() == 0) {
       logger.info("Threshold and no targets");
       if (driveSubsystem.getPoseMeters().getY() < Constants.RobotStateConstants.kGridY[gridIndex]) {
-        logger.info("Left of grid, tempYaw: {}", tempYaw);
-        // if (tempYaw <= DriveConstants.kAutoDriveAutoYawMax) {
         // left of tag on grid {gridIndex} GYRO POSITIVE IS COUNTERCLOCKWISE (Yaw/Look To The
         // Right)
-        logger.info("Left Of Tag, Look Right(Yaw CounterClockwise).");
+        logger.info("Left Of Tag, Look Right(Yaw CounterClockwise), tempYaw: {}", tempYaw);
         return 1;
-        // } else logger.info("Left Of Tag, Not In Angle Range");
       } else {
-        logger.info("Right of grid, tempYaw: {}", tempYaw);
-        // if (tempYaw >= -DriveConstants.kAutoDriveAutoYawMax) {
         // right of tag GYRO NEGATIVE IS CLOCKWISE (Yaw/Look To The LEFT)
-        logger.info("Right Of Tag, Look Left(Yaw Clockwise).");
+        logger.info("Right Of Tag, Look Left(Yaw Clockwise), tempYaw: {}", tempYaw);
         return 2;
-        // } else logger.info("Right Of Tag, Not In Angle Range");
       }
     }
     logger.info(

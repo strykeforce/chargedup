@@ -240,10 +240,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
         endAutoDrivePose =
             robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
         logger.info("AutoDrive Scoring Gamepiece.");
-        if (robotStateSubsystem.autoDriveYawRight(getPoseMeters().getY()) != 0) {
-          // needs adjustment
-          yawAdjustmentActive = true;
-        }
+        // if (robotStateSubsystem.autoDriveYawRight(getPoseMeters().getY()) != 0)
+        yawAdjustmentActive = true;
       } else {
         // endAutoDrivePose =
         //     robotStateSubsystem.getShelfPosAutoDrive(

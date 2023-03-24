@@ -297,7 +297,7 @@ public class Constants {
     public static final double kMaxAccelOmega = 5.0; // 3.14
 
     // AUTODRIVE ProfiledPID Constants
-    public static final double kPAutoDrive = 1.5; // 3
+    public static final double kPAutoDrive = 2.5; // 3
     public static final double kIAutoDrive = 0.0000;
     public static final double kDAutoDrive = 0.00; // kPHolonomic/100
 
@@ -352,7 +352,7 @@ public class Constants {
 
     public static final double kCameraOffset = .335; // was .273 on driveChasis
     public static final double kCameraAngleOffset = 0; // DEGREES was 24 on driveChasis
-    public static final double kLastUpdateCloseEnoughThreshold = 15.0; // IN SECONDS
+    public static final double kLastUpdateCloseEnoughThreshold = 10.0; // IN SECONDS
     public static final double kLastUpdateCloseEnoughThresholdYaw = 1.0;
     public static int kBufferLookupOffset = 2;
 
@@ -603,7 +603,7 @@ public class Constants {
     public static final double kShelfToStowParallelAllowed = kStowShoulder;
 
     public static final double kShoulderTeleMotionCruiseVelocity = 1_200.0;
-    public static final double kShoulderTeleMotionAcceleration = 3_750.0;
+    public static final double kShoulderTeleMotionAcceleration = 2_000.0;
     public static final double kShoulderAutoMotionCruiseVelocity = 1_200.0;
     public static final double kShoulderAutoMotionAcceleration = 5_000.0;
 
