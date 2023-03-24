@@ -217,9 +217,8 @@ public class VisionSubsystem extends MeasurableSubsystem {
     return timeStamp;
   }
 
-  public boolean lastUpdateWithinThresholdTime() {
-    return (RobotController.getFPGATime() / 1000000) - timeStamp
-        <= VisionConstants.kLastUpdateCloseEnoughThreshold;
+  public boolean lastUpdateWithinThresholdTime(double threshold) {
+    return (RobotController.getFPGATime() / 1000000) - timeStamp <= threshold;
   }
 
   public void setOdomAutoBool(boolean autoBool) {

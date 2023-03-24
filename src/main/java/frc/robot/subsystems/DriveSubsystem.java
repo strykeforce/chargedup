@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import java.nio.file.Paths;
@@ -100,6 +101,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private double autoBalanceAvgCount = 0;
   private double sumRoll = 0;
   private double avgStartingRoll = 0;
+  private boolean yawAdjustmentActive = false;
   // private boolean isAutoDriveFinished = false;
 
   public DriveSubsystem(Constants constants) {
@@ -231,12 +233,17 @@ public class DriveSubsystem extends MeasurableSubsystem {
     if (Math.abs(getFieldRelSpeed().vxMetersPerSecond) // FIXME TEMP CHECK IF STATEMENT
             <= DriveConstants.kMaxSpeedToAutoDrive
         && Math.abs(getFieldRelSpeed().vyMetersPerSecond) <= DriveConstants.kMaxSpeedToAutoDrive
-        && visionSubsystem.lastUpdateWithinThresholdTime()) {
+        && visionSubsystem.lastUpdateWithinThresholdTime(
+            VisionConstants.kLastUpdateCloseEnoughThreshold)) {
       setAutoDriving(true);
       if (robotStateSubsystem.getGamePiece() != GamePiece.NONE) {
         endAutoDrivePose =
             robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
         logger.info("AutoDrive Scoring Gamepiece.");
+        if (robotStateSubsystem.autoDriveYawRight(getPoseMeters().getY()) != 0) {
+          // needs adjustment
+          yawAdjustmentActive = true;
+        }
       } else {
         // endAutoDrivePose =
         //     robotStateSubsystem.getShelfPosAutoDrive(
@@ -258,10 +265,11 @@ public class DriveSubsystem extends MeasurableSubsystem {
       logger.info(
           "Autodrive Failed. failedSpeed: {}, failedVision: {}",
           Math.abs(getFieldRelSpeed().vxMetersPerSecond) // FIXME TEMP CHECK IF STATEMENT
-                  > DriveConstants.kMaxSpeedToAutoDrive
+                  >= DriveConstants.kMaxSpeedToAutoDrive
               && Math.abs(getFieldRelSpeed().vyMetersPerSecond)
-                  > DriveConstants.kMaxSpeedToAutoDrive,
-          visionSubsystem.lastUpdateWithinThresholdTime());
+                  >= DriveConstants.kMaxSpeedToAutoDrive,
+          visionSubsystem.lastUpdateWithinThresholdTime(
+              VisionConstants.kLastUpdateCloseEnoughThreshold));
       logger.info("{} -> AUTO_DRIVE_FAILED", currDriveState);
       currDriveState = DriveStates.AUTO_DRIVE_FAILED;
     }
@@ -413,6 +421,34 @@ public class DriveSubsystem extends MeasurableSubsystem {
               omegaAutoDriveController.calculate(
                   MathUtil.angleModulus(getGyroRotation2d().getRadians()),
                   robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
+          if (yawAdjustmentActive) {
+            double tempYaw = 45;
+            if (robotStateSubsystem.autoDriveYawRight(getPoseMeters().getY()) == 2)
+              tempYaw = -tempYaw;
+            else if (robotStateSubsystem.autoDriveYawRight(getPoseMeters().getY()) == 0) {
+              logger.info(
+                  "Target Seen, Stop yawing, Yaw Angle: {}",
+                  getPoseMeters().getRotation().getDegrees());
+              tempYaw = 0;
+              yawAdjustmentActive = false;
+            }
+            tempYaw =
+                robotStateSubsystem.getAllianceColor() == Alliance.Blue
+                    ? 0.0 + Math.toRadians(tempYaw)
+                    : Math.PI + Math.toRadians(tempYaw);
+            if (Math.abs(Math.toDegrees(tempYaw) - getGyroRotation2d().getDegrees())
+                <= DriveConstants.kAutoDriveAutoYawCloseEnough) {
+              logger.info(
+                  "At Angle, Stop yawing, Yaw Angle: {}",
+                  getPoseMeters().getRotation().getDegrees());
+              yawAdjustmentActive = false;
+              tempYaw = 0;
+            }
+            omegaCalc =
+                omegaAutoDriveController.calculate(
+                    MathUtil.angleModulus(getGyroRotation2d().getRadians()), tempYaw);
+            logger.info("tempYaw: {}", Math.toDegrees(tempYaw));
+          }
           // logger.info("AutoPlace: xCalc: {}, yCalc: {}, omegaCalc: {}", xCalc, yCalc, omegaCalc);
           this.xCalc = xCalc;
           this.yCalc = yCalc;
@@ -879,6 +915,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("AutoDrive Velocity Err X", () -> xAutoDriveController.getVelocityError()),
         new Measure("AutoDrive xCalc", () -> xCalc),
         new Measure("AutoDrive yCalc", () -> yCalc),
+        new Measure("AutoDrive omegaCalc", () -> omegaCalc),
         new Measure("Auto Drive Timer", () -> autoDriveTimer.get()),
         new Measure("Robot Roll Deg", () -> getGyroPitch()),
         new Measure("Drive State", () -> currDriveState.ordinal()),

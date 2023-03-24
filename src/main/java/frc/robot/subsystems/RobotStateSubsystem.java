@@ -14,6 +14,7 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotStateConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.DriveSubsystem.DriveStates;
 import frc.robot.subsystems.HandSubsystem.HandStates;
@@ -885,7 +886,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           logger.info("{} -> SHELF_WAIT_TRANSITION", currRobotState);
           currRobotState = RobotState.SHELF_WAIT_TRANSITION;
         }
-        if (visionSubsystem.lastUpdateWithinThresholdTime()) {
+        if (visionSubsystem.lastUpdateWithinThresholdTime(
+            VisionConstants.kLastUpdateCloseEnoughThreshold)) {
           rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
           // toAutoDrive();
         } else {
@@ -928,7 +930,6 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     double rotation = Math.PI;
     if (!isBlueAlliance()) rotation = 0.0;
     logger.info("getAutoPlaceDriveTarget Fed in Y: {}", yCoord);
-
     if (!isBlueAlliance()) {
       targetX = Constants.RobotStateConstants.kFieldMaxX - targetX;
       logger.info("Not blue alliance: {}", allianceColor.toString());
@@ -944,6 +945,44 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         Constants.RobotStateConstants.kGridY[gridIndex]
             + multiplier * RobotStateConstants.kPolePlaceOffset,
         new Rotation2d(rotation));
+  }
+
+  public double autoDriveYawRight(double yCoord) {
+    int gridIndex =
+        ((yCoord > Constants.RobotStateConstants.kBound1Y) ? 1 : 0)
+            + ((yCoord > Constants.RobotStateConstants.kBound2Y) ? 1 : 0);
+    // CHECK VISION
+    double tempYaw = driveSubsystem.getGyroRotation2d().getDegrees();
+    if (getAllianceColor() == Alliance.Red) {
+      tempYaw = driveSubsystem.getGyroRotation2d().getDegrees() - 180;
+    }
+    logger.info("grid Index: {}", gridIndex);
+    if (!visionSubsystem.lastUpdateWithinThresholdTime(0.1)
+        && visionSubsystem.getHasTargets() == 0) {
+      logger.info("Threshold and no targets");
+      if (driveSubsystem.getPoseMeters().getY() < Constants.RobotStateConstants.kGridY[gridIndex]) {
+        logger.info("Left of grid, tempYaw: {}", tempYaw);
+        // if (tempYaw <= DriveConstants.kAutoDriveAutoYawMax) {
+        // left of tag on grid {gridIndex} GYRO POSITIVE IS COUNTERCLOCKWISE (Yaw/Look To The
+        // Right)
+        logger.info("Left Of Tag, Look Right(Yaw CounterClockwise).");
+        return 1;
+        // } else logger.info("Left Of Tag, Not In Angle Range");
+      } else {
+        logger.info("Right of grid, tempYaw: {}", tempYaw);
+        // if (tempYaw >= -DriveConstants.kAutoDriveAutoYawMax) {
+        // right of tag GYRO NEGATIVE IS CLOCKWISE (Yaw/Look To The LEFT)
+        logger.info("Right Of Tag, Look Left(Yaw Clockwise).");
+        return 2;
+        // } else logger.info("Right Of Tag, Not In Angle Range");
+      }
+    }
+    logger.info(
+        "Returned 0, tempYaw: {}, withThresholdVisUpdate: {}",
+        tempYaw,
+        visionSubsystem.lastUpdateWithinThresholdTime(
+            Constants.VisionConstants.kLastUpdateCloseEnoughThresholdYaw));
+    return 0;
   }
 
   public boolean isBlueAlliance() {

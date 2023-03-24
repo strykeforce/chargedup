@@ -297,7 +297,7 @@ public class Constants {
     public static final double kMaxAccelOmega = 5.0; // 3.14
 
     // AUTODRIVE ProfiledPID Constants
-    public static final double kPAutoDrive = 0.5; // 3
+    public static final double kPAutoDrive = 1.5; // 3
     public static final double kIAutoDrive = 0.0000;
     public static final double kDAutoDrive = 0.00; // kPHolonomic/100
 
@@ -306,6 +306,10 @@ public class Constants {
     // Default safety path constants
     public static final Pose2d startPose2d = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
     public static final Pose2d endPose2d = new Pose2d(-1, 0, Rotation2d.fromDegrees(0));
+
+    public static final double kAutoDriveAutoYawMax = 30;
+
+    public static final double kAutoDriveAutoYawCloseEnough = 1;
 
     public static ArrayList<Translation2d> getDefaultInternalWaypoints() {
       ArrayList<Translation2d> waypoints = new ArrayList<>();
@@ -349,6 +353,7 @@ public class Constants {
     public static final double kCameraOffset = .335; // was .273 on driveChasis
     public static final double kCameraAngleOffset = 0; // DEGREES was 24 on driveChasis
     public static final double kLastUpdateCloseEnoughThreshold = 15.0; // IN SECONDS
+    public static final double kLastUpdateCloseEnoughThresholdYaw = 1.0;
     public static int kBufferLookupOffset = 2;
 
     public static Matrix<N3, N1> kStateStdDevs =
@@ -510,9 +515,9 @@ public class Constants {
     public static final double kIntakeStageToIntakeParallelAllowed = kIntakeElbow;
 
     public static final double kElbowTeleMotionCruiseVelocity = 13_000.0;
-    public static final double kElbowTeleMotionAcceleration = 3_800.0;
+    public static final double kElbowTeleMotionAcceleration = 38_000.0;
     public static final double kElbowAutoMotionCruiseVelocity = 13_000.0;
-    public static final double kElbowAutoMotionAcceleration = 3_800.0;
+    public static final double kElbowAutoMotionAcceleration = 38_000.0;
 
     public static TalonFXConfiguration getElbowFalonConfig() {
 
