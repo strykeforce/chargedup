@@ -3,15 +3,20 @@ package frc.robot.commands.auto;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants;
+import frc.robot.commands.drive.AutoBalanceCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
+import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
+import frc.robot.commands.robotState.ClearGamePieceCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.ReleaseGamepieceCommand;
 import frc.robot.commands.robotState.SetGamePieceCommand;
 import frc.robot.commands.robotState.SetTargetLevelCommand;
+import frc.robot.commands.robotState.ShootGamepieceCommand;
 import frc.robot.commands.vision.SetVisionUpdateCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -49,6 +54,7 @@ public class TwoPieceWithDockAutoCommandGroup extends SequentialCommandGroup
 
     addCommands(
         new ParallelCommandGroup(
+            new ZeroGyroCommand(driveSubsystem),
             new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE),
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH),
             new ZeroElevatorCommand(elevatorSubsystem),
@@ -60,18 +66,21 @@ public class TwoPieceWithDockAutoCommandGroup extends SequentialCommandGroup
             firstPath,
             new AutoFloorIntakeCommand(
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
-            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID)),
+            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH)),
         new ParallelCommandGroup(
             secondPath,
             new SequentialCommandGroup(
                 new PastXPositionCommand(
                     robotStateSubsystem, driveSubsystem, Constants.AutonConstants.kPastXPosition),
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
-        new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem),
-        thirdPath,
+        new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
+        new ParallelRaceGroup(
+            new AutoWaitForMatchTimeCommand(0.1),
+            new SequentialCommandGroup(
+                thirdPath, new AutoBalanceCommand(true, driveSubsystem, robotStateSubsystem))),
         new xLockCommand(driveSubsystem),
         new ParallelCommandGroup(
-            new SetGamePieceCommand(robotStateSubsystem, GamePiece.NONE),
+            new ClearGamePieceCommand(robotStateSubsystem),
             new SetVisionUpdateCommand(driveSubsystem, true)));
   }
 

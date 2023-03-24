@@ -5,6 +5,8 @@ import static frc.robot.Constants.kTalonConfigTimeout;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.kauailabs.navx.frc.AHRS;
+import com.kauailabs.navx.frc.AHRS.SerialDataType;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -23,6 +25,7 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
@@ -67,7 +70,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
       new TimestampedPose(RobotController.getFPGATime(), new Pose2d());
   public VisionSubsystem visionSubsystem;
   private double distanceVisionWheelOdom = 0.0;
-  public boolean autoDriving = false, visionUpdates = true;
+  public boolean autoDriving = false,
+      visionUpdates = false; // FIXME NEEDS TO BE TRUE FOR EVERY OTHER BRANCH
   private Pose2d endAutoDrivePose;
   private double lastXSpeed = 0.0, lastYSpeed = 0.0, speedMPSglobal = 0.0;
   private Timer autoDriveTimer = new Timer();
@@ -76,6 +80,18 @@ public class DriveSubsystem extends MeasurableSubsystem {
   public DriveStates currDriveState = DriveStates.IDLE;
   private boolean isShelf;
   private Constants constants;
+  private AHRS ahrs;
+  public boolean autoBalanceGyroActive = false;
+  private double autoBalanceStableCounts = 0;
+  private Timer autoBalanceTimer = new Timer();
+  private Timer autoBalancePulseTimer = new Timer();
+  public boolean autoBalanceReadjust = false;
+  public boolean isOnAllianceSide;
+  public boolean autoBalanceTempStable = false;
+  public double tempRoll;
+  private double autoBalanceAvgCount = 0;
+  private double sumRoll = 0;
+  private double avgStartingRoll = 0;
   // private boolean isAutoDriveFinished = false;
 
   public DriveSubsystem(Constants constants) {
@@ -113,8 +129,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
       swerveModules[i].loadAndSetAzimuthZeroReference();
     }
-
-    swerveDrive = new SwerveDrive(swerveModules);
+    ahrs = new AHRS(SerialPort.Port.kUSB1, SerialDataType.kProcessedData, (byte) 200);
+    swerveDrive = new SwerveDrive(ahrs, swerveModules);
     swerveDrive.resetGyro();
     swerveDrive.setGyroOffset(Rotation2d.fromDegrees(0));
 
@@ -191,9 +207,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   }
 
   public boolean isAutoDriveFinished() {
-    // autoDriving &&
     if (place != null) {
-      // if (autoDriveTimer.hasElapsed(place.getTotalTimeSeconds())) setAutoDriving(false);
       return autoDriveTimer.hasElapsed(place.getTotalTimeSeconds());
     } else return false;
   }
@@ -216,9 +230,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
       desiredHeading = new Rotation2d(desiredHeading.getRadians() == Math.PI ? 0.0 : Math.PI);
     setEnableHolo(true);
     resetHolonomicController();
-    // driveSubsystem.grapherTrajectoryActive(true);
-    // driveSubsystem.lockZero();
-
     logger.info("Moving to place");
     TrajectoryConfig config = new TrajectoryConfig(2.5, 1.5);
     config.setEndVelocity(0);
@@ -247,101 +258,11 @@ public class DriveSubsystem extends MeasurableSubsystem {
     place = TrajectoryGenerator.generateTrajectory(start, points, endPose, config);
     autoDriveTimer.reset();
     autoDriveTimer.start();
-    logger.info("DRIVESUB: {} -> AUTO_DRIVE", currDriveState);
+    logger.info("{} -> AUTO_DRIVE", currDriveState);
     currDriveState = DriveStates.AUTO_DRIVE;
     grapherTrajectoryActive(true);
     // calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
   }
-  // private void autoDrive() {
-  //   Pose2d currentPose = getPoseMeters();
-  //   Rotation2d robotRotation = getGyroRotation2d();
-  //   Transform2d poseDifference = currentPose.minus(endAutoDrivePose);
-
-  //   // holoContInput =
-  //   double result =
-  //       omegaAutoDriveController.calculate(
-  //           MathUtil.angleModulus(robotRotation.getRadians()),
-  //           robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
-  //   result = 0.0;
-  //   double straightDist =
-  //       Math.sqrt(
-  //           poseDifference.getX() * poseDifference.getX()
-  //               + poseDifference.getY() * poseDifference.getY());
-
-  //   double angle = Math.atan2(poseDifference.getY(), poseDifference.getX());
-  //   logger.info("Angle is {}", angle);
-
-  //   double speedMPS =
-  //       Math.sqrt(
-  //           (straightDist + DriveConstants.kAutoEquationOffset)
-  //               * (2 * DriveConstants.kMaxAutoAccel));
-  //   logger.info("Predicted speed is {}", speedMPS);
-  //   double currentXvel = speedMPS * Math.cos(angle);
-  //   double currentYvel = speedMPS * Math.sin(angle);
-
-  //   speedMPS =
-  //       Math.sqrt(
-  //           Math.pow(
-  //                   lastXSpeed
-  //                       + Math.copySign(
-  //                           DriveConstants.kMaxAutoAccel / 50, currentXvel - lastXSpeed),
-  //                   2)
-  //               + Math.pow(currentYvel, 2));
-  //   currentXvel =
-  //       lastXSpeed + Math.copySign(DriveConstants.kMaxAutoAccel / 50, currentXvel - lastXSpeed);
-
-  //   speedMPS =
-  //       Math.sqrt(
-  //           Math.pow(currentXvel, 2)
-  //               + Math.pow(
-  //                   lastYSpeed
-  //                       + Math.copySign(
-  //                           DriveConstants.kMaxAutoAccel / 50, currentYvel - lastYSpeed),
-  //                   2));
-  //   currentYvel =
-  //       lastYSpeed + Math.copySign(DriveConstants.kMaxAutoAccel / 50, currentYvel - lastYSpeed);
-
-  //   if (Math.abs(speedMPS) > 1) {
-  //     speedMPS = Math.copySign(1, speedMPS);
-  //     double tempAngle = Math.atan2(currentYvel, currentXvel);
-  //     currentXvel = speedMPS * Math.cos(tempAngle);
-  //     currentYvel = speedMPS * Math.sin(tempAngle);
-  //   }
-  //   speedMPSglobal = speedMPS;
-  //   lastXSpeed = currentXvel;
-  //   lastYSpeed = currentYvel;
-
-  //   Translation2d moveTranslation = new Translation2d(currentXvel, currentYvel);
-
-  //   if (Math.abs(poseDifference.getX()) <= DriveConstants.kAutoDistanceLimit)
-  //     moveTranslation = new Translation2d(0, moveTranslation.getY());
-  //   if (Math.abs(poseDifference.getY()) <= DriveConstants.kAutoDistanceLimit)
-  //     moveTranslation = new Translation2d(moveTranslation.getX(), 0.0);
-
-  //   // Translation2d moveTranslation =
-  //   // new Translation2d(poseDifference.getX() * 0.25, poseDifference.getY() * 0.25);
-  //   move(moveTranslation.getX(), moveTranslation.getY(), result, true);
-
-  //   logger.info("X accel {}, Y accel", moveTranslation.getX(), moveTranslation.getY());
-  //   logger.info(" X Dif: {}, Y Dif: {}", poseDifference.getX(), poseDifference.getY());
-
-  //   if (Math.abs(poseDifference.getX()) <= DriveConstants.kAutoDistanceLimit
-  //       && Math.abs(poseDifference.getY()) <= DriveConstants.kAutoDistanceLimit
-  //   // && Math.abs(
-  //   //         robotRotation.getRadians()
-  //   //             - (robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI))
-  //   //     <= Math.toRadians(DriveConstants.kMaxAngleOff)
-  //   ) {
-  //     autoDriveTimer.stop();
-  //     autoDriveTimer.reset();
-  //     autoDriving = false;
-  //     visionUpdates = true;
-  //     logger.info("Autodrive Finished");
-  //     lastXSpeed = 0.0;
-  //     speedMPSglobal = 0.0;
-  //     lastYSpeed = 0.0;
-  //   }
-  // }
 
   public boolean isAutoDriving() {
     return autoDriving;
@@ -354,6 +275,42 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
   public void setAutoDriving(boolean autoDrive) {
     autoDriving = autoDrive;
+  }
+
+  public void autoBalance(boolean isOnAllianceSide) {
+    // On alliance side of charge station, drive Positive X
+    autoBalanceAvgCount = 0;
+    sumRoll = 0;
+    avgStartingRoll = 0;
+    this.isOnAllianceSide = isOnAllianceSide;
+    tempRoll = Math.abs(getGyroPitch());
+    logger.info(
+        "Starting AutoBalance: tempRoll: {}, Alliance: {}, isOnAllianceSide: {}",
+        tempRoll,
+        robotStateSubsystem.getAllianceColor(),
+        isOnAllianceSide);
+    if (isOnAllianceSide) {
+      move(DriveConstants.kAutoBalanceFinalDriveVel, 0, 0, false);
+      logger.info("DRIVING POSITIVE LIKE ITS SUPPOSED TO");
+    }
+    // NOT On alliance side of charge station, drive Negative X
+    else move(-DriveConstants.kAutoBalanceFinalDriveVel, 0, 0, false);
+    logger.info("{} -> AUTO_BALANCE_EDGE", currDriveState);
+    currDriveState = DriveStates.AUTO_BALANCE_EDGE;
+  }
+
+  public void pulseAutoBalance(boolean isOnAllianceSide) {
+    this.isOnAllianceSide = isOnAllianceSide;
+    autoBalancePulseTimer.start();
+    autoBalancePulseTimer.reset();
+    tempRoll = Math.abs(getGyroPitch());
+    move(0.0, 0.0, 0.0, false);
+    logger.info("{} -> AUTO_BALANCE_CHECK", currDriveState);
+    currDriveState = DriveStates.AUTO_BALANCE_CHECK;
+  }
+
+  public boolean isWithinThresholdAutoBalance(double threshold) {
+    return (ahrs.getRoll() <= threshold && ahrs.getRoll() >= -threshold);
   }
 
   @Override
@@ -374,7 +331,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
           logger.info("End Trajectory {}", autoDriveTimer.get());
           autoDriveTimer.stop();
           autoDriveTimer.reset();
-          logger.info("DRIVESUB: {} -> AUTO_DRIVE_FINISHED", currDriveState);
+          logger.info("{} -> AUTO_DRIVE_FINISHED", currDriveState);
           currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
           break;
         }
@@ -393,7 +350,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
           logger.info("End Trajectory {}", autoDriveTimer.get());
           autoDriveTimer.stop();
           autoDriveTimer.reset();
-          logger.info("DRIVESUB: {} -> AUTO_DRIVE_FAILED", currDriveState);
+          logger.info("{} -> AUTO_DRIVE_FAILED", currDriveState);
           setDriveState(DriveStates.AUTO_DRIVE_FAILED);
           // currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
           break;
@@ -403,16 +360,100 @@ public class DriveSubsystem extends MeasurableSubsystem {
         break;
       case AUTO_DRIVE_FINISHED:
         break;
+      case AUTO_BALANCE_EDGE:
+        if (Math.abs(getGyroPitch()) - Math.abs(tempRoll)
+            >= DriveConstants.kAutoBalanceEdgeTriggerThreshold) {
+          autoBalanceTimer.reset();
+          autoBalanceTimer.start();
+          logger.info("{} -> AUTO_BALANCE_DRIVE", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE_DRIVE;
+        }
+        break;
+      case AUTO_BALANCE_DRIVE:
+        if (autoBalanceTimer.hasElapsed(DriveConstants.kAutoBalanceSlowdownTimeSec)) {
+          logger.info("{} -> AUTO_BALANCE_AVERAGE", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE_AVERAGE;
+          autoBalanceTimer.restart();
+        }
+        break;
+      case AUTO_BALANCE_AVERAGE:
+        sumRoll += getGyroPitch();
+        autoBalanceAvgCount++;
+        logger.info("AutoBalanceAvgCount: {}", autoBalanceAvgCount);
+        if (autoBalanceTimer.hasElapsed(DriveConstants.kAutoBalanceLoopFixTimer)) {
+          avgStartingRoll = sumRoll / autoBalanceAvgCount;
+          logger.info("Average Starting Roll: {}", avgStartingRoll);
+          logger.info("{} -> AUTO_BALANCE", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE;
+          move(DriveConstants.kAutoBalanceSlowDriveVel, 0, 0, false);
+          autoBalanceTimer.reset();
+        }
+        break;
+      case AUTO_BALANCE:
+        if (Math.abs(avgStartingRoll) - Math.abs(getGyroPitch())
+            >= DriveConstants.kAutoBalanceStopThresholdDegrees) {
+          drive(0, 0, 0);
+          xLock();
+          logger.info(
+              "AutoBalance Stop: Gyro Roll: {}, trigger Difference: {}",
+              getGyroPitch(),
+              Math.abs(avgStartingRoll) - Math.abs(getGyroPitch()));
+          logger.info("{} -> AUTO_BALANCE_FINISHED", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE_FINISHED;
+        }
+        break;
+      case AUTO_BALANCE_FINISHED:
+        autoBalanceAvgCount = 0;
+        sumRoll = 0;
+        avgStartingRoll = 0;
+        break;
+      case AUTO_BALANCE_PULSE:
+        if (!autoBalanceTempStable
+            && autoBalancePulseTimer.hasElapsed(DriveConstants.kPulseAutoBalanceTime)) {
+          if ((!isOnAllianceSide && robotStateSubsystem.getAllianceColor() == Alliance.Blue)
+              || (robotStateSubsystem.getAllianceColor() == Alliance.Red && isOnAllianceSide))
+            move(DriveConstants.kHoldSpeed, 0, 0, false);
+          else move(-DriveConstants.kHoldSpeed, 0, 0, false);
+          logger.info("{} -> AUTO_BALANCE_CHECK", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE_CHECK;
+          autoBalancePulseTimer.reset();
+        }
+        break;
+      case AUTO_BALANCE_CHECK:
+        if (isWithinThresholdAutoBalance(DriveConstants.kAutoBalanceCloseEnoughDeg)) {
+          autoBalanceStableCounts++;
+          autoBalanceTempStable = true;
+        } else {
+          autoBalanceStableCounts = 0;
+        }
+        if (autoBalancePulseTimer.hasElapsed(DriveConstants.kPauseAutoBalanceTime)
+            && !(autoBalanceStableCounts >= DriveConstants.kAutoBalanceStableCount)) {
+          double tempSpeed = DriveConstants.kPulseSpeed;
+          if (Math.abs(getGyroPitch()) - 2.9 <= 10) {
+            logger.info("AutoBalance Slowing to temp speed");
+            tempSpeed = 0.3;
+          }
+          logger.info("{} -> AUTO_BALANCE_PULSE", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE_PULSE;
+          autoBalancePulseTimer.reset();
+          if ((!isOnAllianceSide && robotStateSubsystem.getAllianceColor() == Alliance.Blue)
+              || (robotStateSubsystem.getAllianceColor() == Alliance.Red && isOnAllianceSide))
+            move(tempSpeed, 0, 0, false);
+          else move(-tempSpeed, 0, 0, false);
+          break;
+        }
+        if ((autoBalanceStableCounts >= DriveConstants.kAutoBalanceStableCount)) {
+          logger.info("{} -> AUTO_BALANCE_XLOCK", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE_XLOCK;
+          drive(0, 0, 0);
+          xLock();
+        }
+        break;
+      case AUTO_BALANCE_XLOCK:
+        break;
       default:
         break;
     }
-    // if (autoDriving && autoDriveTimer.hasElapsed(5.0)) visionUpdates = false;
-    // autoDrive();
-
-    // double xSpeed = getFieldRelSpeed().vxMetersPerSecond;
-    // double ySpeed = getFieldRelSpeed().vyMetersPerSecond;
-    // Pose2d endPoint = new Pose2d();
-    // }
   }
 
   public double getSpeedMPS() {
@@ -476,6 +517,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
   public Rotation2d getGyroRotation2d() {
     return swerveDrive.getHeading();
+  }
+
+  public double getGyroPitch() {
+    return ahrs.getPitch();
   }
 
   public void lockZero() {
@@ -681,7 +726,15 @@ public class DriveSubsystem extends MeasurableSubsystem {
     IDLE,
     AUTO_DRIVE,
     AUTO_DRIVE_FINISHED,
-    AUTO_DRIVE_FAILED
+    AUTO_DRIVE_FAILED,
+    AUTO_BALANCE_EDGE,
+    AUTO_BALANCE_DRIVE,
+    AUTO_BALANCE_AVERAGE,
+    AUTO_BALANCE,
+    AUTO_BALANCE_FINISHED,
+    AUTO_BALANCE_PULSE,
+    AUTO_BALANCE_CHECK,
+    AUTO_BALANCE_XLOCK;
   }
 
   @Override
@@ -730,6 +783,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("Auto Drive End X", () -> endAutoDrivePose.getX()),
         new Measure("Auto Drive End Y", () -> endAutoDrivePose.getY()),
         new Measure("Auto Drive Timer", () -> autoDriveTimer.get()),
+        new Measure("Robot Roll Deg", () -> getGyroPitch()),
+        new Measure("Drive State", () -> currDriveState.ordinal()),
         new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()));
   }
 }

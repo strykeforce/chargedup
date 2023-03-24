@@ -96,6 +96,12 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     logger.info("Teleop Init");
+    logger.info(
+        "Event: {}, Match Type: {}, Match #: {}, Replay #: {}",
+        DriverStation.getEventName(),
+        DriverStation.getMatchType(),
+        DriverStation.getMatchNumber(),
+        DriverStation.getReplayNumber());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
