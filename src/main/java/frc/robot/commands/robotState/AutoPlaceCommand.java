@@ -58,7 +58,8 @@ public class AutoPlaceCommand extends CommandBase {
   public void end(boolean interrupted) {
     robotStateSubsystem.endAutoPlace(interrupted);
     driveSubsystem.setAutoDriving(false);
-    if (driveSubsystem.currDriveState != DriveStates.AUTO_DRIVE_FINISHED) {
+    if (driveSubsystem.currDriveState != DriveStates.AUTO_DRIVE_FINISHED
+        && driveSubsystem.currDriveState != DriveStates.AUTO_DRIVE_FAILED) {
       logger.info("Drive: {} -> AUTO_DRIVE_FINISHED", driveSubsystem.currDriveState);
       driveSubsystem.currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
     }

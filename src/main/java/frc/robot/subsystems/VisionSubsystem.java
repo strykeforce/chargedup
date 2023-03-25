@@ -34,6 +34,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   public static DriveSubsystem driveSubsystem;
   private CircularBuffer gyroBuffer = new CircularBuffer(10000);
   private CircularBuffer timestampBuffer = new CircularBuffer(10000);
+  private CircularBuffer velocityBuffer = new CircularBuffer(10000);
   private boolean canFillBuffers = false;
   List<PhotonTrackedTarget> targets;
   PhotonTrackedTarget bestTarget;
@@ -149,6 +150,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   public void fillBuffers() {
     gyroBuffer.addFirst(driveSubsystem.getGyroRotation2d().getRadians());
     timestampBuffer.addFirst(RobotController.getFPGATime());
+    velocityBuffer.addFirst(driveSubsystem.getVectorSpeed());
     buffersFull = true;
   }
 
@@ -159,6 +161,10 @@ public class VisionSubsystem extends MeasurableSubsystem {
 
   public boolean isCameraWorking() {
     return cam1.isConnected();
+  }
+
+  public double getBufferedVelocity() {
+    return velocityBuffer.get(gyroBufferId);
   }
 
   @Override

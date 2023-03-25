@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.AutonConstants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
@@ -887,18 +888,26 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           logger.info("{} -> SHELF_WAIT_TRANSITION", currRobotState);
           currRobotState = RobotState.SHELF_WAIT_TRANSITION;
         }
-        if (visionSubsystem.lastUpdateWithinThresholdTime(
-            VisionConstants.kLastUpdateCloseEnoughThreshold)) {
-          rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
-          // toAutoDrive();
-        } else {
-          rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
-        }
+        // if (visionSubsystem.lastUpdateWithinThresholdTime(
+        //     VisionConstants.kLastUpdateCloseEnoughThreshold)) {
+        //   rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
+        //   // toAutoDrive();
+        // } else {
+        //   rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
+        // }
         break;
       case RETRIEVE_GAMEPIECE:
         break;
       default:
         break;
+    }
+    if (driveSubsystem.getPoseMeters().getX() >= DriveConstants.kPastBumpIndicateX) {
+      if (visionSubsystem.lastUpdateWithinThresholdTime(
+              VisionConstants.kLastUpdateCloseEnoughThreshold
+                  - VisionConstants.kDifferenceCloseEnoughThreshold)
+          && (visionSubsystem.getBufferedVelocity() <= DriveConstants.kMaxSpeedForCamUpdate))
+        rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
+      else rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
     }
   }
 

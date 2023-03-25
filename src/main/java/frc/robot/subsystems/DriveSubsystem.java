@@ -222,6 +222,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
     this.robotStateSubsystem = robotStateSubsystem;
   }
 
+  public double getVectorSpeed() {
+    return Math.sqrt(
+        Math.pow(getFieldRelSpeed().vxMetersPerSecond, 2)
+            + Math.pow(getFieldRelSpeed().vyMetersPerSecond, 2));
+  }
+
   public boolean canGetVisionUpdates() {
     return visionUpdates;
   }
@@ -234,14 +240,15 @@ public class DriveSubsystem extends MeasurableSubsystem {
             <= DriveConstants.kMaxSpeedToAutoDrive
         && Math.abs(getFieldRelSpeed().vyMetersPerSecond) <= DriveConstants.kMaxSpeedToAutoDrive
         && visionSubsystem.lastUpdateWithinThresholdTime(
-            VisionConstants.kLastUpdateCloseEnoughThreshold)) {
+            VisionConstants.kLastUpdateCloseEnoughThreshold)
+        && (visionSubsystem.getBufferedVelocity() <= DriveConstants.kMaxSpeedForCamUpdate)) {
       setAutoDriving(true);
       if (robotStateSubsystem.getGamePiece() != GamePiece.NONE) {
         endAutoDrivePose =
             robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
         logger.info("AutoDrive Scoring Gamepiece.");
         // if (robotStateSubsystem.autoDriveYawRight(getPoseMeters().getY()) != 0)
-        yawAdjustmentActive = true;
+        yawAdjustmentActive = true; // adjust yaw to get a better Odometry reading
       } else {
         // endAutoDrivePose =
         //     robotStateSubsystem.getShelfPosAutoDrive(
@@ -409,7 +416,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
           currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
           break;
         }
-        if (autoDriving && visionUpdates) {
+        if (autoDriving
+            && visionUpdates
+            && autoDriveTimer.hasElapsed(DriveConstants.kArmToAutoDriveDelaySec)) {
           lastAutoDriveTimer = autoDriveTimer.get();
           double xCalc =
               xAutoDriveController.calculate(getPoseMeters().getX(), endAutoDrivePose.getX());
@@ -470,6 +479,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
         }
         break;
       case AUTO_DRIVE_FAILED:
+        // logger.info("Failed AutoDrive, Attempting to Move Yaw to 0");
+        // double omegaCalc =
+        //     omegaAutoDriveController.calculate(
+        //         MathUtil.angleModulus(getGyroRotation2d().getRadians()),
+        //         robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
+        // move(0, 0, omegaCalc, true);
         break;
       case AUTO_DRIVE_FINISHED:
         autoDriving = false;

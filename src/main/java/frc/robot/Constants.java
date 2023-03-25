@@ -187,7 +187,7 @@ public class Constants {
 
     public static final double kDriveGearRatio =
         (kDriveMotorOutputGear / kDriveInputGear) * (kBevelInputGear / kBevelOutputGear);
-    public static double kMaxSpeedToAutoDrive = 1.5; // FIXME WRoNG VAL
+    public static double kMaxSpeedToAutoDrive = 1.0; // FIXME WRoNG VAL 1.5
     public static double kPathErrorThreshold = 0.04; // FIXME WRONG VAL 0.03
     public static double kPathErrorOmegaThresholdDegrees = 5; // FIXME WRONG VAL
 
@@ -301,13 +301,18 @@ public class Constants {
     public static final double kIAutoDrive = 0.0000;
     public static final double kDAutoDrive = 0.00; // kPHolonomic/100
 
-    public static final double kAutoDriveMaxVelocity = 2;
+    public static final double kAutoDriveMaxVelocity = 2; //
     public static final double kAutoDriveMaxAccel = 2;
     // Default safety path constants
     public static final Pose2d startPose2d = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
     public static final Pose2d endPose2d = new Pose2d(-1, 0, Rotation2d.fromDegrees(0));
 
     public static final double kAutoDriveAutoYawMax = 30;
+    public static final double kMaxSpeedForCamUpdate =
+        0.75; // Max Speed(MPS) The robot can be at while the camera updates to autodrive.
+    public static final double kPastBumpIndicateX = 12;
+    public static final double kArmToAutoDriveDelaySec =
+        0; // time delay between arm and autodrive starting
 
     public static final double kAutoDriveAutoYawCloseEnough = 1;
 
@@ -352,8 +357,9 @@ public class Constants {
 
     public static final double kCameraOffset = .335; // was .273 on driveChasis
     public static final double kCameraAngleOffset = 0; // DEGREES was 24 on driveChasis
-    public static final double kLastUpdateCloseEnoughThreshold = 10.0; // IN SECONDS
+    public static final double kLastUpdateCloseEnoughThreshold = 2.0; // IN SECONDS
     public static final double kLastUpdateCloseEnoughThresholdYaw = 1.0;
+    public static final double kDifferenceCloseEnoughThreshold = .1;
     public static int kBufferLookupOffset = 2;
 
     public static Matrix<N3, N1> kStateStdDevs =
