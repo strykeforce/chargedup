@@ -10,10 +10,12 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.AutonConstants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotStateConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.DriveSubsystem.DriveStates;
 import frc.robot.subsystems.HandSubsystem.HandStates;
@@ -97,6 +99,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   public TargetLevel getTargetLevel() {
     return targetLevel;
+  }
+
+  public boolean getIsAuto() {
+    return isAuto;
   }
 
   public void setTargetCol(TargetCol targetCol) {
@@ -313,6 +319,16 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     driveSubsystem.autoBalance(isOnAllianceSide);
   }
 
+  public void toRecoverGamepiece() {
+    armSubsystem.unReinforceElevator();
+    toStowIntake();
+    handSubsystem.stowHand(HandConstants.kShelfOpenPosition);
+    currentAxis = CurrentAxis.HAND;
+    handSubsystem.runRollers(HandConstants.kRollerPickUp);
+    logger.info("{} -> RECOVER_GAMEPIECE", currRobotState);
+    currRobotState = RobotState.RECOVER_GAMEPIECE;
+  }
+
   public void toPulseAutoBalance(boolean isOnAllianceSide) {
     driveSubsystem.pulseAutoBalance(isOnAllianceSide);
     logger.info("{} -> AUTO_BALANCE", currRobotState);
@@ -373,6 +389,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public boolean shouldFastStowArm() {
+    if (!isAuto) return false;
     return (fastStowAfterScore
             && (isBlueAlliance()
                     && driveSubsystem.getPoseMeters().getX()
@@ -874,7 +891,12 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         if (driveSubsystem.currDriveState == DriveStates.AUTO_DRIVE_FINISHED) {
           rgbLightsSubsystem.setOff();
           if (armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER
-              && armSubsystem.getCurrState() != ArmState.LOW) armSubsystem.toTwistShoulder();
+              && armSubsystem.getCurrState() != ArmState.LOW
+              && (armSubsystem.getCurrState() == ArmState.HIGH_CONE
+                  || armSubsystem.getCurrState() == ArmState.HIGH_CUBE
+                  || armSubsystem.getCurrState() == ArmState.MID_CONE
+                  || armSubsystem.getCurrState() == ArmState.MID_CUBE))
+            armSubsystem.toTwistShoulder();
           // driveSubsystem.currDriveState = DriveStates.IDLE;
           // Start Arm Stuff.
           isAutoPlacing = false;
@@ -900,17 +922,44 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           logger.info("{} -> SHELF_WAIT_TRANSITION", currRobotState);
           currRobotState = RobotState.SHELF_WAIT_TRANSITION;
         }
-        if (visionSubsystem.lastUpdateWithinThresholdTime()) {
-          rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
-          // toAutoDrive();
-        } else {
-          rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
+        // if (visionSubsystem.lastUpdateWithinThresholdTime(
+        //     VisionConstants.kLastUpdateCloseEnoughThreshold)) {
+        //   rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
+        //   // toAutoDrive();
+        // } else {
+        //   rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
+        // }
+        break;
+      case RECOVER_GAMEPIECE:
+        switch (currentAxis) {
+          case HAND:
+            if (handSubsystem.isFinished()) currentAxis = CurrentAxis.NONE;
+            break;
+          case NONE:
+            if (handSubsystem.hasCone()) {
+              handSubsystem.grabCone();
+              setGamePiece(GamePiece.CONE);
+              armSubsystem.unReinforceElevator();
+              // armSubsystem.setReinforceElevator(false);
+              toStowIntake();
+              logger.info("{} -> TO_STOW", currRobotState);
+              currRobotState = RobotState.TO_STOW;
+            }
         }
         break;
       case RETRIEVE_GAMEPIECE:
         break;
       default:
         break;
+    }
+    if (driveSubsystem.getPoseMeters().getX() >= DriveConstants.kPastBumpIndicateX
+        && !driveSubsystem.isAutoDriving()) {
+      if (visionSubsystem.lastUpdateWithinThresholdTime(
+              VisionConstants.kLastUpdateCloseEnoughThreshold
+                  - VisionConstants.kDifferenceCloseEnoughThreshold)
+          && (visionSubsystem.getBufferedVelocity() <= DriveConstants.kMaxSpeedForCamUpdate))
+        rgbLightsSubsystem.setCubeColor();
+      else rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
     }
   }
 
@@ -942,7 +991,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     double targetX = Constants.RobotStateConstants.kAutoPlaceX;
     double rotation = Math.PI;
     if (!isBlueAlliance()) rotation = 0.0;
-
+    logger.info("getAutoPlaceDriveTarget Fed in Y: {}", yCoord);
     if (!isBlueAlliance()) {
       targetX = Constants.RobotStateConstants.kFieldMaxX - targetX;
       logger.info("Not blue alliance: {}", allianceColor.toString());
@@ -959,6 +1008,38 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             + multiplier * RobotStateConstants.kPolePlaceOffset,
         new Rotation2d(rotation));
   }
+
+  // public double autoDriveYawRight(double yCoord) {
+  //   int gridIndex =
+  //       ((yCoord > Constants.RobotStateConstants.kBound1Y) ? 1 : 0)
+  //           + ((yCoord > Constants.RobotStateConstants.kBound2Y) ? 1 : 0);
+  //   // CHECK VISION
+  //   double tempYaw = driveSubsystem.getGyroRotation2d().getDegrees();
+  //   if (getAllianceColor() == Alliance.Red)
+  //     tempYaw = driveSubsystem.getGyroRotation2d().getDegrees() - 180;
+  //   logger.info("grid Index: {}", gridIndex);
+  //   if (!visionSubsystem.lastUpdateWithinThresholdTime(0.05)) {
+  //     // && visionSubsystem.getHasTargets() == 0) {
+  //     logger.info("Threshold and no targets");
+  //     if (driveSubsystem.getPoseMeters().getY() <
+  // Constants.RobotStateConstants.kGridY[gridIndex]) {
+  //       // left of tag on grid {gridIndex} GYRO POSITIVE IS COUNTERCLOCKWISE (Yaw/Look To The
+  //       // Right)
+  //       logger.info("Left Of Tag, Look Right(Yaw CounterClockwise), tempYaw: {}", tempYaw);
+  //       return 1;
+  //     } else {
+  //       // right of tag GYRO NEGATIVE IS CLOCKWISE (Yaw/Look To The LEFT)
+  //       logger.info("Right Of Tag, Look Left(Yaw Clockwise), tempYaw: {}", tempYaw);
+  //       return 2;
+  //     }
+  //   }
+  //   logger.info(
+  //       "Returned 0, tempYaw: {}, withThresholdVisUpdate: {}",
+  //       tempYaw,
+  //       visionSubsystem.lastUpdateWithinThresholdTime(
+  //           Constants.VisionConstants.kLastUpdateCloseEnoughThresholdYaw));
+  //   return 0;
+  // }
 
   public boolean isBlueAlliance() {
     return getAllianceColor() == Alliance.Blue;
@@ -1011,7 +1092,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     FLOOR_GRAB_CONE,
     AUTO_BALANCE,
     TO_STOW_SCORE,
-    RETRIEVE_GAMEPIECE
+    RETRIEVE_GAMEPIECE,
+    RECOVER_GAMEPIECE
   }
 
   public enum CurrentAxis {

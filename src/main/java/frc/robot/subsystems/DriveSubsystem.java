@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import java.nio.file.Paths;
@@ -141,6 +142,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private double autoBalanceAvgCount = 0;
   private double sumRoll = 0;
   private double avgStartingRoll = 0;
+  private boolean yawAdjustmentActive = false;
   // private boolean isAutoDriveFinished = false;
 
   public DriveSubsystem(Constants constants) {
@@ -282,6 +284,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
     this.robotStateSubsystem = robotStateSubsystem;
   }
 
+  public double getVectorSpeed() {
+    return Math.sqrt(
+        Math.pow(getFieldRelSpeed().vxMetersPerSecond, 2)
+            + Math.pow(getFieldRelSpeed().vyMetersPerSecond, 2));
+  }
+
   public boolean canGetVisionUpdates() {
     return visionUpdates;
   }
@@ -291,14 +299,20 @@ public class DriveSubsystem extends MeasurableSubsystem {
     xAutoDriveController.reset(getPoseMeters().getX(), getFieldRelSpeed().vxMetersPerSecond);
     yAutoDriveController.reset(getPoseMeters().getY(), getFieldRelSpeed().vyMetersPerSecond);
     if (Math.abs(getFieldRelSpeed().vxMetersPerSecond) // FIXME TEMP CHECK IF STATEMENT
-            <= DriveConstants.kMaxSpeedToAutoDrive
-        && Math.abs(getFieldRelSpeed().vyMetersPerSecond) <= DriveConstants.kMaxSpeedToAutoDrive
-        && visionSubsystem.lastUpdateWithinThresholdTime()) {
+                <= DriveConstants.kMaxSpeedToAutoDrive
+            && Math.abs(getFieldRelSpeed().vyMetersPerSecond) <= DriveConstants.kMaxSpeedToAutoDrive
+            && (visionSubsystem.lastUpdateWithinThresholdTime(
+                    VisionConstants.kLastUpdateCloseEnoughThreshold)
+                || robotStateSubsystem.getIsAuto())
+            && ((visionSubsystem.getBufferedVelocity() <= DriveConstants.kMaxSpeedForCamUpdate))
+        || robotStateSubsystem.getIsAuto()) {
       setAutoDriving(true);
       if (robotStateSubsystem.getGamePiece() != GamePiece.NONE) {
         endAutoDrivePose =
             robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
         logger.info("AutoDrive Scoring Gamepiece.");
+        // if (robotStateSubsystem.autoDriveYawRight(getPoseMeters().getY()) != 0)
+        yawAdjustmentActive = false; // adjust yaw to get a better Odometry reading
       } else {
         // endAutoDrivePose =
         //     robotStateSubsystem.getShelfPosAutoDrive(
@@ -320,10 +334,11 @@ public class DriveSubsystem extends MeasurableSubsystem {
       logger.info(
           "Autodrive Failed. failedSpeed: {}, failedVision: {}",
           Math.abs(getFieldRelSpeed().vxMetersPerSecond) // FIXME TEMP CHECK IF STATEMENT
-                  <= DriveConstants.kMaxSpeedToAutoDrive
+                  >= DriveConstants.kMaxSpeedToAutoDrive
               && Math.abs(getFieldRelSpeed().vyMetersPerSecond)
-                  <= DriveConstants.kMaxSpeedToAutoDrive,
-          visionSubsystem.lastUpdateWithinThresholdTime());
+                  >= DriveConstants.kMaxSpeedToAutoDrive,
+          visionSubsystem.lastUpdateWithinThresholdTime(
+              VisionConstants.kLastUpdateCloseEnoughThreshold));
       logger.info("{} -> AUTO_DRIVE_FAILED", currDriveState);
       currDriveState = DriveStates.AUTO_DRIVE_FAILED;
     }
@@ -487,7 +502,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
           currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
           break;
         }
-        if (autoDriving && visionUpdates) {
+        if (autoDriving
+            && visionUpdates
+            && autoDriveTimer.hasElapsed(DriveConstants.kArmToAutoDriveDelaySec)) {
           lastAutoDriveTimer = autoDriveTimer.get();
           double xCalc =
               xAutoDriveController.calculate(getPoseMeters().getX(), endAutoDrivePose.getX());
@@ -497,6 +514,34 @@ public class DriveSubsystem extends MeasurableSubsystem {
               omegaAutoDriveController.calculate(
                   MathUtil.angleModulus(getGyroRotation2d().getRadians()),
                   robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
+          // if (yawAdjustmentActive) {
+          //   double tempYaw = 45;
+          //   if (robotStateSubsystem.autoDriveYawRight(getPoseMeters().getY()) == 2)
+          //     tempYaw = -tempYaw;
+          //   else if (robotStateSubsystem.autoDriveYawRight(getPoseMeters().getY()) == 0) {
+          //     logger.info(
+          //         "Target Seen, Stop yawing, Yaw Angle: {}",
+          //         getPoseMeters().getRotation().getDegrees());
+          //     tempYaw = 0;
+          //     yawAdjustmentActive = false;
+          //   }
+          //   tempYaw =
+          //       robotStateSubsystem.getAllianceColor() == Alliance.Blue
+          //           ? 0.0 + Math.toRadians(tempYaw)
+          //           : Math.PI + Math.toRadians(tempYaw);
+          //   if (Math.abs(Math.toDegrees(tempYaw) - getGyroRotation2d().getDegrees())
+          //       <= DriveConstants.kAutoDriveAutoYawCloseEnough) {
+          //     logger.info(
+          //         "At Angle, Stop yawing, Yaw Angle: {}",
+          //         getPoseMeters().getRotation().getDegrees());
+          //     yawAdjustmentActive = false;
+          //     tempYaw = 0;
+          //   }
+          //   omegaCalc =
+          //       omegaAutoDriveController.calculate(
+          //           MathUtil.angleModulus(getGyroRotation2d().getRadians()), tempYaw);
+          //   logger.info("tempYaw: {}", Math.toDegrees(tempYaw));
+          // }
           // logger.info("AutoPlace: xCalc: {}, yCalc: {}, omegaCalc: {}", xCalc, yCalc, omegaCalc);
           this.xCalc = xCalc;
           this.yCalc = yCalc;
@@ -504,12 +549,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
           move(xCalc, yCalc, omegaCalc, true);
           // calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
         }
-        // if (autoDriving
-        //     && !visionSubsystem.lastUpdateWithinThresholdTime()) { // FIXME TEMP CHECK FOR
-        // AUTODRIVE TESTING
-        //   logger.info("{} -> AUTO_DRIVE_FAILED", currDriveState); // FIXME
-        //   currDriveState = DriveStates.AUTO_DRIVE_FAILED; // FIXME
-        // }
         if (autoDriving
             && !visionUpdates
             && (!visionSubsystem.getOdomAutoBool() || !visionSubsystem.isCameraWorking())) {
@@ -522,11 +561,16 @@ public class DriveSubsystem extends MeasurableSubsystem {
           autoDriveTimer.reset();
           logger.info("{} -> AUTO_DRIVE_FAILED", currDriveState);
           setDriveState(DriveStates.AUTO_DRIVE_FAILED);
-          // currDriveState = DriveStates.AUTO_DRIVE_FINISHED;
           break;
         }
         break;
       case AUTO_DRIVE_FAILED:
+        // logger.info("Failed AutoDrive, Attempting to Move Yaw to 0");
+        // double omegaCalc =
+        //     omegaAutoDriveController.calculate(
+        //         MathUtil.angleModulus(getGyroRotation2d().getRadians()),
+        //         robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
+        // move(0, 0, omegaCalc, true);
         break;
       case AUTO_DRIVE_FINISHED:
         autoDriving = false;
@@ -972,6 +1016,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("AutoDrive Velocity Err X", () -> xAutoDriveController.getVelocityError()),
         new Measure("AutoDrive xCalc", () -> xCalc),
         new Measure("AutoDrive yCalc", () -> yCalc),
+        new Measure("AutoDrive omegaCalc", () -> omegaCalc),
+        new Measure("Auto Drive Timer", () -> autoDriveTimer.get()),
         new Measure("Robot Roll Deg", () -> getGyroPitch()),
         new Measure("Drive State", () -> currDriveState.ordinal()),
         new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()));
