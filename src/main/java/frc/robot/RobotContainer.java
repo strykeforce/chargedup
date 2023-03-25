@@ -27,7 +27,6 @@ import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elbow.ElbowHoldPosCommand;
 import frc.robot.commands.elbow.JogElbowCommand;
-import frc.robot.commands.elbow.ZeroElbowCommand;
 import frc.robot.commands.elevator.AdjustElevatorCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.HoldPositionCommand;
@@ -319,58 +318,14 @@ public class RobotContainer {
             new AutoPlaceCommand(driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem))
         .onFalse(new InterruptDriveCommand(driveSubsystem));
     // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id).onTrue(balancepath); //TESTING AT
+    // LAKEVIEW PRACTICE FIELD
+
     // new JoystickButton(driveJoystick, InterlinkButton.X.id)
-    //     .onTrue(new xLockCommand(driveSubsystem));
-    new JoystickButton(driveJoystick, InterlinkButton.X.id)
-        .onTrue(new ZeroElbowCommand(elbowSubsystem));
-    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-    //     .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
-    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(threePiecePath);
+    //     .onTrue(new ZeroElbowCommand(elbowSubsystem));
 
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
-    //     .onTrue(
-    //         new AutoPlaceCommandGroup(
-    //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-    //     .onTrue(new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem));
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-    //     .onTrue(new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem));
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id).onTrue(balancepath);
-    // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
-    new JoystickButton(driveJoystick, InterlinkButton.X.id)
-        .onTrue(new ZeroElbowCommand(elbowSubsystem));
-    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-    //     .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
-    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(threePiecePath);
-
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
-    //     .onTrue(
-    //         new AutoPlaceCommandGroup(
-    //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-    //     .onTrue(new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem));
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-    //     .onTrue(new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem));
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id).onTrue(balancepath);
-    // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
-    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-    //     .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
-    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(threePiecePath);
-
-    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-    // .onTrue(new DriveAutonCommand(driveSubsystem, "straightPathX", true, true));
-    // Requires swerve migration to new Pose2D
-    // new JoystickButton(joystick, InterlinkButton.HAMBURGER.id).whenPressed(() ->
-    // {driveSubsystem.resetOdometry(new Pose2d());},driveSubsystem);
-    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-    //     .onTrue(twoPieceAutoPlacePathCommandGroup)
-    //     .onTrue(
-    //         new InstantCommand(() -> robotStateSubsystem.setAutoMode(true),
-    // robotStateSubsystem));
-    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-    //     .onTrue(new ShootGamepieceCommand(handSubsystem, robotStateSubsystem));
 
     // Hand
     /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
