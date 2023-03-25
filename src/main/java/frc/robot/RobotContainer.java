@@ -571,6 +571,10 @@ public class RobotContainer {
         .addBoolean("Is Elbow Ok?", () -> armSubsystem.isElbowOk())
         .withSize(1, 1)
         .withPosition(8, 0);
+    Shuffleboard.getTab("Match")
+        .addBoolean("Is Navx Connected", () -> driveSubsystem.isNavxWorking())
+        .withSize(1, 1)
+        .withPosition(8, 1);
   }
 
   private void configurePitDashboard() {
