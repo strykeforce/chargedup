@@ -1,4 +1,4 @@
-package frc.robot.commands.robotState;
+package frc.robot.commands.auto;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ArmSubsystem;
@@ -6,21 +6,19 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.DriveSubsystem.DriveStates;
 import frc.robot.subsystems.HandSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
-import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AutoPlaceCommand extends CommandBase {
-
-  private final DriveSubsystem driveSubsystem;
-  private final RobotStateSubsystem robotStateSubsystem;
-  private static final Logger logger = LoggerFactory.getLogger(AutoPlaceCommand.class);
+public class AutoPlaceAutonCommand extends CommandBase {
+  private DriveSubsystem driveSubsystem;
+  private RobotStateSubsystem robotStateSubsystem;
+  private static final Logger logger = LoggerFactory.getLogger(AutoPlaceAutonCommand.class);
   private boolean isShelf;
   private TargetCol targetCol;
   private boolean isBlue;
 
-  public AutoPlaceCommand(
+  public AutoPlaceAutonCommand(
       DriveSubsystem driveSubsystem,
       RobotStateSubsystem robotStateSubsystem,
       ArmSubsystem armSubsystem,
@@ -33,20 +31,12 @@ public class AutoPlaceCommand extends CommandBase {
   @Override
   public void initialize() {
     driveSubsystem.setDriveState(DriveStates.IDLE);
-    // driveSubsystem.setAutoDriving(true);
-    // First autodrive.
     logger.info(
-        "Starting Autoplace, Level: {}, Position(Col): {}, isShelf: {}",
+        "Starting Autoplace in Auton: Level: {}, Position(Col): {}",
         robotStateSubsystem.getTargetLevel().name(),
-        robotStateSubsystem.getTargetCol().name(),
-        (robotStateSubsystem.getGamePiece() == GamePiece.NONE));
-    if (robotStateSubsystem.getGamePiece() == GamePiece.NONE) robotStateSubsystem.toAutoShelf();
-    else robotStateSubsystem.toAutoScore();
-    // robotStateSubsystem.toAutoDrive();
+        robotStateSubsystem.getTargetCol().name());
+    robotStateSubsystem.toAutoScore();
   }
-
-  @Override
-  public void execute() {}
 
   @Override
   public boolean isFinished() {
