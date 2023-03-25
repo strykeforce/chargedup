@@ -320,7 +320,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public void toRecoverGamepiece() {
-    handSubsystem.stowHand(HandConstants.kConeGrabbingPosition);
+    armSubsystem.unReinforceElevator();
+    toStowIntake();
+    handSubsystem.stowHand(HandConstants.kShelfOpenPosition);
+    currentAxis = CurrentAxis.HAND;
+    handSubsystem.runRollers(HandConstants.kRollerPickUp);
     logger.info("{} -> RECOVER_GAMEPIECE", currRobotState);
     currRobotState = RobotState.RECOVER_GAMEPIECE;
   }
@@ -927,11 +931,20 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // }
         break;
       case RECOVER_GAMEPIECE:
-        if (handSubsystem.hasCone()) {
-          handSubsystem.grabCone();
-          toStowIntake();
-          logger.info("{} -> TO_STOW", currRobotState);
-          currRobotState = RobotState.TO_STOW;
+        switch (currentAxis) {
+          case HAND:
+            if (handSubsystem.isFinished()) currentAxis = CurrentAxis.NONE;
+            break;
+          case NONE:
+            if (handSubsystem.hasCone()) {
+              handSubsystem.grabCone();
+              setGamePiece(GamePiece.CONE);
+              armSubsystem.unReinforceElevator();
+              // armSubsystem.setReinforceElevator(false);
+              toStowIntake();
+              logger.info("{} -> TO_STOW", currRobotState);
+              currRobotState = RobotState.TO_STOW;
+            }
         }
         break;
       case RETRIEVE_GAMEPIECE:

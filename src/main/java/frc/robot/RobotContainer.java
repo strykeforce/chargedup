@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.commands.RGBlights.RGBsetPieceCommand;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.TestBalanceCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
@@ -446,6 +445,10 @@ public class RobotContainer {
             new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID, TargetCol.LEFT));
     new JoystickButton(xboxController, XboxController.Button.kStart.value)
         .onTrue(new RecoverGamepieceCommand(robotStateSubsystem, handSubsystem));
+    new JoystickButton(xboxController, XboxController.Button.kBack.value)
+        .onTrue(
+            new StowRobotCommand(
+                robotStateSubsystem, armSubsystem, intakeSubsystem, handSubsystem));
 
     Trigger leftTrigger =
         new Trigger(() -> xboxController.getLeftTriggerAxis() >= 0.1)
@@ -487,11 +490,11 @@ public class RobotContainer {
     new JoystickButton(xboxController, XboxController.Button.kB.value)
         .onTrue(new SetGamePieceCommand(robotStateSubsystem, GamePiece.NONE));
 
-    new JoystickButton(xboxController, XboxController.Button.kBack.value)
-        .onTrue(new RGBsetPieceCommand(rgbLightsSubsystem, GamePiece.CUBE));
+    // new JoystickButton(xboxController, XboxController.Button.kBack.value)
+    //     .onTrue(new RGBsetPieceCommand(rgbLightsSubsystem, GamePiece.CUBE));
 
-    new JoystickButton(xboxController, XboxController.Button.kStart.value)
-        .onTrue(new RGBsetPieceCommand(rgbLightsSubsystem, GamePiece.CONE));
+    // new JoystickButton(xboxController, XboxController.Button.kStart.value)
+    //     .onTrue(new RGBsetPieceCommand(rgbLightsSubsystem, GamePiece.CONE));
 
     // Adjust elevator
     Trigger leftUp =
