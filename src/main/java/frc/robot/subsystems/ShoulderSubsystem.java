@@ -22,7 +22,7 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
   @HealthCheck
   @Position(
       percentOutput = {0.2, -0.2},
-      encoderChange = 1000)
+      encoderChange = (int) ShoulderConstants.kLevelThreeCubeShoulder)
   private TalonSRX leftMainShoulderTalon;
 
   @HealthCheck
@@ -32,6 +32,8 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
   private double desiredPosition;
   private Constants constants;
   private boolean setToGreaterPos = false;
+  private double leftTwist;
+  private double rightTwist;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -52,20 +54,46 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
         Constants.ShoulderConstants.getShoulderTalonSupplyLimitConfig());
     rightFollowerShoulderTalon.setNeutralMode(NeutralMode.Brake);
     rightFollowerShoulderTalon.setInverted(true);
-    rightFollowerShoulderTalon.follow(leftMainShoulderTalon);
 
     zeroShoulder();
     desiredPosition = getPos();
   }
 
+  public void setMotionMagic(boolean isAuto) {
+    if (isAuto) {
+      leftMainShoulderTalon.configMotionAcceleration(
+          ShoulderConstants.kShoulderAutoMotionAcceleration);
+      leftMainShoulderTalon.configMotionCruiseVelocity(
+          ShoulderConstants.kShoulderAutoMotionCruiseVelocity);
+      rightFollowerShoulderTalon.configMotionAcceleration(
+          ShoulderConstants.kShoulderAutoMotionAcceleration);
+      rightFollowerShoulderTalon.configMotionCruiseVelocity(
+          ShoulderConstants.kShoulderAutoMotionCruiseVelocity);
+    } else {
+      leftMainShoulderTalon.configMotionAcceleration(
+          ShoulderConstants.kShoulderTeleMotionAcceleration);
+      leftMainShoulderTalon.configMotionCruiseVelocity(
+          ShoulderConstants.kShoulderTeleMotionCruiseVelocity);
+      rightFollowerShoulderTalon.configMotionAcceleration(
+          ShoulderConstants.kShoulderTeleMotionAcceleration);
+      rightFollowerShoulderTalon.configMotionCruiseVelocity(
+          ShoulderConstants.kShoulderTeleMotionCruiseVelocity);
+    }
+  }
+
   @BeforeHealthCheck
   public boolean goToZero() {
+    rightFollowerShoulderTalon.follow(leftMainShoulderTalon);
+    leftMainShoulderTalon.configForwardSoftLimitEnable(false);
+    rightFollowerShoulderTalon.configForwardSoftLimitEnable(false);
     setPos(0.0);
     return isFinished();
   }
 
   @AfterHealthCheck
   public boolean returnToZero() {
+    leftMainShoulderTalon.configForwardSoftLimitEnable(true);
+    rightFollowerShoulderTalon.configForwardSoftLimitEnable(true);
     setPos(0.0);
     return isFinished();
   }
@@ -75,6 +103,7 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
     setToGreaterPos = location > getPos();
     desiredPosition = location;
     leftMainShoulderTalon.set(ControlMode.MotionMagic, location);
+    rightFollowerShoulderTalon.set(ControlMode.MotionMagic, location);
   }
 
   public void setPct(double pct) {
@@ -109,11 +138,19 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
             && !setToGreaterPos;
   }
 
+  public void unTwist(double origin) {
+    rightFollowerShoulderTalon.set(ControlMode.MotionMagic, origin);
+    leftMainShoulderTalon.set(ControlMode.MotionMagic, origin);
+  }
+
+  public void setTwist(double origin) {
+    rightTwist = origin;
+    leftTwist = origin;
+  }
+
   public void twistShoulder(double change) {
-    leftMainShoulderTalon.set(
-        ControlMode.MotionMagic, leftMainShoulderTalon.getSelectedSensorPosition() + change);
-    rightFollowerShoulderTalon.set(
-        ControlMode.MotionMagic, rightFollowerShoulderTalon.getSelectedSensorPosition() + -change);
+    leftMainShoulderTalon.set(ControlMode.MotionMagic, leftTwist + change);
+    rightFollowerShoulderTalon.set(ControlMode.MotionMagic, rightTwist - change);
   }
 
   public void zeroShoulder() {

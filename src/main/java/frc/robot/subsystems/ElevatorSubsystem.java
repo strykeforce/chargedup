@@ -22,8 +22,8 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
 
   @HealthCheck
   @Position(
-      percentOutput = {-0.2, 0.2},
-      encoderChange = 3_000)
+      percentOutput = {-0.3, 0.3},
+      encoderChange = (int) (ElevatorConstants.kTicksPerMeter / 10))
   private TalonFX leftMainFalcon;
 
   @HealthCheck
@@ -34,6 +34,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   private ElevatorState elevatorState;
   private boolean hasZeroed = false;
   private boolean setToGreaterPos = false;
+  private boolean isElevatorReinforcing = false;
 
   private int elevatorZeroStableCounts;
 
@@ -62,12 +63,20 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
 
   @BeforeHealthCheck
   public boolean goToZero() {
+    leftMainFalcon.configForwardSoftLimitEnable(false);
+    leftMainFalcon.configReverseSoftLimitEnable(false);
+    rightFollowFalcon.configForwardSoftLimitEnable(false);
+    rightFollowFalcon.configReverseSoftLimitEnable(false);
     setPos(ElevatorConstants.kStowElevator);
     return isFinished();
   }
 
   @AfterHealthCheck
   public boolean returnToZero() {
+    leftMainFalcon.configForwardSoftLimitEnable(true);
+    leftMainFalcon.configReverseSoftLimitEnable(true);
+    rightFollowFalcon.configForwardSoftLimitEnable(true);
+    rightFollowFalcon.configReverseSoftLimitEnable(true);
     setPos(ElevatorConstants.kStowElevator);
     return isFinished();
   }
@@ -106,7 +115,12 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
             && !setToGreaterPos;
   }
 
+  public boolean isElevatorReinforcing() {
+    return isElevatorReinforcing;
+  }
+
   public void unReinforceElevator() {
+    isElevatorReinforcing = false;
     setPct(0.0);
 
     leftMainFalcon.configForwardSoftLimitEnable(true);
@@ -121,8 +135,9 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   }
 
   public void reinforceElevator() {
-    leftMainFalcon.configForwardSoftLimitEnable(false);
-    leftMainFalcon.configReverseSoftLimitEnable(false);
+    isElevatorReinforcing = true;
+    leftMainFalcon.configForwardSoftLimitEnable(true);
+    leftMainFalcon.configReverseSoftLimitEnable(true);
     // rightFollowFalcon.configForwardSoftLimitEnable(false);
     // rightFollowFalcon.configReverseSoftLimitEnable(false);
 
@@ -131,7 +146,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
     // rightFollowFalcon.configStatorCurrentLimit(
     //     ElevatorConstants.getElevStatorCurrentLimitConfiguration());
 
-    setPct(-Constants.ElevatorConstants.kElevatorZeroSpeed);
+    setPct(Constants.ElevatorConstants.kElevatorReinforceSpeed);
     logger.info("Reinforcing Elevator");
   }
 
@@ -176,7 +191,9 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
 
   @Override
   public Set<Measure> getMeasures() {
-    return Set.of(new Measure("Extension meters", () -> getExtensionMeters()));
+    return Set.of(
+        new Measure("Extension meters", () -> getExtensionMeters()),
+        new Measure("Elevator State", () -> getElevatorState().ordinal()));
   }
 
   @Override

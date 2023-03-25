@@ -20,7 +20,7 @@ public class DriveToPlaceCommand extends CommandBase {
   private final DriveSubsystem driveSubsystem;
   private final RobotStateSubsystem robotStateSubsystem;
   private final Timer timer = new Timer();
-  private static final Logger logger = LoggerFactory.getLogger(DriveAutonCommand.class);
+  private static final Logger logger = LoggerFactory.getLogger(DriveToPlaceCommand.class);
   private Rotation2d desiredHeading;
   private Trajectory place;
   private boolean isShelf;

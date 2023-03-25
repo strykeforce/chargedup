@@ -84,6 +84,7 @@ public class Robot extends TimedRobot {
       if (!m_autonomousCommand.hasGenerated()) m_autonomousCommand.generateTrajectory();
       m_autonomousCommand.schedule();
     }
+    m_robotContainer.configureMotionMagic(true);
     // m_robotContainer.getAutoCommand().schedule();
   }
 
@@ -107,6 +108,7 @@ public class Robot extends TimedRobot {
     }
     m_robotContainer.zeroElevator();
     m_robotContainer.setAuto(false); // commented out for now - to allow testing in Tele
+    m_robotContainer.configureMotionMagic(false);
   }
 
   @Override

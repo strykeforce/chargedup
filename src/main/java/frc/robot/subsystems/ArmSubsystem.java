@@ -1,6 +1,9 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElbowConstants;
@@ -29,14 +32,23 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private boolean isArmFastStowing = false;
   private boolean hasElbowZeroed = true;
   private boolean isElbowReinforced = true;
+  private boolean wasAuto = false;
   private boolean doReinforceElevator = true;
   private boolean isHealthChecking = false;
   private double differenceInShoulder = 0.0;
+  private double originOfShoulder = 0.0;
+  private double errorInElbow = 0.0;
+  private XboxController xboxController;
+  private ArmState beforeTwistState;
+  private boolean unTwistAtEnd = false;
+  private Timer twistTimer = new Timer();
 
   public ArmSubsystem(
       ShoulderSubsystem shoulderSubsystem,
       ElevatorSubsystem elevatorSubsystem,
-      ElbowSubsystem elbowSubsystem) {
+      ElbowSubsystem elbowSubsystem,
+      XboxController xboxController) {
+    this.xboxController = xboxController;
     this.currState = ArmState.STOW; // Maybe not?
     this.desiredState = ArmState.STOW;
     this.shoulderSubsystem = shoulderSubsystem;
@@ -61,6 +73,12 @@ public class ArmSubsystem extends MeasurableSubsystem {
     switch (currState) {
       case LOW: // Fall through
       case MID_CONE:
+      case TWIST_SHOULDER:
+        logger.info("{} -> TWIST_TO_STOW", currState);
+        xboxController.setRumble(RumbleType.kBothRumble, 0.0);
+        currState = ArmState.TWIST_TO_STOW;
+        currAxis = CurrentAxis.SHOULDER;
+        shoulderSubsystem.unTwist(originOfShoulder);
       case MID_CUBE:
         logger.info("{} -> SCORE_TO_STOW", currState);
         currState = ArmState.SCORE_TO_STOW;
@@ -137,6 +155,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
     desiredState = ArmState.INTAKE_STAGE;
   }
 
+  public void setTwistEnd(boolean temp) {
+    unTwistAtEnd = temp;
+  }
+
   public void toIntakePos() {
     if (isElbowReinforced) {
       hasElbowZeroed = false;
@@ -184,12 +206,21 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toMidPos(GamePiece currGamePiece) {
+    toMidPos(currGamePiece, false);
+  }
+
+  public void toMidPos(GamePiece currGamePiece, boolean isAuto) {
     hasElbowZeroed = false;
     if (currGamePiece == GamePiece.NONE) {
       logger.info("Game piece is unknown yet required (toMidPos())! Defaulting to CONE");
     }
 
     desiredState = (currGamePiece == GamePiece.CUBE) ? ArmState.MID_CUBE : ArmState.MID_CONE;
+    if (isAuto && currGamePiece == GamePiece.CONE) {
+      desiredState = ArmState.AUTO_MID_CONE;
+    } else if (isAuto && currGamePiece == GamePiece.CUBE) {
+      desiredState = ArmState.AUTO_MID_CUBE;
+    }
 
     switch (currState) {
       case STOW:
@@ -213,11 +244,12 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toHighPos(GamePiece currGamePiece) {
-    toHighPos(currGamePiece, false);
+    toHighPos(currGamePiece, wasAuto);
   }
 
   public void toHighPos(GamePiece currGamePiece, boolean isAuto) {
     hasElbowZeroed = false;
+    wasAuto = isAuto;
     if (currGamePiece == GamePiece.NONE) {
       logger.info("Game piece is unknown yet required (toHighPos())! Defaulting to CONE");
     }
@@ -225,6 +257,9 @@ public class ArmSubsystem extends MeasurableSubsystem {
     desiredState = currGamePiece == GamePiece.CUBE ? ArmState.HIGH_CUBE : ArmState.HIGH_CONE;
     if (isAuto && currGamePiece == GamePiece.CUBE) {
       desiredState = ArmState.AUTO_HIGH_CUBE;
+    }
+    if (isAuto && currGamePiece == GamePiece.CONE) {
+      desiredState = ArmState.AUTO_HIGH_CONE;
     }
 
     isShoulderStaged = false;
@@ -417,7 +452,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
   public void stowShoulder() {
     currAxis = CurrentAxis.SHOULDER;
     shoulderSubsystem.zeroShoulder();
-    ;
   }
 
   @Override
@@ -426,7 +460,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
         new Measure("Hand X", () -> getHandPosition().getX()),
         new Measure("Hand Y", () -> getHandPosition().getY()),
         new Measure("Hand region", () -> getHandRegion().ordinal()),
-        new Measure("Arm State", () -> currState.ordinal()));
+        new Measure("Arm State", () -> currState.ordinal()),
+        new Measure("Difference in Shoulder", () -> differenceInShoulder));
   }
 
   public ArmState getCurrState() {
@@ -448,21 +483,33 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
   public void toTwistShoulder() {
     logger.info("{} -> TWIST_SHOULDER", currState);
+    beforeTwistState = currState;
     currState = ArmState.TWIST_SHOULDER;
     differenceInShoulder = 0.0;
+    twistTimer.reset();
+    twistTimer.start();
+    originOfShoulder = shoulderSubsystem.getPos();
+    shoulderSubsystem.setTwist(originOfShoulder);
   }
 
   public void twistShoulder(double change) {
-    shoulderSubsystem.twistShoulder(change);
+    twistTimer.start();
+    differenceInShoulder += change;
+    shoulderSubsystem.twistShoulder(differenceInShoulder);
   }
 
   public boolean canTwist(double change) {
-    return differenceInShoulder + change < ShoulderConstants.kMaxTwistTicks;
+    return Math.abs(differenceInShoulder + change) <= ShoulderConstants.kMaxTwistTicks
+        || Math.abs(differenceInShoulder + change) <= Math.abs(differenceInShoulder);
   }
 
   public void toRetrieveGamepiece() {
     logger.info("{} -> RETRIEVE_GAMEPIECE", currState);
     currState = ArmState.RETRIEVE_GAMEPIECE;
+  }
+
+  public boolean isElbowOk() {
+    return errorInElbow <= ElbowConstants.kMaxErrorInElbow;
   }
 
   @Override
@@ -472,8 +519,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
     if (!isHealthChecking) {
       shoulderSubsystem.setSoftLimits(
           currHandRegion.minTicksShoulder, currHandRegion.maxTicksShoulder);
-      elevatorSubsystem.setSoftLimits(
-          currHandRegion.minTicksElevator, currHandRegion.maxTicksElevator);
+      if (!elevatorSubsystem.isElevatorReinforcing())
+        elevatorSubsystem.setSoftLimits(
+            currHandRegion.minTicksElevator, currHandRegion.maxTicksElevator);
+      else elevatorSubsystem.setSoftLimits(ElevatorConstants.kShelfMinimumShelfPosition, 0.0);
       elbowSubsystem.setSoftLimits(currHandRegion.minTicksElbow, currHandRegion.maxTicksElbow);
     } else {
       shoulderSubsystem.setSoftLimits(-500.0, 3_000.0);
@@ -486,20 +535,25 @@ public class ArmSubsystem extends MeasurableSubsystem {
             && desiredState == ArmState.STOW
             && doReinforceElevator) {
           elevatorSubsystem.reinforceElevator();
-          elbowSubsystem.zeroElbowStow();
+          // elbowSubsystem.zeroElbowStow();
           hasElbowZeroed = true;
+          errorInElbow = elbowSubsystem.printElbowError();
           isElbowReinforced = true;
         }
+
         switch (desiredState) {
           case LOW:
             toLowPos();
             break;
+          case AUTO_MID_CONE: // fall-through
           case MID_CONE:
             toMidPos(GamePiece.CONE);
             break;
+          case AUTO_MID_CUBE:
           case MID_CUBE:
             toMidPos(GamePiece.CUBE);
             break;
+          case AUTO_HIGH_CONE: // fall-through
           case HIGH_CONE:
             toHighPos(GamePiece.CONE);
             break;
@@ -720,6 +774,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
             break;
           case SHOULDER:
             if (shoulderSubsystem.isFinished()) {
+              if (elbowSubsystem.isFinished())
+                logger.info("Elbow at Shelf at {}", elbowSubsystem.getAbsoluteEncoder());
               logger.info("{} -> SHELF", currState);
               currState = ArmState.SHELF;
               currAxis = CurrentAxis.NONE;
@@ -828,6 +884,60 @@ public class ArmSubsystem extends MeasurableSubsystem {
             break;
 
           default:
+            break;
+        }
+        break;
+      case TWIST_TO_STOW:
+        switch (currAxis) {
+          case SHOULDER:
+            if (shoulderSubsystem.isFinished()) {
+              currAxis = CurrentAxis.ELEVATOR;
+              switch (beforeTwistState) {
+                case HIGH_CONE:
+                  elevatorSubsystem.setPos(ArmState.HIGH_CONE.elevatorPos);
+                case HIGH_CUBE:
+                  elevatorSubsystem.setPos(ArmState.HIGH_CUBE.elevatorPos);
+                case MID_CONE:
+                  elevatorSubsystem.setPos(ArmState.MID_CONE.elevatorPos);
+                case MID_CUBE:
+                  elevatorSubsystem.setPos(ArmState.MID_CUBE.elevatorPos);
+                default:
+                  elevatorSubsystem.setPos(ArmState.HIGH_CONE.elevatorPos);
+              }
+            }
+            break;
+          case ELEVATOR:
+            if (elevatorSubsystem.isFinished()) {
+              switch (beforeTwistState) {
+                case HIGH_CONE:
+                  elbowSubsystem.setPos(ArmState.HIGH_CONE.elbowPos);
+                case HIGH_CUBE:
+                  elbowSubsystem.setPos(ArmState.HIGH_CUBE.elbowPos);
+                case MID_CONE:
+                  elbowSubsystem.setPos(ArmState.MID_CONE.elbowPos);
+                case MID_CUBE:
+                  elbowSubsystem.setPos(ArmState.MID_CUBE.elbowPos);
+                default:
+                  elbowSubsystem.setPos(ArmState.HIGH_CONE.elbowPos);
+              }
+              currAxis = CurrentAxis.ELBOW;
+            }
+            break;
+          case ELBOW:
+            if (elbowSubsystem.isFinished()) {
+              if (beforeTwistState == ArmState.HIGH_CONE
+                  || beforeTwistState == ArmState.HIGH_CUBE) {
+                logger.info("{} -> HIGH_TO_STOW", currState);
+                currState = ArmState.HIGH_TO_STOW;
+              } else {
+                logger.info("{} -> SCORE_TO_STOW", currState);
+                currState = ArmState.SCORE_TO_STOW;
+              }
+            }
+            break;
+          default:
+            logger.info("{} -> ANY_TO_STOW", currState);
+            currState = ArmState.ANY_TO_STOW;
             break;
         }
         break;
@@ -945,10 +1055,22 @@ public class ArmSubsystem extends MeasurableSubsystem {
               currState = ArmState.FLOOR_SWEEP;
               currAxis = CurrentAxis.NONE;
             }
+          default:
             break;
         }
         break;
       case FLOOR_SWEEP:
+        break;
+      case TWIST_SHOULDER:
+        if (twistTimer.hasElapsed(ShoulderConstants.kTimeTwist)) {
+          if (unTwistAtEnd) {
+            shoulderSubsystem.unTwist(originOfShoulder);
+            twistTimer.reset();
+            twistTimer.stop();
+          } else {
+            xboxController.setRumble(RumbleType.kBothRumble, 1.0);
+          }
+        }
         break;
       case RETRIEVE_GAMEPIECE:
         break;
@@ -978,6 +1100,14 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ShoulderConstants.kLevelTwoConeShoulder,
         ElevatorConstants.kLevelTwoConeElevator,
         ElbowConstants.kLevelTwoConeElbow),
+    AUTO_MID_CONE(
+        ShoulderConstants.kAutoLevelTwoConeShoulder,
+        ElevatorConstants.kAutoLevelTwoConeElevator,
+        ElbowConstants.kAutoLevelTwoConeElbow),
+    AUTO_MID_CUBE(
+        ShoulderConstants.kAutoLevelTwoCubeShoulder,
+        ElevatorConstants.kAutoLevelTwoCubeElevator,
+        ElbowConstants.kAutoLevelTwoCubeElbow),
     MID_CUBE(
         ShoulderConstants.kLevelTwoCubeShoulder,
         ElevatorConstants.kLevelTwoCubeElevator,
@@ -986,6 +1116,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ShoulderConstants.kLevelThreeConeShoulder,
         ElevatorConstants.kLevelThreeConeElevator,
         ElbowConstants.kLevelThreeConeElbow),
+    AUTO_HIGH_CONE(
+        ShoulderConstants.kAutoLevelThreeConeShoulder,
+        ElevatorConstants.kAutoLevelThreeConeElevator,
+        ElbowConstants.kAutoLevelThreeConeElbow),
     HIGH_CUBE(
         ShoulderConstants.kLevelThreeCubeShoulder,
         ElevatorConstants.kLevelThreeCubeElevator,
@@ -1029,7 +1163,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
     FLOOR_TO_FLOOR_SWEEP(FLOOR_SWEEP),
     RETRIEVE_GAMEPIECE(STOW),
     ANY_TO_STOW(STOW),
-    TWIST_SHOULDER(STOW);
+    TWIST_SHOULDER(STOW),
+    TWIST_TO_STOW(STOW);
 
     public final double shoulderPos;
     public final double elevatorPos;

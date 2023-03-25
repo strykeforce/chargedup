@@ -10,7 +10,6 @@ import frc.robot.Constants.ElbowConstants;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.strykeforce.healthcheck.AfterHealthCheck;
 import org.strykeforce.healthcheck.BeforeHealthCheck;
 import org.strykeforce.healthcheck.HealthCheck;
 import org.strykeforce.healthcheck.Position;
@@ -23,14 +22,15 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
 
   @HealthCheck
   @Position(
-      percentOutput = {0.1, -0.1},
-      encoderChange = 5000)
+      percentOutput = {0.3, -0.3, 0.3},
+      encoderChange = (int) ElbowConstants.kShelfElbow)
   private TalonFX elbowFalcon;
 
   private double setPointTicks = 0;
   private CANifier remoteEncoder;
   private Logger logger = LoggerFactory.getLogger(ElbowSubsystem.class);
   private Constants constants;
+  private double absoluteTalon = 0.0;
   private boolean setToGreaterPos = false;
 
   public ElbowSubsystem(Constants constants) {
@@ -47,8 +47,17 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
     elbowFalcon.configReverseSoftLimitEnable(true);
 
     elbowFalcon.setNeutralMode(NeutralMode.Brake);
-
     zeroElbow();
+  }
+
+  public void setMotionMagic(boolean isAuto) {
+    if (isAuto) {
+      elbowFalcon.configMotionAcceleration(ElbowConstants.kElbowAutoMotionAcceleration);
+      elbowFalcon.configMotionCruiseVelocity(ElbowConstants.kElbowAutoMotionCruiseVelocity);
+    } else {
+      elbowFalcon.configMotionAcceleration(ElbowConstants.kElbowTeleMotionAcceleration);
+      elbowFalcon.configMotionCruiseVelocity(ElbowConstants.kElbowTeleMotionCruiseVelocity);
+    }
   }
 
   @BeforeHealthCheck
@@ -57,16 +66,16 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
     return isFinished();
   }
 
-  @AfterHealthCheck
-  public boolean returnToZero() {
-    setPos(0.0);
-    return isFinished();
-  }
+  // @AfterHealthCheck
+  // public boolean returnToZero() {
+  //   setPos(0.0);
+  //   return isFinished();
+  // }
 
   private int getPulseWidthFor(PWMChannel channel) {
     double[] pulseWidthandPeriod = new double[2];
     remoteEncoder.getPWMInput(channel, pulseWidthandPeriod);
-    return (int) pulseWidthandPeriod[0];
+    return (int) (4096.0 * pulseWidthandPeriod[0] / pulseWidthandPeriod[1]);
   }
 
   public void zeroElbowStow() {
@@ -74,9 +83,20 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
     zeroElbow();
   }
 
+  public int printElbowError() {
+    int absolute = getPulseWidthFor(PWMChannel.PWMChannel0);
+    logger.info(
+        "Zeroed elbow, absolute: {}, zero ticks: {}, difference: {}",
+        absolute,
+        Constants.kElbowZeroTicks,
+        Math.abs(absolute - Constants.kElbowZeroTicks));
+    return Math.abs(absolute - Constants.kElbowZeroTicks);
+  }
+
   private void zeroElbow() {
     int absoluteTicks = getPulseWidthFor(PWMChannel.PWMChannel0);
-    int offset = absoluteTicks - constants.kElbowZeroTicks;
+    absoluteTalon = absoluteTicks;
+    int offset = absoluteTicks - Constants.kElbowZeroTicks;
     logger.info("Current Elbow Position: {}", elbowFalcon.getSelectedSensorPosition());
     elbowFalcon.setSelectedSensorPosition(offset * Constants.ElbowConstants.kOffsetFactor);
     remoteEncoder.setQuadraturePosition(offset, 10);
@@ -84,7 +104,11 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
         "Zeroed elbow, absolute: {}, offset: {}, zero ticks: {}",
         absoluteTicks,
         offset,
-        constants.kElbowZeroTicks);
+        Constants.kElbowZeroTicks);
+  }
+
+  public double getAbsoluteEncoder() {
+    return elbowFalcon.getSelectedSensorPosition();
   }
 
   public void rotateOpenLoop(double percentOutput) {
@@ -136,7 +160,10 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
 
   @Override
   public Set<Measure> getMeasures() {
-    return Set.of(new Measure("Relative Degrees", () -> getRelativeDegs()));
+    return Set.of(
+        new Measure("Relative Degrees", () -> getRelativeDegs()),
+        new Measure("Absolute Ticks USED", () -> absoluteTalon),
+        new Measure("The queried values", () -> (double) getPulseWidthFor(PWMChannel.PWMChannel0)));
   }
 
   @Override

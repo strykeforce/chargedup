@@ -208,6 +208,15 @@ public class VisionSubsystem extends MeasurableSubsystem {
     return hasResetOdomAuto;
   }
 
+  public double getLastUpdateTime() {
+    return timeStamp;
+  }
+
+  public boolean lastUpdateWithinThresholdTime() {
+    return RobotController.getFPGATime() / 1000000 - timeStamp
+        <= VisionConstants.kLastUpdateCloseEnoughThreshold;
+  }
+
   public void setOdomAutoBool(boolean autoBool) {
     logger.info("setOdomAutoBool: {}", autoBool);
     hasResetOdomAuto = autoBool;
