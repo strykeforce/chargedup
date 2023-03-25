@@ -10,7 +10,6 @@ import frc.robot.Constants.ElbowConstants;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.strykeforce.healthcheck.AfterHealthCheck;
 import org.strykeforce.healthcheck.BeforeHealthCheck;
 import org.strykeforce.healthcheck.HealthCheck;
 import org.strykeforce.healthcheck.Position;
@@ -23,8 +22,8 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
 
   @HealthCheck
   @Position(
-      percentOutput = {0.1, -0.1},
-      encoderChange = 5000)
+      percentOutput = {0.3, -0.3, 0.3},
+      encoderChange = (int) ElbowConstants.kShelfElbow)
   private TalonFX elbowFalcon;
 
   private double setPointTicks = 0;
@@ -67,11 +66,11 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
     return isFinished();
   }
 
-  @AfterHealthCheck
-  public boolean returnToZero() {
-    setPos(0.0);
-    return isFinished();
-  }
+  // @AfterHealthCheck
+  // public boolean returnToZero() {
+  //   setPos(0.0);
+  //   return isFinished();
+  // }
 
   private int getPulseWidthFor(PWMChannel channel) {
     double[] pulseWidthandPeriod = new double[2];

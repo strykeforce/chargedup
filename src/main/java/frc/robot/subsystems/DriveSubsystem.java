@@ -42,7 +42,10 @@ import net.consensys.cava.toml.TomlTable;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.strykeforce.healthcheck.BeforeHealthCheck;
+import org.strykeforce.healthcheck.Follow;
 import org.strykeforce.healthcheck.HealthCheck;
+import org.strykeforce.healthcheck.Timed;
 import org.strykeforce.swerve.PoseEstimatorOdometryStrategy;
 import org.strykeforce.swerve.SwerveDrive;
 import org.strykeforce.swerve.SwerveModule;
@@ -53,7 +56,7 @@ import org.strykeforce.telemetry.measurable.Measure;
 
 public class DriveSubsystem extends MeasurableSubsystem {
   private static final Logger logger = LoggerFactory.getLogger(DriveSubsystem.class);
-  @HealthCheck private final SwerveDrive swerveDrive;
+  private final SwerveDrive swerveDrive;
   private final HolonomicDriveController holonomicController;
   private final ProfiledPIDController omegaController;
   private final PIDController xController;
@@ -65,6 +68,44 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private double yCalc;
   private double omegaCalc;
   private RobotStateSubsystem robotStateSubsystem;
+
+  // HEALTHCHECK FIX
+  @HealthCheck
+  @Timed(
+      percentOutput = {0.2, 0.5, 0.75, 1, -0.2, -0.5, -0.75, -1},
+      duration = 5)
+  private TalonSRX azimuthZero;
+
+  @HealthCheck
+  @Follow(leader = 0)
+  private TalonSRX azimuthOne;
+
+  @HealthCheck
+  @Follow(leader = 0)
+  private TalonSRX azimuthTwo;
+
+  @HealthCheck
+  @Follow(leader = 0)
+  private TalonSRX azimuthThree;
+
+  // HEALTHCHECK FIX
+  @HealthCheck
+  @Timed(
+      percentOutput = {0.2, 0.5, 0.75, 1, -0.2, -0.5, -0.75, -1},
+      duration = 5)
+  private TalonFX driveZero;
+
+  @HealthCheck
+  @Follow(leader = 10)
+  private TalonFX driveOne;
+
+  @HealthCheck
+  @Follow(leader = 10)
+  private TalonFX driveTwo;
+
+  @HealthCheck
+  @Follow(leader = 10)
+  private TalonFX driveThree;
 
   // Grapher Variables
   private ChassisSpeeds holoContOutput = new ChassisSpeeds();
@@ -121,12 +162,22 @@ public class DriveSubsystem extends MeasurableSubsystem {
       azimuthTalon.enableVoltageCompensation(true);
       azimuthTalon.setNeutralMode(NeutralMode.Coast);
 
+      if (i == 0) azimuthZero = azimuthTalon;
+      else if (i == 1) azimuthOne = azimuthTalon;
+      else if (i == 2) azimuthTwo = azimuthTalon;
+      else if (i == 3) azimuthThree = azimuthTalon;
+
       var driveTalon = new TalonFX(i + 10);
       driveTalon.configFactoryDefault(kTalonConfigTimeout);
       driveTalon.configAllSettings(
           DriveConstants.getDriveTalonConfig(), Constants.kTalonConfigTimeout);
       driveTalon.enableVoltageCompensation(true);
       driveTalon.setNeutralMode(NeutralMode.Brake);
+
+      if (i == 0) driveZero = driveTalon;
+      else if (i == 1) driveOne = driveTalon;
+      else if (i == 2) driveTwo = driveTalon;
+      else if (i == 3) driveThree = driveTalon;
 
       swerveModules[i] =
           moduleBuilder
@@ -201,6 +252,17 @@ public class DriveSubsystem extends MeasurableSubsystem {
             Constants.VisionConstants.kVisionMeasurementStdDevs,
             getSwerveModulePositions());
     swerveDrive.setOdometry(odometryStrategy);
+  }
+
+  @BeforeHealthCheck
+  public boolean followTalons() {
+    azimuthOne.follow(azimuthZero);
+    azimuthTwo.follow(azimuthZero);
+    azimuthThree.follow(azimuthZero);
+    driveOne.follow(driveZero);
+    driveTwo.follow(driveZero);
+    driveThree.follow(driveZero);
+    return true;
   }
 
   public SwerveModulePosition[] getSwerveModulePositions() {
