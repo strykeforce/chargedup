@@ -24,6 +24,7 @@ import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.InterruptDriveCommand;
 import frc.robot.commands.drive.LockZeroCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
+import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elbow.ElbowHoldPosCommand;
 import frc.robot.commands.elbow.JogElbowCommand;
 import frc.robot.commands.elbow.ZeroElbowCommand;
@@ -168,6 +169,7 @@ public class RobotContainer {
     configureMatchDashboard();
     if (!isEvent || !Constants.isCompBot) {
       armSubsystem.setTwistEnd(true);
+      configurePitImportantDashboard();
       configureTelemetry();
       configurePitDashboard();
       new Trigger(RobotController::getUserButton)
@@ -308,6 +310,10 @@ public class RobotContainer {
             false,
             robotStateSubsystem.getTargetCol(),
             true));*/
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+    //     .onTrue(
+    //         new AutoPlaceCommandGroup(
+    //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
     new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
         .onTrue(
             new AutoPlaceCommand(driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem))
@@ -317,6 +323,38 @@ public class RobotContainer {
     //     .onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new ZeroElbowCommand(elbowSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+    //     .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(threePiecePath);
+
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+    //     .onTrue(
+    //         new AutoPlaceCommandGroup(
+    //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+    //     .onTrue(new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+    //     .onTrue(new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id).onTrue(balancepath);
+    // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.X.id)
+        .onTrue(new ZeroElbowCommand(elbowSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+    //     .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(threePiecePath);
+
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+    //     .onTrue(
+    //         new AutoPlaceCommandGroup(
+    //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+    //     .onTrue(new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem));
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
+    //     .onTrue(new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id).onTrue(balancepath);
+    // .onTrue(new DriveToPlaceNotPathCommand(driveSubsystem, robotStateSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.X.id)
+        .onTrue(new xLockCommand(driveSubsystem));
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
     //     .onTrue(new ResetOdometryCommand(driveSubsystem, robotStateSubsystem));
     // new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id).onTrue(threePiecePath);
@@ -672,6 +710,28 @@ public class RobotContainer {
                 armSubsystem))
         .withPosition(0, 0);
     HealthCheck.add("LockZero", new LockZeroCommand(driveSubsystem)).withPosition(0, 2);
+  }
+
+  private void configurePitImportantDashboard() {
+
+    ShuffleboardTab pitImportantTab = Shuffleboard.getTab("PitImportant");
+    pitImportantTab
+        .add(
+            "HealthCheck",
+            new ShuffleBoardHealthCheckCommandGroup(
+                elbowSubsystem,
+                shoulderSubsystem,
+                elevatorSubsystem,
+                handSubsystem,
+                driveSubsystem,
+                intakeSubsystem,
+                armSubsystem))
+        .withPosition(0, 0);
+    pitImportantTab.add("LockZero", new LockZeroCommand(driveSubsystem)).withPosition(1, 0);
+
+    pitImportantTab.add("Grab Cube", new GrabCubeCommand(handSubsystem)).withPosition(2, 0);
+    pitImportantTab.add("Grab Cone", new GrabConeCommand(handSubsystem)).withPosition(3, 0);
+    pitImportantTab.add("Hand Zero", new ZeroHandCommand(handSubsystem)).withPosition(4, 0);
   }
 
   public void configureDebugDashboard() {

@@ -214,7 +214,7 @@ public class Constants {
 
     // AutoBalance Constants
 
-    public static final double kAutoBalanceCloseEnoughDeg = 2; // 2
+    public static final double kAutoBalanceCloseEnoughDeg = 1.5; // 2
     public static final double kAutoBalanceStableCount = 10;
     public static final double kAutoBalanceStartTimerThresholdDeg = 5;
     public static final double kAutoBalanceEnableGyroThresholdDegrees = 8;
@@ -387,9 +387,10 @@ public class Constants {
 
     public static final double kAllowedError = 1500;
 
-    public static final double kElevatorZeroSpeed = 0.20;
+    public static final double kElevatorZeroSpeed = 0.30;
+    public static final double kElevatorReinforceSpeed = -0.20;
     public static final double kZeroTargetSpeedTicksPer100ms = 5;
-    public static final int kZeroStableCounts = 10; // old 25
+    public static final int kZeroStableCounts = 2; // old 10
 
     public static final double kMaxFwd = -1000; // -500
     public static final double kMaxRev = -27_281; // -25000
@@ -412,6 +413,7 @@ public class Constants {
     public static final double kAutoHighCubeElevator = -2_000;
     public static final double kAutoLevelTwoConeElevator = -23_674;
     public static final double kAutoLevelThreeConeElevator = -1_500;
+    public static final double kAutoLevelTwoCubeElevator = -2_000;
 
     // Parallel Movement Constants
     public static final double kStowToHighElevatorParallelAllowed = kStowElevator;
@@ -506,6 +508,7 @@ public class Constants {
     public static final double kFloorElbowSweep = 16_876;
     public static final double kAutoHighCubeElbow = 60_097;
     public static final double kAutoLevelTwoConeElbow = 60_097;
+    public static final double kAutoLevelTwoCubeElbow = 36_500;
     public static final double kAutoLevelThreeConeElbow = 84_553;
 
     public static final double kRetrieveGamepiecePercentOutput = 0.2;
@@ -523,7 +526,7 @@ public class Constants {
     public static final double kElbowTeleMotionCruiseVelocity = 13_000.0;
     public static final double kElbowTeleMotionAcceleration = 38_000.0;
     public static final double kElbowAutoMotionCruiseVelocity = 13_000.0;
-    public static final double kElbowAutoMotionAcceleration = 38_000.0;
+    public static final double kElbowAutoMotionAcceleration = 50_000.0;
 
     public static TalonFXConfiguration getElbowFalonConfig() {
 
@@ -597,6 +600,7 @@ public class Constants {
     public static final double kShelfShoulder = -2_800; // 0
     public static final double kAutoHighCubeShoulder = 0;
     public static final double kAutoLevelTwoConeShoulder = 1_085; // 723
+    public static final double kAutoLevelTwoCubeShoulder = 0.0;
     public static final double kAutoLevelThreeConeShoulder = 5_850; // 3900
 
     // Allow Parallel Movement Ticks
@@ -826,7 +830,7 @@ public class Constants {
     public static final double kWheelDiameterInches = 3.0 * (490 / 500.0);
 
     // Elbow
-    public static final int kElbowZeroTicks = 1183; // 730
+    public static final int kElbowZeroTicks = 1150; // 730
 
     // Shoulder
     public static final double kShoulderMainZeroTicks = 2050;
@@ -837,7 +841,7 @@ public class Constants {
     public static final double kExtendPosTicks = -2_100;
 
     // Hand
-    public static final double kHandZeroTicks = 1_230; // 686 ->976
+    public static final double kHandZeroTicks = 1230; // 686 ->976
   }
 
   public static class ProtoConstants {
@@ -845,7 +849,7 @@ public class Constants {
     public static final double kWheelDiameterInches = 3.0 * (490 / 500.0);
 
     // Elbow
-    public static final int kElbowZeroTicks = 1_135; // 1105
+    public static final int kElbowZeroTicks = 1135; // 1105
 
     // Shoulder
     public static final double kShoulderMainZeroTicks = 1909; // old: 1472

@@ -1,0 +1,20 @@
+max_velocity = 1.5 #m/s
+max_acceleration = 1.25 #m/s #1.2
+start_velocity = 0.0 #m/s
+end_velocity = 0.5 #m/s #0.25
+is_reversed = false
+target_yaw = 0.0 #degrees
+
+[start_pose]
+    x = 7.57 
+    y = 2.04
+    angle = 180.0
+
+[end_pose]
+    x = 2.25
+    y = 2.75
+    angle = 180.0
+
+[[internal_points]]
+    x = 4.91
+    y = 2.40
