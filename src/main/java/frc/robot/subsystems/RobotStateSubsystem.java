@@ -906,7 +906,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
               VisionConstants.kLastUpdateCloseEnoughThreshold
                   - VisionConstants.kDifferenceCloseEnoughThreshold)
           && (visionSubsystem.getBufferedVelocity() <= DriveConstants.kMaxSpeedForCamUpdate))
-        rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
+        rgbLightsSubsystem.setConeColor();
       else rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
     }
   }
