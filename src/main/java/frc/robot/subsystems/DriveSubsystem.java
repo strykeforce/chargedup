@@ -190,7 +190,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
       swerveModules[i].loadAndSetAzimuthZeroReference();
     }
-    ahrs = new AHRS(SerialPort.Port.kUSB1, SerialDataType.kProcessedData, (byte) 200);
+    ahrs = new AHRS(SerialPort.Port.kUSB, SerialDataType.kProcessedData, (byte) 200);
     swerveDrive = new SwerveDrive(ahrs, swerveModules);
     swerveDrive.resetGyro();
     swerveDrive.setGyroOffset(Rotation2d.fromDegrees(0));
@@ -741,6 +741,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
   public double getGyroPitch() {
     return ahrs.getPitch();
+  }
+
+  public boolean isNavxWorking() {
+    return ahrs.isConnected();
   }
 
   public void lockZero() {
