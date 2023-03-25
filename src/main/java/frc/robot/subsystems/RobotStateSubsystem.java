@@ -957,36 +957,37 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         new Rotation2d(rotation));
   }
 
-  public double autoDriveYawRight(double yCoord) {
-    int gridIndex =
-        ((yCoord > Constants.RobotStateConstants.kBound1Y) ? 1 : 0)
-            + ((yCoord > Constants.RobotStateConstants.kBound2Y) ? 1 : 0);
-    // CHECK VISION
-    double tempYaw = driveSubsystem.getGyroRotation2d().getDegrees();
-    if (getAllianceColor() == Alliance.Red)
-      tempYaw = driveSubsystem.getGyroRotation2d().getDegrees() - 180;
-    logger.info("grid Index: {}", gridIndex);
-    if (!visionSubsystem.lastUpdateWithinThresholdTime(0.05)) {
-      // && visionSubsystem.getHasTargets() == 0) {
-      logger.info("Threshold and no targets");
-      if (driveSubsystem.getPoseMeters().getY() < Constants.RobotStateConstants.kGridY[gridIndex]) {
-        // left of tag on grid {gridIndex} GYRO POSITIVE IS COUNTERCLOCKWISE (Yaw/Look To The
-        // Right)
-        logger.info("Left Of Tag, Look Right(Yaw CounterClockwise), tempYaw: {}", tempYaw);
-        return 1;
-      } else {
-        // right of tag GYRO NEGATIVE IS CLOCKWISE (Yaw/Look To The LEFT)
-        logger.info("Right Of Tag, Look Left(Yaw Clockwise), tempYaw: {}", tempYaw);
-        return 2;
-      }
-    }
-    logger.info(
-        "Returned 0, tempYaw: {}, withThresholdVisUpdate: {}",
-        tempYaw,
-        visionSubsystem.lastUpdateWithinThresholdTime(
-            Constants.VisionConstants.kLastUpdateCloseEnoughThresholdYaw));
-    return 0;
-  }
+  // public double autoDriveYawRight(double yCoord) {
+  //   int gridIndex =
+  //       ((yCoord > Constants.RobotStateConstants.kBound1Y) ? 1 : 0)
+  //           + ((yCoord > Constants.RobotStateConstants.kBound2Y) ? 1 : 0);
+  //   // CHECK VISION
+  //   double tempYaw = driveSubsystem.getGyroRotation2d().getDegrees();
+  //   if (getAllianceColor() == Alliance.Red)
+  //     tempYaw = driveSubsystem.getGyroRotation2d().getDegrees() - 180;
+  //   logger.info("grid Index: {}", gridIndex);
+  //   if (!visionSubsystem.lastUpdateWithinThresholdTime(0.05)) {
+  //     // && visionSubsystem.getHasTargets() == 0) {
+  //     logger.info("Threshold and no targets");
+  //     if (driveSubsystem.getPoseMeters().getY() <
+  // Constants.RobotStateConstants.kGridY[gridIndex]) {
+  //       // left of tag on grid {gridIndex} GYRO POSITIVE IS COUNTERCLOCKWISE (Yaw/Look To The
+  //       // Right)
+  //       logger.info("Left Of Tag, Look Right(Yaw CounterClockwise), tempYaw: {}", tempYaw);
+  //       return 1;
+  //     } else {
+  //       // right of tag GYRO NEGATIVE IS CLOCKWISE (Yaw/Look To The LEFT)
+  //       logger.info("Right Of Tag, Look Left(Yaw Clockwise), tempYaw: {}", tempYaw);
+  //       return 2;
+  //     }
+  //   }
+  //   logger.info(
+  //       "Returned 0, tempYaw: {}, withThresholdVisUpdate: {}",
+  //       tempYaw,
+  //       visionSubsystem.lastUpdateWithinThresholdTime(
+  //           Constants.VisionConstants.kLastUpdateCloseEnoughThresholdYaw));
+  //   return 0;
+  // }
 
   public boolean isBlueAlliance() {
     return getAllianceColor() == Alliance.Blue;
