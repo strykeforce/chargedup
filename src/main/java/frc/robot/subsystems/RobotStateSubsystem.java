@@ -319,6 +319,12 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     driveSubsystem.autoBalance(isOnAllianceSide);
   }
 
+  public void toRecoverGamepiece() {
+    handSubsystem.stowHand(HandConstants.kConeGrabbingPosition);
+    logger.info("{} -> RECOVER_GAMEPIECE", currRobotState);
+    currRobotState = RobotState.RECOVER_GAMEPIECE;
+  }
+
   public void toPulseAutoBalance(boolean isOnAllianceSide) {
     driveSubsystem.pulseAutoBalance(isOnAllianceSide);
     logger.info("{} -> AUTO_BALANCE", currRobotState);
@@ -920,6 +926,14 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         //   rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
         // }
         break;
+      case RECOVER_GAMEPIECE:
+        if (handSubsystem.hasCone()) {
+          handSubsystem.grabCone();
+          toStowIntake();
+          logger.info("{} -> TO_STOW", currRobotState);
+          currRobotState = RobotState.TO_STOW;
+        }
+        break;
       case RETRIEVE_GAMEPIECE:
         break;
       default:
@@ -1065,7 +1079,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     FLOOR_GRAB_CONE,
     AUTO_BALANCE,
     TO_STOW_SCORE,
-    RETRIEVE_GAMEPIECE
+    RETRIEVE_GAMEPIECE,
+    RECOVER_GAMEPIECE
   }
 
   public enum CurrentAxis {

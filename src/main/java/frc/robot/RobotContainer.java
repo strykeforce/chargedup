@@ -43,6 +43,7 @@ import frc.robot.commands.intake.IntakeOpenLoopCommand;
 import frc.robot.commands.robotState.AutoPlaceCommand;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
+import frc.robot.commands.robotState.RecoverGamepieceCommand;
 import frc.robot.commands.robotState.RetrieveGamePieceCommand;
 import frc.robot.commands.robotState.SetGamePieceCommand;
 import frc.robot.commands.robotState.SetLevelAndColCommandGroup;
@@ -443,6 +444,8 @@ public class RobotContainer {
     new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value)
         .onTrue(
             new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID, TargetCol.LEFT));
+    new JoystickButton(xboxController, XboxController.Button.kStart.value)
+        .onTrue(new RecoverGamepieceCommand(robotStateSubsystem, handSubsystem));
 
     Trigger leftTrigger =
         new Trigger(() -> xboxController.getLeftTriggerAxis() >= 0.1)
