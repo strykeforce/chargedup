@@ -61,6 +61,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
     logger.info("Turn Elevator Reinforce: {}", doReinforceElevator);
   }
 
+  public void unReinforceElevator() {
+    elevatorSubsystem.unReinforceElevator();
+  }
+
   public void toStowPos() {
     toStowPos(ArmState.STOW);
   }
