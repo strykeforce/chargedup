@@ -830,7 +830,7 @@ public class Constants {
     public static final double kExtendPosTicks = -2_100;
 
     // Hand
-    public static final double kHandZeroTicks = 1_230; // 686 ->976
+    public static final double kHandZeroTicks = 1230; // 686 ->976
   }
 
   public static class ProtoConstants {
