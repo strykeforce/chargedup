@@ -921,7 +921,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       default:
         break;
     }
-    if (driveSubsystem.getPoseMeters().getX() >= DriveConstants.kPastBumpIndicateX) {
+    if (driveSubsystem.getPoseMeters().getX() >= DriveConstants.kPastBumpIndicateX && !driveSubsystem.isAutoDriving()) {
       if (visionSubsystem.lastUpdateWithinThresholdTime(
               VisionConstants.kLastUpdateCloseEnoughThreshold
                   - VisionConstants.kDifferenceCloseEnoughThreshold)
