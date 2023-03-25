@@ -7,14 +7,14 @@ target_yaw = 0.0 #degrees
 
 [start_pose]
     x = 7.07
-    y = 2.14
+    y = 2.24
     angle = 180.0
 
 [end_pose]
     x = 2.32
-    y = 1.07
+    y = 1.17
     angle = 180.0
 
 [[internal_points]]
-    x = 5.5 #guess
-    y = 0.9 #guess
+    x = 5.5 
+    y = 0.9 

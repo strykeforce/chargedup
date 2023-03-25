@@ -11,9 +11,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.robotState.SetAllianceCommand;
-import frc.robot.subsystems.ElbowSubsystem;
-import frc.robot.subsystems.ShoulderSubsystem;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

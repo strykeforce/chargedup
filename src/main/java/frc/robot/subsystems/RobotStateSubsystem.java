@@ -232,7 +232,9 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         if (armSubsystem.getCurrState() != ArmState.LOW) armSubsystem.toLowPos();
         break;
       case MID:
-        if (armSubsystem.getCurrState() != ArmState.MID_CONE
+        if (armSubsystem.getCurrState() != ArmState.AUTO_MID_CONE
+            && armSubsystem.getCurrState() != ArmState.AUTO_MID_CUBE
+            && armSubsystem.getCurrState() != ArmState.MID_CONE
             && armSubsystem.getCurrState() != ArmState.MID_CUBE) {
           armSubsystem.toMidPos(getGamePiece(), isAuto);
         }
@@ -240,6 +242,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       case HIGH:
         if (armSubsystem.getCurrState() != ArmState.HIGH_CONE
             && armSubsystem.getCurrState() != ArmState.HIGH_CUBE
+            && armSubsystem.getCurrState() != ArmState.AUTO_HIGH_CONE
             && armSubsystem.getCurrState() != ArmState.AUTO_HIGH_CUBE)
           armSubsystem.toHighPos(getGamePiece(), isAuto);
         break;
@@ -337,19 +340,26 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         if (armSubsystem.getCurrState() != ArmState.LOW) armSubsystem.toLowPos();
         break;
       case MID:
-        if (armSubsystem.getCurrState() != ArmState.MID_CONE
+        if (armSubsystem.getCurrState() != ArmState.AUTO_MID_CONE
+            && armSubsystem.getCurrState() != ArmState.AUTO_MID_CUBE
+            && armSubsystem.getCurrState() != ArmState.MID_CONE
             && armSubsystem.getCurrState() != ArmState.MID_CUBE) {
           armSubsystem.toMidPos(getGamePiece(), isAuto);
         }
         break;
       case HIGH:
-        if (armSubsystem.getCurrState() != ArmState.HIGH_CONE
-            && armSubsystem.getCurrState() != ArmState.HIGH_CUBE
-            && armSubsystem.getCurrState() != ArmState.AUTO_HIGH_CUBE)
+        if (armSubsystem.getCurrState() != ArmState.AUTO_HIGH_CONE
+            && armSubsystem.getCurrState() != ArmState.AUTO_HIGH_CUBE
+            && armSubsystem.getCurrState() != ArmState.HIGH_CONE
+            && armSubsystem.getCurrState() != ArmState.HIGH_CUBE)
           armSubsystem.toHighPos(getGamePiece(), isAuto);
         break;
     }
     currRobotState = RobotState.AUTO_SCORE;
+
+    if (isAuto) {
+      toAutoDrive();
+    }
   }
 
   public void toRetrieveGamepiece() {
@@ -599,7 +609,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             || armSubsystem.getCurrState() == ArmState.MID_CONE
             || armSubsystem.getCurrState() == ArmState.MID_CUBE
             || armSubsystem.getCurrState() == ArmState.HIGH_CONE
-            || armSubsystem.getCurrState() == ArmState.HIGH_CUBE) {
+            || armSubsystem.getCurrState() == ArmState.HIGH_CUBE
+            || armSubsystem.getCurrState() == ArmState.AUTO_MID_CONE
+            || armSubsystem.getCurrState() == ArmState.AUTO_MID_CUBE
+            || armSubsystem.getCurrState() == ArmState.AUTO_HIGH_CONE
+            || armSubsystem.getCurrState() == ArmState.AUTO_HIGH_CUBE) {
           logger.info("{} -> MANUAL_SCORE", currRobotState);
           currRobotState = RobotState.MANUAL_SCORE;
           currentAxis = CurrentAxis.NONE;
@@ -658,7 +672,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             || armSubsystem.getCurrState() == ArmState.MID_CONE
             || armSubsystem.getCurrState() == ArmState.MID_CUBE
             || armSubsystem.getCurrState() == ArmState.HIGH_CONE
-            || armSubsystem.getCurrState() == ArmState.HIGH_CUBE) {
+            || armSubsystem.getCurrState() == ArmState.HIGH_CUBE
+            || armSubsystem.getCurrState() == ArmState.AUTO_MID_CONE
+            || armSubsystem.getCurrState() == ArmState.AUTO_MID_CUBE
+            || armSubsystem.getCurrState() == ArmState.AUTO_HIGH_CONE
+            || armSubsystem.getCurrState() == ArmState.AUTO_HIGH_CUBE) {
           logger.info("{} -> AUTO_SCORE", currRobotState);
           currRobotState = RobotState.AUTO_SCORE;
           currentAxis = CurrentAxis.NONE;

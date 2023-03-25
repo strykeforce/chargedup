@@ -218,6 +218,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
     desiredState = (currGamePiece == GamePiece.CUBE) ? ArmState.MID_CUBE : ArmState.MID_CONE;
     if (isAuto && currGamePiece == GamePiece.CONE) {
       desiredState = ArmState.AUTO_MID_CONE;
+    } else if (isAuto && currGamePiece == GamePiece.CUBE) {
+      desiredState = ArmState.AUTO_MID_CUBE;
     }
 
     switch (currState) {
@@ -547,6 +549,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
           case MID_CONE:
             toMidPos(GamePiece.CONE);
             break;
+          case AUTO_MID_CUBE:
           case MID_CUBE:
             toMidPos(GamePiece.CUBE);
             break;
@@ -1101,6 +1104,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ShoulderConstants.kAutoLevelTwoConeShoulder,
         ElevatorConstants.kAutoLevelTwoConeElevator,
         ElbowConstants.kAutoLevelTwoConeElbow),
+    AUTO_MID_CUBE(
+        ShoulderConstants.kAutoLevelTwoCubeShoulder,
+        ElevatorConstants.kAutoLevelTwoCubeElevator,
+        ElbowConstants.kAutoLevelTwoCubeElbow),
     MID_CUBE(
         ShoulderConstants.kLevelTwoCubeShoulder,
         ElevatorConstants.kLevelTwoCubeElevator,
