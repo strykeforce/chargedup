@@ -161,8 +161,8 @@ public class RobotContainer {
     configureDriverButtonBindings();
     configureOperatorButtonBindings();
     configureMatchDashboard();
-    configurePitImportantDashboard();
     if (!isEvent || !Constants.isCompBot) {
+      configurePitImportantDashboard();
       configureTelemetry();
       configurePitDashboard();
       new Trigger(RobotController::getUserButton)
