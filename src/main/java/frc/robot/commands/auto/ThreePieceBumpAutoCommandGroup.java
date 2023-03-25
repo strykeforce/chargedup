@@ -74,7 +74,11 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new AutoFloorIntakeCommand(
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH)),
-        secondPath,
+        new ParallelDeadlineGroup(
+            secondPath,
+            new SequentialCommandGroup(
+                new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
+                new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, true),
             new ConditionalCommand(
@@ -92,7 +96,11 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new AutoFloorIntakeCommand(
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID)),
-        fourthPath,
+        new ParallelDeadlineGroup(
+            fourthPath,
+            new SequentialCommandGroup(
+                new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
+                new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, true),
             new ConditionalCommand(

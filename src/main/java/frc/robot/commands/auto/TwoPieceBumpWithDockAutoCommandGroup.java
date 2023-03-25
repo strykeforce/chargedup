@@ -72,14 +72,18 @@ public class TwoPieceBumpWithDockAutoCommandGroup extends SequentialCommandGroup
             new AutoFloorIntakeCommand(
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH)),
-        secondPath,
+        new ParallelDeadlineGroup(
+            secondPath,
+            new SequentialCommandGroup(
+                new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
+                new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, true),
             new ConditionalCommand(
                 fallbackPath,
                 new AutoPlaceAutonCommand(
                         driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
-                    .withTimeout(0.75),
+                    .withTimeout(1.25),
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, false),

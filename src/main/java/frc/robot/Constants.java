@@ -214,7 +214,7 @@ public class Constants {
 
     // AutoBalance Constants
 
-    public static final double kAutoBalanceCloseEnoughDeg = 2; // 2
+    public static final double kAutoBalanceCloseEnoughDeg = 1.5; // 2
     public static final double kAutoBalanceStableCount = 10;
     public static final double kAutoBalanceStartTimerThresholdDeg = 5;
     public static final double kAutoBalanceEnableGyroThresholdDegrees = 8;
