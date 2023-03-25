@@ -299,11 +299,13 @@ public class DriveSubsystem extends MeasurableSubsystem {
     xAutoDriveController.reset(getPoseMeters().getX(), getFieldRelSpeed().vxMetersPerSecond);
     yAutoDriveController.reset(getPoseMeters().getY(), getFieldRelSpeed().vyMetersPerSecond);
     if (Math.abs(getFieldRelSpeed().vxMetersPerSecond) // FIXME TEMP CHECK IF STATEMENT
-            <= DriveConstants.kMaxSpeedToAutoDrive
-        && Math.abs(getFieldRelSpeed().vyMetersPerSecond) <= DriveConstants.kMaxSpeedToAutoDrive
-        && visionSubsystem.lastUpdateWithinThresholdTime(
-            VisionConstants.kLastUpdateCloseEnoughThreshold)
-        && (visionSubsystem.getBufferedVelocity() <= DriveConstants.kMaxSpeedForCamUpdate)) {
+                <= DriveConstants.kMaxSpeedToAutoDrive
+            && Math.abs(getFieldRelSpeed().vyMetersPerSecond) <= DriveConstants.kMaxSpeedToAutoDrive
+            && (visionSubsystem.lastUpdateWithinThresholdTime(
+                    VisionConstants.kLastUpdateCloseEnoughThreshold)
+                || robotStateSubsystem.getIsAuto())
+            && ((visionSubsystem.getBufferedVelocity() <= DriveConstants.kMaxSpeedForCamUpdate))
+        || robotStateSubsystem.getIsAuto()) {
       setAutoDriving(true);
       if (robotStateSubsystem.getGamePiece() != GamePiece.NONE) {
         endAutoDrivePose =

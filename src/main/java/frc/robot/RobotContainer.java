@@ -35,6 +35,7 @@ import frc.robot.commands.hand.GrabConeCommand;
 import frc.robot.commands.hand.GrabCubeCommand;
 import frc.robot.commands.hand.HandLeftSpeedCommand;
 import frc.robot.commands.hand.HandLeftToPositionCommand;
+import frc.robot.commands.hand.ReleaseGamepieceCommand;
 import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
@@ -333,11 +334,11 @@ public class RobotContainer {
         new HandToPositionCommand(handSubsystem, Constants.HandConstants.kCubeGrabbingPosition))
     .onFalse(new HandToPositionCommand(handSubsystem, Constants.HandConstants.kMaxRev));*/
     new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
-        .onTrue(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem))
-        .onFalse(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem));
+        .onTrue(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem))
+        .onFalse(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem));
     new JoystickButton(driveJoystick, Shoulder.LEFT_UP.id)
-        .onTrue(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem))
-        .onFalse(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem));
+        .onTrue(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem))
+        .onFalse(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem));
 
     // // Shoulder
     // new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)

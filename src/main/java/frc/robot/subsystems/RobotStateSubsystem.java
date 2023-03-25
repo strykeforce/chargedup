@@ -101,6 +101,10 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     return targetLevel;
   }
 
+  public boolean getIsAuto() {
+    return isAuto;
+  }
+
   public void setTargetCol(TargetCol targetCol) {
     this.targetCol = targetCol;
     logger.info("set targetCol to: {}", targetCol);
@@ -921,12 +925,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       default:
         break;
     }
-    if (driveSubsystem.getPoseMeters().getX() >= DriveConstants.kPastBumpIndicateX && !driveSubsystem.isAutoDriving()) {
+    if (driveSubsystem.getPoseMeters().getX() >= DriveConstants.kPastBumpIndicateX
+        && !driveSubsystem.isAutoDriving()) {
       if (visionSubsystem.lastUpdateWithinThresholdTime(
               VisionConstants.kLastUpdateCloseEnoughThreshold
                   - VisionConstants.kDifferenceCloseEnoughThreshold)
           && (visionSubsystem.getBufferedVelocity() <= DriveConstants.kMaxSpeedForCamUpdate))
-        rgbLightsSubsystem.setConeColor();
+        rgbLightsSubsystem.setCubeColor();
       else rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
     }
   }
