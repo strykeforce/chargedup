@@ -169,6 +169,7 @@ public class RobotContainer {
     configureMatchDashboard();
     if (!isEvent || !Constants.isCompBot) {
       armSubsystem.setTwistEnd(true);
+      configurePitImportantDashboard();
       configureTelemetry();
       configurePitDashboard();
       new Trigger(RobotController::getUserButton)
@@ -709,6 +710,28 @@ public class RobotContainer {
                 armSubsystem))
         .withPosition(0, 0);
     HealthCheck.add("LockZero", new LockZeroCommand(driveSubsystem)).withPosition(0, 2);
+  }
+
+  private void configurePitImportantDashboard() {
+
+    ShuffleboardTab pitImportantTab = Shuffleboard.getTab("PitImportant");
+    pitImportantTab
+        .add(
+            "HealthCheck",
+            new ShuffleBoardHealthCheckCommandGroup(
+                elbowSubsystem,
+                shoulderSubsystem,
+                elevatorSubsystem,
+                handSubsystem,
+                driveSubsystem,
+                intakeSubsystem,
+                armSubsystem))
+        .withPosition(0, 0);
+    pitImportantTab.add("LockZero", new LockZeroCommand(driveSubsystem)).withPosition(1, 0);
+
+    pitImportantTab.add("Grab Cube", new GrabCubeCommand(handSubsystem)).withPosition(2, 0);
+    pitImportantTab.add("Grab Cone", new GrabConeCommand(handSubsystem)).withPosition(3, 0);
+    pitImportantTab.add("Hand Zero", new ZeroHandCommand(handSubsystem)).withPosition(4, 0);
   }
 
   public void configureDebugDashboard() {
