@@ -20,7 +20,6 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.TestBalanceCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
-import frc.robot.commands.drive.InterruptDriveCommand;
 import frc.robot.commands.drive.LockZeroCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
@@ -39,7 +38,6 @@ import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
-import frc.robot.commands.robotState.AutoPlaceCommand;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.RecoverGamepieceCommand;
@@ -221,6 +219,7 @@ public class RobotContainer {
 
   // Path Configuration For Robot Container
   private void configurePaths() {
+
     // testpath =
     //     new GrabCubeBalanceCommand(
     //         driveSubsystem,
@@ -314,11 +313,12 @@ public class RobotContainer {
     //     .onTrue(
     //         new AutoPlaceCommandGroup(
     //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
-        .onTrue(
-            new AutoPlaceCommand(driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem))
-        .onFalse(new InterruptDriveCommand(driveSubsystem));
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id).onTrue(balancepath); // TESTING AT
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+    //     .onTrue(
+    //         new AutoPlaceCommand(driveSubsystem, robotStateSubsystem, armSubsystem,
+    // handSubsystem))
+    //     .onFalse(new InterruptDriveCommand(driveSubsystem));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id).onTrue(balancepath); // TESTING AT
     // LAKEVIEW PRACTICE FIELD
 
     // new JoystickButton(driveJoystick, InterlinkButton.X.id)

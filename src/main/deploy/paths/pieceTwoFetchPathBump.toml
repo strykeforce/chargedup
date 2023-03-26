@@ -11,10 +11,14 @@ target_yaw = 0.0 #degrees
     angle = 0.0
 
 [end_pose]
-    x = 7.00 #7.07
-    y = 2.24
+    x = 6.90 #7.00
+    y = 2.34 //2.24
     angle = 0.0
 
 [[internal_points]]
-    x = 5.5 
+    x = 5.5
     y = 0.85
+
+[[internal_points]]
+    x = 6.1
+    y = 2.0

@@ -26,7 +26,7 @@ public class ShuffleBoardHealthCheckCommandGroup extends SequentialCommandGroup 
         new HealthCheckCommand(
             driveSubsystem,
             handSubsystem,
-            shoulderSubsystem,
+            // shoulderSubsystem,
             intakeSubsystem,
             elbowSubsystem,
             elevatorSubsystem),

@@ -1129,9 +1129,9 @@ public class ArmSubsystem extends MeasurableSubsystem {
         ElevatorConstants.kLevelThreeCubeElevator,
         ElbowConstants.kLevelThreeCubeElbow),
     AUTO_HIGH_CUBE(
-        ShoulderConstants.kAutoHighCubeShoulder,
+        ShoulderConstants.kAutoLevelThreeCubeShoulder,
         ElevatorConstants.kAutoHighCubeElevator,
-        ElbowConstants.kAutoHighCubeElbow),
+        ElbowConstants.kAutoLevelThreeCubeElbow),
     SHELF(
         ShoulderConstants.kShelfShoulder,
         ElevatorConstants.kShelfElevator,

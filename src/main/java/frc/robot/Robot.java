@@ -107,7 +107,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
     m_robotContainer.zeroElevator();
-    m_robotContainer.setAuto(false); // commented out for now - to allow testing in Tele
+    m_robotContainer.setAuto(true); // commented out for now - to allow testing in Tele
     m_robotContainer.configureMotionMagic(false);
   }
 
