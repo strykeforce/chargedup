@@ -2,10 +2,13 @@ package frc.robot.commands.auto;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.drive.AutoBalanceCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
+import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.ReleaseGamepieceCommand;
@@ -56,8 +59,14 @@ public class MiddleToDock extends SequentialCommandGroup implements AutoCommandI
             new SetVisionUpdateCommand(driveSubsystem, false)),
         new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem),
         new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem),
+        new WaitCommand(1.0),
         firstPath,
-        new AutoBalanceCommand(true, driveSubsystem, robotStateSubsystem));
+        new ParallelRaceGroup(
+            new AutoWaitForMatchTimeCommand(0.1),
+            new AutoBalanceCommand(true, driveSubsystem, robotStateSubsystem)),
+        new xLockCommand(driveSubsystem));
+
+    // new AutoBalanceCommand(true, driveSubsystem, robotStateSubsystem));
   }
 
   public void generateTrajectory() {

@@ -73,8 +73,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
   // HEALTHCHECK FIX
   @HealthCheck
   @Timed(
-      percentOutput = {0.2, 0.5, 0.75, 1, -0.2, -0.5, -0.75, -1},
-      duration = 5)
+      percentOutput = {0.2, 1, -0.2, -1},
+      duration = 2)
   private TalonSRX azimuthZero;
 
   @HealthCheck
@@ -92,8 +92,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
   // HEALTHCHECK FIX
   @HealthCheck
   @Timed(
-      percentOutput = {0.2, 0.5, 0.75, 1, -0.2, -0.5, -0.75, -1},
-      duration = 5)
+      percentOutput = {0.2, 1, -0.2, -1},
+      duration = 2)
   private TalonFX driveZero;
 
   @HealthCheck

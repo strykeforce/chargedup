@@ -219,7 +219,7 @@ public class Constants {
     public static final double kAutoBalanceStartTimerThresholdDeg = 5;
     public static final double kAutoBalanceEnableGyroThresholdDegrees = 8;
 
-    public static final double kAutoBalanceSlowDriveVel = 0.6; // 0.5
+    public static final double kAutoBalanceSlowDriveVel = 0.35; // 0.6
     public static final double kAutoBalanceFinalDriveVel = 1.0; // 0.5 0.75
     public static final double kAutoBalanceSlowdownTimeSec = 1.0; // 1.3-> 1.15
     public static final double kAutoBalanceStopThresholdDegrees = 1.5; // 1 0.6 1.5
@@ -506,7 +506,7 @@ public class Constants {
     public static final double kLevelThreeCubeElbow = 84_106;
     public static final double kShelfElbow = 41_000;
     public static final double kFloorElbowSweep = 16_876;
-    public static final double kAutoLevelThreeCubeElbow = 63_097;
+    public static final double kAutoLevelThreeCubeElbow = 65_497; // 64_297
     public static final double kAutoLevelTwoConeElbow = 60_097;
     public static final double kAutoLevelTwoCubeElbow = 36_500;
     public static final double kAutoLevelThreeConeElbow = 84_553;
@@ -600,7 +600,7 @@ public class Constants {
     public static final double kShelfShoulder = -2_800; // 0
     public static final double kAutoLevelTwoConeShoulder = 1_085; // 723
     public static final double kAutoLevelTwoCubeShoulder = 0.0;
-    public static final double kAutoLevelThreeCubeShoulder = 1_085;
+    public static final double kAutoLevelThreeCubeShoulder = 1_885; // 1_485
     public static final double kAutoLevelThreeConeShoulder = 5_850; // 3900
 
     // Allow Parallel Movement Ticks
