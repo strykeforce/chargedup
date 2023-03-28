@@ -64,6 +64,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     logger.info("Disabled Init");
+    m_robotContainer.setDisabled(true);
   }
 
   @Override
@@ -77,6 +78,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    m_robotContainer.setDisabled(false);
     logger.info("Autonomous Init");
     m_robotContainer.setAuto(true);
     m_autonomousCommand = m_robotContainer.getAutoSwitch().getAutoCommand();
@@ -96,6 +98,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    m_robotContainer.setDisabled(false);
     logger.info("Teleop Init");
     logger.info(
         "Event: {}, Match Type: {}, Match #: {}, Replay #: {}",
@@ -108,6 +111,7 @@ public class Robot extends TimedRobot {
     }
     m_robotContainer.zeroElevator();
     m_robotContainer.setAuto(false); // commented out for now - to allow testing in Tele
+    m_robotContainer.setVisionEnabled(true);
     m_robotContainer.configureMotionMagic(false);
   }
 

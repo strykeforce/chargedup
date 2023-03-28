@@ -16,11 +16,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.TestBalanceCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
-import frc.robot.commands.drive.InterruptDriveCommand;
 import frc.robot.commands.drive.LockZeroCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
@@ -34,12 +34,12 @@ import frc.robot.commands.hand.GrabConeCommand;
 import frc.robot.commands.hand.GrabCubeCommand;
 import frc.robot.commands.hand.HandLeftSpeedCommand;
 import frc.robot.commands.hand.HandLeftToPositionCommand;
+import frc.robot.commands.hand.HandToPositionCommand;
 import frc.robot.commands.hand.ReleaseGamepieceCommand;
 import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
-import frc.robot.commands.robotState.AutoPlaceCommand;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.RecoverGamepieceCommand;
@@ -48,6 +48,9 @@ import frc.robot.commands.robotState.SetGamePieceCommand;
 import frc.robot.commands.robotState.SetLevelAndColCommandGroup;
 import frc.robot.commands.robotState.ShelfPickupCommand;
 import frc.robot.commands.robotState.ShuffleBoardHealthCheckCommandGroup;
+import frc.robot.commands.robotState.ShuffleBoardHealthCheckElbowCommandGroup;
+import frc.robot.commands.robotState.ShuffleBoardHealthCheckHandCommandGroup;
+import frc.robot.commands.robotState.ShuffleBoardHealthCheckIntakeCommandGroup;
 import frc.robot.commands.robotState.StowRobotCommand;
 import frc.robot.commands.robotState.ToggleIntakeCommand;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
@@ -182,6 +185,14 @@ public class RobotContainer {
     elbowSubsystem.setMotionMagic(isAuto);
   }
 
+  public void setVisionEnabled(boolean isEnabled) {
+    driveSubsystem.visionUpdates = isEnabled;
+  }
+
+  public void setDisabled(boolean isDisabled) {
+    robotStateSubsystem.setDisabled(isDisabled);
+  }
+
   public void setAuto(boolean isAuto) {
     robotStateSubsystem.setAutoMode(isAuto);
   }
@@ -221,6 +232,7 @@ public class RobotContainer {
 
   // Path Configuration For Robot Container
   private void configurePaths() {
+
     // testpath =
     //     new GrabCubeBalanceCommand(
     //         driveSubsystem,
@@ -314,11 +326,12 @@ public class RobotContainer {
     //     .onTrue(
     //         new AutoPlaceCommandGroup(
     //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
-        .onTrue(
-            new AutoPlaceCommand(driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem))
-        .onFalse(new InterruptDriveCommand(driveSubsystem));
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id).onTrue(balancepath); // TESTING AT
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+    //     .onTrue(
+    //         new AutoPlaceCommand(driveSubsystem, robotStateSubsystem, armSubsystem,
+    // handSubsystem))
+    //     .onFalse(new InterruptDriveCommand(driveSubsystem));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id).onTrue(balancepath); // TESTING AT
     // LAKEVIEW PRACTICE FIELD
 
     // new JoystickButton(driveJoystick, InterlinkButton.X.id)
@@ -682,7 +695,7 @@ public class RobotContainer {
     ShuffleboardTab pitImportantTab = Shuffleboard.getTab("PitImportant");
     pitImportantTab
         .add(
-            "HealthCheck",
+            "HealthCheck Drive",
             new ShuffleBoardHealthCheckCommandGroup(
                 elbowSubsystem,
                 shoulderSubsystem,
@@ -692,11 +705,38 @@ public class RobotContainer {
                 intakeSubsystem,
                 armSubsystem))
         .withPosition(0, 0);
+    pitImportantTab
+        .add(
+            "HealthCheck Elbow(Elev.)",
+            new ShuffleBoardHealthCheckElbowCommandGroup(
+                elbowSubsystem, elevatorSubsystem, driveSubsystem, armSubsystem))
+        .withPosition(0, 1);
+    pitImportantTab
+        .add(
+            "HealthCheck Hand",
+            new ShuffleBoardHealthCheckHandCommandGroup(
+                handSubsystem, driveSubsystem, armSubsystem))
+        .withPosition(1, 1);
+    pitImportantTab
+        .add(
+            "HealthCheck Intake",
+            new ShuffleBoardHealthCheckIntakeCommandGroup(
+                intakeSubsystem, driveSubsystem, armSubsystem))
+        .withPosition(2, 1);
     pitImportantTab.add("LockZero", new LockZeroCommand(driveSubsystem)).withPosition(1, 0);
 
-    pitImportantTab.add("Grab Cube", new GrabCubeCommand(handSubsystem)).withPosition(2, 0);
-    pitImportantTab.add("Grab Cone", new GrabConeCommand(handSubsystem)).withPosition(3, 0);
-    pitImportantTab.add("Hand Zero", new ZeroHandCommand(handSubsystem)).withPosition(4, 0);
+    pitImportantTab
+        .add(
+            "Grab Cube",
+            new HandToPositionCommand(handSubsystem, HandConstants.kIntakeOpenPosition))
+        .withPosition(2, 0);
+    pitImportantTab
+        .add(
+            "Grab Cone", new HandToPositionCommand(handSubsystem, HandConstants.kShelfOpenPosition))
+        .withPosition(3, 0);
+    pitImportantTab
+        .add("Hand Zero", new HandToPositionCommand(handSubsystem, 0))
+        .withPosition(4, 0);
   }
 
   public void configureDebugDashboard() {

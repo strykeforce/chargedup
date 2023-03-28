@@ -60,6 +60,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private boolean hasZeroedHand = false;
   private ElbowSubsystem elbowSubsystem;
   public int stableHandVel = 0;
+  private boolean isDisabled;
 
   public RobotStateSubsystem(
       IntakeSubsystem intakeSubsystem,
@@ -907,6 +908,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         } // FIXME ELSE??
         break;
       case AUTO_BALANCE:
+        intakeSubsystem.retractIntake();
         // INDICATOR STATE
 
         // if (driveSubsystem.currDriveState == DriveStates.AUTO_BALANCE_FINISHED) {
@@ -952,7 +954,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       default:
         break;
     }
-    if (driveSubsystem.getPoseMeters().getX() >= DriveConstants.kPastBumpIndicateX
+
+    if (!isDisabled
+        && ((getAllianceColor() == Alliance.Red
+                && driveSubsystem.getPoseMeters().getX() >= DriveConstants.kPastBumpIndicateX)
+            || (getAllianceColor() == Alliance.Blue
+                && driveSubsystem.getPoseMeters().getX()
+                    <= (RobotStateConstants.kFieldMaxX - DriveConstants.kPastBumpIndicateX)))
         && !driveSubsystem.isAutoDriving()) {
       if (visionSubsystem.lastUpdateWithinThresholdTime(
               VisionConstants.kLastUpdateCloseEnoughThreshold
@@ -961,6 +969,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         rgbLightsSubsystem.setCubeColor();
       else rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
     }
+  }
+
+  public void setDisabled(boolean isDisabled) {
+    this.isDisabled = isDisabled;
+    logger.info("Disabled RobotState");
   }
 
   public Pose2d getShelfPosAutoDrive(TargetCol tempTargetCol, boolean isBlue) {

@@ -107,7 +107,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
                 fallbackPath2,
                 new AutoPlaceAutonCommand(
                         driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
-                    .withTimeout(0.75),
+                    .withTimeout(0.70),
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
             new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
