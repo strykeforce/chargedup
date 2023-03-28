@@ -75,7 +75,8 @@ public class TwoPieceBumpWithDockAutoCommandGroup extends SequentialCommandGroup
         new ParallelDeadlineGroup(
             secondPath,
             new SequentialCommandGroup(
-                new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
+                new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.5),
+                // new SetVisionUpdateCommand(driveSubsystem, true),
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, true),
@@ -83,7 +84,7 @@ public class TwoPieceBumpWithDockAutoCommandGroup extends SequentialCommandGroup
                 fallbackPath,
                 new AutoPlaceAutonCommand(
                         driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
-                    .withTimeout(1.25),
+                    .withTimeout(1.75),
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, false),

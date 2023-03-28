@@ -956,7 +956,6 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     }
 
     if (!isDisabled
-        && !isAuto
         && ((getAllianceColor() == Alliance.Red
                 && driveSubsystem.getPoseMeters().getX() >= DriveConstants.kPastBumpIndicateX)
             || (getAllianceColor() == Alliance.Blue
