@@ -1,7 +1,6 @@
 package frc.robot.commands.auto;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -25,7 +24,7 @@ import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 import frc.robot.subsystems.VisionSubsystem;
 
-public class ThreePieceAutoCommandGroup extends SequentialCommandGroup
+public class ThreePieceSmoothAutoCommandGroup extends SequentialCommandGroup
     implements AutoCommandInterface {
 
   DriveAutonCommand firstPath;
@@ -36,7 +35,7 @@ public class ThreePieceAutoCommandGroup extends SequentialCommandGroup
   private Alliance alliance = Alliance.Invalid;
   private RobotStateSubsystem robotStateSubsystem;
 
-  public ThreePieceAutoCommandGroup(
+  public ThreePieceSmoothAutoCommandGroup(
       DriveSubsystem driveSubsystem,
       RobotStateSubsystem robotStateSubsystem,
       ArmSubsystem armSubsystem,
@@ -48,10 +47,10 @@ public class ThreePieceAutoCommandGroup extends SequentialCommandGroup
       String pathTwo,
       String pathThree,
       String pathFour) {
-    firstPath = new DriveAutonCommand(driveSubsystem, pathOne, true, true);
+    firstPath = new DriveAutonCommand(driveSubsystem, pathOne, false, true);
     secondPath = new DriveAutonCommand(driveSubsystem, pathTwo, false, false);
-    thirdPath = new DriveAutonCommand(driveSubsystem, pathThree, true, false);
-    fourthPath = new DriveAutonCommand(driveSubsystem, pathFour, false, false);
+    thirdPath = new DriveAutonCommand(driveSubsystem, pathThree, false, false);
+    fourthPath = new DriveAutonCommand(driveSubsystem, pathFour, true, false);
     this.robotStateSubsystem = robotStateSubsystem;
 
     addCommands(
@@ -76,7 +75,7 @@ public class ThreePieceAutoCommandGroup extends SequentialCommandGroup
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
         new ParallelCommandGroup(
             new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
-            new ClearGamePieceCommand(robotStateSubsystem)), //do we need clear gamepiece command?
+            new ClearGamePieceCommand(robotStateSubsystem)), //Q do we need clear gamepiece command?
         // Cube 2
         new ParallelDeadlineGroup(
             thirdPath,
@@ -89,7 +88,7 @@ public class ThreePieceAutoCommandGroup extends SequentialCommandGroup
                 new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
         new ParallelCommandGroup(
-            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem), //can clear gamepiece and shoot be parallel
+            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem), //Q can shoot and clear gamepiece be parallel
             new ClearGamePieceCommand(robotStateSubsystem),
             new SetVisionUpdateCommand(driveSubsystem, true)));
         

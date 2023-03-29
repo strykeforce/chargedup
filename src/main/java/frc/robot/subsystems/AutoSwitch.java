@@ -7,7 +7,7 @@ import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.DefaultAutoCommand;
 import frc.robot.commands.auto.DoNothingAutonCommand;
 import frc.robot.commands.auto.MiddleToDock;
-import frc.robot.commands.auto.ThreePieceAutoCommandGroup;
+import frc.robot.commands.auto.ThreePieceSmoothAutoCommandGroup;
 import frc.robot.commands.auto.ThreePieceBumpAutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceBumpWithDockAutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceLvl3AutoCommandGroup;
@@ -153,7 +153,7 @@ public class AutoSwitch {
             "pieceTwoToDockPath");
       case 0x03:
         // Cone lvl 3, Cube lvl 3, Cube lvl 2 
-        return new ThreePieceAutoCommandGroup(
+        return new ThreePieceSmoothAutoCommandGroup(
           driveSubsystem,
           robotStateSubsystem,
           armSubsystem,
