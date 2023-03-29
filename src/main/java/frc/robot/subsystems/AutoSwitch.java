@@ -7,6 +7,7 @@ import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.DefaultAutoCommand;
 import frc.robot.commands.auto.DoNothingAutonCommand;
 import frc.robot.commands.auto.MiddleToDock;
+import frc.robot.commands.auto.ThreePieceAutoCommandGroup;
 import frc.robot.commands.auto.ThreePieceBumpAutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceBumpWithDockAutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceLvl3AutoCommandGroup;
@@ -150,6 +151,20 @@ public class AutoSwitch {
             "pieceOneFetchPath",
             "pieceOnePlacePath",
             "pieceTwoToDockPath");
+      case 0x03:
+        // Cone lvl 3, Cube lvl 3, Cube lvl 2 
+        return new ThreePieceAutoCommandGroup(
+          driveSubsystem,
+          robotStateSubsystem,
+          armSubsystem,
+          handSubsystem,
+          intakeSubsystem,
+          elevatorSubsystem,
+          visionSubsystem,
+          "pieceOneFetchCubeThreePath",
+          "pieceOnePlaceCubeThreePath",
+          "pieceTwoFetchCubeFourPath",
+          "pieceTwoPlaceCubeFourPath");
       case 0x10:
         // Cone lvl 3, cube lvl 3, balance
         return new TwoPieceMiddleBalanceAutoCommandGroup(
