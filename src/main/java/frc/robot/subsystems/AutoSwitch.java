@@ -229,6 +229,21 @@ public class AutoSwitch {
             "pieceOneDeliverBumpPath",
             "pieceTwoToDockBumpPath",
             "pieceScoreWithoutAutoBump");
+      case 0x23:
+        // Cone Lvl 3, cube lvl 2 and 3???
+        return new ThreePieceBumpAutoCommandGroup(
+            driveSubsystem,
+            robotStateSubsystem,
+            armSubsystem,
+            handSubsystem,
+            intakeSubsystem,
+            elevatorSubsystem,
+            visionSubsystem,
+            "pieceTwoFetchPathBumpSwitch",
+            "pieceTwoDeliverBumpPath",
+            "pieceOneFetchPathBumpSwitch",
+            "pieceOneDeliverBumpPath",
+            "pieceScoreWithoutAutoBump");
       case 0x30:
         return new DoNothingAutonCommand(
             driveSubsystem,
