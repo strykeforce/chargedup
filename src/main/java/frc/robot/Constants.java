@@ -138,7 +138,7 @@ public class Constants {
     public static final double kElbowIntakeMin = ElbowConstants.kReverseSoftLimit;
     public static final double kElbowIntakeMax = ElbowConstants.kForwardSoftLimit;
 
-    public static final double kShelfMove = 1; // FIXME put in real number
+    public static final double kShelfMove = 0.5; // FIXME put in real number
     public static final double kShelfTransitionMove = 0.06; // 0.2
     public static final double kSweepTimerElapseSeconds = 0.5;
   }
@@ -524,7 +524,7 @@ public class Constants {
     public static final double kIntakeStageToIntakeParallelAllowed = kIntakeElbow;
 
     public static final double kElbowTeleMotionCruiseVelocity = 13_000.0;
-    public static final double kElbowTeleMotionAcceleration = 38_000.0;
+    public static final double kElbowTeleMotionAcceleration = 50_000.0; // 38_000
     public static final double kElbowAutoMotionCruiseVelocity = 13_000.0;
     public static final double kElbowAutoMotionAcceleration = 50_000.0;
 
