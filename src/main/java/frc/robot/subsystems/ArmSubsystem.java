@@ -89,7 +89,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
         currAxis = CurrentAxis.SHOULDER;
         shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
         break;
-      case HIGH_CONE:
+      case HIGH_CONE: // fall through
       case HIGH_CUBE:
         logger.info("{} -> HIGH_TO_STOW", currState);
         currState = ArmState.HIGH_TO_STOW;

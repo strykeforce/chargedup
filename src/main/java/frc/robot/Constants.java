@@ -84,7 +84,7 @@ public class Constants {
     public static final double kBound1Y = 1.908175; // m
     public static final double kBound2Y = 3.584575; // m
 
-    public static final double kReleaseDelayTime = 0.5;
+    public static final double kReleaseDelayTime = 0.5; // s
     public static final double kFieldMaxX = 16.540988; // m
   }
 
@@ -524,7 +524,7 @@ public class Constants {
     public static final double kIntakeStageToIntakeParallelAllowed = kIntakeElbow;
 
     public static final double kElbowTeleMotionCruiseVelocity = 13_000.0;
-    public static final double kElbowTeleMotionAcceleration = 50_000.0; // 38_000
+    public static final double kElbowTeleMotionAcceleration = 38_000.0; // 38_000
     public static final double kElbowAutoMotionCruiseVelocity = 13_000.0;
     public static final double kElbowAutoMotionAcceleration = 50_000.0;
 
