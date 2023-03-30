@@ -63,15 +63,15 @@ public class MiddleToDockWithMobility extends SequentialCommandGroup implements 
         new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem),
         new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem),
         new WaitCommand(1.0),
-        firstPath,
-        new ParallelRaceGroup(
-            new AutoWaitForMatchTimeCommand(0.1),
-            new SequentialCommandGroup(    
-              secondPath,new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem))),
-        new xLockCommand(driveSubsystem));
-        new ParallelCommandGroup(
-            new ClearGamePieceCommand(robotStateSubsystem),
-            new SetVisionUpdateCommand(driveSubsystem, true));
+        firstPath);
+        // new ParallelRaceGroup(
+        //     new AutoWaitForMatchTimeCommand(0.1),
+        //     new SequentialCommandGroup(    
+        //       secondPath,new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem))),
+        // new xLockCommand(driveSubsystem));
+        // new ParallelCommandGroup(
+        //     new ClearGamePieceCommand(robotStateSubsystem),
+        //     new SetVisionUpdateCommand(driveSubsystem, true));
   }
 
   public void generateTrajectory() {
