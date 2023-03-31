@@ -67,7 +67,7 @@ public class ThreePieceSmoothAutoCommandGroup extends SequentialCommandGroup
             firstPath,
             new AutoFloorIntakeCommand(
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
-            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH)),
+            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH))/* 
         new ParallelDeadlineGroup(
             secondPath,
             new SequentialCommandGroup(
@@ -90,7 +90,7 @@ public class ThreePieceSmoothAutoCommandGroup extends SequentialCommandGroup
         new ParallelCommandGroup(
             new ShootGamepieceCommand(handSubsystem, robotStateSubsystem), //Q can shoot and clear gamepiece be parallel
             new ClearGamePieceCommand(robotStateSubsystem),
-            new SetVisionUpdateCommand(driveSubsystem, true)));
+            new SetVisionUpdateCommand(driveSubsystem, true))*/);
         
         /*,new ParallelCommandGroup(
             fourthPath,
