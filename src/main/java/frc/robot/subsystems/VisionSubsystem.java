@@ -222,15 +222,10 @@ public class VisionSubsystem extends MeasurableSubsystem {
     double x = robotPose.getX(), y = robotPose.getY();
     try {
       highCameraRobotPose = highCameraEstimator.update().get();
-      savedOffRobotEstimation = photonPoseEstimator.update().get();
-      if ((result.hasTargets() || resultHighCamera.hasTargets())
-          && (result.getBestTarget().getPoseAmbiguity() <= 0.15
-              || savedOffRobotEstimation.targetsUsed.size() > 1
+      if ((resultHighCamera.hasTargets())
+          && (resultHighCamera.getBestTarget().getPoseAmbiguity() <= 0.15
               || highCameraRobotPose.targetsUsed.size() > 1)) {
-        useHigh =
-            highCameraRobotPose.targetsUsed.size() > savedOffRobotEstimation.targetsUsed.size();
-        Pose3d cameraPose =
-            useHigh ? highCameraRobotPose.estimatedPose : savedOffRobotEstimation.estimatedPose;
+        Pose3d cameraPose = highCameraRobotPose.estimatedPose;
         y = cameraPose.getY();
         x = cameraPose.getX();
         // y = photonPoseEstimator.update().get().estimatedPose.getY();
@@ -238,9 +233,9 @@ public class VisionSubsystem extends MeasurableSubsystem {
         if (driveSubsystem.canGetVisionUpdates())
           driveSubsystem.updateOdometryWithVision(
               new Pose2d(
-                  new Translation2d(x, y).plus(useHigh ? highCameraOffset() : cameraOffset()),
+                  new Translation2d(x, y).plus(highCameraOffset()),
                   new Rotation2d(gyroBuffer.get(gyroBufferId))),
-              (long) (useHigh ? highTimeStamp : timeStamp));
+              (long) (highTimeStamp));
 
         if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.isAutoDriving()) {
           driveSubsystem.resetOdometryNoLog( // FIXME

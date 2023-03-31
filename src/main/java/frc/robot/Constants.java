@@ -301,8 +301,8 @@ public class Constants {
     public static final double kIAutoDrive = 0.0000;
     public static final double kDAutoDrive = 0.00; // kPHolonomic/100
 
-    public static final double kAutoDriveMaxVelocity = 2; //
-    public static final double kAutoDriveMaxAccel = 2;
+    public static final double kAutoDriveMaxVelocity = 1; //
+    public static final double kAutoDriveMaxAccel = 1;
     // Default safety path constants
     public static final Pose2d startPose2d = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
     public static final Pose2d endPose2d = new Pose2d(-1, 0, Rotation2d.fromDegrees(0));
@@ -358,7 +358,7 @@ public class Constants {
     public static final double kCameraOffset = .335; // was .273 on driveChasis
     public static final double kCameraAngleOffset = 0; // DEGREES was 24 on driveChasis
     public static final double kHighCameraAngleOffset = 0.0;
-    public static final double kHighCameraOffset = 0.05;
+    public static final double kHighCameraOffset = 0.0;
     public static final double kLastUpdateCloseEnoughThreshold = 2.0; // IN SECONDS
     public static final double kLastUpdateCloseEnoughThresholdYaw = 1.0;
     public static final double kDifferenceCloseEnoughThreshold = .1;

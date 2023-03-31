@@ -346,7 +346,7 @@ public class RobotContainer {
             new AutoPickupCommand(
                 driveSubsystem,
                 robotStateSubsystem,
-                new Pose2d(new Translation2d(7.07, 1.07), new Rotation2d())));
+                new Pose2d(new Translation2d(7.07, .92), new Rotation2d())));
 
     // Hand
     /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)

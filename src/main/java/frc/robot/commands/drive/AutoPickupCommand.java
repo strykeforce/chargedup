@@ -41,7 +41,7 @@ public class AutoPickupCommand extends CommandBase {
 
   @Override
   public void initialize() {
-    logger.info("Starting auto pickup at {}", endPose);
+    logger.info("Starting auto pickup going to {}", endPose);
     omegaAutoDriveController =
         new ProfiledPIDController(
             DriveConstants.kPOmega,
@@ -78,6 +78,7 @@ public class AutoPickupCommand extends CommandBase {
         omegaAutoDriveController.calculate(
             MathUtil.angleModulus(driveSubsystem.getGyroRotation2d().getRadians()),
             robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
+    logger.info("X move : {} | Y move : {}", xCalc, yCalc);
     driveSubsystem.move(xCalc, yCalc, omegaCalc, true);
   }
 
