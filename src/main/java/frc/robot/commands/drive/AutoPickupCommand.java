@@ -37,11 +37,6 @@ public class AutoPickupCommand extends CommandBase {
                     : RobotStateConstants.kFieldMaxX - endPose.getX()),
                 endPose.getY()),
             new Rotation2d());
-  }
-
-  @Override
-  public void initialize() {
-    logger.info("Starting auto pickup going to {}", endPose);
     omegaAutoDriveController =
         new ProfiledPIDController(
             DriveConstants.kPOmega,
@@ -66,6 +61,16 @@ public class AutoPickupCommand extends CommandBase {
             DriveConstants.kDAutoDrive,
             new TrapezoidProfile.Constraints(
                 DriveConstants.kAutoDriveMaxVelocity, DriveConstants.kAutoDriveMaxAccel));
+  }
+
+  @Override
+  public void initialize() {
+    logger.info("Starting auto pickup going to {}", endPose);
+    omegaAutoDriveController.reset(driveSubsystem.getPoseMeters().getRotation().getRadians());
+    xAutoDriveController.reset(
+        driveSubsystem.getPoseMeters().getX(), driveSubsystem.getFieldRelSpeed().vxMetersPerSecond);
+    yAutoDriveController.reset(
+        driveSubsystem.getPoseMeters().getY(), driveSubsystem.getFieldRelSpeed().vyMetersPerSecond);
   }
 
   @Override
