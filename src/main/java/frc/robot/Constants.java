@@ -301,8 +301,19 @@ public class Constants {
     public static final double kIAutoDrive = 0.0000;
     public static final double kDAutoDrive = 0.00; // kPHolonomic/100
 
-    public static final double kAutoDriveMaxVelocity = 1; //
-    public static final double kAutoDriveMaxAccel = 1;
+    public static final double kAutoDriveMaxVelocity = 2; //
+    public static final double kAutoDriveMaxAccel = 2;
+
+    // Auto PickUp Constants
+    public static final double kPAutoPickup = 1.5;
+    public static final double kIAutoPickup = 0.0;
+    public static final double kDAutoPickup = 0.0;
+
+    public static final double kAutoPickupDriveMaxVel = 1.5;
+    public static final double kAutoPickupDriveMaxAccel = 2;
+
+    public static final double kAutoPickupCloseEnough = 0.05;
+
     // Default safety path constants
     public static final Pose2d startPose2d = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
     public static final Pose2d endPose2d = new Pose2d(-1, 0, Rotation2d.fromDegrees(0));

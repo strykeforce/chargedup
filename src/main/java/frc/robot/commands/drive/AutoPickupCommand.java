@@ -48,19 +48,19 @@ public class AutoPickupCommand extends CommandBase {
 
     xAutoDriveController =
         new ProfiledPIDController(
-            DriveConstants.kPAutoDrive,
-            DriveConstants.kIAutoDrive,
-            DriveConstants.kDAutoDrive,
+            DriveConstants.kPAutoPickup,
+            DriveConstants.kIAutoPickup,
+            DriveConstants.kDAutoPickup,
             new TrapezoidProfile.Constraints(
-                DriveConstants.kAutoDriveMaxVelocity, DriveConstants.kAutoDriveMaxAccel));
+                DriveConstants.kAutoPickupDriveMaxVel, DriveConstants.kAutoPickupDriveMaxAccel));
 
     yAutoDriveController =
         new ProfiledPIDController(
-            DriveConstants.kPAutoDrive,
-            DriveConstants.kIAutoDrive,
-            DriveConstants.kDAutoDrive,
+            DriveConstants.kPAutoPickup,
+            DriveConstants.kIAutoPickup,
+            DriveConstants.kDAutoPickup,
             new TrapezoidProfile.Constraints(
-                DriveConstants.kAutoDriveMaxVelocity, DriveConstants.kAutoDriveMaxAccel));
+                DriveConstants.kAutoPickupDriveMaxVel, DriveConstants.kAutoPickupDriveMaxAccel));
   }
 
   @Override
@@ -83,24 +83,24 @@ public class AutoPickupCommand extends CommandBase {
         omegaAutoDriveController.calculate(
             MathUtil.angleModulus(driveSubsystem.getGyroRotation2d().getRadians()),
             robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
-    logger.info("X move : {} | Y move : {}", xCalc, yCalc);
     driveSubsystem.move(xCalc, yCalc, omegaCalc, true);
   }
 
   @Override
   public boolean isFinished() {
-    return Math.abs(driveSubsystem.getPoseMeters().minus(endPose).getX())
-            <= DriveConstants.kPathErrorThreshold
-        && Math.abs(driveSubsystem.getPoseMeters().minus(endPose).getY())
-            <= DriveConstants.kPathErrorThreshold;
+    return Math.abs(driveSubsystem.getPoseMeters().getX() - endPose.getX())
+            <= DriveConstants.kAutoPickupCloseEnough
+        && Math.abs(driveSubsystem.getPoseMeters().getY() - endPose.getY())
+            <= DriveConstants.kAutoPickupCloseEnough;
   }
 
   @Override
   public void end(boolean interrupted) {
     driveSubsystem.drive(0, 0, 0);
     logger.info(
-        "Done AutoPickup y error {} | x error {}",
+        "Done AutoPickup y error {} | x error {} | END POSE {}",
         Math.abs(endPose.getY() - driveSubsystem.getPoseMeters().getY()),
-        Math.abs(endPose.getX() - driveSubsystem.getPoseMeters().getX()));
+        Math.abs(endPose.getX() - driveSubsystem.getPoseMeters().getX()),
+        driveSubsystem.getPoseMeters());
   }
 }
