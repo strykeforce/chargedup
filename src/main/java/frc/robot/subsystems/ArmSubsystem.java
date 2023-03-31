@@ -11,6 +11,7 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ShoulderConstants;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import java.util.Set;
+import net.jafama.FastMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
@@ -42,6 +43,9 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private ArmState beforeTwistState;
   private boolean unTwistAtEnd = false;
   private Timer twistTimer = new Timer();
+  private Timer testTimer = new Timer();
+  private double limitTime = 0;
+  private double caseTime = 0;
 
   public ArmSubsystem(
       ShoulderSubsystem shoulderSubsystem,
@@ -440,15 +444,15 @@ public class ArmSubsystem extends MeasurableSubsystem {
     double shoulderAngle = Math.toRadians(shoulderSubsystem.getDegs());
 
     double x =
-        (elevatorSubsystem.getExtensionMeters()) * Math.cos(shoulderAngle)
-            - f * Math.cos(Math.PI / 2 - shoulderAngle)
-            + Constants.ElbowConstants.kLength * Math.cos(elbowAngleWithGround)
-            + ArmConstants.kElevatorToElbowPivot * Math.cos(Math.PI / 2 - shoulderAngle);
+        (elevatorSubsystem.getExtensionMeters()) * FastMath.cos(shoulderAngle)
+            - f * FastMath.cos(Math.PI / 2 - shoulderAngle)
+            + Constants.ElbowConstants.kLength * FastMath.cos(elbowAngleWithGround)
+            + ArmConstants.kElevatorToElbowPivot * FastMath.cos(Math.PI / 2 - shoulderAngle);
     double y =
-        (elevatorSubsystem.getExtensionMeters() + f / Math.tan(shoulderAngle))
-                * Math.sin(shoulderAngle)
-            + Constants.ElbowConstants.kLength * Math.sin(elbowAngleWithGround)
-            - ArmConstants.kElevatorToElbowPivot * Math.sin(Math.PI / 2 - shoulderAngle);
+        (elevatorSubsystem.getExtensionMeters() + f / FastMath.tan(shoulderAngle))
+                * FastMath.sin(shoulderAngle)
+            + Constants.ElbowConstants.kLength * FastMath.sin(elbowAngleWithGround)
+            - ArmConstants.kElevatorToElbowPivot * FastMath.sin(Math.PI / 2 - shoulderAngle);
 
     return new Translation2d(x, y);
   }
@@ -465,6 +469,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
         new Measure("Hand Y", () -> getHandPosition().getY()),
         new Measure("Hand region", () -> getHandRegion().ordinal()),
         new Measure("Arm State", () -> currState.ordinal()),
+        new Measure("Case Time", () -> caseTime),
+        new Measure("Limit Time", () -> limitTime),
         new Measure("Difference in Shoulder", () -> differenceInShoulder));
   }
 
@@ -519,7 +525,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
   @Override
   public void periodic() {
     HandRegion currHandRegion = getHandRegion();
-
+    testTimer.reset(); // FIXME
+    testTimer.start(); // FIXME
     if (!isHealthChecking) {
       shoulderSubsystem.setSoftLimits(
           currHandRegion.minTicksShoulder, currHandRegion.maxTicksShoulder);
@@ -531,7 +538,14 @@ public class ArmSubsystem extends MeasurableSubsystem {
     } else {
       shoulderSubsystem.setSoftLimits(-500.0, 3_000.0);
     }
+    if ((testTimer.get() / 1000) > 1) {
+      logger.info("TestTimer SoftLimits MS: {}", testTimer.get() / 1000); // FIXME
+    }
+    limitTime = testTimer.get();
+    testTimer.stop(); // FIXME
 
+    testTimer.reset();
+    testTimer.start();
     switch (currState) {
       case STOW:
         if (!hasElbowZeroed
@@ -1081,6 +1095,11 @@ public class ArmSubsystem extends MeasurableSubsystem {
       default:
         break;
     }
+    if ((testTimer.get() / 1000) > 1) {
+      logger.info("testTimer Switch Case MS: {}", testTimer.get() / 1000);
+    }
+    caseTime = testTimer.get();
+    testTimer.stop();
   }
 
   public enum ArmState {
