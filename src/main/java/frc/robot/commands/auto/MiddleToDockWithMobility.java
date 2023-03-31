@@ -26,7 +26,8 @@ import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 import frc.robot.subsystems.VisionSubsystem;
 
-public class MiddleToDockWithMobility extends SequentialCommandGroup implements AutoCommandInterface {
+public class MiddleToDockWithMobility extends SequentialCommandGroup
+    implements AutoCommandInterface {
 
   DriveAutonCommand firstPath;
   DriveAutonCommand secondPath;
@@ -48,8 +49,8 @@ public class MiddleToDockWithMobility extends SequentialCommandGroup implements 
       VisionSubsystem visionSubsystem,
       String pathOne,
       String pathTwo) {
-      firstPath = new DriveAutonCommand(driveSubsystem, pathOne, false, true);
-      secondPath = new DriveAutonCommand(driveSubsystem, pathTwo, true, false);
+    firstPath = new DriveAutonCommand(driveSubsystem, pathOne, false, true);
+    secondPath = new DriveAutonCommand(driveSubsystem, pathTwo, true, false);
     this.robotStateSubsystem = robotStateSubsystem;
 
     addCommands(
@@ -63,15 +64,16 @@ public class MiddleToDockWithMobility extends SequentialCommandGroup implements 
         new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem),
         new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem),
         new WaitCommand(1.0),
-        firstPath);
-        // new ParallelRaceGroup(
-        //     new AutoWaitForMatchTimeCommand(0.1),
-        //     new SequentialCommandGroup(    
-        //       secondPath,new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem))),
-        // new xLockCommand(driveSubsystem));
-        // new ParallelCommandGroup(
-        //     new ClearGamePieceCommand(robotStateSubsystem),
-        //     new SetVisionUpdateCommand(driveSubsystem, true));
+        firstPath,
+        new WaitCommand(0.25),
+    new ParallelRaceGroup(
+        new AutoWaitForMatchTimeCommand(0.1),
+        new SequentialCommandGroup(
+          secondPath,new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem))),
+    new xLockCommand(driveSubsystem));
+    new ParallelCommandGroup(
+        new ClearGamePieceCommand(robotStateSubsystem),
+        new SetVisionUpdateCommand(driveSubsystem, true));
   }
 
   public void generateTrajectory() {
