@@ -68,7 +68,7 @@ public class ThreePieceSmoothAutoCommandGroup extends SequentialCommandGroup
             new AutoFloorIntakeCommand(
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH))/* 
-        new ParallelDeadlineGroup(
+        new ParallelDeadlineGroup( 
             secondPath,
             new SequentialCommandGroup(
                 new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),

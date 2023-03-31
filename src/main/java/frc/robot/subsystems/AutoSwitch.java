@@ -164,7 +164,7 @@ public class AutoSwitch {
           "pieceOneFetchCubeThreePath",
           "pieceOnePlaceCubeThreePath",
           "pieceTwoFetchCubeFourPath",
-          "pieceTwoPlaceCubeFourPath");
+          "pieceTwoPlaceCubeFourPath"); 
       case 0x10:
         // Cone lvl 3, cube lvl 3, balance
         return new TwoPieceMiddleBalanceAutoCommandGroup(
@@ -203,7 +203,7 @@ public class AutoSwitch {
             "pieceOneDeliverBumpPathPt1",
             "pieceOneDeliverBumpPathPt2");
       case 0x21:
-        // Cone Lvl 3, cube lvl 2 and 3???
+        // Cone Lvl 3, cube lvl 2 and 3
         return new ThreePieceBumpAutoCommandGroup(
             driveSubsystem,
             robotStateSubsystem,

@@ -5,16 +5,16 @@ end_velocity = 0.0 #m/s
 is_reversed = false
 target_yaw = 0.0 #degrees
 
-[start_pose]
-    x = 7.0 # 7
-    y = 4.68 # cube 2
+[start_pose] 
+    x = 7.07 # 7
+    y = 4.68 # cube 4
     angle = 180.0
 
 [end_pose]
     x = 2.02 # 7
-    y = 4.42 # cube 2 place mid
+    y = 3.82 # cube 4 place mid
     angle = 180.0
 
 [[internal_points]]
     x = 4.5
-    y = 4.737
+    y = 4.85

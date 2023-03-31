@@ -12,9 +12,9 @@ target_yaw = 0.0 #degrees
 
 [end_pose]
     x = 7.0 # 7
-    y = 4.68 # Cube 2
+    y = 4.04 # Cube 4
     angle = 0.0
 
 [[internal_points]]
     x = 4.5
-    y = 4.637
+    y = 4.36

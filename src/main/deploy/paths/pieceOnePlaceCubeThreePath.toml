@@ -11,10 +11,10 @@ target_yaw = 0.0 #degrees
     angle = 180.0
 
 [end_pose]
-    x = 2.02 # 7
-    y = 4.42 # cube 3 place high
+    x = 2.02 # 7 Not auto place???
+    y = 4.3 # cube 3 place high
     angle = 180.0
 
 [[internal_points]]
-    x = 4.5
-    y = 4.737
+    x = 5.5
+    y = 4.6
