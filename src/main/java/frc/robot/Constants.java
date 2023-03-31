@@ -170,7 +170,7 @@ public class Constants {
         new Pose2d(
             new Translation2d(RobotStateConstants.kFieldMaxX - 1.80, 0.39), new Rotation2d());
 
-    public static final double kShelfMovePercent = 0.5;
+    public static final double kShelfMovePercent = 0.8;
     public static final double kShelfYawPercent = 0.2;
     public static final double kPlaceMovePercent = 0.2;
     public static final double kPlaceYawPercent = 0.2;
@@ -441,7 +441,7 @@ public class Constants {
       elevatorConfig.slot0.integralZone = 0;
       elevatorConfig.slot0.maxIntegralAccumulator = 0;
       elevatorConfig.slot0.allowableClosedloopError = 0;
-      elevatorConfig.motionCruiseVelocity = 7_000; // 10_000
+      elevatorConfig.motionCruiseVelocity = 20_000; // 10_000
       elevatorConfig.motionAcceleration = 40_000; // 100_000
 
       elevatorConfig.forwardSoftLimitEnable = true;
@@ -524,7 +524,7 @@ public class Constants {
     public static final double kIntakeStageToIntakeParallelAllowed = kIntakeElbow;
 
     public static final double kElbowTeleMotionCruiseVelocity = 13_000.0;
-    public static final double kElbowTeleMotionAcceleration = 38_000.0; // 38_000
+    public static final double kElbowTeleMotionAcceleration = 50_000.0; // 38_000
     public static final double kElbowAutoMotionCruiseVelocity = 13_000.0;
     public static final double kElbowAutoMotionAcceleration = 50_000.0;
 
@@ -661,7 +661,7 @@ public class Constants {
     public static final int kExtendTalonID = 21;
 
     public static final int kCloseEnoughTicks = 150;
-    public static final int kExtendPosTicks = -2_100; // -2_000
+    public static final int kExtendPosTicks = -2_000; // -2_000
     public static final int kRetractPosTicks = 0;
     public static final int kPickupPosTicks = kExtendPosTicks; // -1_000
 
@@ -857,7 +857,7 @@ public class Constants {
 
     // Intake
     public static final int kIntakeZeroTicks = 940;
-    public static final double kExtendPosTicks = -1_950;
+    public static final double kExtendPosTicks = -1_750;
 
     // Hand
     public static final double kHandZeroTicks = 873; // 879

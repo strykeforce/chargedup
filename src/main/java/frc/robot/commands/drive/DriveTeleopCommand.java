@@ -10,6 +10,7 @@ import frc.robot.RobotContainer;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.RobotState;
+import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 import org.strykeforce.thirdcoast.util.ExpoScale;
 
 public class DriveTeleopCommand extends CommandBase {
@@ -54,12 +55,13 @@ public class DriveTeleopCommand extends CommandBase {
       movePercent = DriveConstants.kShelfMovePercent;
     }
 
-    if (robotStateSubsystem.getRobotState() == RobotState.AUTO_SCORE
-        || robotStateSubsystem.getRobotState() == RobotState.MANUAL_SCORE
-        || robotStateSubsystem.getRobotState() == RobotState.TO_MANUAL_SCORE
-        || robotStateSubsystem.getRobotState() == RobotState.AUTO_DRIVE
-        || robotStateSubsystem.getRobotState() == RobotState.RELEASE_GAME_PIECE
-        || robotStateSubsystem.getRobotState() == RobotState.CHECK_AMBIGUITY) {
+    if ((robotStateSubsystem.getRobotState() == RobotState.AUTO_SCORE
+            || robotStateSubsystem.getRobotState() == RobotState.MANUAL_SCORE
+            || robotStateSubsystem.getRobotState() == RobotState.TO_MANUAL_SCORE
+            || robotStateSubsystem.getRobotState() == RobotState.AUTO_DRIVE
+            || robotStateSubsystem.getRobotState() == RobotState.RELEASE_GAME_PIECE
+            || robotStateSubsystem.getRobotState() == RobotState.CHECK_AMBIGUITY)
+        && robotStateSubsystem.getTargetLevel() != TargetLevel.LOW) {
       yawPercent = DriveConstants.kPlaceYawPercent;
       movePercent = DriveConstants.kPlaceMovePercent;
     }
