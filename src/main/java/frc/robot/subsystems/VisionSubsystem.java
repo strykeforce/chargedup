@@ -221,47 +221,20 @@ public class VisionSubsystem extends MeasurableSubsystem {
     }
     double x = robotPose.getX(), y = robotPose.getY();
 
-    boolean canUseHigh = false;
-    boolean canUseLow = false;
     boolean willUpdate = false;
     Pose3d cameraPose = new Pose3d();
-    try {
-      highCameraRobotPose = highCameraEstimator.update().get();
-      canUseHigh = true;
-    } catch (Exception e) {
-    }
-    try {
-      savedOffRobotEstimation = photonPoseEstimator.update().get();
-      canUseLow = true;
-    } catch (Exception e) {
-    }
-
-    if (canUseHigh) {
-      if ((resultHighCamera.hasTargets())
-          && (resultHighCamera.getBestTarget().getPoseAmbiguity() <= 0.15
-              || highCameraRobotPose.targetsUsed.size() > 1)) {
-        if (canUseLow) {
-          if (highCameraRobotPose.targetsUsed.size() > savedOffRobotEstimation.targetsUsed.size()) {
-            cameraPose = highCameraRobotPose.estimatedPose;
-            willUpdate = true;
-            useHigh = true;
-          } else {
-            cameraPose = savedOffRobotEstimation.estimatedPose;
-            willUpdate = true;
-          }
-        } else {
-          cameraPose = highCameraRobotPose.estimatedPose;
-          willUpdate = true;
-          useHigh = true;
-        }
-      }
-    } else if (canUseLow) {
-      if ((result.hasTargets())
-          && (result.getBestTarget().getPoseAmbiguity() <= 0.15
-              || savedOffRobotEstimation.targetsUsed.size() > 1)) {
-        cameraPose = savedOffRobotEstimation.estimatedPose;
+    if (result.targets.size() > resultHighCamera.targets.size()) {
+      if (result.getBestTarget().getPoseAmbiguity() <= 0.15 || result.targets.size() > 1)
+      try {
         willUpdate = true;
-      }
+        cameraPose = photonPoseEstimator.update().get().estimatedPose;
+      } catch (Exception e) {}
+    } else {
+      if (resultHighCamera.getBestTarget().getPoseAmbiguity() <= 0.15 || resultHighCamera.targets.size() > 1)
+      try {
+        willUpdate = true;
+        cameraPose = highCameraEstimator.update().get().estimatedPose;
+      } catch (Exception e) {}
     }
 
     if (willUpdate) {
