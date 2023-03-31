@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.ElbowConstants;
 import frc.robot.subsystems.ElbowSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
+import frc.robot.subsystems.RobotStateSubsystem.RobotState;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,11 +30,13 @@ public class JogElbowCommand extends CommandBase {
 
   @Override
   public void execute() {
-    elbowSubsystem.setPos(elbowSubsystem.getPos() + ElbowConstants.kJogElbowTicks * sign);
+    if (robotStateSubsystem.getRobotState() != RobotState.RELEASE_GAME_PIECE) {
+      elbowSubsystem.setPos(elbowSubsystem.getPos() + ElbowConstants.kJogElbowTicks * sign);
+    }
   }
 
   @Override
   public boolean isFinished() {
-    return false;
+    return elbowSubsystem.isFinished();
   }
 }
