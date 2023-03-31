@@ -30,21 +30,27 @@ import org.strykeforce.telemetry.measurable.Measure;
 
 public class VisionSubsystem extends MeasurableSubsystem {
   PhotonCamera cam1 = new PhotonCamera("OV9281");
+  PhotonCamera cam2 = new PhotonCamera("OV9281HIGH");
   private static final Logger logger = LoggerFactory.getLogger(VisionSubsystem.class);
   public static DriveSubsystem driveSubsystem;
   private CircularBuffer gyroBuffer = new CircularBuffer(10000);
   private CircularBuffer timestampBuffer = new CircularBuffer(10000);
   private CircularBuffer velocityBuffer = new CircularBuffer(10000);
   private boolean canFillBuffers = false;
+  List<PhotonTrackedTarget> highTargets;
   List<PhotonTrackedTarget> targets;
   PhotonTrackedTarget bestTarget;
   PhotonPipelineResult result;
+  PhotonPipelineResult resultHighCamera;
   double timeStamp;
+  double highTimeStamp;
   AprilTagFieldLayout aprilTagFieldLayout;
   PhotonPoseEstimator photonPoseEstimator;
+  PhotonPoseEstimator highCameraEstimator;
   private boolean buffersFull = false;
   private boolean hasResetOdomAuto = false;
   private EstimatedRobotPose savedOffRobotEstimation;
+  private EstimatedRobotPose highCameraRobotPose;
   Translation2d robotPose = new Translation2d(2767, 2767);
   private int gyroBufferId = 0;
 
@@ -57,6 +63,14 @@ public class VisionSubsystem extends MeasurableSubsystem {
     } catch (IOException e) {
       logger.error("VISION SUBSYSTEM : APRILTAG JSON FAILED");
     }
+    highCameraEstimator =
+        new PhotonPoseEstimator(
+            aprilTagFieldLayout,
+            PoseStrategy.MULTI_TAG_PNP,
+            cam2,
+            new Transform3d(
+                new Translation3d(0, 0, 0),
+                new Rotation3d(0, Units.degreesToRadians(0), Units.degreesToRadians(0))));
     photonPoseEstimator =
         new PhotonPoseEstimator(
             aprilTagFieldLayout,
@@ -79,6 +93,20 @@ public class VisionSubsystem extends MeasurableSubsystem {
             * Math.sin(
                 Units.degreesToRadians(
                     VisionConstants.kCameraAngleOffset
+                        - driveSubsystem.getGyroRotation2d().getDegrees())));
+  }
+
+  public Translation2d highCameraOffset() {
+    return new Translation2d(
+        VisionConstants.kHighCameraOffset
+            * Math.cos(
+                Units.degreesToRadians(
+                    VisionConstants.kHighCameraAngleOffset
+                        - driveSubsystem.getGyroRotation2d().getDegrees())),
+        -VisionConstants.kCameraOffset
+            * Math.sin(
+                Units.degreesToRadians(
+                    VisionConstants.kHighCameraAngleOffset
                         - driveSubsystem.getGyroRotation2d().getDegrees())));
   }
 
@@ -169,10 +197,15 @@ public class VisionSubsystem extends MeasurableSubsystem {
 
   @Override
   public void periodic() {
+    boolean useHigh = false;
     try {
       result = cam1.getLatestResult();
       if (canFillBuffers) fillBuffers();
       // logger.info("Filled Gyro Buffer: {}", canFillBuffers);
+    } catch (Exception e) {
+    }
+    try {
+      resultHighCamera = cam2.getLatestResult();
     } catch (Exception e) {
     }
     // logger.info("VISION : GET LATEST FAILED");
@@ -182,13 +215,22 @@ public class VisionSubsystem extends MeasurableSubsystem {
       timeStamp = result.getTimestampSeconds();
       gyroBufferId = (int) Math.floor(result.getLatencyMillis() / 20);
     }
+    if (resultHighCamera.hasTargets()) {
+      highTargets = resultHighCamera.getTargets();
+      highTimeStamp = resultHighCamera.getTimestampSeconds();
+    }
     double x = robotPose.getX(), y = robotPose.getY();
     try {
+      highCameraRobotPose = highCameraEstimator.update().get();
       savedOffRobotEstimation = photonPoseEstimator.update().get();
-      if (result.hasTargets()
+      if ((result.hasTargets() || resultHighCamera.hasTargets())
           && (result.getBestTarget().getPoseAmbiguity() <= 0.15
-              || savedOffRobotEstimation.targetsUsed.size() > 1)) {
-        Pose3d cameraPose = savedOffRobotEstimation.estimatedPose;
+              || savedOffRobotEstimation.targetsUsed.size() > 1
+              || highCameraRobotPose.targetsUsed.size() > 1)) {
+        useHigh =
+            highCameraRobotPose.targetsUsed.size() > savedOffRobotEstimation.targetsUsed.size();
+        Pose3d cameraPose =
+            useHigh ? highCameraRobotPose.estimatedPose : savedOffRobotEstimation.estimatedPose;
         y = cameraPose.getY();
         x = cameraPose.getX();
         // y = photonPoseEstimator.update().get().estimatedPose.getY();
@@ -196,9 +238,9 @@ public class VisionSubsystem extends MeasurableSubsystem {
         if (driveSubsystem.canGetVisionUpdates())
           driveSubsystem.updateOdometryWithVision(
               new Pose2d(
-                  new Translation2d(x, y).plus(cameraOffset()),
+                  new Translation2d(x, y).plus(useHigh ? highCameraOffset() : cameraOffset()),
                   new Rotation2d(gyroBuffer.get(gyroBufferId))),
-              (long) timeStamp);
+              (long) (useHigh ? highTimeStamp : timeStamp));
 
         if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.isAutoDriving()) {
           driveSubsystem.resetOdometryNoLog( // FIXME
@@ -271,6 +313,9 @@ public class VisionSubsystem extends MeasurableSubsystem {
             () ->
                 savedOffRobotEstimation == null
                     ? 2767.0
-                    : savedOffRobotEstimation.targetsUsed.size()));
+                    : savedOffRobotEstimation.targetsUsed.size()),
+        new Measure("HighCamera X (NO OFFSET)", () -> highCameraRobotPose.estimatedPose.getX()),
+        new Measure("HighCamera Y (NO OFFSET)", () -> highCameraRobotPose.estimatedPose.getY()),
+        new Measure("HighCamera numTargets", () -> highTargets.size()));
   }
 }

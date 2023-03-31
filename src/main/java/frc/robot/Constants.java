@@ -357,6 +357,8 @@ public class Constants {
 
     public static final double kCameraOffset = .335; // was .273 on driveChasis
     public static final double kCameraAngleOffset = 0; // DEGREES was 24 on driveChasis
+    public static final double kHighCameraAngleOffset = 0.0;
+    public static final double kHighCameraOffset = 0.05;
     public static final double kLastUpdateCloseEnoughThreshold = 2.0; // IN SECONDS
     public static final double kLastUpdateCloseEnoughThresholdYaw = 1.0;
     public static final double kDifferenceCloseEnoughThreshold = .1;

@@ -1,7 +1,9 @@
 package frc.robot;
 
 import ch.qos.logback.classic.util.ContextInitializer;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
@@ -20,10 +22,10 @@ import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.TestBalanceCommand;
+import frc.robot.commands.drive.AutoPickupCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.LockZeroCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
-import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elbow.ElbowHoldPosCommand;
 import frc.robot.commands.elbow.JogElbowCommand;
 import frc.robot.commands.elevator.AdjustElevatorCommand;
@@ -337,8 +339,14 @@ public class RobotContainer {
     // new JoystickButton(driveJoystick, InterlinkButton.X.id)
     //     .onTrue(new ZeroElbowCommand(elbowSubsystem));
 
+    // new JoystickButton(driveJoystick, InterlinkButton.X.id)
+    //     .onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
-        .onTrue(new xLockCommand(driveSubsystem));
+        .onTrue(
+            new AutoPickupCommand(
+                driveSubsystem,
+                robotStateSubsystem,
+                new Pose2d(new Translation2d(7.07, 1.07), new Rotation2d())));
 
     // Hand
     /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
