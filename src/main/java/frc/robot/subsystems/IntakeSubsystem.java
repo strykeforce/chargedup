@@ -115,7 +115,7 @@ public class IntakeSubsystem extends MeasurableSubsystem {
   }
 
   public void retractIntake(boolean rollersOff) {
-    logger.info("Retract Intake to: {}", IntakeConstants.kRetractPosTicks);
+    // logger.info("Retract Intake to: {}", IntakeConstants.kRetractPosTicks);
     currIntakeState = IntakeState.RETRACTED;
     if (rollersOff) intakeOpenLoop(0);
     retractClosedLoop(IntakeConstants.kRetractPosTicks);

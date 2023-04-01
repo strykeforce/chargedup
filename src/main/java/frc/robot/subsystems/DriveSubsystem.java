@@ -144,6 +144,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private double sumRoll = 0;
   private double avgStartingRoll = 0;
   private boolean yawAdjustmentActive = false;
+  private double recoveryStartingPitch;
+  private boolean recoveryStartingPitchSet;
   // private boolean isAutoDriveFinished = false;
 
   public DriveSubsystem(Constants constants) {
@@ -624,14 +626,21 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
           autoBalanceRecoveryTimer.reset();
           autoBalanceRecoveryTimer.start();
+          recoveryStartingPitchSet = false;
         }
         break;
       case AUTO_BALANCE_RECOVERY:
         if (autoBalanceRecoveryTimer.hasElapsed(DriveConstants.kSettleTime)) {
           autoBalanceRecoveryTimer.stop();
-          if (Math.abs(getGyroPitch() - Math.abs(tempRoll))
-              >= DriveConstants.kAutoBalanceStopThresholdDegrees) {
-            move(-DriveConstants.kAutoBalanceSlowDriveVel, 0, 0, false);
+
+          if (!recoveryStartingPitchSet) {
+            recoveryStartingPitch = getGyroPitch();
+            recoveryStartingPitchSet = true;
+          }
+
+          if ((Math.abs(Math.abs(getGyroPitch()) - Math.abs(tempRoll)) > 2)
+              && (Math.abs(recoveryStartingPitch) - Math.abs(getGyroPitch()) < 1.5)) {
+            move(-DriveConstants.kAutoBalanceRecoveryDriveVel, 0, 0, false);
           } else {
             drive(0, 0, 0);
             xLock();
