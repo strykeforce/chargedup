@@ -89,14 +89,14 @@ public class ArmSubsystem extends MeasurableSubsystem {
         currAxis = CurrentAxis.SHOULDER;
         shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
         break;
-      case HIGH_CONE: // fall through
+      case HIGH_CONE: //Fall through
       case HIGH_CUBE:
         logger.info("{} -> HIGH_TO_STOW", currState);
         currState = ArmState.HIGH_TO_STOW;
         currAxis = CurrentAxis.SHOULDER;
         shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
         break;
-      case INTAKE_STAGE: // Fall though
+      case INTAKE_STAGE: // Fall through
       case INTAKE:
         logger.info("{} -> INTAKE_TO_STOW", currState);
         currState = ArmState.INTAKE_TO_STOW;
@@ -104,14 +104,16 @@ public class ArmSubsystem extends MeasurableSubsystem {
         shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
         elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
         break;
+      case SHELF_EXIT://Fall through
       case SHELF:
         logger.info("{} -> SHELF_TO_STOW", currState);
         currState = ArmState.SHELF_TO_STOW;
         currAxis = CurrentAxis.ELBOW; //WAS SHOULDER
         // shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
-        //elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+        elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
         elbowSubsystem.setPos(ArmState.STOW.elbowPos);
         shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
+        break;
       case FLOOR:
         logger.info("{} -> FLOOR_TO_STOW", currState);
         currState = ArmState.FLOOR_TO_STOW;
