@@ -222,7 +222,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     logger.info("{} --> TO_FLOOR_PICKUP", currRobotState);
     if (currRobotState == RobotState.STOW) {
       handSubsystem.open();
-      armSubsystem.toFloorPos(); //FIXME 
+      armSubsystem.toFloorPos(); // FIXME
       currRobotState = RobotState.TO_FLOOR_PICKUP;
       currentAxis = CurrentAxis.HAND;
     } else {
@@ -542,7 +542,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
               if (isAuto && shouldFastStowArm()) {
                 armSubsystem.setArmFastStow(true);
               }
-              handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition); //FIXME 
+              handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition); // FIXME
               armSubsystem.toIntakeStagePos(true);
             }
             if (armSubsystem.getCurrState() == ArmState.INTAKE) {
