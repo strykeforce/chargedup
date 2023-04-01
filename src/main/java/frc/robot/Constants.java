@@ -523,8 +523,8 @@ public class Constants {
     public static final double kStowToIntakeStageParallelAllowed = -10_000;
     public static final double kIntakeStageToIntakeParallelAllowed = kIntakeElbow;
 
-    public static final double kElbowTeleMotionCruiseVelocity = 13_000.0;
-    public static final double kElbowTeleMotionAcceleration = 38_000.0; // 38_000
+    public static final double kElbowTeleMotionCruiseVelocity = 12_000.0; // 13_000
+    public static final double kElbowTeleMotionAcceleration = 35_000.0; // 38_000
     public static final double kElbowAutoMotionCruiseVelocity = 13_000.0;
     public static final double kElbowAutoMotionAcceleration = 50_000.0;
 
@@ -856,8 +856,8 @@ public class Constants {
     public static final double kShoulderFollowerZeroTicks = 2152; // old: 3167
 
     // Intake
-    public static final int kIntakeZeroTicks = 940;
-    public static final double kExtendPosTicks = -1_750;
+    public static final int kIntakeZeroTicks = 1690;
+    public static final double kExtendPosTicks = -1_950;
 
     // Hand
     public static final double kHandZeroTicks = 873; // 879

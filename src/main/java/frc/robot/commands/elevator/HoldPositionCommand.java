@@ -9,14 +9,15 @@ public class HoldPositionCommand extends CommandBase {
   private ElevatorSubsystem elevatorSubsystem;
   private RobotStateSubsystem robotStateSubsystem;
 
-  public HoldPositionCommand(ElevatorSubsystem elevatorSubsystem, RobotStateSubsystem robotStateSubsystem) {
+  public HoldPositionCommand(
+      ElevatorSubsystem elevatorSubsystem, RobotStateSubsystem robotStateSubsystem) {
     this.elevatorSubsystem = elevatorSubsystem;
     addRequirements(elevatorSubsystem);
   }
 
   @Override
   public void initialize() {
-    if (robotStateSubsystem.getRobotState() != RobotState.RELEASE_GAME_PIECE) { 
+    if (robotStateSubsystem.getRobotState() != RobotState.RELEASE_GAME_PIECE) {
       elevatorSubsystem.setPos(elevatorSubsystem.getPos());
     }
   }
