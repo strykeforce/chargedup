@@ -511,11 +511,11 @@ public class RobotContainer {
     // Adjust elevator
     Trigger leftUp =
         new Trigger(() -> xboxController.getLeftY() <= -0.1)
-            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, -1000))
+            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, robotStateSubsystem, -1000))
             .onFalse(new HoldPositionCommand(elevatorSubsystem));
     Trigger leftDown =
         new Trigger(() -> xboxController.getLeftY() >= 0.1)
-            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, 1000))
+            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, robotStateSubsystem, 1000))
             .onFalse(new HoldPositionCommand(elevatorSubsystem));
 
     Trigger rightDown =
