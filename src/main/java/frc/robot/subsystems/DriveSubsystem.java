@@ -135,6 +135,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private double autoBalanceStableCounts = 0;
   private Timer autoBalanceTimer = new Timer();
   private Timer autoBalancePulseTimer = new Timer();
+  private Timer autoBalanceRecoveryTimer = new Timer();
   public boolean autoBalanceReadjust = false;
   public boolean isOnAllianceSide;
   public boolean autoBalanceTempStable = false;
@@ -618,8 +619,25 @@ public class DriveSubsystem extends MeasurableSubsystem {
               "AutoBalance Stop: Gyro Roll: {}, trigger Difference: {}",
               getGyroPitch(),
               Math.abs(avgStartingRoll) - Math.abs(getGyroPitch()));
-          logger.info("{} -> AUTO_BALANCE_FINISHED", currDriveState);
-          currDriveState = DriveStates.AUTO_BALANCE_FINISHED;
+          logger.info("{} -> AUTO_BALANCE_RECOVERY", currDriveState);
+          currDriveState = DriveStates.AUTO_BALANCE_RECOVERY;
+
+          autoBalanceRecoveryTimer.reset();
+          autoBalanceRecoveryTimer.start();
+        }
+        break;
+      case AUTO_BALANCE_RECOVERY:
+        if (autoBalanceRecoveryTimer.hasElapsed(DriveConstants.kSettleTime)) {
+          autoBalanceRecoveryTimer.stop();
+          if (Math.abs(getGyroPitch() - Math.abs(tempRoll))
+              >= DriveConstants.kAutoBalanceStopThresholdDegrees) {
+            move(-DriveConstants.kAutoBalanceSlowDriveVel, 0, 0, false);
+          } else {
+            drive(0, 0, 0);
+            xLock();
+            logger.info("{} -> AUTO_BALANCE_FINISHED", currDriveState);
+            currDriveState = DriveStates.AUTO_BALANCE_FINISHED;
+          }
         }
         break;
       case AUTO_BALANCE_FINISHED:
@@ -957,6 +975,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
     AUTO_BALANCE_DRIVE,
     AUTO_BALANCE_AVERAGE,
     AUTO_BALANCE,
+    AUTO_BALANCE_RECOVERY,
     AUTO_BALANCE_FINISHED,
     AUTO_BALANCE_PULSE,
     AUTO_BALANCE_CHECK,
