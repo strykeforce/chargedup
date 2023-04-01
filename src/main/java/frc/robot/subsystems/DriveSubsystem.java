@@ -146,6 +146,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private boolean yawAdjustmentActive = false;
   private double recoveryStartingPitch;
   private boolean recoveryStartingPitchSet;
+  private double autoBalanceGyroDirection = 0;
   // private boolean isAutoDriveFinished = false;
 
   public DriveSubsystem(Constants constants) {
@@ -454,7 +455,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
     sumRoll = 0;
     avgStartingRoll = 0;
     this.isOnAllianceSide = isOnAllianceSide;
-    tempRoll = Math.abs(getGyroPitch());
+    tempRoll = getGyroPitch();
     logger.info(
         "Starting AutoBalance: tempRoll: {}, Alliance: {}, isOnAllianceSide: {}",
         tempRoll,
@@ -597,6 +598,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
           logger.info("{} -> AUTO_BALANCE_AVERAGE", currDriveState);
           currDriveState = DriveStates.AUTO_BALANCE_AVERAGE;
           autoBalanceTimer.restart();
+          autoBalanceGyroDirection = getGyroPitch() - tempRoll;
         }
         break;
       case AUTO_BALANCE_AVERAGE:
@@ -630,17 +632,37 @@ public class DriveSubsystem extends MeasurableSubsystem {
         }
         break;
       case AUTO_BALANCE_RECOVERY:
-        if (autoBalanceRecoveryTimer.hasElapsed(DriveConstants.kSettleTime)) {
+      if (autoBalanceRecoveryTimer.hasElapsed(DriveConstants.kSettleTime)) {
           autoBalanceRecoveryTimer.stop();
-
+          //isOnAllianceSide is true move positive 
           if (!recoveryStartingPitchSet) {
             recoveryStartingPitch = getGyroPitch();
             recoveryStartingPitchSet = true;
           }
-
+          
           if ((Math.abs(Math.abs(getGyroPitch()) - Math.abs(tempRoll)) > 2)
-              && (Math.abs(recoveryStartingPitch) - Math.abs(getGyroPitch()) < 1.5)) {
-            move(-DriveConstants.kAutoBalanceRecoveryDriveVel, 0, 0, false);
+          && (Math.abs(recoveryStartingPitch) - Math.abs(getGyroPitch()) < 1.5)) {
+            //move(-DriveConstants.kAutoBalanceRecoveryDriveVel, 0, 0, false);
+            //if (((autoBalanceGyroDirection > 0) && (((getGyroPitch() - tempRoll) > 0) && isOnAllianceSide)) || ((autoBalanceGyroDirection < 0) && (((getGyroPitch() - tempRoll) < 0) && isOnAllianceSide))) {}
+            if ((autoBalanceGyroDirection > 0)) {
+              //Positive Gyro Direction
+              if ((getGyroPitch() - tempRoll) > 0) {
+                if (isOnAllianceSide) move(-DriveConstants.kAutoBalanceRecoveryDriveVel, 0, 0, false);
+                else move(DriveConstants.kAutoBalanceRecoveryDriveVel, 0, 0, false);
+              } else if ((getGyroPitch() - tempRoll) < 0) {
+                if (isOnAllianceSide) move(DriveConstants.kAutoBalanceRecoveryDriveVel, 0, 0, false);
+                else move(-DriveConstants.kAutoBalanceRecoveryDriveVel, 0, 0, false);
+              }
+            } else if((autoBalanceGyroDirection < 0)) {
+              // negative gyro direction
+              if ((getGyroPitch() - tempRoll) > 0) {
+                if (isOnAllianceSide) move(DriveConstants.kAutoBalanceRecoveryDriveVel, 0, 0, false);
+                else move(-DriveConstants.kAutoBalanceRecoveryDriveVel, 0, 0, false);
+              } else if ((getGyroPitch() - tempRoll) < 0) {
+                if (isOnAllianceSide) move(-DriveConstants.kAutoBalanceRecoveryDriveVel, 0, 0, false);
+                else move(DriveConstants.kAutoBalanceRecoveryDriveVel, 0, 0, false);
+              }
+            }//9 if pos or like -8 if neg
           } else {
             drive(0, 0, 0);
             xLock();
