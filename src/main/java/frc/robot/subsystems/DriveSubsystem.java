@@ -610,7 +610,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
           logger.info("Average Starting Roll: {}", avgStartingRoll);
           logger.info("{} -> AUTO_BALANCE", currDriveState);
           currDriveState = DriveStates.AUTO_BALANCE;
-          move(DriveConstants.kAutoBalanceSlowDriveVel, 0, 0, false);
+          if (isOnAllianceSide) move(DriveConstants.kAutoBalanceSlowDriveVel, 0, 0, false);
+          else move(-DriveConstants.kAutoBalanceSlowDriveVel, 0, 0, false);
           autoBalanceTimer.reset();
         }
         break;
@@ -639,8 +640,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
             recoveryStartingPitch = getGyroPitch();
             recoveryStartingPitchSet = true;
           }
-
-          if ((Math.abs(Math.abs(getGyroPitch()) - Math.abs(tempRoll)) > 2)
+          // if (isOnAllianceSide)
+          if ((Math.abs(tempRoll - getGyroPitch()) > 2)
               && (Math.abs(recoveryStartingPitch) - Math.abs(getGyroPitch()) < 1.5)) {
             // move(-DriveConstants.kAutoBalanceRecoveryDriveVel, 0, 0, false);
             // if (((autoBalanceGyroDirection > 0) && (((getGyroPitch() - tempRoll) > 0) &&

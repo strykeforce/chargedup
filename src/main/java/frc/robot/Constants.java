@@ -223,7 +223,7 @@ public class Constants {
     public static final double kAutoBalanceRecoveryDriveVel = 0.25;
     public static final double kAutoBalanceFinalDriveVel = 1.0; // 0.5 0.75
     public static final double kAutoBalanceSlowdownTimeSec = 1.0; // 1.3-> 1.15
-    public static final double kAutoBalanceStopThresholdDegrees = .5; // 1 0.6 1.5
+    public static final double kAutoBalanceStopThresholdDegrees = 1.5; // 1 0.6 1.5
     public static final double kAutoBalanceEdgeTriggerThreshold = 3; // 5
     public static final double kAutoBalanceAvgRollCount = 7; // 5 10 7
     public static final double kAutoBalanceLoopFixTimer = 0.140;
@@ -858,7 +858,7 @@ public class Constants {
     public static final double kShoulderFollowerZeroTicks = 2152; // old: 3167
 
     // Intake
-    public static final int kIntakeZeroTicks = 940;
+    public static final int kIntakeZeroTicks = 1690;
     public static final double kExtendPosTicks = -1_950;
 
     // Hand
