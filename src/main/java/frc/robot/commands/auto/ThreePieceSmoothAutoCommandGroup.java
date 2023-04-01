@@ -67,37 +67,38 @@ public class ThreePieceSmoothAutoCommandGroup extends SequentialCommandGroup
             firstPath,
             new AutoFloorIntakeCommand(
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
-            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH))/* 
-        new ParallelDeadlineGroup( 
+            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH)),
+        new ParallelDeadlineGroup(
             secondPath,
             new SequentialCommandGroup(
                 new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
         new ParallelCommandGroup(
             new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
-            new ClearGamePieceCommand(robotStateSubsystem)), //Q do we need clear gamepiece command?
-        // Cube 2
-        new ParallelDeadlineGroup(
-            thirdPath,
-            new AutoFloorIntakeCommand(
-                robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
-            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID)),
-        new ParallelDeadlineGroup(
-            fourthPath,
-            new SequentialCommandGroup(
-                new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
-                new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
-        new ParallelCommandGroup(
-            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem), //Q can shoot and clear gamepiece be parallel
-            new ClearGamePieceCommand(robotStateSubsystem),
-            new SetVisionUpdateCommand(driveSubsystem, true))*/);
-        
-        /*,new ParallelCommandGroup(
-            fourthPath,
-            new PastXPositionCommand(
-                robotStateSubsystem, driveSubsystem, Constants.AutonConstants.kPastXPosition)),
-        new AutoPlaceCommandGroup(driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem),
-        new ClearGamePieceCommand(robotStateSubsystem)*/
+            new ClearGamePieceCommand(
+                robotStateSubsystem)) /*, //Q do we need clear gamepiece command?
+                                      // Cube 2
+                                      new ParallelDeadlineGroup(
+                                          thirdPath,
+                                          new AutoFloorIntakeCommand(
+                                              robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
+                                          new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID)),
+                                      new ParallelDeadlineGroup(
+                                          fourthPath,
+                                          new SequentialCommandGroup(
+                                              new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
+                                              new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
+                                      new ParallelCommandGroup(
+                                          new ShootGamepieceCommand(handSubsystem, robotStateSubsystem), //Q can shoot and clear gamepiece be parallel
+                                          new ClearGamePieceCommand(robotStateSubsystem),
+                                          new SetVisionUpdateCommand(driveSubsystem, true))*/);
+
+    /*,new ParallelCommandGroup(
+        fourthPath,
+        new PastXPositionCommand(
+            robotStateSubsystem, driveSubsystem, Constants.AutonConstants.kPastXPosition)),
+    new AutoPlaceCommandGroup(driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem),
+    new ClearGamePieceCommand(robotStateSubsystem)*/
   }
 
   public void generateTrajectory() {
