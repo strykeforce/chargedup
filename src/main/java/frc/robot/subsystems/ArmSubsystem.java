@@ -107,9 +107,11 @@ public class ArmSubsystem extends MeasurableSubsystem {
       case SHELF:
         logger.info("{} -> SHELF_TO_STOW", currState);
         currState = ArmState.SHELF_TO_STOW;
-        currAxis = CurrentAxis.SHOULDER;
+        currAxis = CurrentAxis.ELBOW; //WAS SHOULDER
         // shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
-        elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+        //elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
+        elbowSubsystem.setPos(ArmState.STOW.elbowPos);
+        shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
       case FLOOR:
         logger.info("{} -> FLOOR_TO_STOW", currState);
         currState = ArmState.FLOOR_TO_STOW;
@@ -1026,6 +1028,14 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
       case SHELF_TO_STOW:
         switch (currAxis) {
+          case ELBOW:
+            if (elbowSubsystem.isFinished()) {
+              // logger.info("{} -> STOW", currState);
+              // currState = ArmState.STOW; //WAS STOW
+              currAxis = CurrentAxis.SHOULDER; //WAS NONE
+              //shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
+            }
+            break;
           case SHOULDER:
             if (shoulderSubsystem.canStartNextAxis(ShoulderConstants.kShelfToStowParallelAllowed)) {
               currAxis = CurrentAxis.ELEVATOR;
@@ -1034,16 +1044,10 @@ public class ArmSubsystem extends MeasurableSubsystem {
             break;
           case ELEVATOR:
             if (elevatorSubsystem.canStartNextAxis(ElevatorConstants.kShelfToStowParallelAllowed)) {
-              currAxis = CurrentAxis.ELBOW;
-              elbowSubsystem.setPos(ArmState.STOW.elbowPos);
-            }
-            break;
-          case ELBOW:
-            if (elbowSubsystem.isFinished()) {
-
               logger.info("{} -> STOW", currState);
               currState = ArmState.STOW;
               currAxis = CurrentAxis.NONE;
+              // elbowSubsystem.setPos(ArmState.STOW.elbowPos);
             }
             break;
 
