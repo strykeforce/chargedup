@@ -12,7 +12,6 @@ import frc.robot.subsystems.HandSubsystem;
 import frc.robot.subsystems.HandSubsystem.HandStates;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.RobotState;
-import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 import org.strykeforce.thirdcoast.util.ExpoScale;
 
 public class DriveTeleopCommand extends CommandBase {
