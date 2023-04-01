@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.HandSubsystem;
+import frc.robot.subsystems.HandSubsystem.HandStates;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.RobotState;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
@@ -17,6 +19,7 @@ public class DriveTeleopCommand extends CommandBase {
   private final Joystick joystick;
   private final DriveSubsystem driveSubsystem;
   private final RobotStateSubsystem robotStateSubsystem;
+  private final HandSubsystem handSubsystem;
   private double[] rawValues = new double[3];
   private final ExpoScale expoScaleYaw =
       new ExpoScale(DriveConstants.kDeadbandAllStick, DriveConstants.kExpoScaleYawFactor);
@@ -33,11 +36,15 @@ public class DriveTeleopCommand extends CommandBase {
   private final SlewRateLimiter yawLimiter = new SlewRateLimiter(DriveConstants.kRateLimitYaw);
 
   public DriveTeleopCommand(
-      Joystick driver, DriveSubsystem driveSubsystem, RobotStateSubsystem robotStateSubsystem) {
+      Joystick driver,
+      DriveSubsystem driveSubsystem,
+      RobotStateSubsystem robotStateSubsystem,
+      HandSubsystem handSubsystem) {
     addRequirements(driveSubsystem);
     joystick = driver;
     this.driveSubsystem = driveSubsystem;
     this.robotStateSubsystem = robotStateSubsystem;
+    this.handSubsystem = handSubsystem;
   }
 
   @Override
@@ -55,13 +62,13 @@ public class DriveTeleopCommand extends CommandBase {
       movePercent = DriveConstants.kShelfMovePercent;
     }
 
-    if ((robotStateSubsystem.getRobotState() == RobotState.AUTO_SCORE
-            || robotStateSubsystem.getRobotState() == RobotState.MANUAL_SCORE
-            || robotStateSubsystem.getRobotState() == RobotState.TO_MANUAL_SCORE
-            || robotStateSubsystem.getRobotState() == RobotState.AUTO_DRIVE
-            || robotStateSubsystem.getRobotState() == RobotState.RELEASE_GAME_PIECE
-            || robotStateSubsystem.getRobotState() == RobotState.CHECK_AMBIGUITY)
-        && robotStateSubsystem.getTargetLevel() != TargetLevel.LOW) {
+    if (robotStateSubsystem.getRobotState() == RobotState.AUTO_SCORE
+        || robotStateSubsystem.getRobotState() == RobotState.MANUAL_SCORE
+        || robotStateSubsystem.getRobotState() == RobotState.TO_MANUAL_SCORE
+        || robotStateSubsystem.getRobotState() == RobotState.AUTO_DRIVE
+        || robotStateSubsystem.getRobotState() == RobotState.RELEASE_GAME_PIECE
+            && handSubsystem.getHandState() != HandStates.OPEN
+        || robotStateSubsystem.getRobotState() == RobotState.CHECK_AMBIGUITY) {
       yawPercent = DriveConstants.kPlaceYawPercent;
       movePercent = DriveConstants.kPlaceMovePercent;
     }
