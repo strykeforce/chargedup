@@ -16,8 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AutoPickupCommand extends CommandBase {
-  private DriveSubsystem driveSubsystem;
-  private RobotStateSubsystem robotStateSubsystem;
+  private final DriveSubsystem driveSubsystem;
+  private final RobotStateSubsystem robotStateSubsystem;
+  Pose2d desiredPose;
   Pose2d endPose;
   private ProfiledPIDController omegaAutoDriveController;
   private ProfiledPIDController xAutoDriveController;
@@ -29,7 +30,7 @@ public class AutoPickupCommand extends CommandBase {
     addRequirements(driveSubsystem);
     this.driveSubsystem = driveSubsystem;
     this.robotStateSubsystem = robotStateSubsystem;
-    this.endPose = endPose;
+    desiredPose = endPose;
     omegaAutoDriveController =
         new ProfiledPIDController(
             DriveConstants.kPOmega,
@@ -58,13 +59,14 @@ public class AutoPickupCommand extends CommandBase {
 
   @Override
   public void initialize() {
+
     endPose =
         new Pose2d(
             new Translation2d(
                 (robotStateSubsystem.isBlueAlliance()
-                    ? endPose.getX()
-                    : RobotStateConstants.kFieldMaxX - endPose.getX()),
-                endPose.getY()),
+                    ? desiredPose.getX()
+                    : RobotStateConstants.kFieldMaxX - desiredPose.getX()),
+                desiredPose.getY()),
             new Rotation2d());
     logger.info("Starting auto pickup going to {}", endPose);
     omegaAutoDriveController.reset(driveSubsystem.getPoseMeters().getRotation().getRadians());
