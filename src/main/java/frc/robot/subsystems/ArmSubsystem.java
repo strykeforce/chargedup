@@ -201,7 +201,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
           elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
         }
         if (!isElbowReinforced
-            && elevatorSubsystem.canStartNextAxis(ElevatorConstants.kStartNextAxisReinforce)) {
+            && (elevatorSubsystem.canStartNextAxis(ElevatorConstants.kStartNextAxisReinforce)
+                || elevatorSubsystem.isFinished())) {
           logger.info("{} -> STOW_TO_LOW", currState);
           currState = ArmState.STOW_TO_LOW;
           currAxis = CurrentAxis.ELBOW;
@@ -242,7 +243,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
           elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
         }
         if (!isElbowReinforced
-            && elevatorSubsystem.canStartNextAxis(ElevatorConstants.kStartNextAxisReinforce)) {
+            && (elevatorSubsystem.canStartNextAxis(ElevatorConstants.kStartNextAxisReinforce)
+                || elevatorSubsystem.isFinished())) {
           logger.info("{} -> STOW_TO_MID", currState);
           currState = ArmState.STOW_TO_MID;
           currAxis = CurrentAxis.ELBOW;
@@ -284,7 +286,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
           elevatorSubsystem.setPos(ArmState.STOW.elevatorPos);
         }
         if (!isElbowReinforced
-            && elevatorSubsystem.canStartNextAxis(ElevatorConstants.kStartNextAxisReinforce)) {
+            && (elevatorSubsystem.canStartNextAxis(ElevatorConstants.kStartNextAxisReinforce)
+                || elevatorSubsystem.isFinished())) {
           logger.info("{} -> STOW_TO_HIGH", currState);
           currState = ArmState.STOW_TO_HIGH;
           currAxis = CurrentAxis.ELBOW;
@@ -301,7 +304,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
     hasElbowZeroed = false;
     switch (currState) {
       case STOW:
-        logger.info("toShelfPos()");
+        // logger.info("toShelfPos()");
         if (isElbowReinforced) {
           hasElbowZeroed = false;
           isElbowReinforced = false;
@@ -310,7 +313,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
           shoulderSubsystem.setPos(ArmState.SHELF.shoulderPos);
         }
         if (!isElbowReinforced
-            && elevatorSubsystem.canStartNextAxis(ElevatorConstants.kStartNextAxisReinforce)) {
+            && (elevatorSubsystem.canStartNextAxis(ElevatorConstants.kStartNextAxisReinforce)
+                || elevatorSubsystem.isFinished())) {
           logger.info("{} -> STOW_TO_SHELF", currState);
           currState = ArmState.STOW_TO_SHELF;
           currAxis = CurrentAxis.ELBOW;

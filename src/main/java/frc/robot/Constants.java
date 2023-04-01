@@ -140,7 +140,7 @@ public class Constants {
 
     public static final double kShelfMove = 0.5; // FIXME put in real number
     public static final double kShelfTransitionMove = 0.06; // 0.2
-    public static final double kSweepTimerElapseSeconds = 0.5;
+    public static final double kSweepTimerElapseSeconds = 0.1;
   }
 
   public static final class AutonConstants {
