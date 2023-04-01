@@ -387,7 +387,7 @@ public class Constants {
     // form [x, y, theta]ᵀ, with units in meters and radians.
     // Vision Odometry Standard devs
     public static Matrix<N3, N1> kVisionMeasurementStdDevs =
-        VecBuilder.fill(.10, .10, Units.degreesToRadians(5));
+        VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5));
   }
 
   public static final class FieldConstants {
@@ -509,7 +509,7 @@ public class Constants {
     // Elbow Positions
     public static final double kJogElbowTicks = 500.0;
     public static final double kIntakeStageElbow = -14_465;
-    public static final double kIntakeElbow = -21_087; // -43_200
+    public static final double kIntakeElbow = -21_767; // -21_087
     public static final double kStowElbow = 0;
     public static final double kFloorElbow = 21_289; // 43_214
     public static final double kLevelOneElbow = 21_548;
@@ -840,7 +840,7 @@ public class Constants {
 
   public static class CompConstants {
     // Drive
-    public static final double kWheelDiameterInches = 3.0 * (490 / 500.0);
+    public static final double kWheelDiameterInches = 3.0 * (496 / 500.0);
 
     // Elbow
     public static final int kElbowZeroTicks = 1150; // 730

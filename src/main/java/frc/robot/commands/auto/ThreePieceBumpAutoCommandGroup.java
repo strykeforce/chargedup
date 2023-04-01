@@ -1,10 +1,14 @@
 package frc.robot.commands.auto;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.drive.AutoPickupCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
@@ -51,7 +55,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
       String pathThree,
       String pathFour,
       String pathFallback) {
-    firstPath = new DriveAutonCommand(driveSubsystem, pathOne, true, true);
+    firstPath = new DriveAutonCommand(driveSubsystem, pathOne, false, true);
     secondPath = new DriveAutonCommand(driveSubsystem, pathTwo, false, false);
     thirdPath = new DriveAutonCommand(driveSubsystem, pathThree, true, false);
     fourthPath = new DriveAutonCommand(driveSubsystem, pathFour, false, false);
@@ -74,6 +78,12 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new AutoFloorIntakeCommand(
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH)),
+        new SetVisionUpdateCommand(driveSubsystem, true),
+        new AutoPickupCommand(
+            driveSubsystem,
+            robotStateSubsystem,
+            new Pose2d(new Translation2d(7.2, .92), new Rotation2d())),
+        new SetVisionUpdateCommand(driveSubsystem, false),
         new ParallelDeadlineGroup(
             secondPath,
             new SequentialCommandGroup(

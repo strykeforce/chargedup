@@ -12,6 +12,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.RobotStateConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
+import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,9 +93,10 @@ public class AutoPickupCommand extends CommandBase {
   @Override
   public boolean isFinished() {
     return Math.abs(driveSubsystem.getPoseMeters().getX() - endPose.getX())
-            <= DriveConstants.kAutoPickupCloseEnough
-        && Math.abs(driveSubsystem.getPoseMeters().getY() - endPose.getY())
-            <= DriveConstants.kAutoPickupCloseEnough;
+                <= DriveConstants.kAutoPickupCloseEnough
+            && Math.abs(driveSubsystem.getPoseMeters().getY() - endPose.getY())
+                <= DriveConstants.kAutoPickupCloseEnough
+        || robotStateSubsystem.getGamePiece() == GamePiece.CUBE;
   }
 
   @Override

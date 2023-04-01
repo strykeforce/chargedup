@@ -232,7 +232,6 @@ public class VisionSubsystem extends MeasurableSubsystem {
         try {
           savedOffRobotEstimation = photonPoseEstimator.update().get();
           cameraPose = savedOffRobotEstimation.estimatedPose;
-          timeStamp = savedOffRobotEstimation.timestampSeconds;
           useHigh = false;
           willUpdate = true;
         } catch (Exception e) {
@@ -247,23 +246,24 @@ public class VisionSubsystem extends MeasurableSubsystem {
             savedOffRobotEstimation = highCameraEstimator.update().get();
             useHigh = true;
             cameraPose = savedOffRobotEstimation.estimatedPose;
-            timeStamp = savedOffRobotEstimation.timestampSeconds;
-            willUpdate = true;
+            // willUpdate = true;
 
-            // if (Math.abs(cameraPose.getX() - driveSubsystem.getPoseMeters().getX()) <= 0.75
-            //     && Math.abs(cameraPose.getY() - driveSubsystem.getPoseMeters().getY()) <= 0.75) {
-            //   visionOff = 0;
-            //   willUpdate = true;
-            // } else {
-            //   lastPose = cameraPose;
-            //   visionOff++;
-            // }
-            // if (visionOff > 1
-            //     && Math.abs(lastPose.getX() - cameraPose.getX()) < 0.3
-            //     && Math.abs(lastPose.getY() - cameraPose.getY()) < 0.3) {
-            //   willUpdate = true;
-            //   visionOff = 0;
-            // }
+            if (Math.abs(cameraPose.getX() - driveSubsystem.getPoseMeters().getX()) <= 0.5
+                && Math.abs(cameraPose.getY() - driveSubsystem.getPoseMeters().getY()) <= 0.5) {
+              visionOff = 0;
+              willUpdate = true;
+            } else {
+              logger.info("Bad Reading");
+              lastPose = cameraPose;
+              visionOff++;
+            }
+            if (visionOff > 1
+                && Math.abs(lastPose.getX() - cameraPose.getX()) < 0.3
+                && Math.abs(lastPose.getY() - cameraPose.getY()) < 0.3) {
+              logger.info("Actually good reading");
+              willUpdate = true;
+              visionOff = 0;
+            }
           } catch (Exception e) {
           }
         }
@@ -278,7 +278,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
               new Pose2d(
                   new Translation2d(x, y).plus(useHigh ? highCameraOffset() : cameraOffset()),
                   new Rotation2d(gyroBuffer.get(gyroBufferId))),
-              (long) (timeStamp));
+              (long) (useHigh ? highTimeStamp : timeStamp));
 
         if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.isAutoDriving()) {
           driveSubsystem.resetOdometryNoLog( // FIXME
