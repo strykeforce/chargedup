@@ -53,6 +53,8 @@ public class VisionSubsystem extends MeasurableSubsystem {
   private EstimatedRobotPose savedOffRobotEstimation;
   Translation2d robotPose = new Translation2d(2767, 2767);
   private int gyroBufferId = 0;
+  private int visionOff = 0;
+  private Pose3d lastPose;
 
   public VisionSubsystem(DriveSubsystem driveSubsystem) {
     this.driveSubsystem = driveSubsystem;
@@ -74,7 +76,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
     photonPoseEstimator =
         new PhotonPoseEstimator(
             aprilTagFieldLayout,
-            PoseStrategy.MULTI_TAG_PNP,
+            PoseStrategy.LOWEST_AMBIGUITY,
             cam1,
             // -.25, .11,0 // 0,10, 187
             new Transform3d(
@@ -220,48 +222,74 @@ public class VisionSubsystem extends MeasurableSubsystem {
     }
     double x = robotPose.getX(), y = robotPose.getY();
 
-    boolean willUpdate = false;
-    Pose3d cameraPose = new Pose3d();
-    if (result.targets.size() > resultHighCamera.targets.size()) {
-      if (result.getBestTarget().getPoseAmbiguity() <= 0.15 || result.targets.size() > 1)
-      try {
-        savedOffRobotEstimation = photonPoseEstimator.update().get(); 
-        willUpdate = true;
-        cameraPose = savedOffRobotEstimation.estimatedPose; 
-        timeStamp = savedOffRobotEstimation.timestampSeconds;
-      } catch (Exception e) {}
-    } else {
-      if (resultHighCamera.getBestTarget().getPoseAmbiguity() <= 0.15 || resultHighCamera.targets.size() > 1)
-      try {
-        savedOffRobotEstimation = highCameraEstimator.update().get(); 
-        willUpdate = true;
-        useHigh = true;
-        cameraPose = savedOffRobotEstimation.estimatedPose; 
-        timeStamp = savedOffRobotEstimation.timestampSeconds;
-      } catch (Exception e) {}
-    }
+    if (driveSubsystem.canGetVisionUpdates()) {
+      boolean willUpdate = false;
+      Pose3d cameraPose = new Pose3d();
+      if (result.hasTargets()
+          && (result.getBestTarget().getPoseAmbiguity() <= 0.15 || result.targets.size() > 1)
+          && !(resultHighCamera.hasTargets()
+              && resultHighCamera.getTargets().size() < result.getTargets().size()))
+        try {
+          savedOffRobotEstimation = photonPoseEstimator.update().get();
+          cameraPose = savedOffRobotEstimation.estimatedPose;
+          timeStamp = savedOffRobotEstimation.timestampSeconds;
+          useHigh = false;
+          willUpdate = true;
+          }
+        } catch (Exception e) {
+        }
+      else {
+        if (resultHighCamera.hasTargets()
+            && (resultHighCamera.getBestTarget().getPoseAmbiguity() <= 0.15
+                || resultHighCamera.targets.size() > 1)
+            && (driveSubsystem.getPoseMeters().getX() >= 3
+                && driveSubsystem.getPoseMeters().getX() <= 13))
+          try {
+            savedOffRobotEstimation = highCameraEstimator.update().get();
+            useHigh = true;
+            cameraPose = savedOffRobotEstimation.estimatedPose;
+            timeStamp = savedOffRobotEstimation.timestampSeconds;
+            
+            if (visionOff > 1 && Math.abs(lastPose.getX() - cameraPose.getX()) < 0.2 && Math.abs(lastPose.getY() - cameraPose.getY()) < 0.2) {
+              willUpdate = true;
+              visionOff = 0;
+            }
 
-    if (willUpdate) {
-      y = cameraPose.getY();
-      x = cameraPose.getX();
-      // y = photonPoseEstimator.update().get().estimatedPose.getY();
-      // x = photonPoseEstimator.update().get().estimatedPose.getX();
-      if (driveSubsystem.canGetVisionUpdates())
-        driveSubsystem.updateOdometryWithVision(
-            new Pose2d(
-                new Translation2d(x, y).plus(useHigh ? highCameraOffset() : cameraOffset()),
-                new Rotation2d(gyroBuffer.get(gyroBufferId))),
-            (long) (timeStamp));
-
-      if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.isAutoDriving()) {
-        driveSubsystem.resetOdometryNoLog( // FIXME
-            new Pose2d(
-                new Translation2d(x, y).plus(useHigh ? highCameraOffset() : cameraOffset()),
-                new Rotation2d(gyroBuffer.get(gyroBufferId))));
-        setOdomAutoBool(true);
-        // result.setTimestampSeconds(timeStamp);
+            if (Math.abs(cameraPose.getX() - driveSubsystem.getPoseMeters().getX()) <= 0.75
+                    && Math.abs(cameraPose.getY() - driveSubsystem.getPoseMeters().getY())
+                        <= 0.75) {
+              visionOff = 0;
+              willUpdate = true;
+            } else {
+              lastPose = cameraPose;
+              visionOff++;
+            }
+          } catch (Exception e) {
+          }
       }
-      robotPose = new Translation2d(x, y);
+
+      if (willUpdate) {
+        y = cameraPose.getY();
+        x = cameraPose.getX();
+        // y = photonPoseEstimator.update().get().estimatedPose.getY();
+        // x = photonPoseEstimator.update().get().estimatedPose.getX();
+        if (driveSubsystem.canGetVisionUpdates())
+          driveSubsystem.updateOdometryWithVision(
+              new Pose2d(
+                  new Translation2d(x, y).plus(useHigh ? highCameraOffset() : cameraOffset()),
+                  new Rotation2d(gyroBuffer.get(gyroBufferId))),
+              (long) (timeStamp));
+
+        if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.isAutoDriving()) {
+          driveSubsystem.resetOdometryNoLog( // FIXME
+              new Pose2d(
+                  new Translation2d(x, y).plus(useHigh ? highCameraOffset() : cameraOffset()),
+                  new Rotation2d(gyroBuffer.get(gyroBufferId))));
+          setOdomAutoBool(true);
+          // result.setTimestampSeconds(timeStamp);
+        }
+        robotPose = new Translation2d(x, y);
+      }
     }
   }
 
@@ -310,12 +338,12 @@ public class VisionSubsystem extends MeasurableSubsystem {
         new Measure("Camera Offset X", () -> cameraOffset().getX()),
         new Measure("Camera Offset Y", () -> cameraOffset().getY()),
         new Measure("Camera Latency", () -> result.getLatencyMillis()),
-        new Measure("Camera Odometry X (NO OFFSET)", () -> getOdometry().getX()),
+        new Measure("Camera Odometry X NO", () -> getOdometry().getX()),
         new Measure("hasResetOdomAuto", () -> (getOdomAutoBool() ? 1 : 0)),
         new Measure("gyro bufferId", () -> gyroBufferId),
         new Measure("Gyro Buffer", () -> new Rotation2d(gyroBuffer.get(gyroBufferId)).getDegrees()),
         new Measure("canFillBuffers", () -> canFillBuffers ? 1 : 0),
-        new Measure("Camera Odometry Y (NO OFFSET)", () -> getOdometry().getY()),
+        new Measure("Camera Odometry Y NO", () -> getOdometry().getY()),
         new Measure(
             "Num targets",
             () ->
