@@ -66,11 +66,11 @@ public class MiddleToDockWithMobility extends SequentialCommandGroup
         new WaitCommand(1.0),
         firstPath,
         new WaitCommand(0.25),
-    new ParallelRaceGroup(
-        new AutoWaitForMatchTimeCommand(0.1),
-        new SequentialCommandGroup(
-          secondPath,new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem))),
-    new xLockCommand(driveSubsystem));
+        new ParallelRaceGroup(
+            new AutoWaitForMatchTimeCommand(0.1),
+            new SequentialCommandGroup(
+                secondPath, new AutoBalanceCommand(false, driveSubsystem, robotStateSubsystem))),
+        new xLockCommand(driveSubsystem));
     new ParallelCommandGroup(
         new ClearGamePieceCommand(robotStateSubsystem),
         new SetVisionUpdateCommand(driveSubsystem, true));

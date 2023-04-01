@@ -77,6 +77,8 @@ public class Constants {
         new Pose2d(new Translation2d(15.33, 6.749796), new Rotation2d());
     public static final Pose2d kShelfRed =
         new Pose2d(new Translation2d(1.14, 6.749796), new Rotation2d());
+    public static final Pose2d kCubeTwoAutoPickup =
+        new Pose2d(new Translation2d(7.07, 2.25), new Rotation2d());
 
     public static final double kPolePlaceOffset = 0.56;
     public static final double kShelfOffset = 0.75;
@@ -305,14 +307,14 @@ public class Constants {
     public static final double kAutoDriveMaxAccel = 2;
 
     // Auto PickUp Constants
-    public static final double kPAutoPickup = 1.5;
+    public static final double kPAutoPickup = 2.5;
     public static final double kIAutoPickup = 0.0;
     public static final double kDAutoPickup = 0.0;
 
     public static final double kAutoPickupDriveMaxVel = 1.5;
     public static final double kAutoPickupDriveMaxAccel = 2;
 
-    public static final double kAutoPickupCloseEnough = 0.05;
+    public static final double kAutoPickupCloseEnough = 0.07;
 
     // Default safety path constants
     public static final Pose2d startPose2d = new Pose2d(0, 0, Rotation2d.fromDegrees(0));

@@ -239,7 +239,7 @@ public class AutoSwitch {
             intakeSubsystem,
             elevatorSubsystem,
             visionSubsystem,
-            "pieceTwoFetchPathBumpSwitch",
+            "pieceOneFetchBumpCubeTwo",
             "pieceTwoDeliverBumpPath",
             "pieceOneFetchPathBumpSwitch",
             "pieceOneDeliverBumpPath",

@@ -87,6 +87,7 @@ public class AutoPickupCommand extends CommandBase {
         omegaAutoDriveController.calculate(
             MathUtil.angleModulus(driveSubsystem.getGyroRotation2d().getRadians()),
             robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
+    logger.info("Moving X : {} | Moving Y : {}", xCalc, yCalc);
     driveSubsystem.move(xCalc, yCalc, omegaCalc, true);
   }
 
