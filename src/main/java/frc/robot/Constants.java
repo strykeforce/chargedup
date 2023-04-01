@@ -386,6 +386,7 @@ public class Constants {
     public static final int kRightFollowId = 32;
 
     public static final double kAllowedError = 1500;
+    public static final double kStartNextAxisReinforce = -13_000;
 
     public static final double kElevatorZeroSpeed = 0.30;
     public static final double kElevatorReinforceSpeed = -0.20;
@@ -421,7 +422,7 @@ public class Constants {
     public static final double kFloorToStowParallelAllowed = kStowElevator;
     public static final double kScoreToStowParallelAllowed = kStowElevator;
     public static final double kHighToStowParallelAllowed = kStowElevator;
-    public static final double kIntakeStageToIntakeParallelAllowed = -10_000;
+    public static final double kIntakeStageToIntakeParallelAllowed = -3_000; // -10_000
     public static final double kIntakeToStowParallelAllowed = kStowElevator;
     public static final double kShelfToStowParallelAllowed = kStowElevator;
     public static final double kStowToShelfParallelAllowed = kStowElevator;
@@ -660,6 +661,8 @@ public class Constants {
     public static final int kIntakeFalconID = 20;
     public static final int kExtendTalonID = 21;
 
+    public static final double kStartNextAxisIntakeStage = 500;
+    public static final double kAllowedError = 150; // FIXME
     public static final int kCloseEnoughTicks = 150;
     public static final int kExtendPosTicks = -2_000; // -2_000
     public static final int kRetractPosTicks = 0;
@@ -669,7 +672,7 @@ public class Constants {
     public static final double kIntakeSpeed = 0.45; // -0.35
     public static final double kIntakeEjectSpeed = -0.3;
     public static final double kEjectTimerDelaySec = 3;
-    public static final double kIntakePickupDelaySec = 0.5;
+    public static final double kIntakePickupDelaySec = 0.1;
     public static final int kBeamBreakStableCounts = 2;
 
     public static TalonSRXConfiguration getExtendTalonConfig() {

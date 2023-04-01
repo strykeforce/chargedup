@@ -528,7 +528,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       case TO_INTAKE_STAGE:
         switch (currentAxis) {
           case INTAKE:
-            if (intakeSubsystem.isFinished()) {
+            if (intakeSubsystem.canStartNextAxis(IntakeConstants.kStartNextAxisIntakeStage)) {
               intakeTimerOffset.reset();
               intakeTimerOffset.start();
               currentAxis = CurrentAxis.ARM;
