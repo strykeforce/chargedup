@@ -77,51 +77,45 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             firstPath,
             new AutoFloorIntakeCommand(
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
-            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH)),
-        new SetVisionUpdateCommand(driveSubsystem, true),
-        new AutoPickupCommand(
-            driveSubsystem,
-            robotStateSubsystem,
-            new Pose2d(new Translation2d(7.2, .92), new Rotation2d())),
-        new SetVisionUpdateCommand(driveSubsystem, false),
-        new ParallelDeadlineGroup(
-            secondPath,
-            new SequentialCommandGroup(
-                new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
-                new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
-        new ParallelCommandGroup(
-            new SetVisionUpdateCommand(driveSubsystem, true),
-            new ConditionalCommand(
-                fallbackPath,
-                new AutoPlaceAutonCommand(
-                        driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
-                    .withTimeout(0.75),
-                () -> !visionSubsystem.isCameraWorking())),
-        new ParallelCommandGroup(
-            new SetVisionUpdateCommand(driveSubsystem, false),
-            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem)),
-        // Cube 2
-        new ParallelDeadlineGroup(
-            thirdPath,
-            new AutoFloorIntakeCommand(
-                robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
-            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID)),
-        new ParallelDeadlineGroup(
-            fourthPath,
-            new SequentialCommandGroup(
-                new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
-                new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
-        new ParallelCommandGroup(
-            new SetVisionUpdateCommand(driveSubsystem, true),
-            new ConditionalCommand(
-                fallbackPath2,
-                new AutoPlaceAutonCommand(
-                        driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
-                    .withTimeout(0.70),
-                () -> !visionSubsystem.isCameraWorking())),
-        new ParallelCommandGroup(
-            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
-            new ClearGamePieceCommand(robotStateSubsystem))
+            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH))
+        // new ParallelDeadlineGroup(
+        //     secondPath,
+        //     new SequentialCommandGroup(
+        //         new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
+        //         new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
+        // new ParallelCommandGroup(
+        //     new SetVisionUpdateCommand(driveSubsystem, true),
+        //     new ConditionalCommand(
+        //         fallbackPath,
+        //         new AutoPlaceAutonCommand(
+        //                 driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
+        //             .withTimeout(0.75),
+        //         () -> !visionSubsystem.isCameraWorking())),
+        // new ParallelCommandGroup(
+        //     new SetVisionUpdateCommand(driveSubsystem, false),
+        //     new ShootGamepieceCommand(handSubsystem, robotStateSubsystem)),
+        // // Cube 2
+        // new ParallelDeadlineGroup(
+        //     thirdPath,
+        //     new AutoFloorIntakeCommand(
+        //         robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
+        //     new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID)),
+        // new ParallelDeadlineGroup(
+        //     fourthPath,
+        //     new SequentialCommandGroup(
+        //         new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
+        //         new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
+        // new ParallelCommandGroup(
+        //     new SetVisionUpdateCommand(driveSubsystem, true),
+        //     new ConditionalCommand(
+        //         fallbackPath2,
+        //         new AutoPlaceAutonCommand(
+        //                 driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
+        //             .withTimeout(0.70),
+        //         () -> !visionSubsystem.isCameraWorking())),
+        // new ParallelCommandGroup(
+        //     new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
+        //     new ClearGamePieceCommand(robotStateSubsystem))
         /*,new ParallelCommandGroup(
             fourthPath,
             new PastXPositionCommand(
