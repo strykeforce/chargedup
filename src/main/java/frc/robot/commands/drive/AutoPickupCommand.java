@@ -29,14 +29,7 @@ public class AutoPickupCommand extends CommandBase {
     addRequirements(driveSubsystem);
     this.driveSubsystem = driveSubsystem;
     this.robotStateSubsystem = robotStateSubsystem;
-    this.endPose =
-        new Pose2d(
-            new Translation2d(
-                (robotStateSubsystem.isBlueAlliance()
-                    ? endPose.getX()
-                    : RobotStateConstants.kFieldMaxX - endPose.getX()),
-                endPose.getY()),
-            new Rotation2d());
+    this.endPose = endPose;
     omegaAutoDriveController =
         new ProfiledPIDController(
             DriveConstants.kPOmega,
@@ -65,6 +58,14 @@ public class AutoPickupCommand extends CommandBase {
 
   @Override
   public void initialize() {
+    endPose =
+        new Pose2d(
+            new Translation2d(
+                (robotStateSubsystem.isBlueAlliance()
+                    ? endPose.getX()
+                    : RobotStateConstants.kFieldMaxX - endPose.getX()),
+                endPose.getY()),
+            new Rotation2d());
     logger.info("Starting auto pickup going to {}", endPose);
     omegaAutoDriveController.reset(driveSubsystem.getPoseMeters().getRotation().getRadians());
     xAutoDriveController.reset(

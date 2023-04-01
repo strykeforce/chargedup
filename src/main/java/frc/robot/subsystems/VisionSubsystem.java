@@ -228,46 +228,46 @@ public class VisionSubsystem extends MeasurableSubsystem {
       if (result.hasTargets()
           && (result.getBestTarget().getPoseAmbiguity() <= 0.15 || result.targets.size() > 1)
           && !(resultHighCamera.hasTargets()
-              && resultHighCamera.getTargets().size() < result.getTargets().size()))
+              && resultHighCamera.getTargets().size() < result.getTargets().size())) {
         try {
           savedOffRobotEstimation = photonPoseEstimator.update().get();
           cameraPose = savedOffRobotEstimation.estimatedPose;
           timeStamp = savedOffRobotEstimation.timestampSeconds;
           useHigh = false;
           willUpdate = true;
-          }
         } catch (Exception e) {
         }
-      else {
+      } else {
         if (resultHighCamera.hasTargets()
             && (resultHighCamera.getBestTarget().getPoseAmbiguity() <= 0.15
                 || resultHighCamera.targets.size() > 1)
             && (driveSubsystem.getPoseMeters().getX() >= 3
-                && driveSubsystem.getPoseMeters().getX() <= 13))
+                && driveSubsystem.getPoseMeters().getX() <= 13)) {
           try {
             savedOffRobotEstimation = highCameraEstimator.update().get();
             useHigh = true;
             cameraPose = savedOffRobotEstimation.estimatedPose;
             timeStamp = savedOffRobotEstimation.timestampSeconds;
-            
-            if (visionOff > 1 && Math.abs(lastPose.getX() - cameraPose.getX()) < 0.2 && Math.abs(lastPose.getY() - cameraPose.getY()) < 0.2) {
-              willUpdate = true;
-              visionOff = 0;
-            }
+            willUpdate = true;
 
-            if (Math.abs(cameraPose.getX() - driveSubsystem.getPoseMeters().getX()) <= 0.75
-                    && Math.abs(cameraPose.getY() - driveSubsystem.getPoseMeters().getY())
-                        <= 0.75) {
-              visionOff = 0;
-              willUpdate = true;
-            } else {
-              lastPose = cameraPose;
-              visionOff++;
-            }
+            // if (Math.abs(cameraPose.getX() - driveSubsystem.getPoseMeters().getX()) <= 0.75
+            //     && Math.abs(cameraPose.getY() - driveSubsystem.getPoseMeters().getY()) <= 0.75) {
+            //   visionOff = 0;
+            //   willUpdate = true;
+            // } else {
+            //   lastPose = cameraPose;
+            //   visionOff++;
+            // }
+            // if (visionOff > 1
+            //     && Math.abs(lastPose.getX() - cameraPose.getX()) < 0.3
+            //     && Math.abs(lastPose.getY() - cameraPose.getY()) < 0.3) {
+            //   willUpdate = true;
+            //   visionOff = 0;
+            // }
           } catch (Exception e) {
           }
+        }
       }
-
       if (willUpdate) {
         y = cameraPose.getY();
         x = cameraPose.getX();

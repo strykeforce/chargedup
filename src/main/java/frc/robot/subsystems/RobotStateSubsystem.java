@@ -150,6 +150,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public void setAllianceColor(Alliance alliance) {
+    logger.info("Changing to {}", alliance);
     this.allianceColor = alliance;
   }
 
