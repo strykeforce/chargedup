@@ -327,9 +327,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
           endAutoDrivePose.getY());
       autoDriveTimer.reset();
       autoDriveTimer.start();
-      if ((robotStateSubsystem.getAllianceColor() == Alliance.Red
+      if ((robotStateSubsystem.getAllianceColor() == Alliance.Blue
               && getPoseMeters().getX() <= DriveConstants.kEdgeOfChargeStationOffset)
-          || (robotStateSubsystem.getAllianceColor() == Alliance.Blue
+          || (robotStateSubsystem.getAllianceColor() == Alliance.Red
               && getPoseMeters().getX()
                   >= (Constants.RobotStateConstants.kFieldMaxX
                       - DriveConstants.kEdgeOfChargeStationOffset))) {
@@ -338,13 +338,13 @@ public class DriveSubsystem extends MeasurableSubsystem {
         currDriveState = DriveStates.AUTO_DRIVE;
       } else { // Need to Avoid Charge Station
         avoidCstationAutoDriveEndPose =
-            new Pose2d(DriveConstants.kEdgeOfChargeStationOffset - 0.05, 0.0, new Rotation2d(0.0));
-        if (robotStateSubsystem.getAllianceColor() == Alliance.Blue)
+            new Pose2d(DriveConstants.kEdgeOfChargeStationOffset + 0.5, 0.0, new Rotation2d(0.0));
+        if (robotStateSubsystem.getAllianceColor() == Alliance.Red)
           avoidCstationAutoDriveEndPose =
               new Pose2d(
                   (Constants.RobotStateConstants.kFieldMaxX
                           - DriveConstants.kEdgeOfChargeStationOffset)
-                      + 0.05,
+                      - 0.5,
                   0.0,
                   new Rotation2d(0.0));
         logger.info("{} -> AUTO_DRIVE_CSTATION", currDriveState);
@@ -391,8 +391,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
   }
 
   public boolean atXPosition(Pose2d endPose) {
-    Transform2d pathError = endPose.minus(getPoseMeters());
-    if (Math.abs(pathError.getX()) <= DriveConstants.kPathErrorThreshold) {
+    if (Math.abs(getPoseMeters().getX() - endPose.getX())
+        <= DriveConstants.kPathErrorThreshold + 0.06) {
       return true;
     } else return false;
   }
@@ -502,13 +502,15 @@ public class DriveSubsystem extends MeasurableSubsystem {
         // avoidCstationAutoDriveEndPose;
         if (atXPosition(avoidCstationAutoDriveEndPose)) {
           // Finished at spot.
-          drive(0, 0, 0); // IF GOING TO KEEP MOVING BUT SLOWER, REMOVE THE OFFSET IN DRIVETOPOSE()
+          // drive(0, 0, 0); // IF GOING TO KEEP MOVING BUT SLOWER, REMOVE THE OFFSET IN
+          // DRIVETOPOSE()
           logger.info("Done Avoiding Charge Station, Continueing To AutoDrive.");
           logger.info("{} -> AUTO_DRIVE", currDriveState);
           currDriveState = DriveStates.AUTO_DRIVE;
         } else if (autoDriving && visionUpdates) {
-          List<Double> calc = calculateAutoDrive(avoidCstationAutoDriveEndPose);
+          List<Double> calc = calculateAutoDrive(endAutoDrivePose);
           move(calc.get(0), 0.0, 0.0, true);
+          this.xCalc = calc.get(0);
         } else {
           logger.info("{} -> AUTO_DRIVE_FAILED", currDriveState);
           currDriveState = DriveStates.AUTO_DRIVE_FAILED;
@@ -846,8 +848,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
   public enum DriveStates {
     IDLE,
     AUTO_DRIVE,
-    AUTO_DRIVE_FINISHED,
     AUTO_DRIVE_CSTATION,
+    AUTO_DRIVE_FINISHED,
     AUTO_DRIVE_FAILED,
     AUTO_BALANCE_EDGE,
     AUTO_BALANCE_DRIVE,
@@ -911,6 +913,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("AutoDrive Velocity Err X", () -> xAutoDriveController.getVelocityError()),
         new Measure("AutoDrive xCalc", () -> xCalc),
         new Measure("AutoDrive yCalc", () -> yCalc),
+        new Measure("AutoDrive cstation X", () -> avoidCstationAutoDriveEndPose.getX()),
         new Measure("AutoDrive omegaCalc", () -> omegaCalc),
         new Measure("Auto Drive Timer", () -> autoDriveTimer.get()),
         new Measure("Robot Roll Deg", () -> getGyroPitch()),

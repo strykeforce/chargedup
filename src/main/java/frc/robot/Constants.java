@@ -299,7 +299,7 @@ public class Constants {
     public static final double kMaxAccelOmega = 5.0; // 3.14
 
     // AUTODRIVE ProfiledPID Constants
-    public static final double kPAutoDrive = 3; // 3
+    public static final double kPAutoDrive = 2.5; // 3
     public static final double kIAutoDrive = 0.0000;
     public static final double kDAutoDrive = 0.00; // kPHolonomic/100
 
@@ -324,7 +324,7 @@ public class Constants {
     public static final double kAutoDriveAutoYawMax = 30;
     public static final double kMaxSpeedForCamUpdate =
         0.75; // Max Speed(MPS) The robot can be at while the camera updates to autodrive.
-    public static final double kPastBumpIndicateX = 12;
+    public static final double kPastBumpIndicateX = 5; // 12
     public static final double kArmToAutoDriveDelaySec =
         0; // time delay between arm and autodrive starting
 

@@ -147,6 +147,14 @@ public class VisionSubsystem extends MeasurableSubsystem {
     return 2767;
   }
 
+  public double getHighAmbiguity() {
+    if (!isCameraWorking()) return 2767;
+    if (cam2.hasTargets()) {
+      return resultHighCamera.getBestTarget().getPoseAmbiguity();
+    }
+    return 2767;
+  }
+
   public double getHasTargets() {
     if (result.hasTargets()) return 1.0;
     return 0.0;
@@ -335,6 +343,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
         new Measure("Best Target Id", () -> getBestTarget()),
         new Measure("Num Targets", () -> getNumTargets()),
         new Measure("BestTarget Ambiguity", () -> getAmbiguity()),
+        new Measure("HighCam Ambiguity", () -> getHighAmbiguity()),
         new Measure("Time Stamp", () -> timeStamp),
         new Measure(
             "Vision Odometry X(Offset)", () -> (getOdometry().getX() + cameraOffset().getX())),
