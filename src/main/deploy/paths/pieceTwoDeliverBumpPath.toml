@@ -6,8 +6,8 @@ is_reversed = false
 target_yaw = 0.0 #degrees
 
 [start_pose]
-    x = 6.90 #7.07
-    y = 2.34
+    x = 6.84 #7.07
+    y = 2.25
     angle = 180.0
 
 [end_pose]

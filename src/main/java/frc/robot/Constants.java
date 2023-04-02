@@ -77,6 +77,8 @@ public class Constants {
         new Pose2d(new Translation2d(15.33, 6.749796), new Rotation2d());
     public static final Pose2d kShelfRed =
         new Pose2d(new Translation2d(1.14, 6.749796), new Rotation2d());
+    public static final Pose2d kCubeTwoAutoPickup =
+        new Pose2d(new Translation2d(7.07, 2.25), new Rotation2d());
 
     public static final double kPolePlaceOffset = 0.56;
     public static final double kShelfOffset = 0.75;
@@ -304,6 +306,17 @@ public class Constants {
     public static final double kAutoDriveMaxVelocity = 2; //
     public static final double kAutoDriveMaxAccel = 2;
     public static final double kAvoidCStationXSpeed = 1;
+
+    // Auto PickUp Constants
+    public static final double kPAutoPickup = 2.5;
+    public static final double kIAutoPickup = 0.0;
+    public static final double kDAutoPickup = 0.0;
+
+    public static final double kAutoPickupDriveMaxVel = 1.5;
+    public static final double kAutoPickupDriveMaxAccel = 2;
+
+    public static final double kAutoPickupCloseEnough = 0.07;
+
     // Default safety path constants
     public static final Pose2d startPose2d = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
     public static final Pose2d endPose2d = new Pose2d(-1, 0, Rotation2d.fromDegrees(0));
@@ -358,6 +371,8 @@ public class Constants {
 
     public static final double kCameraOffset = .335; // was .273 on driveChasis
     public static final double kCameraAngleOffset = 0; // DEGREES was 24 on driveChasis
+    public static final double kHighCameraAngleOffset = 0.0;
+    public static final double kHighCameraOffset = 0.0;
     public static final double kLastUpdateCloseEnoughThreshold = 2.0; // IN SECONDS
     public static final double kLastUpdateCloseEnoughThresholdYaw = 1.0;
     public static final double kDifferenceCloseEnoughThreshold = .1;
@@ -375,7 +390,7 @@ public class Constants {
     // form [x, y, theta]ᵀ, with units in meters and radians.
     // Vision Odometry Standard devs
     public static Matrix<N3, N1> kVisionMeasurementStdDevs =
-        VecBuilder.fill(.10, .10, Units.degreesToRadians(5));
+        VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5));
   }
 
   public static final class FieldConstants {
@@ -498,7 +513,7 @@ public class Constants {
     // Elbow Positions
     public static final double kJogElbowTicks = 500.0;
     public static final double kIntakeStageElbow = -14_465;
-    public static final double kIntakeElbow = -21_087; // -43_200
+    public static final double kIntakeElbow = -21_767; // -21_087
     public static final double kStowElbow = 0;
     public static final double kFloorElbow = 21_289; // 43_214
     public static final double kLevelOneElbow = 21_548;
@@ -831,7 +846,7 @@ public class Constants {
 
   public static class CompConstants {
     // Drive
-    public static final double kWheelDiameterInches = 3.0 * (490 / 500.0);
+    public static final double kWheelDiameterInches = 3.0 * (496 / 500.0);
 
     // Elbow
     public static final int kElbowZeroTicks = 694; // 730

@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.CircularBuffer;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.VisionConstants;
 import java.io.IOException;
@@ -30,25 +31,39 @@ import org.strykeforce.telemetry.measurable.Measure;
 
 public class VisionSubsystem extends MeasurableSubsystem {
   PhotonCamera cam1 = new PhotonCamera("OV9281");
+  PhotonCamera cam2 = new PhotonCamera("OV9281HIGH");
   private static final Logger logger = LoggerFactory.getLogger(VisionSubsystem.class);
   public static DriveSubsystem driveSubsystem;
   private CircularBuffer gyroBuffer = new CircularBuffer(10000);
   private CircularBuffer timestampBuffer = new CircularBuffer(10000);
   private CircularBuffer velocityBuffer = new CircularBuffer(10000);
   private boolean canFillBuffers = false;
+  List<PhotonTrackedTarget> highTargets;
   List<PhotonTrackedTarget> targets;
   PhotonTrackedTarget bestTarget;
   PhotonPipelineResult result;
+  PhotonPipelineResult resultHighCamera;
   double timeStamp;
+  double highTimeStamp;
   AprilTagFieldLayout aprilTagFieldLayout;
   PhotonPoseEstimator photonPoseEstimator;
+  PhotonPoseEstimator highCameraEstimator;
   private boolean buffersFull = false;
   private boolean hasResetOdomAuto = false;
+  private boolean useHigh = false;
   private EstimatedRobotPose savedOffRobotEstimation;
   Translation2d robotPose = new Translation2d(2767, 2767);
   private int gyroBufferId = 0;
+  private int visionOff = 0;
+  private Pose3d lastPose;
+  private int lastUpdate = 0;
+  private int currUpdate = 0;
+  private Pose3d cameraPose;
+  private final Notifier photonVisionThread;
 
   public VisionSubsystem(DriveSubsystem driveSubsystem) {
+    photonVisionThread = new Notifier(this::visionUpdateThread);
+    photonVisionThread.startPeriodic(20.0 / 1000.0);
     this.driveSubsystem = driveSubsystem;
     try {
       aprilTagFieldLayout =
@@ -57,10 +72,18 @@ public class VisionSubsystem extends MeasurableSubsystem {
     } catch (IOException e) {
       logger.error("VISION SUBSYSTEM : APRILTAG JSON FAILED");
     }
-    photonPoseEstimator =
+    highCameraEstimator =
         new PhotonPoseEstimator(
             aprilTagFieldLayout,
             PoseStrategy.MULTI_TAG_PNP,
+            cam2,
+            new Transform3d(
+                new Translation3d(0, 0, 0),
+                new Rotation3d(0, Units.degreesToRadians(0), Units.degreesToRadians(0))));
+    photonPoseEstimator =
+        new PhotonPoseEstimator(
+            aprilTagFieldLayout,
+            PoseStrategy.LOWEST_AMBIGUITY,
             cam1,
             // -.25, .11,0 // 0,10, 187
             new Transform3d(
@@ -79,6 +102,20 @@ public class VisionSubsystem extends MeasurableSubsystem {
             * Math.sin(
                 Units.degreesToRadians(
                     VisionConstants.kCameraAngleOffset
+                        - driveSubsystem.getGyroRotation2d().getDegrees())));
+  }
+
+  public Translation2d highCameraOffset() {
+    return new Translation2d(
+        VisionConstants.kHighCameraOffset
+            * Math.cos(
+                Units.degreesToRadians(
+                    VisionConstants.kHighCameraAngleOffset
+                        - driveSubsystem.getGyroRotation2d().getDegrees())),
+        -VisionConstants.kCameraOffset
+            * Math.sin(
+                Units.degreesToRadians(
+                    VisionConstants.kHighCameraAngleOffset
                         - driveSubsystem.getGyroRotation2d().getDegrees())));
   }
 
@@ -167,53 +204,51 @@ public class VisionSubsystem extends MeasurableSubsystem {
     return velocityBuffer.get(gyroBufferId);
   }
 
+  public void resetOdometry() {
+    if (cam2.isConnected()) {
+      logger.info("reseting to X : {} | Y : {}", cameraPose.getX(), cameraPose.getY());
+      driveSubsystem.resetOdometry(
+          new Pose2d(
+              new Translation2d(cameraPose.getX(), cameraPose.getY()),
+              driveSubsystem.getGyroRotation2d()));
+    }
+  }
+
   @Override
   public void periodic() {
-    try {
-      result = cam1.getLatestResult();
-      if (canFillBuffers) fillBuffers();
-      // logger.info("Filled Gyro Buffer: {}", canFillBuffers);
-    } catch (Exception e) {
-    }
-    // logger.info("VISION : GET LATEST FAILED");
-    if (result.hasTargets()) {
-      targets = result.getTargets();
-      bestTarget = result.getBestTarget();
-      timeStamp = result.getTimestampSeconds();
-      gyroBufferId = (int) Math.floor(result.getLatencyMillis() / 20);
-    }
-    double x = robotPose.getX(), y = robotPose.getY();
-    try {
-      savedOffRobotEstimation = photonPoseEstimator.update().get();
-
-      if (result.hasTargets()
-          && (result.getBestTarget().getPoseAmbiguity() <= 0.15
-              || savedOffRobotEstimation.targetsUsed.size() > 1)) {
-        Pose3d cameraPose = savedOffRobotEstimation.estimatedPose;
-        y = cameraPose.getY();
-        x = cameraPose.getX();
-        // y = photonPoseEstimator.update().get().estimatedPose.getY();
-        // x = photonPoseEstimator.update().get().estimatedPose.getX();
-        if (driveSubsystem.canGetVisionUpdates())
-          driveSubsystem.updateOdometryWithVision(
-              new Pose2d(
-                  new Translation2d(x, y).plus(cameraOffset()),
-                  new Rotation2d(gyroBuffer.get(gyroBufferId))),
-              (long) timeStamp);
+    if (driveSubsystem.canGetVisionUpdates() && lastUpdate < currUpdate) {
+      lastUpdate = currUpdate;
+      double y = cameraPose.getY();
+      double x = cameraPose.getX();
+      Pose2d temp = new Pose2d(new Translation2d(x, y), new Rotation2d());
+      if (((Math.hypot(
+                      x - driveSubsystem.getPoseMeters().getX(),
+                      y - driveSubsystem.getPoseMeters().getY())
+                  <= 0.75
+              || (visionOff > 0 && Math.hypot(x - lastPose.getX(), y - lastPose.getY()) <= 0.75)))
+          && !(useHigh && x >= 13 && x <= 3)) {
+        visionOff = 0;
+        driveSubsystem.updateOdometryWithVision(
+            new Pose2d(
+                new Translation2d(x, y).plus(useHigh ? highCameraOffset() : cameraOffset()),
+                new Rotation2d(gyroBuffer.get(gyroBufferId))),
+            (long) (useHigh ? highTimeStamp : timeStamp));
 
         if (driveSubsystem.canGetVisionUpdates() && driveSubsystem.isAutoDriving()) {
           driveSubsystem.resetOdometryNoLog( // FIXME
               new Pose2d(
-                  new Translation2d(x, y).plus(cameraOffset()),
+                  new Translation2d(x, y).plus(useHigh ? highCameraOffset() : cameraOffset()),
                   new Rotation2d(gyroBuffer.get(gyroBufferId))));
           setOdomAutoBool(true);
+          // result.setTimestampSeconds(timeStamp);
         }
+      } else {
+        logger.info("Bad reading");
+        visionOff++;
+        lastPose = cameraPose;
       }
-    } catch (Exception e) {
-      // logger.error("VISION : ODOMETRY FAIL");
+      robotPose = new Translation2d(x, y);
     }
-    robotPose = new Translation2d(x, y);
-    // result.setTimestampSeconds(timeStamp);
   }
 
   public boolean getOdomAutoBool() {
@@ -231,6 +266,54 @@ public class VisionSubsystem extends MeasurableSubsystem {
   public void setOdomAutoBool(boolean autoBool) {
     logger.info("setOdomAutoBool: {}", autoBool);
     hasResetOdomAuto = autoBool;
+  }
+
+  private void visionUpdateThread() {
+    try {
+      result = cam1.getLatestResult();
+      if (canFillBuffers) fillBuffers();
+      // logger.info("Filled Gyro Buffer: {}", canFillBuffers);
+    } catch (Exception e) {
+    }
+    try {
+      resultHighCamera = cam2.getLatestResult();
+    } catch (Exception e) {
+    }
+    // logger.info("VISION : GET LATEST FAILED");
+    if (result.hasTargets()) {
+      targets = result.getTargets();
+      bestTarget = result.getBestTarget();
+      timeStamp = result.getTimestampSeconds();
+      gyroBufferId = (int) Math.floor(result.getLatencyMillis() / 20);
+    }
+    if (resultHighCamera.hasTargets()) {
+      highTargets = resultHighCamera.getTargets();
+      highTimeStamp = resultHighCamera.getTimestampSeconds();
+    }
+    if (result.hasTargets()
+        && (result.getBestTarget().getPoseAmbiguity() <= 0.15 || result.targets.size() > 1)
+        && !(resultHighCamera.hasTargets()
+            && resultHighCamera.getTargets().size() < result.getTargets().size())) {
+      try {
+        savedOffRobotEstimation = photonPoseEstimator.update().get();
+        cameraPose = savedOffRobotEstimation.estimatedPose;
+        useHigh = false;
+        currUpdate++;
+      } catch (Exception e) {
+      }
+    } else {
+      if (resultHighCamera.hasTargets()
+          && (resultHighCamera.getBestTarget().getPoseAmbiguity() <= 0.15
+              || resultHighCamera.targets.size() > 1)) {
+        try {
+          savedOffRobotEstimation = highCameraEstimator.update().get();
+          useHigh = true;
+          cameraPose = savedOffRobotEstimation.estimatedPose;
+          currUpdate++;
+        } catch (Exception e) {
+        }
+      }
+    }
   }
 
   @Override
@@ -261,17 +344,20 @@ public class VisionSubsystem extends MeasurableSubsystem {
         new Measure("Camera Offset X", () -> cameraOffset().getX()),
         new Measure("Camera Offset Y", () -> cameraOffset().getY()),
         new Measure("Camera Latency", () -> result.getLatencyMillis()),
-        new Measure("Camera Odometry X (NO OFFSET)", () -> getOdometry().getX()),
+        new Measure("Camera Odometry X NO", () -> getOdometry().getX()),
         new Measure("hasResetOdomAuto", () -> (getOdomAutoBool() ? 1 : 0)),
         new Measure("gyro bufferId", () -> gyroBufferId),
         new Measure("Gyro Buffer", () -> new Rotation2d(gyroBuffer.get(gyroBufferId)).getDegrees()),
         new Measure("canFillBuffers", () -> canFillBuffers ? 1 : 0),
-        new Measure("Camera Odometry Y (NO OFFSET)", () -> getOdometry().getY()),
+        new Measure("Camera Odometry Y NO", () -> getOdometry().getY()),
         new Measure(
             "Num targets",
             () ->
                 savedOffRobotEstimation == null
                     ? 2767.0
-                    : savedOffRobotEstimation.targetsUsed.size()));
+                    : savedOffRobotEstimation.targetsUsed.size()),
+        new Measure("Is using High", () -> useHigh ? 1.0 : 0.0),
+        new Measure("Camera Pose X", () -> cameraPose.getX()),
+        new Measure("Camera Pose Y", () -> cameraPose.getY()));
   }
 }
