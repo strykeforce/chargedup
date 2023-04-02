@@ -17,6 +17,7 @@ import frc.robot.Constants.VisionConstants;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import net.jafama.FastMath;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -94,12 +95,12 @@ public class VisionSubsystem extends MeasurableSubsystem {
   public Translation2d cameraOffset() {
     return new Translation2d(
         VisionConstants.kCameraOffset
-            * Math.cos(
+            * FastMath.cos(
                 Units.degreesToRadians(
                     VisionConstants.kCameraAngleOffset
                         - driveSubsystem.getGyroRotation2d().getDegrees())),
         -VisionConstants.kCameraOffset
-            * Math.sin(
+            * FastMath.sin(
                 Units.degreesToRadians(
                     VisionConstants.kCameraAngleOffset
                         - driveSubsystem.getGyroRotation2d().getDegrees())));
@@ -108,12 +109,12 @@ public class VisionSubsystem extends MeasurableSubsystem {
   public Translation2d highCameraOffset() {
     return new Translation2d(
         VisionConstants.kHighCameraOffset
-            * Math.cos(
+            * FastMath.cos(
                 Units.degreesToRadians(
                     VisionConstants.kHighCameraAngleOffset
                         - driveSubsystem.getGyroRotation2d().getDegrees())),
         -VisionConstants.kCameraOffset
-            * Math.sin(
+            * FastMath.sin(
                 Units.degreesToRadians(
                     VisionConstants.kHighCameraAngleOffset
                         - driveSubsystem.getGyroRotation2d().getDegrees())));

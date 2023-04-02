@@ -55,7 +55,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
       String pathFallback) {
     firstPath = new DriveAutonCommand(driveSubsystem, pathOne, false, true);
     secondPath = new DriveAutonCommand(driveSubsystem, pathTwo, false, false);
-    thirdPath = new DriveAutonCommand(driveSubsystem, pathThree, true, false);
+    thirdPath = new DriveAutonCommand(driveSubsystem, pathThree, false, false);
     fourthPath = new DriveAutonCommand(driveSubsystem, pathFour, false, false);
     fallbackPath = new DriveAutonCommand(driveSubsystem, pathFallback, true, false);
     fallbackPath2 = new DriveAutonCommand(driveSubsystem, pathFallback, true, false);
@@ -76,14 +76,15 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new AutoFloorIntakeCommand(
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH)),
-        new SetVisionUpdateCommand(driveSubsystem, true),
-        new ResetOdometryVisionCommand(visionSubsystem),
-        new AutoPickupCommand(
-                driveSubsystem, robotStateSubsystem, RobotStateConstants.kCubeTwoAutoPickup)
-            .withTimeout(1.0),
-        new SetVisionUpdateCommand(driveSubsystem, false),
+        new ParallelCommandGroup(
+            new SetVisionUpdateCommand(driveSubsystem, true),
+            new ResetOdometryVisionCommand(visionSubsystem),
+            new AutoPickupCommand(
+                    driveSubsystem, robotStateSubsystem, RobotStateConstants.kCubeTwoAutoPickup)
+                .withTimeout(1.0)),
         new ParallelDeadlineGroup(
             secondPath,
+            new SetVisionUpdateCommand(driveSubsystem, false),
             new SequentialCommandGroup(
                 new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
@@ -97,13 +98,19 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, false),
-            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem))
+            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem)),
         // // Cube 2
-        // new ParallelDeadlineGroup(
-        //     thirdPath,
-        //     new AutoFloorIntakeCommand(
-        //         robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
-        //     new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID)),
+        new ParallelDeadlineGroup(
+            thirdPath,
+            new AutoFloorIntakeCommand(
+                robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
+            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID)),
+        new ParallelCommandGroup(
+            new SetVisionUpdateCommand(driveSubsystem, true),
+            new ResetOdometryVisionCommand(visionSubsystem),
+            new AutoPickupCommand(
+                    driveSubsystem, robotStateSubsystem, RobotStateConstants.kCubeOneAutoPickup)
+                .withTimeout(1.0))
         // new ParallelDeadlineGroup(
         //     fourthPath,
         //     new SequentialCommandGroup(
