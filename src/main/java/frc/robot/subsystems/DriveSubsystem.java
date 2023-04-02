@@ -328,6 +328,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
       //     robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
       autoDriveTimer.reset();
       autoDriveTimer.start();
+      if (getPoseMeters().getX() >= 12) {
+        
+      }
       logger.info("{} -> AUTO_DRIVE", currDriveState);
       currDriveState = DriveStates.AUTO_DRIVE;
     } else {
