@@ -43,9 +43,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private ArmState beforeTwistState;
   private boolean unTwistAtEnd = false;
   private Timer twistTimer = new Timer();
-  private Timer testTimer = new Timer();
-  private double limitTime = 0;
-  private double caseTime = 0;
   private boolean inStow = false;
 
   public ArmSubsystem(
@@ -480,8 +477,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
         new Measure("Hand Y", () -> getHandPosition().getY()),
         new Measure("Hand region", () -> getHandRegion().ordinal()),
         new Measure("Arm State", () -> currState.ordinal()),
-        new Measure("Case Time", () -> caseTime),
-        new Measure("Limit Time", () -> limitTime),
         new Measure("Difference in Shoulder", () -> differenceInShoulder));
   }
 
@@ -535,40 +530,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
   @Override
   public void periodic() {
-    testTimer.reset(); // FIXME
-    testTimer.start(); // FIXME
-    // if (!isHealthChecking) {
-    //   if (!elevatorSubsystem.isElevatorReinforcing())
-    //     elevatorSubsystem.setSoftLimits(
-    //         HandRegion.HOUSE.minTicksElevator, HandRegion.HOUSE.maxTicksElevator);
-    //   else elevatorSubsystem.setSoftLimits(ElevatorConstants.kShelfMinimumShelfPosition, 0.0);
-    //   elbowSubsystem.setSoftLimits(HandRegion.HOUSE.minTicksElbow,
-    // HandRegion.HOUSE.maxTicksElbow);
-    // }
-    if ((testTimer.get() * 1000) > 7)
-      logger.info("TestTimer SoftLimits MS: {}", testTimer.get() * 1000); // FIXME
-    limitTime = testTimer.get();
-    testTimer.stop();
-    // HandRegion currHandRegion = getHandRegion();
-    // if ((testTimer.get() * 1000) > 7) logger.info("TestTimer HandRegion MS: {}", testTimer.get()
-    // * 1000); // FIXME
-
-    // if (!isHealthChecking) {
-    //   shoulderSubsystem.setSoftLimits(
-    //       currHandRegion.minTicksShoulder, currHandRegion.maxTicksShoulder);
-    //   if (!elevatorSubsystem.isElevatorReinforcing())
-    //     elevatorSubsystem.setSoftLimits(
-    //         currHandRegion.minTicksElevator, currHandRegion.maxTicksElevator);
-    //   else elevatorSubsystem.setSoftLimits(ElevatorConstants.kShelfMinimumShelfPosition, 0.0);
-    //   elbowSubsystem.setSoftLimits(currHandRegion.minTicksElbow, currHandRegion.maxTicksElbow);
-    // } else {
-    //   shoulderSubsystem.setSoftLimits(-500.0, 3_000.0);
-    // }
-
-    // testTimer.stop(); // FIXME
-
-    testTimer.reset();
-    testTimer.start();
     switch (currState) {
       case STOW:
         if (!hasElbowZeroed
@@ -628,12 +589,9 @@ public class ArmSubsystem extends MeasurableSubsystem {
             default:
               break;
           }
-          if ((testTimer.get() * 1000) > 7) {
-            logger.info("TestTimer Stow MS: {}", testTimer.get() * 1000); // FIXME
-          }
-          break;
         }
         if (!inStow) inStow = true;
+        break;
 
       case INTAKE:
         break;
@@ -1132,11 +1090,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
       default:
         break;
     }
-    if ((testTimer.get() * 1000) > 7) {
-      logger.info("testTimer Switch Case MS: {}", testTimer.get() * 1000);
-    }
-    caseTime = testTimer.get();
-    testTimer.stop();
   }
 
   public enum ArmState {
