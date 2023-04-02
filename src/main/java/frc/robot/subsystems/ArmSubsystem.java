@@ -11,6 +11,7 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ShoulderConstants;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import java.util.Set;
+import net.jafama.FastMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
@@ -42,6 +43,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
   private ArmState beforeTwistState;
   private boolean unTwistAtEnd = false;
   private Timer twistTimer = new Timer();
+  private boolean inStow = false;
 
   public ArmSubsystem(
       ShoulderSubsystem shoulderSubsystem,
@@ -54,6 +56,17 @@ public class ArmSubsystem extends MeasurableSubsystem {
     this.shoulderSubsystem = shoulderSubsystem;
     this.elevatorSubsystem = elevatorSubsystem;
     this.elbowSubsystem = elbowSubsystem;
+    if (!isHealthChecking) {
+      shoulderSubsystem.setSoftLimits(
+          HandRegion.HOUSE.minTicksShoulder, HandRegion.HOUSE.maxTicksShoulder);
+      if (!elevatorSubsystem.isElevatorReinforcing())
+        elevatorSubsystem.setSoftLimits(
+            HandRegion.HOUSE.minTicksElevator, HandRegion.HOUSE.maxTicksElevator);
+      else elevatorSubsystem.setSoftLimits(ElevatorConstants.kShelfMinimumShelfPosition, 0.0);
+      elbowSubsystem.setSoftLimits(HandRegion.HOUSE.minTicksElbow, HandRegion.HOUSE.maxTicksElbow);
+    } else {
+      shoulderSubsystem.setSoftLimits(-500.0, 3_000.0);
+    }
   }
 
   public void setReinforceElevator(boolean doReinforceElevator) {
@@ -456,16 +469,15 @@ public class ArmSubsystem extends MeasurableSubsystem {
     double shoulderAngle = Math.toRadians(shoulderSubsystem.getDegs());
 
     double x =
-        (elevatorSubsystem.getExtensionMeters()) * Math.cos(shoulderAngle)
-            - f * Math.cos(Math.PI / 2 - shoulderAngle)
-            + Constants.ElbowConstants.kLength * Math.cos(elbowAngleWithGround)
-            + ArmConstants.kElevatorToElbowPivot * Math.cos(Math.PI / 2 - shoulderAngle);
+        (elevatorSubsystem.getExtensionMeters()) * FastMath.cosQuick(shoulderAngle)
+            - f * FastMath.cosQuick(Math.PI / 2 - shoulderAngle)
+            + Constants.ElbowConstants.kLength * FastMath.cosQuick(elbowAngleWithGround)
+            + ArmConstants.kElevatorToElbowPivot * FastMath.cosQuick(Math.PI / 2 - shoulderAngle);
     double y =
-        (elevatorSubsystem.getExtensionMeters() + f / Math.tan(shoulderAngle))
-                * Math.sin(shoulderAngle)
-            + Constants.ElbowConstants.kLength * Math.sin(elbowAngleWithGround)
-            - ArmConstants.kElevatorToElbowPivot * Math.sin(Math.PI / 2 - shoulderAngle);
-
+        (elevatorSubsystem.getExtensionMeters() + f / FastMath.tan(shoulderAngle))
+                * FastMath.sinQuick(shoulderAngle)
+            + Constants.ElbowConstants.kLength * FastMath.sinQuick(elbowAngleWithGround)
+            - ArmConstants.kElevatorToElbowPivot * FastMath.sinQuick(Math.PI / 2 - shoulderAngle);
     return new Translation2d(x, y);
   }
 
@@ -534,20 +546,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
 
   @Override
   public void periodic() {
-    HandRegion currHandRegion = getHandRegion();
-
-    if (!isHealthChecking) {
-      shoulderSubsystem.setSoftLimits(
-          currHandRegion.minTicksShoulder, currHandRegion.maxTicksShoulder);
-      if (!elevatorSubsystem.isElevatorReinforcing())
-        elevatorSubsystem.setSoftLimits(
-            currHandRegion.minTicksElevator, currHandRegion.maxTicksElevator);
-      else elevatorSubsystem.setSoftLimits(ElevatorConstants.kShelfMinimumShelfPosition, 0.0);
-      elbowSubsystem.setSoftLimits(currHandRegion.minTicksElbow, currHandRegion.maxTicksElbow);
-    } else {
-      shoulderSubsystem.setSoftLimits(-500.0, 3_000.0);
-    }
-
     switch (currState) {
       case STOW:
         if (!hasElbowZeroed
@@ -560,44 +558,55 @@ public class ArmSubsystem extends MeasurableSubsystem {
           errorInElbow = elbowSubsystem.printElbowError();
           isElbowReinforced = true;
         }
-
-        switch (desiredState) {
-          case LOW:
-            toLowPos();
-            break;
-          case AUTO_MID_CONE: // fall-through
-          case MID_CONE:
-            toMidPos(GamePiece.CONE);
-            break;
-          case AUTO_MID_CUBE:
-          case MID_CUBE:
-            toMidPos(GamePiece.CUBE);
-            break;
-          case AUTO_HIGH_CONE: // fall-through
-          case HIGH_CONE:
-            toHighPos(GamePiece.CONE);
-            break;
-          case HIGH_CUBE: // fall-through
-          case AUTO_HIGH_CUBE:
-            toHighPos(GamePiece.CUBE);
-            break;
-          case INTAKE_STAGE:
-            toIntakePos();
-            break;
-          case INTAKE:
-            toIntakeStagePos(continueToIntake);
-            break;
-          case SHELF:
-            toShelfPos();
-            break;
-          case FLOOR_SWEEP:
-            // fall through
-          case FLOOR:
-            toFloorPos();
-            break;
-          default:
-            break;
+        if (inStow) {
+          switch (desiredState) {
+            case LOW:
+              toLowPos();
+              inStow = false;
+              break;
+            case AUTO_MID_CONE: // fall-through
+            case MID_CONE:
+              toMidPos(GamePiece.CONE);
+              inStow = false;
+              break;
+            case AUTO_MID_CUBE:
+            case MID_CUBE:
+              toMidPos(GamePiece.CUBE);
+              inStow = false;
+              break;
+            case AUTO_HIGH_CONE: // fall-through
+            case HIGH_CONE:
+              toHighPos(GamePiece.CONE);
+              inStow = false;
+              break;
+            case HIGH_CUBE: // fall-through
+            case AUTO_HIGH_CUBE:
+              toHighPos(GamePiece.CUBE);
+              inStow = false;
+              break;
+            case INTAKE_STAGE:
+              toIntakePos();
+              inStow = false;
+              break;
+            case INTAKE:
+              toIntakeStagePos(continueToIntake);
+              inStow = false;
+              break;
+            case SHELF:
+              toShelfPos();
+              inStow = false;
+              break;
+            case FLOOR_SWEEP:
+              // fall through
+            case FLOOR:
+              toFloorPos();
+              inStow = false;
+              break;
+            default:
+              break;
+          }
         }
+        if (!inStow) inStow = true;
         break;
 
       case INTAKE:
