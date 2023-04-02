@@ -12,6 +12,6 @@ public class ResetOdometryVisionCommand extends InstantCommand {
 
   @Override
   public void initialize() {
-    visionSubsystem.resetOdometry();
+    if (visionSubsystem.isCameraWorking()) visionSubsystem.resetOdometry();
   }
 }
