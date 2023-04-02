@@ -329,12 +329,6 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     currRobotState = RobotState.RECOVER_GAMEPIECE;
   }
 
-  public void toPulseAutoBalance(boolean isOnAllianceSide) {
-    driveSubsystem.pulseAutoBalance(isOnAllianceSide);
-    logger.info("{} -> AUTO_BALANCE", currRobotState);
-    currRobotState = RobotState.AUTO_BALANCE;
-  }
-
   public void toAutoShelf() {
     logger.info("{} --> TO_AUTO_SHELF", currRobotState);
     if (armSubsystem.getCurrState() != ArmState.SHELF) armSubsystem.toShelfPos();

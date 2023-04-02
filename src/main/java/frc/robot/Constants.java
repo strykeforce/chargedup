@@ -154,7 +154,7 @@ public class Constants {
 
   public static final class DriveConstants {
     // Actual/Odometry //563.5 old number
-
+    public static final double kEdgeOfChargeStationOffset = 2.66; // Edge of Charge Station + offset
     public static final double kMaxSpeedMetersPerSecond = 5.44; // practice bot 3.889
 
     static final double kDriveMotorOutputGear = 30; // practice bot: 22
@@ -303,6 +303,7 @@ public class Constants {
 
     public static final double kAutoDriveMaxVelocity = 2; //
     public static final double kAutoDriveMaxAccel = 2;
+    public static final double kAvoidCStationXSpeed = 1;
     // Default safety path constants
     public static final Pose2d startPose2d = new Pose2d(0, 0, Rotation2d.fromDegrees(0));
     public static final Pose2d endPose2d = new Pose2d(-1, 0, Rotation2d.fromDegrees(0));
