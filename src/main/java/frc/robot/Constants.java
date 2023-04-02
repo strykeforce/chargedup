@@ -84,7 +84,7 @@ public class Constants {
     public static final double kBound1Y = 1.908175; // m
     public static final double kBound2Y = 3.584575; // m
 
-    public static final double kReleaseDelayTime = 0.5;
+    public static final double kReleaseDelayTime = 0.5; // s
     public static final double kFieldMaxX = 16.540988; // m
   }
 
@@ -138,9 +138,9 @@ public class Constants {
     public static final double kElbowIntakeMin = ElbowConstants.kReverseSoftLimit;
     public static final double kElbowIntakeMax = ElbowConstants.kForwardSoftLimit;
 
-    public static final double kShelfMove = 1; // FIXME put in real number
+    public static final double kShelfMove = 0.5; // FIXME put in real number
     public static final double kShelfTransitionMove = 0.06; // 0.2
-    public static final double kSweepTimerElapseSeconds = 0.5;
+    public static final double kSweepTimerElapseSeconds = 0.1;
   }
 
   public static final class AutonConstants {
@@ -170,7 +170,7 @@ public class Constants {
         new Pose2d(
             new Translation2d(RobotStateConstants.kFieldMaxX - 1.80, 0.39), new Rotation2d());
 
-    public static final double kShelfMovePercent = 0.5;
+    public static final double kShelfMovePercent = 0.8;
     public static final double kShelfYawPercent = 0.2;
     public static final double kPlaceMovePercent = 0.2;
     public static final double kPlaceYawPercent = 0.2;
@@ -219,7 +219,7 @@ public class Constants {
     public static final double kAutoBalanceStartTimerThresholdDeg = 5;
     public static final double kAutoBalanceEnableGyroThresholdDegrees = 8;
 
-    public static final double kAutoBalanceSlowDriveVel = 0.6; // 0.5
+    public static final double kAutoBalanceSlowDriveVel = 0.35; // 0.6
     public static final double kAutoBalanceFinalDriveVel = 1.0; // 0.5 0.75
     public static final double kAutoBalanceSlowdownTimeSec = 1.0; // 1.3-> 1.15
     public static final double kAutoBalanceStopThresholdDegrees = 1.5; // 1 0.6 1.5
@@ -387,6 +387,7 @@ public class Constants {
     public static final int kRightFollowId = 32;
 
     public static final double kAllowedError = 1500;
+    public static final double kStartNextAxisReinforce = -13_000;
 
     public static final double kElevatorZeroSpeed = 0.30;
     public static final double kElevatorReinforceSpeed = -0.20;
@@ -403,7 +404,7 @@ public class Constants {
     public static final double kIntakeElevator = -23_500; // intake 9.75 gap
     public static final double kStowElevator = -2_000;
     public static final double kFloorElevator = -27_000; // 32648
-    public static final double kLevelOneElevator = -16_500;
+    public static final double kLevelOneElevator = -10_500;
     public static final double kLevelTwoConeElevator = -23_674; // -23_674 // FIXME
     public static final double kLevelTwoCubeElevator = -40_000; // old -47_674
     public static final double kLevelThreeConeElevator = -1_500; // -1_500 // FIXME
@@ -422,7 +423,7 @@ public class Constants {
     public static final double kFloorToStowParallelAllowed = kStowElevator;
     public static final double kScoreToStowParallelAllowed = kStowElevator;
     public static final double kHighToStowParallelAllowed = kStowElevator;
-    public static final double kIntakeStageToIntakeParallelAllowed = -10_000;
+    public static final double kIntakeStageToIntakeParallelAllowed = -3_000; // -10_000
     public static final double kIntakeToStowParallelAllowed = kStowElevator;
     public static final double kShelfToStowParallelAllowed = kStowElevator;
     public static final double kStowToShelfParallelAllowed = kStowElevator;
@@ -442,8 +443,8 @@ public class Constants {
       elevatorConfig.slot0.integralZone = 0;
       elevatorConfig.slot0.maxIntegralAccumulator = 0;
       elevatorConfig.slot0.allowableClosedloopError = 0;
-      elevatorConfig.motionCruiseVelocity = 7_000; // 10_000
-      elevatorConfig.motionAcceleration = 40_000; // 100_000
+      elevatorConfig.motionCruiseVelocity = 10_000; // 10_000 -> 12_000
+      elevatorConfig.motionAcceleration = 100_000; // 100_000 -> 200_000
 
       elevatorConfig.forwardSoftLimitEnable = true;
       elevatorConfig.forwardSoftLimitThreshold = kMaxFwd;
@@ -500,14 +501,14 @@ public class Constants {
     public static final double kIntakeElbow = -21_087; // -43_200
     public static final double kStowElbow = 0;
     public static final double kFloorElbow = 21_289; // 43_214
-    public static final double kLevelOneElbow = 18_548;
+    public static final double kLevelOneElbow = 21_548;
     public static final double kLevelTwoConeElbow = 60_097; // 60_097 // FIXME
     public static final double kLevelTwoCubeElbow = 60_097;
     public static final double kLevelThreeConeElbow = 84_553; // 84_553 // FIXME
     public static final double kLevelThreeCubeElbow = 84_106;
     public static final double kShelfElbow = 41_000;
     public static final double kFloorElbowSweep = 16_876;
-    public static final double kAutoHighCubeElbow = 60_097;
+    public static final double kAutoLevelThreeCubeElbow = 65_497; // 64_297
     public static final double kAutoLevelTwoConeElbow = 60_097;
     public static final double kAutoLevelTwoCubeElbow = 36_500;
     public static final double kAutoLevelThreeConeElbow = 84_553;
@@ -524,8 +525,8 @@ public class Constants {
     public static final double kStowToIntakeStageParallelAllowed = -10_000;
     public static final double kIntakeStageToIntakeParallelAllowed = kIntakeElbow;
 
-    public static final double kElbowTeleMotionCruiseVelocity = 13_000.0;
-    public static final double kElbowTeleMotionAcceleration = 38_000.0;
+    public static final double kElbowTeleMotionCruiseVelocity = 12_000.0; // 13_000
+    public static final double kElbowTeleMotionAcceleration = 35_000.0; // 38_000
     public static final double kElbowAutoMotionCruiseVelocity = 13_000.0;
     public static final double kElbowAutoMotionAcceleration = 50_000.0;
 
@@ -599,9 +600,9 @@ public class Constants {
     public static final double kLevelThreeConeShoulder = 6_150; // 5_850 // 3900 // FIXME
     public static final double kLevelThreeCubeShoulder = kLevelThreeConeShoulder;
     public static final double kShelfShoulder = -2_800; // 0
-    public static final double kAutoHighCubeShoulder = 0;
     public static final double kAutoLevelTwoConeShoulder = 1_085; // 723
     public static final double kAutoLevelTwoCubeShoulder = 0.0;
+    public static final double kAutoLevelThreeCubeShoulder = 1_885; // 1_485
     public static final double kAutoLevelThreeConeShoulder = 5_850; // 3900
 
     // Allow Parallel Movement Ticks
@@ -661,8 +662,10 @@ public class Constants {
     public static final int kIntakeFalconID = 20;
     public static final int kExtendTalonID = 21;
 
+    public static final double kStartNextAxisIntakeStage = 500;
+    public static final double kAllowedError = 150; // FIXME
     public static final int kCloseEnoughTicks = 150;
-    public static final int kExtendPosTicks = -2_100; // -2_000
+    public static final int kExtendPosTicks = -2_000; // -2_000
     public static final int kRetractPosTicks = 0;
     public static final int kPickupPosTicks = kExtendPosTicks; // -1_000
 
@@ -670,7 +673,7 @@ public class Constants {
     public static final double kIntakeSpeed = 0.45; // -0.35
     public static final double kIntakeEjectSpeed = -0.3;
     public static final double kEjectTimerDelaySec = 3;
-    public static final double kIntakePickupDelaySec = 0.5;
+    public static final double kIntakePickupDelaySec = 0.1;
     public static final int kBeamBreakStableCounts = 2;
 
     public static TalonSRXConfiguration getExtendTalonConfig() {
@@ -857,7 +860,7 @@ public class Constants {
     public static final double kShoulderFollowerZeroTicks = 2152; // old: 3167
 
     // Intake
-    public static final int kIntakeZeroTicks = 940;
+    public static final int kIntakeZeroTicks = 1690;
     public static final double kExtendPosTicks = -1_950;
 
     // Hand

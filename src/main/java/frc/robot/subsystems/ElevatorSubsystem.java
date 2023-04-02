@@ -130,7 +130,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
 
     leftMainFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
     rightFollowFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
-
+    setPos(ElevatorConstants.kStowElevator);
     logger.info("Elevator is not reinforcing");
   }
 

@@ -23,6 +23,7 @@ import org.strykeforce.telemetry.measurable.Measure;
 
 public class IntakeSubsystem extends MeasurableSubsystem {
   private IntakeState currIntakeState = IntakeState.RETRACTED;
+  private boolean setToGreaterPos = false;
 
   @HealthCheck(order = 1)
   @Timed(
@@ -82,14 +83,20 @@ public class IntakeSubsystem extends MeasurableSubsystem {
   public void extendClosedLoop() {
     extendTalon.set(ControlMode.MotionMagic, Constants.kExtendPosTicks);
     intakeSetPointTicks = Constants.kExtendPosTicks;
+    setToGreaterPos = intakeSetPointTicks > getPos();
     isIntakeExtended = true;
     // logger.info("Intake is extending to {}", IntakeConstants.kExtendPosTicks);
+  }
+
+  public double getPos() {
+    return extendTalon.getSelectedSensorPosition();
   }
 
   public void retractClosedLoop(double retractPos) {
     extendTalon.set(ControlMode.MotionMagic, retractPos);
     intakeSetPointTicks = retractPos;
     isIntakeExtended = false;
+    setToGreaterPos = intakeSetPointTicks > getPos();
     // logger.info("Intake is retracting to {}", IntakeConstants.kRetractPosTicks);
   }
 
@@ -100,6 +107,12 @@ public class IntakeSubsystem extends MeasurableSubsystem {
 
   public boolean getIsIntakeExtended() {
     return isIntakeExtended;
+  }
+
+  public boolean canStartNextAxis(double canStartTicks) {
+    return getPos() >= (canStartTicks - Constants.IntakeConstants.kAllowedError) && setToGreaterPos
+        || getPos() <= (canStartTicks + Constants.IntakeConstants.kAllowedError)
+            && !setToGreaterPos;
   }
 
   public void zeroIntake() {
@@ -118,6 +131,7 @@ public class IntakeSubsystem extends MeasurableSubsystem {
     logger.info("Retract Intake to: {}", IntakeConstants.kRetractPosTicks);
     currIntakeState = IntakeState.RETRACTED;
     if (rollersOff) intakeOpenLoop(0);
+    setToGreaterPos = IntakeConstants.kRetractPosTicks > getPos();
     retractClosedLoop(IntakeConstants.kRetractPosTicks);
   }
 
@@ -129,6 +143,7 @@ public class IntakeSubsystem extends MeasurableSubsystem {
     logger.info("Retract Intake to Pickup Pos: {}", IntakeConstants.kPickupPosTicks);
     currIntakeState = IntakeState.RETRACTED;
     intakeOpenLoop(0);
+    setToGreaterPos = IntakeConstants.kPickupPosTicks > getPos();
     retractClosedLoop(IntakeConstants.kPickupPosTicks);
   }
 

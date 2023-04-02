@@ -185,6 +185,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
     double x = robotPose.getX(), y = robotPose.getY();
     try {
       savedOffRobotEstimation = photonPoseEstimator.update().get();
+
       if (result.hasTargets()
           && (result.getBestTarget().getPoseAmbiguity() <= 0.15
               || savedOffRobotEstimation.targetsUsed.size() > 1)) {

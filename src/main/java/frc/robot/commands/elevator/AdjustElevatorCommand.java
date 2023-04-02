@@ -2,13 +2,20 @@ package frc.robot.commands.elevator;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.RobotStateSubsystem;
+import frc.robot.subsystems.RobotStateSubsystem.RobotState;
 
 public class AdjustElevatorCommand extends CommandBase {
   private ElevatorSubsystem elevatorSubsystem;
+  private RobotStateSubsystem robotStateSubsystem;
   private double decrementTicks;
 
-  public AdjustElevatorCommand(ElevatorSubsystem elevatorSubsystem, double decrementTicks) {
+  public AdjustElevatorCommand(
+      ElevatorSubsystem elevatorSubsystem,
+      RobotStateSubsystem robotStateSubsystem,
+      double decrementTicks) {
     this.elevatorSubsystem = elevatorSubsystem;
+    this.robotStateSubsystem = robotStateSubsystem;
     this.decrementTicks = decrementTicks;
 
     addRequirements(elevatorSubsystem);
@@ -16,6 +23,8 @@ public class AdjustElevatorCommand extends CommandBase {
 
   @Override
   public void execute() {
-    elevatorSubsystem.setPos(elevatorSubsystem.getPos() - decrementTicks);
+    if (robotStateSubsystem.getRobotState() != RobotState.RELEASE_GAME_PIECE) {
+      elevatorSubsystem.setPos(elevatorSubsystem.getPos() - decrementTicks);
+    }
   }
 }
