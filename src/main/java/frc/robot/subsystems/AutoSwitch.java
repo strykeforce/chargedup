@@ -165,7 +165,8 @@ public class AutoSwitch {
             "pieceOneFetchCubeThreePath",
             "pieceOnePlaceCubeThreePath",
             "pieceTwoFetchCubeFourPath",
-            "pieceTwoPlaceCubeFourPath");
+            "pieceTwoPlaceCubeFourPath",
+            "pieceScoreWithoutAutoPath");
       case 0x10:
         // Cone lvl 3, cube lvl 3, balance
         return new TwoPieceMiddleBalanceAutoCommandGroup(

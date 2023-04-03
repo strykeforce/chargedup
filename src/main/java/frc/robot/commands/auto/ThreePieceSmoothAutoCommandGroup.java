@@ -1,9 +1,12 @@
 package frc.robot.commands.auto;
 
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants.RobotStateConstants;
+import frc.robot.commands.drive.AutoPickupCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
@@ -13,6 +16,7 @@ import frc.robot.commands.robotState.ReleaseGamepieceCommand;
 import frc.robot.commands.robotState.SetGamePieceCommand;
 import frc.robot.commands.robotState.SetTargetLevelCommand;
 import frc.robot.commands.robotState.ShootGamepieceCommand;
+import frc.robot.commands.vision.ResetOdometryVisionCommand;
 import frc.robot.commands.vision.SetVisionUpdateCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -31,6 +35,8 @@ public class ThreePieceSmoothAutoCommandGroup extends SequentialCommandGroup
   DriveAutonCommand secondPath;
   DriveAutonCommand thirdPath;
   DriveAutonCommand fourthPath;
+  DriveAutonCommand fallbackPath;
+  DriveAutonCommand fallbackPath2;
   private boolean hasGenerated = false;
   private Alliance alliance = Alliance.Invalid;
   private RobotStateSubsystem robotStateSubsystem;
@@ -46,11 +52,14 @@ public class ThreePieceSmoothAutoCommandGroup extends SequentialCommandGroup
       String pathOne,
       String pathTwo,
       String pathThree,
-      String pathFour) {
+      String pathFour,
+      String pathFallback) {
     firstPath = new DriveAutonCommand(driveSubsystem, pathOne, false, true);
     secondPath = new DriveAutonCommand(driveSubsystem, pathTwo, false, false);
     thirdPath = new DriveAutonCommand(driveSubsystem, pathThree, false, false);
     fourthPath = new DriveAutonCommand(driveSubsystem, pathFour, true, false);
+    fallbackPath = new DriveAutonCommand(driveSubsystem, pathFallback, false, false);
+    fallbackPath2 = new DriveAutonCommand(driveSubsystem, pathFallback, false, false);
     this.robotStateSubsystem = robotStateSubsystem;
 
     addCommands(
@@ -68,44 +77,65 @@ public class ThreePieceSmoothAutoCommandGroup extends SequentialCommandGroup
             new AutoFloorIntakeCommand(
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH)),
+        new ParallelCommandGroup(
+            new SetVisionUpdateCommand(driveSubsystem, true),
+            new ResetOdometryVisionCommand(visionSubsystem, RobotStateConstants.kCubeThreeAutoPickup),
+            new AutoPickupCommand(
+                    driveSubsystem, robotStateSubsystem, RobotStateConstants.kCubeThreeAutoPickup)
+                .withTimeout(1.0)),
         new ParallelDeadlineGroup(
             secondPath,
             new SequentialCommandGroup(
                 new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
         new ParallelCommandGroup(
+            new SetVisionUpdateCommand(driveSubsystem, true),
+            new ConditionalCommand(
+                fallbackPath,
+                new AutoPlaceAutonCommand(
+                        driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
+                    .withTimeout(0.75),
+                () -> !visionSubsystem.isCameraWorking())),
+        new ParallelCommandGroup(
+            new SetVisionUpdateCommand(driveSubsystem, false),
+            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem)),
+        // Cube 2
+        new ParallelDeadlineGroup(
+            thirdPath,
+            new AutoFloorIntakeCommand(
+                robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
+            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID)),
+        new ParallelCommandGroup(
+            new SetVisionUpdateCommand(driveSubsystem, true),
+            new ResetOdometryVisionCommand(visionSubsystem, RobotStateConstants.kCubeFourAutoPickup),
+            new AutoPickupCommand(
+                    driveSubsystem, robotStateSubsystem, RobotStateConstants.kCubeFourAutoPickup)
+                .withTimeout(1.0)),
+        new ParallelDeadlineGroup(
+            fourthPath,
+            new SequentialCommandGroup(
+                new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
+                new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
+        new ParallelCommandGroup(
+            new SetVisionUpdateCommand(driveSubsystem, true),
+            new ConditionalCommand(
+                fallbackPath2,
+                new AutoPlaceAutonCommand(
+                        driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
+                    .withTimeout(0.70),
+                () -> !visionSubsystem.isCameraWorking())),
+        new ParallelCommandGroup(
             new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
-            new ClearGamePieceCommand(
-                robotStateSubsystem)) /*, //Q do we need clear gamepiece command?
-                                      // Cube 2
-                                      new ParallelDeadlineGroup(
-                                          thirdPath,
-                                          new AutoFloorIntakeCommand(
-                                              robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
-                                          new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID)),
-                                      new ParallelDeadlineGroup(
-                                          fourthPath,
-                                          new SequentialCommandGroup(
-                                              new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
-                                              new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
-                                      new ParallelCommandGroup(
-                                          new ShootGamepieceCommand(handSubsystem, robotStateSubsystem), //Q can shoot and clear gamepiece be parallel
-                                          new ClearGamePieceCommand(robotStateSubsystem),
-                                          new SetVisionUpdateCommand(driveSubsystem, true))*/);
-
-    /*,new ParallelCommandGroup(
-        fourthPath,
-        new PastXPositionCommand(
-            robotStateSubsystem, driveSubsystem, Constants.AutonConstants.kPastXPosition)),
-    new AutoPlaceCommandGroup(driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem),
-    new ClearGamePieceCommand(robotStateSubsystem)*/
-  }
+            new ClearGamePieceCommand(robotStateSubsystem)));
+}
 
   public void generateTrajectory() {
     firstPath.generateTrajectory();
     secondPath.generateTrajectory();
     thirdPath.generateTrajectory();
     fourthPath.generateTrajectory();
+    fallbackPath.generateTrajectory();
+    fallbackPath2.generateTrajectory();
     hasGenerated = true;
     alliance = robotStateSubsystem.getAllianceColor();
   }

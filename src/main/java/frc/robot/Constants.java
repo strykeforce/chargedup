@@ -77,6 +77,10 @@ public class Constants {
         new Pose2d(new Translation2d(15.33, 6.749796), new Rotation2d());
     public static final Pose2d kShelfRed =
         new Pose2d(new Translation2d(1.14, 6.749796), new Rotation2d());
+    public static final Pose2d kCubeFourAutoPickup = 
+        new Pose2d(new Translation2d(6.9, 4.56), new Rotation2d());
+    public static final Pose2d kCubeThreeAutoPickup =
+        new Pose2d(new Translation2d(6.9, 3.36), new Rotation2d());
     public static final Pose2d kCubeTwoAutoPickup =
         new Pose2d(new Translation2d(6.9, 2.14), new Rotation2d());
     public static final Pose2d kCubeOneAutoPickup =
