@@ -84,7 +84,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
                     driveSubsystem, robotStateSubsystem, RobotStateConstants.kCubeTwoAutoPickup)
                 .withTimeout(1.0)),
         new ParallelDeadlineGroup(
-            secondPath,
+            secondPath, new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE),
             new SetVisionUpdateCommand(driveSubsystem, false),
             new SequentialCommandGroup(
                 new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
@@ -111,13 +111,13 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new ResetOdometryVisionCommand(visionSubsystem, RobotStateConstants.kCubeOneAutoPickup),
             new AutoPickupCommand(
                     driveSubsystem, robotStateSubsystem, RobotStateConstants.kCubeOneAutoPickup)
-                .withTimeout(1.0)),
+                .withTimeout(1.0),
         new ParallelDeadlineGroup(
-            fourthPath,
+            fourthPath, new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE),
             new SequentialCommandGroup(
                 new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
-        new ParallelCommandGroup(
+        new ParallelCommandGroup( 
             new SetVisionUpdateCommand(driveSubsystem, true),
             new ConditionalCommand(
                 fallbackPath2,

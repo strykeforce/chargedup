@@ -13,6 +13,7 @@ import edu.wpi.first.util.CircularBuffer;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Servo;
 import frc.robot.Constants.VisionConstants;
 import java.io.IOException;
 import java.util.List;
@@ -61,11 +62,13 @@ public class VisionSubsystem extends MeasurableSubsystem {
   private int currUpdate = 0;
   private Pose3d cameraPose;
   private final Notifier photonVisionThread;
+  private Servo highCameraMount;
 
   public VisionSubsystem(DriveSubsystem driveSubsystem) {
     photonVisionThread = new Notifier(this::visionUpdateThread);
     photonVisionThread.startPeriodic(20.0 / 1000.0);
     this.driveSubsystem = driveSubsystem;
+    highCameraMount = new Servo(1);
     try {
       aprilTagFieldLayout =
           new AprilTagFieldLayout(
@@ -113,7 +116,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
                 Units.degreesToRadians(
                     VisionConstants.kHighCameraAngleOffset
                         - driveSubsystem.getGyroRotation2d().getDegrees())),
-        -VisionConstants.kCameraOffset
+        -VisionConstants.kHighCameraAngleOffset
             * FastMath.sin(
                 Units.degreesToRadians(
                     VisionConstants.kHighCameraAngleOffset
@@ -127,6 +130,14 @@ public class VisionSubsystem extends MeasurableSubsystem {
       }
     }
     return 2767.0;
+  }
+
+  public void raiseServo() {
+    highCameraMount.set(VisionConstants.kServoUpPos);
+  }
+
+  public void lowerServo() {
+    highCameraMount.set(VisionConstants.kServoDownPos);
   }
 
   public double getBestTarget() {
@@ -345,6 +356,12 @@ public class VisionSubsystem extends MeasurableSubsystem {
             "Vision Odometry X(Offset)", () -> (getOdometry().getX() + cameraOffset().getX())),
         new Measure(
             "Vision Odometry Y(Offset)", () -> (getOdometry().getY() + cameraOffset().getY())),
+        new Measure(
+            "Vision Odometry X(HighOffset)",
+            () -> (getOdometry().getX() + highCameraOffset().getX())),
+        new Measure(
+            "Vision Odometry Y(HighOffset)",
+            () -> (getOdometry().getY() + highCameraOffset().getY())),
         new Measure("Has Targets", () -> getHasTargets()),
         new Measure("Camera Offset X", () -> cameraOffset().getX()),
         new Measure("Camera Offset Y", () -> cameraOffset().getY()),

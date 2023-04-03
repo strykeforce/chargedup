@@ -222,6 +222,10 @@ public class RobotContainer {
     if (!elevatorSubsystem.hasZeroed()) elevatorSubsystem.zeroElevator();
   }
 
+  public void raiseServo() {
+    visionSubsystem.raiseServo();
+  }
+
   private void configureTelemetry() {
     driveSubsystem.registerWith(telemetryService);
     visionSubsystem.registerWith(telemetryService);
