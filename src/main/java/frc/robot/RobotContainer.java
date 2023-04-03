@@ -313,7 +313,7 @@ public class RobotContainer {
 
   private void configureDriverButtonBindings() {
     driveSubsystem.setDefaultCommand(
-        new DriveTeleopCommand(driveJoystick, driveSubsystem, robotStateSubsystem));
+        new DriveTeleopCommand(driveJoystick, driveSubsystem, robotStateSubsystem, handSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.RESET.id)
         .onTrue(new ZeroGyroCommand(driveSubsystem));
 
@@ -521,21 +521,21 @@ public class RobotContainer {
     // Adjust elevator
     Trigger leftUp =
         new Trigger(() -> xboxController.getLeftY() <= -0.1)
-            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, -1000))
-            .onFalse(new HoldPositionCommand(elevatorSubsystem));
+            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, robotStateSubsystem, -1000))
+            .onFalse(new HoldPositionCommand(elevatorSubsystem, robotStateSubsystem));
     Trigger leftDown =
         new Trigger(() -> xboxController.getLeftY() >= 0.1)
-            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, 1000))
-            .onFalse(new HoldPositionCommand(elevatorSubsystem));
+            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, robotStateSubsystem, 1000))
+            .onFalse(new HoldPositionCommand(elevatorSubsystem, robotStateSubsystem));
 
     Trigger rightDown =
         new Trigger(() -> xboxController.getRightY() <= -0.1)
             .onTrue(new JogElbowCommand(elbowSubsystem, robotStateSubsystem, 1))
-            .onFalse(new ElbowHoldPosCommand(elbowSubsystem));
+            .onFalse(new ElbowHoldPosCommand(elbowSubsystem, robotStateSubsystem));
     Trigger rightUp =
         new Trigger(() -> xboxController.getRightY() >= 0.1)
             .onTrue(new JogElbowCommand(elbowSubsystem, robotStateSubsystem, -1))
-            .onFalse(new ElbowHoldPosCommand(elbowSubsystem));
+            .onFalse(new ElbowHoldPosCommand(elbowSubsystem, robotStateSubsystem));
 
     Trigger rightRight =
         new Trigger(() -> xboxController.getRightX() <= -0.1)
