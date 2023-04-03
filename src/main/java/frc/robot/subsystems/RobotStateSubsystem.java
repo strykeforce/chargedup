@@ -150,6 +150,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public void setAllianceColor(Alliance alliance) {
+    logger.info("Changing to {}", alliance);
     this.allianceColor = alliance;
   }
 
@@ -166,32 +167,32 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     currRobotState = RobotState.TO_INTAKE_STAGE;
     currentAxis = CurrentAxis.INTAKE;
     intakeSubsystem.startIntaking();
-    handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition);
+    // handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition);
   }
 
   public void toManualStage() {
     rgbLightsSubsystem.setOff();
     if (gamePiece != GamePiece.NONE) {
       if (currRobotState == RobotState.STOW) toManualScore();
-      else toStowIntake(RobotState.MANUAL_SCORE);
+      else toStow(RobotState.MANUAL_SCORE);
     } else {
       if (currRobotState == RobotState.STOW) toManualShelf();
-      else toStowIntake(RobotState.MANUAL_SHELF);
+      else toStow(RobotState.MANUAL_SHELF);
     }
   }
 
   public void toShelf() {
     if (currRobotState == RobotState.STOW) toManualShelf();
-    else toStowIntake(RobotState.MANUAL_SHELF);
+    else toStow(RobotState.MANUAL_SHELF);
   }
 
   public void toAutoStage() {}
 
-  public void toStowIntake() {
-    toStowIntake(RobotState.STOW);
+  public void toStow() {
+    toStow(RobotState.STOW);
   }
 
-  public void toStowIntake(RobotState nextState) {
+  public void toStow(RobotState nextState) {
     // currRobotState = RbotState.TO_STOW_SCORE;
     if (elbowSubsystem.getPos() >= 0) {
       logger.info("{} --> TO_STOW_SCORE", currRobotState);
@@ -222,10 +223,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     logger.info("{} --> TO_FLOOR_PICKUP", currRobotState);
     if (currRobotState == RobotState.STOW) {
       handSubsystem.open();
+      armSubsystem.toFloorPos(); // FIXME
       currRobotState = RobotState.TO_FLOOR_PICKUP;
       currentAxis = CurrentAxis.HAND;
     } else {
-      toStowIntake(RobotState.FLOOR_PICKUP);
+      toStow(RobotState.FLOOR_PICKUP);
     }
   }
 
@@ -242,7 +244,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         if (armSubsystem.getCurrState() != ArmState.AUTO_MID_CONE
             && armSubsystem.getCurrState() != ArmState.AUTO_MID_CUBE
             && armSubsystem.getCurrState() != ArmState.MID_CONE
-            && armSubsystem.getCurrState() != ArmState.MID_CUBE) {
+            && armSubsystem.getCurrState() != ArmState.MID_CUBE
+            && armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER) {
           armSubsystem.toMidPos(getGamePiece(), isAuto);
         }
         break;
@@ -250,7 +253,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         if (armSubsystem.getCurrState() != ArmState.HIGH_CONE
             && armSubsystem.getCurrState() != ArmState.HIGH_CUBE
             && armSubsystem.getCurrState() != ArmState.AUTO_HIGH_CONE
-            && armSubsystem.getCurrState() != ArmState.AUTO_HIGH_CUBE)
+            && armSubsystem.getCurrState() != ArmState.AUTO_HIGH_CUBE
+            && armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER)
           armSubsystem.toHighPos(getGamePiece(), isAuto);
         break;
     }
@@ -322,7 +326,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
 
   public void toRecoverGamepiece() {
     armSubsystem.unReinforceElevator();
-    toStowIntake();
+    toStow();
     handSubsystem.stowHand(HandConstants.kShelfOpenPosition);
     currentAxis = CurrentAxis.HAND;
     handSubsystem.runRollers(HandConstants.kRollerPickUp);
@@ -361,7 +365,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             && armSubsystem.getCurrState() != ArmState.AUTO_MID_CUBE
             && armSubsystem.getCurrState() != ArmState.MID_CONE
             && armSubsystem.getCurrState() != ArmState.MID_CUBE
-            && armSubsystem.getCurrState() != ArmState.STOW_TO_MID) {
+            && armSubsystem.getCurrState() != ArmState.STOW_TO_MID
+            && armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER) {
           armSubsystem.toMidPos(getGamePiece(), isAuto);
         }
         break;
@@ -370,7 +375,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             && armSubsystem.getCurrState() != ArmState.AUTO_HIGH_CUBE
             && armSubsystem.getCurrState() != ArmState.HIGH_CONE
             && armSubsystem.getCurrState() != ArmState.HIGH_CUBE
-            && armSubsystem.getCurrState() != ArmState.STOW_TO_HIGH)
+            && armSubsystem.getCurrState() != ArmState.STOW_TO_HIGH
+            && armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER)
           armSubsystem.toHighPos(getGamePiece(), isAuto);
         break;
     }
@@ -527,7 +533,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       case TO_INTAKE_STAGE:
         switch (currentAxis) {
           case INTAKE:
-            if (intakeSubsystem.isFinished()) {
+            if (intakeSubsystem.canStartNextAxis(IntakeConstants.kStartNextAxisIntakeStage)) {
               intakeTimerOffset.reset();
               intakeTimerOffset.start();
               currentAxis = CurrentAxis.ARM;
@@ -541,6 +547,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
               if (isAuto && shouldFastStowArm()) {
                 armSubsystem.setArmFastStow(true);
               }
+              handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition); // FIXME
               armSubsystem.toIntakeStagePos(true);
             }
             if (armSubsystem.getCurrState() == ArmState.INTAKE) {
@@ -616,7 +623,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
               intakeDelayTimer.stop();
               handSubsystem.runRollers(HandConstants.kRollerCubeHoldSpeed);
               setGamePiece(GamePiece.CUBE);
-              toStowIntake();
+              toStow();
             }
             break;
           default:
@@ -749,7 +756,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         switch (currentAxis) {
           case HAND:
             if (handSubsystem.isFinished()) {
-              armSubsystem.toFloorPos();
+              // armSubsystem.toFloorPos(); //FIXME
               handSubsystem.runRollers(HandConstants.kRollerPickUp);
               currentAxis = CurrentAxis.ARM;
             }
@@ -787,7 +794,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             break;
           case HAND:
             if (handSubsystem.isFinished()) {
-              toStowIntake();
+              toStow();
             }
             break;
         }
@@ -814,7 +821,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           releaseDelayTimer.stop();
           releaseDelayTimer.reset();
           logger.info("Release timer elapsed.");
-          toStowIntake();
+          toStow();
         }
 
         break;
@@ -822,7 +829,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         if (handSubsystem.isFinished()) {
           if (handSubsystem.getHandState() == HandStates.CONE_CLOSED) setGamePiece(GamePiece.CONE);
           else setGamePiece(GamePiece.CUBE);
-          toStowIntake();
+          toStow();
         }
         break;
       case SHELF_WAIT_TRANSITION:
@@ -867,13 +874,13 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           desiredPoseX = currPoseX - Constants.ArmConstants.kShelfMove;
           if (driveSubsystem.getPoseMeters().getX() <= desiredPoseX) {
             rgbLightsSubsystem.setOff();
-            toStowIntake();
+            toStow();
           }
         } else if (allianceColor == Alliance.Red) {
           desiredPoseX = currPoseX + Constants.ArmConstants.kShelfMove;
           if (driveSubsystem.getPoseMeters().getX() >= desiredPoseX) {
             rgbLightsSubsystem.setOff();
-            toStowIntake();
+            toStow();
           }
         }
 
@@ -943,7 +950,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
               setGamePiece(GamePiece.CONE);
               armSubsystem.unReinforceElevator();
               // armSubsystem.setReinforceElevator(false);
-              toStowIntake();
+              toStow();
               logger.info("{} -> TO_STOW", currRobotState);
               currRobotState = RobotState.TO_STOW;
             }

@@ -1,7 +1,9 @@
 package frc.robot;
 
 import ch.qos.logback.classic.util.ContextInitializer;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
@@ -20,10 +22,11 @@ import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.TestBalanceCommand;
+import frc.robot.commands.drive.AutoPickupCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
+import frc.robot.commands.drive.InterruptDriveCommand;
 import frc.robot.commands.drive.LockZeroCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
-import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elbow.ElbowHoldPosCommand;
 import frc.robot.commands.elbow.JogElbowCommand;
 import frc.robot.commands.elevator.AdjustElevatorCommand;
@@ -40,6 +43,8 @@ import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
+import frc.robot.commands.robotState.AutoPlaceCommand;
+import frc.robot.commands.robotState.AutoPlaceCommandGroup;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.RecoverGamepieceCommand;
@@ -174,7 +179,7 @@ public class RobotContainer {
       armSubsystem.setTwistEnd(true);
       configurePitImportantDashboard();
       configureTelemetry();
-      configurePitDashboard();
+      //   configurePitDashboard();
       new Trigger(RobotController::getUserButton)
           .onTrue(new HealthCheckCommand(driveSubsystem, intakeSubsystem));
     }
@@ -308,7 +313,7 @@ public class RobotContainer {
 
   private void configureDriverButtonBindings() {
     driveSubsystem.setDefaultCommand(
-        new DriveTeleopCommand(driveJoystick, driveSubsystem, robotStateSubsystem));
+        new DriveTeleopCommand(driveJoystick, driveSubsystem, robotStateSubsystem, handSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.RESET.id)
         .onTrue(new ZeroGyroCommand(driveSubsystem));
 
@@ -322,23 +327,28 @@ public class RobotContainer {
             false,
             robotStateSubsystem.getTargetCol(),
             true));*/
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
-    //     .onTrue(
-    //         new AutoPlaceCommandGroup(
-    //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
-    //     .onTrue(
-    //         new AutoPlaceCommand(driveSubsystem, robotStateSubsystem, armSubsystem,
-    // handSubsystem))
-    //     .onFalse(new InterruptDriveCommand(driveSubsystem));
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id).onTrue(balancepath); // TESTING AT
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+        .onTrue(
+            new AutoPlaceCommandGroup(
+                driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+        .onTrue(
+            new AutoPlaceCommand(driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem))
+        .onFalse(new InterruptDriveCommand(driveSubsystem));
+    // TESTING AT
     // LAKEVIEW PRACTICE FIELD
 
     // new JoystickButton(driveJoystick, InterlinkButton.X.id)
     //     .onTrue(new ZeroElbowCommand(elbowSubsystem));
 
+    // new JoystickButton(driveJoystick, InterlinkButton.X.id)
+    //     .onTrue(new xLockCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
-        .onTrue(new xLockCommand(driveSubsystem));
+        .onTrue(
+            new AutoPickupCommand(
+                driveSubsystem,
+                robotStateSubsystem,
+                new Pose2d(new Translation2d(6.9, .92), new Rotation2d())));
 
     // Hand
     /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
@@ -511,21 +521,21 @@ public class RobotContainer {
     // Adjust elevator
     Trigger leftUp =
         new Trigger(() -> xboxController.getLeftY() <= -0.1)
-            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, -1000))
-            .onFalse(new HoldPositionCommand(elevatorSubsystem));
+            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, robotStateSubsystem, -1000))
+            .onFalse(new HoldPositionCommand(elevatorSubsystem, robotStateSubsystem));
     Trigger leftDown =
         new Trigger(() -> xboxController.getLeftY() >= 0.1)
-            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, 1000))
-            .onFalse(new HoldPositionCommand(elevatorSubsystem));
+            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, robotStateSubsystem, 1000))
+            .onFalse(new HoldPositionCommand(elevatorSubsystem, robotStateSubsystem));
 
     Trigger rightDown =
         new Trigger(() -> xboxController.getRightY() <= -0.1)
             .onTrue(new JogElbowCommand(elbowSubsystem, robotStateSubsystem, 1))
-            .onFalse(new ElbowHoldPosCommand(elbowSubsystem));
+            .onFalse(new ElbowHoldPosCommand(elbowSubsystem, robotStateSubsystem));
     Trigger rightUp =
         new Trigger(() -> xboxController.getRightY() >= 0.1)
             .onTrue(new JogElbowCommand(elbowSubsystem, robotStateSubsystem, -1))
-            .onFalse(new ElbowHoldPosCommand(elbowSubsystem));
+            .onFalse(new ElbowHoldPosCommand(elbowSubsystem, robotStateSubsystem));
 
     Trigger rightRight =
         new Trigger(() -> xboxController.getRightX() <= -0.1)

@@ -605,7 +605,11 @@ public class DriveSubsystem extends MeasurableSubsystem {
           logger.info("Average Starting Roll: {}", avgStartingRoll);
           logger.info("{} -> AUTO_BALANCE", currDriveState);
           currDriveState = DriveStates.AUTO_BALANCE;
-          move(DriveConstants.kAutoBalanceSlowDriveVel, 0, 0, false);
+          if (isOnAllianceSide) {
+            move(DriveConstants.kAutoBalanceSlowDriveVel, 0, 0, false);
+          } else {
+            move(-DriveConstants.kAutoBalanceSlowDriveVel, 0, 0, false);
+          }
           autoBalanceTimer.reset();
         }
         break;

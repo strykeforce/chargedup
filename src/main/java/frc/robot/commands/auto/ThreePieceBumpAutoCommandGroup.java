@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants.RobotStateConstants;
+import frc.robot.commands.drive.AutoPickupCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
@@ -14,6 +16,7 @@ import frc.robot.commands.robotState.ReleaseGamepieceCommand;
 import frc.robot.commands.robotState.SetGamePieceCommand;
 import frc.robot.commands.robotState.SetTargetLevelCommand;
 import frc.robot.commands.robotState.ShootGamepieceCommand;
+import frc.robot.commands.vision.ResetOdometryVisionCommand;
 import frc.robot.commands.vision.SetVisionUpdateCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -51,9 +54,9 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
       String pathThree,
       String pathFour,
       String pathFallback) {
-    firstPath = new DriveAutonCommand(driveSubsystem, pathOne, true, true);
+    firstPath = new DriveAutonCommand(driveSubsystem, pathOne, false, true);
     secondPath = new DriveAutonCommand(driveSubsystem, pathTwo, false, false);
-    thirdPath = new DriveAutonCommand(driveSubsystem, pathThree, true, false);
+    thirdPath = new DriveAutonCommand(driveSubsystem, pathThree, false, false);
     fourthPath = new DriveAutonCommand(driveSubsystem, pathFour, false, false);
     fallbackPath = new DriveAutonCommand(driveSubsystem, pathFallback, true, false);
     fallbackPath2 = new DriveAutonCommand(driveSubsystem, pathFallback, true, false);
@@ -74,8 +77,15 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new AutoFloorIntakeCommand(
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH)),
+        new ParallelCommandGroup(
+            new SetVisionUpdateCommand(driveSubsystem, true),
+            new ResetOdometryVisionCommand(visionSubsystem, RobotStateConstants.kCubeTwoAutoPickup),
+            new AutoPickupCommand(
+                    driveSubsystem, robotStateSubsystem, RobotStateConstants.kCubeTwoAutoPickup)
+                .withTimeout(1.0)),
         new ParallelDeadlineGroup(
             secondPath,
+            new SetVisionUpdateCommand(driveSubsystem, false),
             new SequentialCommandGroup(
                 new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
@@ -96,6 +106,12 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new AutoFloorIntakeCommand(
                 robotStateSubsystem, intakeSubsystem, armSubsystem, handSubsystem),
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID)),
+        new ParallelCommandGroup(
+            new SetVisionUpdateCommand(driveSubsystem, true),
+            new ResetOdometryVisionCommand(visionSubsystem, RobotStateConstants.kCubeOneAutoPickup),
+            new AutoPickupCommand(
+                    driveSubsystem, robotStateSubsystem, RobotStateConstants.kCubeOneAutoPickup)
+                .withTimeout(1.0)),
         new ParallelDeadlineGroup(
             fourthPath,
             new SequentialCommandGroup(
