@@ -243,7 +243,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         if (armSubsystem.getCurrState() != ArmState.AUTO_MID_CONE
             && armSubsystem.getCurrState() != ArmState.AUTO_MID_CUBE
             && armSubsystem.getCurrState() != ArmState.MID_CONE
-            && armSubsystem.getCurrState() != ArmState.MID_CUBE) {
+            && armSubsystem.getCurrState() != ArmState.MID_CUBE
+            && armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER) {
           armSubsystem.toMidPos(getGamePiece(), isAuto);
         }
         break;
@@ -251,7 +252,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         if (armSubsystem.getCurrState() != ArmState.HIGH_CONE
             && armSubsystem.getCurrState() != ArmState.HIGH_CUBE
             && armSubsystem.getCurrState() != ArmState.AUTO_HIGH_CONE
-            && armSubsystem.getCurrState() != ArmState.AUTO_HIGH_CUBE)
+            && armSubsystem.getCurrState() != ArmState.AUTO_HIGH_CUBE
+            && armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER)
           armSubsystem.toHighPos(getGamePiece(), isAuto);
         break;
     }
@@ -362,7 +364,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             && armSubsystem.getCurrState() != ArmState.AUTO_MID_CUBE
             && armSubsystem.getCurrState() != ArmState.MID_CONE
             && armSubsystem.getCurrState() != ArmState.MID_CUBE
-            && armSubsystem.getCurrState() != ArmState.STOW_TO_MID) {
+            && armSubsystem.getCurrState() != ArmState.STOW_TO_MID
+            && armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER) {
           armSubsystem.toMidPos(getGamePiece(), isAuto);
         }
         break;
@@ -371,7 +374,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             && armSubsystem.getCurrState() != ArmState.AUTO_HIGH_CUBE
             && armSubsystem.getCurrState() != ArmState.HIGH_CONE
             && armSubsystem.getCurrState() != ArmState.HIGH_CUBE
-            && armSubsystem.getCurrState() != ArmState.STOW_TO_HIGH)
+            && armSubsystem.getCurrState() != ArmState.STOW_TO_HIGH
+            && armSubsystem.getCurrState() != ArmState.TWIST_SHOULDER)
           armSubsystem.toHighPos(getGamePiece(), isAuto);
         break;
     }

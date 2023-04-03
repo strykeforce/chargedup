@@ -78,9 +78,9 @@ public class Constants {
     public static final Pose2d kShelfRed =
         new Pose2d(new Translation2d(1.14, 6.749796), new Rotation2d());
     public static final Pose2d kCubeTwoAutoPickup =
-        new Pose2d(new Translation2d(7.07, 2.25), new Rotation2d());
+        new Pose2d(new Translation2d(6.9, 2.14), new Rotation2d());
     public static final Pose2d kCubeOneAutoPickup =
-        new Pose2d(new Translation2d(7.07, 0.92), new Rotation2d());
+        new Pose2d(new Translation2d(6.9, 0.92), new Rotation2d());
 
     public static final double kPolePlaceOffset = 0.56;
     public static final double kShelfOffset = 0.75;
@@ -683,6 +683,7 @@ public class Constants {
     public static final int kPickupPosTicks = kExtendPosTicks; // -1_000
 
     public static final double kIntakeDelay = 0.0;
+    public static final double kIntakeDelayAuto = 0.3;
     public static final double kIntakeSpeed = 0.45; // -0.35
     public static final double kIntakeEjectSpeed = -0.3;
     public static final double kEjectTimerDelaySec = 3;

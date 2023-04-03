@@ -198,15 +198,19 @@ public class VisionSubsystem extends MeasurableSubsystem {
   }
 
   public boolean isCameraWorking() {
-    return cam1.isConnected();
+    return cam1.isConnected() && cam2.isConnected();
   }
 
   public double getBufferedVelocity() {
     return velocityBuffer.get(gyroBufferId);
   }
 
-  public void resetOdometry() {
-    if (cam2.isConnected()) {
+  public void resetOdometry(Pose2d errorCheckPose) {
+    if (cam2.isConnected()
+        && FastMath.hypot(
+                (cameraPose.getX() - errorCheckPose.getX()),
+                (cameraPose.getY() - errorCheckPose.getY()))
+            <= 0.75) {
       logger.info("reseting to X : {} | Y : {}", cameraPose.getX(), cameraPose.getY());
       driveSubsystem.resetOdometry(
           new Pose2d(

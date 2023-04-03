@@ -10,6 +10,7 @@ import frc.robot.commands.drive.AutoPickupCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
+import frc.robot.commands.robotState.ClearGamePieceCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.ReleaseGamepieceCommand;
 import frc.robot.commands.robotState.SetGamePieceCommand;
@@ -78,7 +79,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH)),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, true),
-            new ResetOdometryVisionCommand(visionSubsystem),
+            new ResetOdometryVisionCommand(visionSubsystem, RobotStateConstants.kCubeTwoAutoPickup),
             new AutoPickupCommand(
                     driveSubsystem, robotStateSubsystem, RobotStateConstants.kCubeTwoAutoPickup)
                 .withTimeout(1.0)),
@@ -99,7 +100,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, false),
             new ShootGamepieceCommand(handSubsystem, robotStateSubsystem)),
-        // // Cube 2
+        // Cube 2
         new ParallelDeadlineGroup(
             thirdPath,
             new AutoFloorIntakeCommand(
@@ -107,26 +108,26 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID)),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, true),
-            new ResetOdometryVisionCommand(visionSubsystem),
+            new ResetOdometryVisionCommand(visionSubsystem, RobotStateConstants.kCubeOneAutoPickup),
             new AutoPickupCommand(
                     driveSubsystem, robotStateSubsystem, RobotStateConstants.kCubeOneAutoPickup)
-                .withTimeout(1.0))
-        // new ParallelDeadlineGroup(
-        //     fourthPath,
-        //     new SequentialCommandGroup(
-        //         new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
-        //         new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
-        // new ParallelCommandGroup(
-        //     new SetVisionUpdateCommand(driveSubsystem, true),
-        //     new ConditionalCommand(
-        //         fallbackPath2,
-        //         new AutoPlaceAutonCommand(
-        //                 driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
-        //             .withTimeout(0.70),
-        //         () -> !visionSubsystem.isCameraWorking())),
-        // new ParallelCommandGroup(
-        //     new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
-        //     new ClearGamePieceCommand(robotStateSubsystem))
+                .withTimeout(1.0)),
+        new ParallelDeadlineGroup(
+            fourthPath,
+            new SequentialCommandGroup(
+                new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
+                new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
+        new ParallelCommandGroup(
+            new SetVisionUpdateCommand(driveSubsystem, true),
+            new ConditionalCommand(
+                fallbackPath2,
+                new AutoPlaceAutonCommand(
+                        driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
+                    .withTimeout(0.70),
+                () -> !visionSubsystem.isCameraWorking())),
+        new ParallelCommandGroup(
+            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
+            new ClearGamePieceCommand(robotStateSubsystem))
         /*,new ParallelCommandGroup(
             fourthPath,
             new PastXPositionCommand(

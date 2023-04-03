@@ -240,9 +240,9 @@ public class AutoSwitch {
             elevatorSubsystem,
             visionSubsystem,
             "pieceOneFetchBumpCubeTwo",
-            "pieceTwoDeliverBumpPath",
-            "pieceOneFetchPathBumpSwitch",
-            "pieceOneDeliverBumpPath",
+            "pieceOneDeliverBumpCubeTwo",
+            "pieceTwoFetchBumpCubeOne",
+            "pieceTwoDeliverBumpCubeOne",
             "pieceScoreWithoutAutoBump");
       case 0x30:
         return new DoNothingAutonCommand(

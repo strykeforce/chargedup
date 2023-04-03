@@ -177,9 +177,9 @@ public class RobotContainer {
     configureMatchDashboard();
     if (!isEvent || !Constants.isCompBot) {
       armSubsystem.setTwistEnd(true);
-      // configurePitImportantDashboard();
+      configurePitImportantDashboard();
       configureTelemetry();
-      // configurePitDashboard();
+      //   configurePitDashboard();
       new Trigger(RobotController::getUserButton)
           .onTrue(new HealthCheckCommand(driveSubsystem, intakeSubsystem));
     }
