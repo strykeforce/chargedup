@@ -58,7 +58,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
     this.elbowSubsystem = elbowSubsystem;
     if (!isHealthChecking) {
       shoulderSubsystem.setSoftLimits(
-          HandRegion.HOUSE.minTicksShoulder, HandRegion.HOUSE.maxTicksShoulder);
+          HandRegion.FRONT.minTicksShoulder, HandRegion.FRONT.maxTicksShoulder);
       if (!elevatorSubsystem.isElevatorReinforcing())
         elevatorSubsystem.setSoftLimits(
             HandRegion.HOUSE.minTicksElevator, HandRegion.HOUSE.maxTicksElevator);

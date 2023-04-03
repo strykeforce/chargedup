@@ -686,7 +686,6 @@ public class Constants {
     public static final int kPickupPosTicks = kExtendPosTicks; // -1_000
 
     public static final double kIntakeDelay = 0.0;
-    public static final double kIntakeDelayAuto = 0.3;
     public static final double kIntakeSpeed = 0.45; // -0.35
     public static final double kIntakeEjectSpeed = -0.3;
     public static final double kEjectTimerDelaySec = 3;

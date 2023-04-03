@@ -12,6 +12,7 @@ public class HoldPositionCommand extends CommandBase {
   public HoldPositionCommand(
       ElevatorSubsystem elevatorSubsystem, RobotStateSubsystem robotStateSubsystem) {
     this.elevatorSubsystem = elevatorSubsystem;
+    this.robotStateSubsystem = robotStateSubsystem;
     addRequirements(elevatorSubsystem);
   }
 
