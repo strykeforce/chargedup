@@ -373,10 +373,13 @@ public class Constants {
     public static final double kCameraOffset = .335; // was .273 on driveChasis
     public static final double kCameraAngleOffset = 0; // DEGREES was 24 on driveChasis
     public static final double kHighCameraAngleOffset = 0.0;
-    public static final double kHighCameraOffset = 0.0;
+    public static final double kHighCameraOffset = -0.075;
     public static final double kLastUpdateCloseEnoughThreshold = 2.0; // IN SECONDS
     public static final double kLastUpdateCloseEnoughThresholdYaw = 1.0;
     public static final double kDifferenceCloseEnoughThreshold = .1;
+    public static final double kServoId = 1;
+    public static final double kServoDownPos = 0.8;
+    public static final double kServoUpPos = 0.3;
     public static int kBufferLookupOffset = 2;
 
     public static Matrix<N3, N1> kStateStdDevs =
