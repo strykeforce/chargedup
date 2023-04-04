@@ -260,6 +260,20 @@ public class AutoSwitch {
             "pieceTwoFetchBumpCubeOne",
             "pieceTwoDeliverBumpCubeOne",
             "pieceScoreWithoutAutoBump");
+      case 0x25:
+      return new ThreePieceBumpAutoCommandGroup(
+        driveSubsystem,
+        robotStateSubsystem,
+        armSubsystem,
+        handSubsystem,
+        intakeSubsystem,
+        elevatorSubsystem,
+        visionSubsystem,
+        "pieceOneFetchBumpCubeTwo",
+        "pieceOneDeliverBumpCubeTwo",
+        "pieceTwoFetchBumpCubeOne",
+        "pieceTwoDeliverBumpCubeOne",
+        "pieceScoreWithoutAutoBump");
       case 0x30:
         return new DoNothingAutonCommand(
             driveSubsystem,
