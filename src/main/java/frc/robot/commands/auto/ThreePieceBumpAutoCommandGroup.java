@@ -124,6 +124,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, true),
+            new SetVisionUpdateCommand(driveSubsystem, false),
             new ConditionalCommand(
                 fallbackPath2,
                 new AutoPlaceAutonCommand(

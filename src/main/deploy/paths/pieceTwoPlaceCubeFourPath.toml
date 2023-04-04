@@ -1,4 +1,4 @@
-max_velocity = 3.0 #m/s
+max_velocity = 3.25 #m/s
 max_acceleration = 3.0 #m/s
 start_velocity = 0.0 #m/s
 end_velocity = 0.5 #m/s 
@@ -7,12 +7,12 @@ target_yaw = 0.0 #degrees
 
 [start_pose] 
     x = 6.90 # 7
-    y = 4.68 # cube 4
+    y = 4.58 # cube 4
     angle = 180.0
 
 [end_pose]
     x = 2.12 # 7
-    y = 3.82 # cube 4 place mid 
+    y = 4.42 # cube 4 place mid  3.82
     angle = 180.0
 
 [[internal_points]]
