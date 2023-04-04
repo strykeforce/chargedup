@@ -10,7 +10,10 @@ public class AdjustElevatorCommand extends CommandBase {
   private RobotStateSubsystem robotStateSubsystem;
   private double decrementTicks;
 
-  public AdjustElevatorCommand(ElevatorSubsystem elevatorSubsystem, RobotStateSubsystem robotStateSubsystem, double decrementTicks) {
+  public AdjustElevatorCommand(
+      ElevatorSubsystem elevatorSubsystem,
+      RobotStateSubsystem robotStateSubsystem,
+      double decrementTicks) {
     this.elevatorSubsystem = elevatorSubsystem;
     this.robotStateSubsystem = robotStateSubsystem;
     this.decrementTicks = decrementTicks;
@@ -20,8 +23,7 @@ public class AdjustElevatorCommand extends CommandBase {
 
   @Override
   public void execute() {
-    if (robotStateSubsystem.getRobotState() != RobotState.RELEASE_GAME_PIECE)
-    {
+    if (robotStateSubsystem.getRobotState() != RobotState.RELEASE_GAME_PIECE) {
       elevatorSubsystem.setPos(elevatorSubsystem.getPos() - decrementTicks);
     }
   }

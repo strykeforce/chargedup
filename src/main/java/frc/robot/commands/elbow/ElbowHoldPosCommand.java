@@ -9,7 +9,8 @@ public class ElbowHoldPosCommand extends CommandBase {
   private ElbowSubsystem elbowSubsystem;
   private RobotStateSubsystem robotStateSubsystem;
 
-  public ElbowHoldPosCommand(ElbowSubsystem elbowSubsystem, RobotStateSubsystem robotStateSubsystem) {
+  public ElbowHoldPosCommand(
+      ElbowSubsystem elbowSubsystem, RobotStateSubsystem robotStateSubsystem) {
     addRequirements(elbowSubsystem);
     this.elbowSubsystem = elbowSubsystem;
     this.robotStateSubsystem = robotStateSubsystem;

@@ -512,20 +512,20 @@ public class RobotContainer {
     Trigger leftUp =
         new Trigger(() -> xboxController.getLeftY() <= -0.1)
             .onTrue(new AdjustElevatorCommand(elevatorSubsystem, robotStateSubsystem, -1000))
-            .onFalse(new HoldPositionCommand(elevatorSubsystem));
+            .onFalse(new HoldPositionCommand(elevatorSubsystem, robotStateSubsystem));
     Trigger leftDown =
         new Trigger(() -> xboxController.getLeftY() >= 0.1)
             .onTrue(new AdjustElevatorCommand(elevatorSubsystem, robotStateSubsystem, 1000))
-            .onFalse(new HoldPositionCommand(elevatorSubsystem));
+            .onFalse(new HoldPositionCommand(elevatorSubsystem, robotStateSubsystem));
 
     Trigger rightDown =
         new Trigger(() -> xboxController.getRightY() <= -0.1)
             .onTrue(new JogElbowCommand(elbowSubsystem, robotStateSubsystem, 1))
-            .onFalse(new ElbowHoldPosCommand(elbowSubsystem));
+            .onFalse(new ElbowHoldPosCommand(elbowSubsystem, robotStateSubsystem));
     Trigger rightUp =
         new Trigger(() -> xboxController.getRightY() >= 0.1)
             .onTrue(new JogElbowCommand(elbowSubsystem, robotStateSubsystem, -1))
-            .onFalse(new ElbowHoldPosCommand(elbowSubsystem));
+            .onFalse(new ElbowHoldPosCommand(elbowSubsystem, robotStateSubsystem));
 
     Trigger rightRight =
         new Trigger(() -> xboxController.getRightX() <= -0.1)
