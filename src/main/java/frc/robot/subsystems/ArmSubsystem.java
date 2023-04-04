@@ -87,6 +87,8 @@ public class ArmSubsystem extends MeasurableSubsystem {
   }
 
   public void toStowPos(ArmState desiredState) {
+    this.desiredState = desiredState;
+    logger.info("Desired State: {}", desiredState);
     switch (currState) {
       case LOW: // Fall through
       case MID_CONE:
@@ -141,7 +143,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
         shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
         break;
     }
-    this.desiredState = desiredState;
   }
 
   public void toIntakeStagePos() {

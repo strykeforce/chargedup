@@ -167,6 +167,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     currRobotState = RobotState.TO_INTAKE_STAGE;
     currentAxis = CurrentAxis.INTAKE;
     intakeSubsystem.startIntaking();
+    if (armSubsystem.getCurrState() != ArmState.STOW && isAuto) armSubsystem.toStowPos();
     // handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition);
   }
 
@@ -533,7 +534,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
       case TO_INTAKE_STAGE:
         switch (currentAxis) {
           case INTAKE:
-            if (intakeSubsystem.canStartNextAxis(IntakeConstants.kStartNextAxisIntakeStage)) {
+            if (intakeSubsystem.canStartNextAxis(IntakeConstants.kStartNextAxisIntakeStage)
+                || intakeSubsystem.isFinished()) {
               intakeTimerOffset.reset();
               intakeTimerOffset.start();
               logger.info("{}: {} -> ARM", currRobotState, currentAxis);
