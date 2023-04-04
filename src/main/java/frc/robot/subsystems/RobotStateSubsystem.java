@@ -536,6 +536,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
             if (intakeSubsystem.canStartNextAxis(IntakeConstants.kStartNextAxisIntakeStage)) {
               intakeTimerOffset.reset();
               intakeTimerOffset.start();
+              logger.info("{}: {} -> ARM", currRobotState, currentAxis);
               currentAxis = CurrentAxis.ARM;
               break;
             }
@@ -815,8 +816,9 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           releaseDelayTimer.start();
           isReleaseDelayTimerRunning = true;
           logger.info("Started release timer");
-        } else if (isReleaseDelayTimerRunning
-            && releaseDelayTimer.hasElapsed(RobotStateConstants.kReleaseDelayTime)) {
+        } else if ((isReleaseDelayTimerRunning
+                && releaseDelayTimer.hasElapsed(RobotStateConstants.kReleaseDelayTime))
+            || isAuto) {
           isReleaseDelayTimerRunning = false;
           releaseDelayTimer.stop();
           releaseDelayTimer.reset();

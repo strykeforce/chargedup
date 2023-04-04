@@ -309,7 +309,7 @@ public class Constants {
     public static final double kAutoDriveMaxAccel = 2;
 
     // Auto PickUp Constants
-    public static final double kPAutoPickup = 2.5;
+    public static final double kPAutoPickup = 3;
     public static final double kIAutoPickup = 0.0;
     public static final double kDAutoPickup = 0.0;
 
@@ -681,7 +681,7 @@ public class Constants {
     public static final int kIntakeFalconID = 20;
     public static final int kExtendTalonID = 21;
 
-    public static final double kStartNextAxisIntakeStage = 500;
+    public static final double kStartNextAxisIntakeStage = -500;
     public static final double kAllowedError = 150; // FIXME
     public static final int kCloseEnoughTicks = 150;
     public static final int kExtendPosTicks = -2_000; // -2_000

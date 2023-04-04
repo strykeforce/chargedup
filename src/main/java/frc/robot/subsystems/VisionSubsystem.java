@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Servo;
+import frc.robot.Constants.RobotStateConstants;
 import frc.robot.Constants.VisionConstants;
 import java.io.IOException;
 import java.util.List;
@@ -60,7 +61,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   private Pose3d lastPose;
   private int lastUpdate = 0;
   private int currUpdate = 0;
-  private Pose3d cameraPose;
+  private Pose3d cameraPose = new Pose3d(new Translation3d(2767.0, 2767.0, 0.0), new Rotation3d());
   private final Notifier photonVisionThread;
   private Servo highCameraMount;
 
@@ -216,17 +217,32 @@ public class VisionSubsystem extends MeasurableSubsystem {
     return velocityBuffer.get(gyroBufferId);
   }
 
-  public void resetOdometry(Pose2d errorCheckPose) {
+  public void resetOdometry(Pose2d errorCheckPose, boolean isBlueAlliance) {
+    if (!isBlueAlliance)
+      errorCheckPose =
+          new Pose2d(
+              new Translation2d(
+                  RobotStateConstants.kFieldMaxX - errorCheckPose.getX(), errorCheckPose.getY()),
+              new Rotation2d());
+
     if (cam2.isConnected()
-        && FastMath.hypot(
-                (cameraPose.getX() - errorCheckPose.getX()),
-                (cameraPose.getY() - errorCheckPose.getY()))
-            <= 0.75) {
+        && FastMath.abs(errorCheckPose.getY() - cameraPose.getY()) <= 0.75
+        && ((isBlueAlliance && cameraPose.getX() <= 6.9 && cameraPose.getX() > 5.1)
+            || (!isBlueAlliance
+                && cameraPose.getX() >= RobotStateConstants.kFieldMaxX - 6.9
+                && cameraPose.getX() < RobotStateConstants.kFieldMaxX - 5.1))) {
       logger.info("reseting to X : {} | Y : {}", cameraPose.getX(), cameraPose.getY());
       driveSubsystem.resetOdometry(
           new Pose2d(
               new Translation2d(cameraPose.getX(), cameraPose.getY()),
               driveSubsystem.getGyroRotation2d()));
+    } else {
+      logger.info(
+          "Failed to reset error: {} | Camera: {}",
+          FastMath.hypot(
+              (cameraPose.getX() - errorCheckPose.getX()),
+              (cameraPose.getY() - errorCheckPose.getY())),
+          cameraPose);
     }
   }
 

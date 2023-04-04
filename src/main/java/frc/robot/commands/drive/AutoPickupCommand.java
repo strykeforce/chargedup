@@ -13,6 +13,7 @@ import frc.robot.Constants.RobotStateConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
+import frc.robot.subsystems.VisionSubsystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,13 +25,18 @@ public class AutoPickupCommand extends CommandBase {
   private ProfiledPIDController omegaAutoDriveController;
   private ProfiledPIDController xAutoDriveController;
   private ProfiledPIDController yAutoDriveController;
+  private VisionSubsystem visionSubsystem;
   private static final Logger logger = LoggerFactory.getLogger(AutoPickupCommand.class);
 
   public AutoPickupCommand(
-      DriveSubsystem driveSubsystem, RobotStateSubsystem robotStateSubsystem, Pose2d endPose) {
+      DriveSubsystem driveSubsystem,
+      RobotStateSubsystem robotStateSubsystem,
+      Pose2d endPose,
+      VisionSubsystem visionSubsystem) {
     addRequirements(driveSubsystem);
     this.driveSubsystem = driveSubsystem;
     this.robotStateSubsystem = robotStateSubsystem;
+    this.visionSubsystem = visionSubsystem;
     desiredPose = endPose;
     omegaAutoDriveController =
         new ProfiledPIDController(
@@ -69,6 +75,8 @@ public class AutoPickupCommand extends CommandBase {
                     : RobotStateConstants.kFieldMaxX - desiredPose.getX()),
                 desiredPose.getY()),
             new Rotation2d());
+    if (visionSubsystem.isCameraWorking())
+      visionSubsystem.resetOdometry(endPose, robotStateSubsystem.isBlueAlliance());
     logger.info("Starting auto pickup going to {}", endPose);
     omegaAutoDriveController.reset(driveSubsystem.getPoseMeters().getRotation().getRadians());
     xAutoDriveController.reset(
