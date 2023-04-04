@@ -61,7 +61,7 @@ public class ArmSubsystem extends MeasurableSubsystem {
           HandRegion.FRONT.minTicksShoulder, HandRegion.FRONT.maxTicksShoulder);
       if (!elevatorSubsystem.isElevatorReinforcing())
         elevatorSubsystem.setSoftLimits(
-            HandRegion.HOUSE.minTicksElevator, HandRegion.HOUSE.maxTicksElevator);
+            HandRegion.FRONT.minTicksElevator, HandRegion.FRONT.maxTicksElevator);
       else elevatorSubsystem.setSoftLimits(ElevatorConstants.kShelfMinimumShelfPosition, 0.0);
       elbowSubsystem.setSoftLimits(HandRegion.HOUSE.minTicksElbow, HandRegion.HOUSE.maxTicksElbow);
     } else {

@@ -419,6 +419,7 @@ public class Constants {
 
     public static final double kMaxFwd = -1000; // -500
     public static final double kMaxRev = -27_281; // -25000
+    public static final double kMaxRevBumper = -50_000;
 
     public static final double kTicksPerMeter = 125_424.3; // 62000.0 / 0.4 meters
     public static final double kMaxExtension = 1.23; // FIXME meters
@@ -472,7 +473,7 @@ public class Constants {
       elevatorConfig.forwardSoftLimitEnable = true;
       elevatorConfig.forwardSoftLimitThreshold = kMaxFwd;
       elevatorConfig.reverseSoftLimitEnable = true;
-      elevatorConfig.reverseSoftLimitThreshold = kMaxRev;
+      elevatorConfig.reverseSoftLimitThreshold = kMaxRevBumper;
       elevatorConfig.neutralDeadband = 0.01;
       elevatorConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_100Ms;
       elevatorConfig.velocityMeasurementWindow = 64;

@@ -124,7 +124,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   public void unReinforceElevator() {
     isElevatorReinforcing = false;
     setPct(0.0);
-    setSoftLimits(HandRegion.HOUSE.minTicksElevator, HandRegion.HOUSE.maxTicksElevator);
+    setSoftLimits(HandRegion.FRONT.minTicksElevator, HandRegion.FRONT.maxTicksElevator);
     leftMainFalcon.configForwardSoftLimitEnable(true);
     leftMainFalcon.configReverseSoftLimitEnable(true);
     // rightFollowFalcon.configForwardSoftLimitEnable(true);
