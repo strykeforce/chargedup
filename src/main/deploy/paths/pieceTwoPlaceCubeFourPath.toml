@@ -11,7 +11,7 @@ target_yaw = 0.0 #degrees
     angle = 180.0
 
 [end_pose]
-    x = 2.22 # 7
+    x = 2.12 # 7
     y = 3.82 # cube 4 place mid 
     angle = 180.0
 

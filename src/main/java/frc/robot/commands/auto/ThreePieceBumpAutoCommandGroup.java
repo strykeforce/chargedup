@@ -84,7 +84,8 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
                     driveSubsystem, robotStateSubsystem, RobotStateConstants.kCubeTwoAutoPickup)
                 .withTimeout(1.0)),
         new ParallelDeadlineGroup(
-            secondPath, new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE),
+            secondPath,
+            new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE),
             new SetVisionUpdateCommand(driveSubsystem, false),
             new SequentialCommandGroup(
                 new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
@@ -112,19 +113,20 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new AutoPickupCommand(
                     driveSubsystem, robotStateSubsystem, RobotStateConstants.kCubeOneAutoPickup)
                 .withTimeout(1.0),
-        new ParallelDeadlineGroup(
-            fourthPath, new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE),
-            new SequentialCommandGroup(
-                new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
-                new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
-        new ParallelCommandGroup( 
-            new SetVisionUpdateCommand(driveSubsystem, true),
-            new ConditionalCommand(
-                fallbackPath2,
-                new AutoPlaceAutonCommand(
-                        driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
-                    .withTimeout(0.70),
-                () -> !visionSubsystem.isCameraWorking())),
+            new ParallelDeadlineGroup(
+                fourthPath,
+                new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE),
+                new SequentialCommandGroup(
+                    new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
+                    new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
+            new ParallelCommandGroup(
+                new SetVisionUpdateCommand(driveSubsystem, true),
+                new ConditionalCommand(
+                    fallbackPath2,
+                    new AutoPlaceAutonCommand(
+                            driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
+                        .withTimeout(0.70),
+                    () -> !visionSubsystem.isCameraWorking()))),
         new ParallelCommandGroup(
             new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
             new ClearGamePieceCommand(robotStateSubsystem))
