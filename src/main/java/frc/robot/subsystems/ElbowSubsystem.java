@@ -165,8 +165,9 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
     return Set.of(
         new Measure("Relative Degrees", () -> getRelativeDegs()),
         new Measure("Absolute Ticks USED", () -> absoluteTalon),
-        new Measure("The queried values", () -> (double) getPulseWidthFor(PWMChannel.PWMChannel0)), 
-        new Measure("Elbow Error", () -> elbowError), new Measure("SelectedSensor /52.4", () -> elbowFalcon.getSelectedSensorPosition()/52.4));
+        new Measure("The queried values", () -> (double) getPulseWidthFor(PWMChannel.PWMChannel0)),
+        new Measure("Elbow Error", () -> elbowError),
+        new Measure("SelectedSensor /52.4", () -> elbowFalcon.getSelectedSensorPosition() / 52.4));
   }
 
   @Override

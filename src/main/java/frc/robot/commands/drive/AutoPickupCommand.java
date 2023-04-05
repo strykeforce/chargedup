@@ -80,9 +80,12 @@ public class AutoPickupCommand extends CommandBase {
     logger.info("Starting auto pickup going to {}", endPose);
     omegaAutoDriveController.reset(driveSubsystem.getPoseMeters().getRotation().getRadians());
     xAutoDriveController.reset(
-        driveSubsystem.getPoseMeters().getX(), robotStateSubsystem.isBlueAlliance() ? driveSubsystem.getFieldRelSpeed().vxMetersPerSecond : -driveSubsystem.getFieldRelSpeed().vxMetersPerSecond);
+        driveSubsystem.getPoseMeters().getX(),
+        robotStateSubsystem.isBlueAlliance()
+            ? driveSubsystem.getFieldRelSpeed().vxMetersPerSecond
+            : -driveSubsystem.getFieldRelSpeed().vxMetersPerSecond);
     yAutoDriveController.reset(
-        driveSubsystem.getPoseMeters().getY(), robotStateSubsystem.isBlueAlliance() ? driveSubsystem.getFieldRelSpeed().vyMetersPerSecond : -driveSubsystem.getFieldRelSpeed().vyMetersPerSecond);
+        driveSubsystem.getPoseMeters().getY(),driveSubsystem.getFieldRelSpeed().vyMetersPerSecond);
   }
 
   @Override
@@ -96,12 +99,11 @@ public class AutoPickupCommand extends CommandBase {
             MathUtil.angleModulus(driveSubsystem.getGyroRotation2d().getRadians()),
             robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
     if (robotStateSubsystem.isBlueAlliance()) {
-        if (driveSubsystem.getPoseMeters().getX() <= endPose.getX()) {
-            xCalc = Math.abs(xCalc);
-        }
-    } else
-        if (driveSubsystem.getPoseMeters().getX() >= endPose.getX()) 
-            xCalc = -1 * Math.abs(xCalc);
+      if (driveSubsystem.getPoseMeters().getX() <= endPose.getX()) {
+        xCalc = Math.abs(xCalc);
+      }
+    } else if (driveSubsystem.getPoseMeters().getX() >= endPose.getX())
+      xCalc = -1 * Math.abs(xCalc);
     logger.info(
         "Moving X : {} | Moving Y : {} | \nCurrent Pose {}",
         xCalc,
