@@ -5,7 +5,9 @@ import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.subsystems.ArmSubsystem.HandRegion;
 import java.util.Set;
+import net.jafama.FastMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.strykeforce.healthcheck.AfterHealthCheck;
@@ -101,7 +103,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
     double unadjusted =
         Constants.ElevatorConstants.kMaxExtension
             + getPos() / Constants.ElevatorConstants.kTicksPerMeter;
-    return Math.hypot(Constants.ShoulderConstants.kElevatorBaseToPivot, unadjusted);
+    return FastMath.hypot(Constants.ShoulderConstants.kElevatorBaseToPivot, unadjusted);
   }
 
   public boolean isFinished() {
@@ -122,7 +124,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   public void unReinforceElevator() {
     isElevatorReinforcing = false;
     setPct(0.0);
-
+    setSoftLimits(HandRegion.FRONT.minTicksElevator, HandRegion.FRONT.maxTicksElevator);
     leftMainFalcon.configForwardSoftLimitEnable(true);
     leftMainFalcon.configReverseSoftLimitEnable(true);
     // rightFollowFalcon.configForwardSoftLimitEnable(true);
@@ -130,12 +132,13 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
 
     leftMainFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
     rightFollowFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
-
+    setPos(ElevatorConstants.kStowElevator);
     logger.info("Elevator is not reinforcing");
   }
 
   public void reinforceElevator() {
     isElevatorReinforcing = true;
+    setSoftLimits(ElevatorConstants.kShelfMinimumShelfPosition, 0.0);
     leftMainFalcon.configForwardSoftLimitEnable(true);
     leftMainFalcon.configReverseSoftLimitEnable(true);
     // rightFollowFalcon.configForwardSoftLimitEnable(false);

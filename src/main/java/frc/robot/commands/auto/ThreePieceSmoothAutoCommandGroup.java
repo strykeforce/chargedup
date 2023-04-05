@@ -27,7 +27,7 @@ import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 import frc.robot.subsystems.VisionSubsystem;
 
-public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
+public class ThreePieceSmoothAutoCommandGroup extends SequentialCommandGroup
     implements AutoCommandInterface {
 
   DriveAutonCommand firstPath;
@@ -40,7 +40,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
   private Alliance alliance = Alliance.Invalid;
   private RobotStateSubsystem robotStateSubsystem;
 
-  public ThreePieceBumpAutoCommandGroup(
+  public ThreePieceSmoothAutoCommandGroup(
       DriveSubsystem driveSubsystem,
       RobotStateSubsystem robotStateSubsystem,
       ArmSubsystem armSubsystem,
@@ -57,8 +57,8 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
     secondPath = new DriveAutonCommand(driveSubsystem, pathTwo, false, false);
     thirdPath = new DriveAutonCommand(driveSubsystem, pathThree, false, false);
     fourthPath = new DriveAutonCommand(driveSubsystem, pathFour, false, false);
-    fallbackPath = new DriveAutonCommand(driveSubsystem, pathFallback, true, false);
-    fallbackPath2 = new DriveAutonCommand(driveSubsystem, pathFallback, true, false);
+    fallbackPath = new DriveAutonCommand(driveSubsystem, pathFallback, false, false);
+    fallbackPath2 = new DriveAutonCommand(driveSubsystem, pathFallback, false, false);
     this.robotStateSubsystem = robotStateSubsystem;
 
     addCommands(
@@ -81,7 +81,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new AutoPickupCommand(
                     driveSubsystem,
                     robotStateSubsystem,
-                    RobotStateConstants.kCubeTwoAutoPickup,
+                    RobotStateConstants.kCubeThreeAutoPickup,
                     visionSubsystem)
                 .withTimeout(0.9)),
         new ParallelDeadlineGroup(
@@ -113,18 +113,18 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new AutoPickupCommand(
                     driveSubsystem,
                     robotStateSubsystem,
-                    RobotStateConstants.kCubeOneAutoPickup,
+                    RobotStateConstants.kCubeFourAutoPickup,
                     visionSubsystem)
                 .withTimeout(0.9)),
         new ParallelDeadlineGroup(
             fourthPath,
             new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE),
+            new SetVisionUpdateCommand(driveSubsystem, false),
             new SequentialCommandGroup(
                 new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, true),
-            new SetVisionUpdateCommand(driveSubsystem, false),
             new ConditionalCommand(
                 fallbackPath2,
                 new AutoPlaceAutonCommand(
@@ -133,13 +133,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
             new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
-            new ClearGamePieceCommand(robotStateSubsystem))
-        /*,new ParallelCommandGroup(
-            fourthPath,
-            new PastXPositionCommand(
-                robotStateSubsystem, driveSubsystem, Constants.AutonConstants.kPastXPosition)),
-        new AutoPlaceCommandGroup(driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem),
-        new ClearGamePieceCommand(robotStateSubsystem)*/ );
+            new ClearGamePieceCommand(robotStateSubsystem)));
   }
 
   public void generateTrajectory() {

@@ -79,6 +79,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_robotContainer.setDisabled(false);
+    m_robotContainer.raiseServo();
     logger.info("Autonomous Init");
     m_robotContainer.setAuto(true);
     m_autonomousCommand = m_robotContainer.getAutoSwitch().getAutoCommand();
@@ -109,6 +110,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    m_robotContainer.raiseServo();
     m_robotContainer.zeroElevator();
     m_robotContainer.setAuto(false); // commented out for now - to allow testing in Tele
     m_robotContainer.setVisionEnabled(true);

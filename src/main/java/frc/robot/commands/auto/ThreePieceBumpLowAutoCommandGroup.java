@@ -27,7 +27,7 @@ import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 import frc.robot.subsystems.VisionSubsystem;
 
-public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
+public class ThreePieceBumpLowAutoCommandGroup extends SequentialCommandGroup
     implements AutoCommandInterface {
 
   DriveAutonCommand firstPath;
@@ -40,7 +40,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
   private Alliance alliance = Alliance.Invalid;
   private RobotStateSubsystem robotStateSubsystem;
 
-  public ThreePieceBumpAutoCommandGroup(
+  public ThreePieceBumpLowAutoCommandGroup(
       DriveSubsystem driveSubsystem,
       RobotStateSubsystem robotStateSubsystem,
       ArmSubsystem armSubsystem,
@@ -65,7 +65,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
         new ParallelCommandGroup(
             new ZeroGyroCommand(driveSubsystem),
             new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE),
-            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH),
+            new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.LOW),
             new ZeroElevatorCommand(elevatorSubsystem),
             new AutoGrabConeCommand(handSubsystem),
             new SetVisionUpdateCommand(driveSubsystem, false)),
@@ -83,7 +83,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
                     robotStateSubsystem,
                     RobotStateConstants.kCubeTwoAutoPickup,
                     visionSubsystem)
-                .withTimeout(0.9)),
+                .withTimeout(1.1)),
         new ParallelDeadlineGroup(
             secondPath,
             new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE),
@@ -97,7 +97,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
                 fallbackPath,
                 new AutoPlaceAutonCommand(
                         driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
-                    .withTimeout(0.8),
+                    .withTimeout(1.0),
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, false),
@@ -115,7 +115,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
                     robotStateSubsystem,
                     RobotStateConstants.kCubeOneAutoPickup,
                     visionSubsystem)
-                .withTimeout(0.9)),
+                .withTimeout(1.0)),
         new ParallelDeadlineGroup(
             fourthPath,
             new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE),

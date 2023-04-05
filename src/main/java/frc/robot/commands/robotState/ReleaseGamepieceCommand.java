@@ -26,6 +26,7 @@ public class ReleaseGamepieceCommand extends CommandBase {
     RobotState currState = robotStateSubsystem.getRobotState();
     return handSubsystem.isFinished()
         && (currState == RobotState.RELEASE_GAME_PIECE
+            || currState == RobotState.TO_STOW_SCORE
             || currState == RobotState.TO_STOW
             || currState == RobotState.STOW);
   }

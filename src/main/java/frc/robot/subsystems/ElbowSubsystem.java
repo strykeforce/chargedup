@@ -26,6 +26,7 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
       encoderChange = (int) ElbowConstants.kShelfElbow)
   private TalonFX elbowFalcon;
 
+  private double elbowError = 0;
   private double setPointTicks = 0;
   private CANifier remoteEncoder;
   private Logger logger = LoggerFactory.getLogger(ElbowSubsystem.class);
@@ -86,10 +87,11 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
   public int printElbowError() {
     int absolute = getPulseWidthFor(PWMChannel.PWMChannel0);
     logger.info(
-        "Zeroed elbow, absolute: {}, zero ticks: {}, difference: {}",
+        "Elbow at zero, absolute: {}, zero ticks: {}, difference: {}",
         absolute,
         Constants.kElbowZeroTicks,
         Math.abs(absolute - Constants.kElbowZeroTicks));
+    elbowError = Math.abs(absolute - Constants.kElbowZeroTicks);
     return Math.abs(absolute - Constants.kElbowZeroTicks);
   }
 
@@ -163,7 +165,9 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
     return Set.of(
         new Measure("Relative Degrees", () -> getRelativeDegs()),
         new Measure("Absolute Ticks USED", () -> absoluteTalon),
-        new Measure("The queried values", () -> (double) getPulseWidthFor(PWMChannel.PWMChannel0)));
+        new Measure("The queried values", () -> (double) getPulseWidthFor(PWMChannel.PWMChannel0)),
+        new Measure("Elbow Error", () -> elbowError),
+        new Measure("SelectedSensor /52.4", () -> elbowFalcon.getSelectedSensorPosition() / 52.4));
   }
 
   @Override

@@ -605,7 +605,11 @@ public class DriveSubsystem extends MeasurableSubsystem {
           logger.info("Average Starting Roll: {}", avgStartingRoll);
           logger.info("{} -> AUTO_BALANCE", currDriveState);
           currDriveState = DriveStates.AUTO_BALANCE;
-          move(DriveConstants.kAutoBalanceSlowDriveVel, 0, 0, false);
+          if (isOnAllianceSide) {
+            move(DriveConstants.kAutoBalanceSlowDriveVel, 0, 0, false);
+          } else {
+            move(-DriveConstants.kAutoBalanceSlowDriveVel, 0, 0, false);
+          }
           autoBalanceTimer.reset();
         }
         break;
@@ -1024,6 +1028,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("Auto Drive Timer", () -> autoDriveTimer.get()),
         new Measure("Robot Roll Deg", () -> getGyroPitch()),
         new Measure("Drive State", () -> currDriveState.ordinal()),
-        new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()));
+        new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()),
+        new Measure("Magnetic Disturbance (GYRO)", () -> ahrs.isMagneticDisturbance() ? 1.0 : 0.0));
   }
 }
