@@ -21,6 +21,7 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.TestBalanceCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
+import frc.robot.commands.drive.InterruptDriveCommand;
 import frc.robot.commands.drive.LockZeroCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
@@ -40,6 +41,8 @@ import frc.robot.commands.hand.ToggleHandCommand;
 import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
+import frc.robot.commands.robotState.AutoPlaceCommand;
+import frc.robot.commands.robotState.AutoPlaceCommandGroup;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.RecoverGamepieceCommand;
@@ -174,7 +177,7 @@ public class RobotContainer {
       armSubsystem.setTwistEnd(true);
       configurePitImportantDashboard();
       configureTelemetry();
-      configurePitDashboard();
+      //   configurePitDashboard();
       new Trigger(RobotController::getUserButton)
           .onTrue(new HealthCheckCommand(driveSubsystem, intakeSubsystem));
     }
@@ -215,6 +218,10 @@ public class RobotContainer {
 
   public void zeroElevator() {
     if (!elevatorSubsystem.hasZeroed()) elevatorSubsystem.zeroElevator();
+  }
+
+  public void raiseServo() {
+    visionSubsystem.raiseServo();
   }
 
   private void configureTelemetry() {
@@ -322,16 +329,15 @@ public class RobotContainer {
             false,
             robotStateSubsystem.getTargetCol(),
             true));*/
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
-    //     .onTrue(
-    //         new AutoPlaceCommandGroup(
-    //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
-    //     .onTrue(
-    //         new AutoPlaceCommand(driveSubsystem, robotStateSubsystem, armSubsystem,
-    // handSubsystem))
-    //     .onFalse(new InterruptDriveCommand(driveSubsystem));
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id).onTrue(balancepath); // TESTING AT
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+        .onTrue(
+            new AutoPlaceCommandGroup(
+                driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+        .onTrue(
+            new AutoPlaceCommand(driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem))
+        .onFalse(new InterruptDriveCommand(driveSubsystem));
+    // TESTING AT
     // LAKEVIEW PRACTICE FIELD
 
     // new JoystickButton(driveJoystick, InterlinkButton.X.id)
@@ -511,21 +517,21 @@ public class RobotContainer {
     // Adjust elevator
     Trigger leftUp =
         new Trigger(() -> xboxController.getLeftY() <= -0.1)
-            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, -1000))
-            .onFalse(new HoldPositionCommand(elevatorSubsystem));
+            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, robotStateSubsystem, -1000))
+            .onFalse(new HoldPositionCommand(elevatorSubsystem, robotStateSubsystem));
     Trigger leftDown =
         new Trigger(() -> xboxController.getLeftY() >= 0.1)
-            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, 1000))
-            .onFalse(new HoldPositionCommand(elevatorSubsystem));
+            .onTrue(new AdjustElevatorCommand(elevatorSubsystem, robotStateSubsystem, 1000))
+            .onFalse(new HoldPositionCommand(elevatorSubsystem, robotStateSubsystem));
 
     Trigger rightDown =
         new Trigger(() -> xboxController.getRightY() <= -0.1)
             .onTrue(new JogElbowCommand(elbowSubsystem, robotStateSubsystem, 1))
-            .onFalse(new ElbowHoldPosCommand(elbowSubsystem));
+            .onFalse(new ElbowHoldPosCommand(elbowSubsystem, robotStateSubsystem));
     Trigger rightUp =
         new Trigger(() -> xboxController.getRightY() >= 0.1)
             .onTrue(new JogElbowCommand(elbowSubsystem, robotStateSubsystem, -1))
-            .onFalse(new ElbowHoldPosCommand(elbowSubsystem));
+            .onFalse(new ElbowHoldPosCommand(elbowSubsystem, robotStateSubsystem));
 
     Trigger rightRight =
         new Trigger(() -> xboxController.getRightX() <= -0.1)

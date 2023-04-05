@@ -179,6 +179,8 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
   public void setSoftLimits(double minTicks, double maxTicks) {
     leftMainShoulderTalon.configForwardSoftLimitThreshold(maxTicks);
     leftMainShoulderTalon.configReverseSoftLimitThreshold(minTicks);
+    rightFollowerShoulderTalon.configForwardSoftLimitThreshold(maxTicks);
+    rightFollowerShoulderTalon.configReverseSoftLimitThreshold(minTicks);
   }
 
   @Override
