@@ -85,7 +85,7 @@ public class AutoPickupCommand extends CommandBase {
             ? driveSubsystem.getFieldRelSpeed().vxMetersPerSecond
             : -driveSubsystem.getFieldRelSpeed().vxMetersPerSecond);
     yAutoDriveController.reset(
-        driveSubsystem.getPoseMeters().getY(),driveSubsystem.getFieldRelSpeed().vyMetersPerSecond);
+        driveSubsystem.getPoseMeters().getY(), driveSubsystem.getFieldRelSpeed().vyMetersPerSecond);
   }
 
   @Override
