@@ -163,6 +163,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   public void toIntake() {
+    hasIntakeDelayPassed = false;
     logger.info("{} -->  TO_INTAKE_STAGE", currRobotState);
     currRobotState = RobotState.TO_INTAKE_STAGE;
     currentAxis = CurrentAxis.INTAKE;

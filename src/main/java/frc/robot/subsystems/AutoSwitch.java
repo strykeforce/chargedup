@@ -10,6 +10,7 @@ import frc.robot.commands.auto.MiddleToDock;
 import frc.robot.commands.auto.MiddleToDockWithMobility;
 import frc.robot.commands.auto.ThreePieceBumpAutoCommandGroup;
 import frc.robot.commands.auto.ThreePieceBumpFallbackAutoCommandGroup;
+import frc.robot.commands.auto.ThreePieceBumpLowAutoCommandGroup;
 import frc.robot.commands.auto.ThreePieceSmoothAutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceBumpWithDockAutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceLvl3AutoCommandGroup;
@@ -218,8 +219,8 @@ public class AutoSwitch {
             "pieceOneDeliverBumpPathPt1",
             "pieceOneDeliverBumpPathPt2");
       case 0x21:
-        // Cone Lvl 3, cube lvl 2 and 3
-        return new ThreePieceBumpAutoCommandGroup(
+        // FALLBACK - Cone Lvl 3, cube lvl 2 and 3
+        return new ThreePieceBumpFallbackAutoCommandGroup(
             driveSubsystem,
             robotStateSubsystem,
             armSubsystem,
@@ -227,11 +228,11 @@ public class AutoSwitch {
             intakeSubsystem,
             elevatorSubsystem,
             visionSubsystem,
-            "pieceOneFetchPathBump",
-            "pieceOneDeliverBumpPath",
-            "pieceTwoFetchPathBump",
-            "pieceTwoDeliverBumpPath",
-            "pieceScoreWithoutAutoBump");
+            "pieceOneFetchBumpCubeOneFallback",
+            "pieceOneDeliverBumpCubeOneFallback",
+            "pieceTwoFetchBumpCubeTwoFallback",
+            "pieceTwoDeliverBumpCubeTwoFallback",
+            "pieceScoreWithoutAutoBumpFallback");
       case 0x22:
         // Cone Lvl3, Cube Lvl3
         return new TwoPieceBumpWithDockAutoCommandGroup(
@@ -261,23 +262,9 @@ public class AutoSwitch {
             "pieceTwoFetchBumpCubeOne",
             "pieceTwoDeliverBumpCubeOne",
             "pieceScoreWithoutAutoBump");
-      case 0x25:
-      return new ThreePieceBumpAutoCommandGroup(
-        driveSubsystem,
-        robotStateSubsystem,
-        armSubsystem,
-        handSubsystem,
-        intakeSubsystem,
-        elevatorSubsystem,
-        visionSubsystem,
-        "pieceOneFetchBumpCubeTwo",
-        "pieceOneDeliverBumpCubeTwo",
-        "pieceTwoFetchBumpCubeOne",
-        "pieceTwoDeliverBumpCubeOne",
-        "pieceScoreWithoutAutoBump");
       case 0x24:
-        // FALLBACK - Cone Lvl 3, cube lvl 2 and 3
-        return new ThreePieceBumpFallbackAutoCommandGroup(
+        // Cone Lvl 1, Cube Lvl 3 and 2
+        return new ThreePieceBumpLowAutoCommandGroup(
             driveSubsystem,
             robotStateSubsystem,
             armSubsystem,
@@ -285,11 +272,11 @@ public class AutoSwitch {
             intakeSubsystem,
             elevatorSubsystem,
             visionSubsystem,
-            "pieceOneFetchBumpCubeOneFallback",
-            "pieceOneDeliverBumpCubeOneFallback",
-            "pieceTwoFetchBumpCubeTwoFallback",
-            "pieceTwoDeliverBumpCubeTwoFallback",
-            "pieceScoreWithoutAutoBumpFallback");
+            "pieceOneFetchBumpCubeTwo",
+            "pieceOneDeliverBumpCubeTwo",
+            "pieceTwoFetchBumpCubeOne",
+            "pieceTwoDeliverBumpCubeOne",
+            "pieceScoreWithoutAutoBump");
       case 0x30:
         return new DoNothingAutonCommand(
             driveSubsystem,
