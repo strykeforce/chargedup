@@ -8,17 +8,19 @@ import frc.robot.subsystems.RobotStateSubsystem.RobotState;
 public class ShootGamepieceCommand extends CommandBase {
   private RobotStateSubsystem robotStateSubsystem;
   private HandSubsystem handSubsystem;
+  private boolean doStow = false;
 
   public ShootGamepieceCommand(
-      HandSubsystem handSubsystem, RobotStateSubsystem robotStateSubsystem) {
+      HandSubsystem handSubsystem, RobotStateSubsystem robotStateSubsystem, boolean doStow) {
     this.robotStateSubsystem = robotStateSubsystem;
     this.handSubsystem = handSubsystem;
+    this.doStow = doStow;
     addRequirements(handSubsystem);
   }
 
   @Override
   public void initialize() {
-    robotStateSubsystem.toShootCube();
+    robotStateSubsystem.toShootCube(doStow);
   }
 
   @Override

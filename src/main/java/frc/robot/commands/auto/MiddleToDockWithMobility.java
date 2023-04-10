@@ -65,7 +65,7 @@ public class MiddleToDockWithMobility extends SequentialCommandGroup
         new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem),
         new WaitCommand(1.0),
         firstPath,
-        new WaitCommand(0.25),
+        new WaitCommand(0.75),
         new ParallelRaceGroup(
             new AutoWaitForMatchTimeCommand(0.1),
             new SequentialCommandGroup(

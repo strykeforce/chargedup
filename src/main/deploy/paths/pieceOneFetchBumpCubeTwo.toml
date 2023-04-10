@@ -12,7 +12,7 @@ target_yaw = 0.0 #degrees
 
 [end_pose]
     x = 6.77 #7.00
-    y = 2.3 #2.34 red:2.29 blue:2.34
+    y = 2.34 #2.3
     angle = 0.0
 
 [[internal_points]]

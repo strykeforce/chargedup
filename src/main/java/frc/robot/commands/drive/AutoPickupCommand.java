@@ -129,9 +129,10 @@ public class AutoPickupCommand extends CommandBase {
   public void end(boolean interrupted) {
     driveSubsystem.drive(0, 0, 0);
     logger.info(
-        "Done AutoPickup y error {} | x error {} | END POSE {}",
+        "Done AutoPickup y error {} | x error {} | END POSE {} | interrupted: {}",
         Math.abs(endPose.getY() - driveSubsystem.getPoseMeters().getY()),
         Math.abs(endPose.getX() - driveSubsystem.getPoseMeters().getX()),
-        driveSubsystem.getPoseMeters());
+        driveSubsystem.getPoseMeters(),
+        interrupted);
   }
 }

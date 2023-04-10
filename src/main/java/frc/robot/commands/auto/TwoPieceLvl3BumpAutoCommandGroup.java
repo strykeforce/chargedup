@@ -69,7 +69,7 @@ public class TwoPieceLvl3BumpAutoCommandGroup extends SequentialCommandGroup
                 new PastXPositionCommand(
                     robotStateSubsystem, driveSubsystem, Constants.AutonConstants.kPastXPosition),
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
-        new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
+        new ShootGamepieceCommand(handSubsystem, robotStateSubsystem, true),
         new ParallelCommandGroup(
             new ClearGamePieceCommand(robotStateSubsystem),
             new SetVisionUpdateCommand(driveSubsystem, true)));

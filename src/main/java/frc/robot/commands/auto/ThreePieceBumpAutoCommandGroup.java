@@ -83,7 +83,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
                     robotStateSubsystem,
                     RobotStateConstants.kCubeTwoAutoPickup,
                     visionSubsystem)
-                .withTimeout(0.9)),
+                .withTimeout(0.75)),
         new ParallelDeadlineGroup(
             secondPath,
             new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE),
@@ -101,7 +101,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, false),
-            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem)),
+            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem, true)),
         // Cube 2
         new ParallelDeadlineGroup(
             thirdPath,
@@ -115,7 +115,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
                     robotStateSubsystem,
                     RobotStateConstants.kCubeOneAutoPickup,
                     visionSubsystem)
-                .withTimeout(0.9)),
+                .withTimeout(0.75)),
         new ParallelDeadlineGroup(
             fourthPath,
             new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE),
@@ -132,7 +132,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
                     .withTimeout(0.70),
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
-            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
+            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem, false),
             new ClearGamePieceCommand(robotStateSubsystem))
         /*,new ParallelCommandGroup(
             fourthPath,

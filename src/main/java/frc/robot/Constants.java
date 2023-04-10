@@ -82,7 +82,7 @@ public class Constants {
     public static final Pose2d kCubeThreeAutoPickup =
         new Pose2d(new Translation2d(7.07, 3.36), new Rotation2d());
     public static final Pose2d kCubeTwoAutoPickup =
-        new Pose2d(new Translation2d(6.9, 2.14), new Rotation2d());
+        new Pose2d(new Translation2d(6.9, 2.18), new Rotation2d());
     public static final Pose2d kCubeOneAutoPickup =
         new Pose2d(new Translation2d(6.9, 0.92), new Rotation2d());
 
@@ -860,18 +860,19 @@ public class Constants {
     public static final double kWheelDiameterInches = 3.0 * (496 / 500.0);
 
     // Elbow
-    public static final int kElbowZeroTicks = 700; // 730
+    public static final int kElbowZeroTicks = 705; // 700
 
     // Shoulder
     public static final double kShoulderMainZeroTicks = 2050;
     public static final double kShoulderFollowerZeroTicks = 2057;
 
     // Intake
-    public static final int kIntakeZeroTicks = 2790; // 2440 ->2540
+    public static final int kIntakeZeroTicks = 3_600; // 2440 ->2540
     public static final double kExtendPosTicks = -2_100;
 
     // Hand
-    public static final double kHandZeroTicks = 1230; // 686 ->976
+    // 273 for a tooth on the hand
+    public static final double kHandZeroTicks = 684; // 686 ->976
   }
 
   public static class ProtoConstants {
