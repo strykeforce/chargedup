@@ -88,7 +88,7 @@ public class TwoPieceBumpWithDockAutoCommandGroup extends SequentialCommandGroup
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, false),
-            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem)),
+            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem, true)),
         new ParallelRaceGroup(
             new AutoWaitForMatchTimeCommand(0.1),
             new SequentialCommandGroup(

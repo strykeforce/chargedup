@@ -79,7 +79,7 @@ public class TwoPieceMiddleBalanceAutoCommandGroup extends SequentialCommandGrou
             thirdPath,
             new InterruptDriveCommand(driveSubsystem),
             () -> driveSubsystem.getDriveState() == DriveStates.AUTO_DRIVE_FAILED),
-        new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
+        new ShootGamepieceCommand(handSubsystem, robotStateSubsystem, true),
         new ParallelRaceGroup(
             new AutoWaitForMatchTimeCommand(0.1),
             new SequentialCommandGroup(

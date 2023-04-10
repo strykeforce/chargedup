@@ -147,16 +147,16 @@ public class IntakeSubsystem extends MeasurableSubsystem {
     retractClosedLoop(IntakeConstants.kPickupPosTicks);
   }
 
-  public void startIntaking(boolean doHolding) {
+  public void startIntaking(boolean isAuton) {
     logger.info("Start intaking");
-    this.doHolding = doHolding;
+    // this.doHolding = isAuton;
     currIntakeState = IntakeState.INTAKING;
-    intakeOpenLoop(IntakeConstants.kIntakeSpeed);
+    if (isAuton) intakeOpenLoop(IntakeConstants.kIntakeSpeed);
     extendClosedLoop();
   }
 
   public void startIntaking() {
-    startIntaking(false);
+    startIntaking(true);
   }
 
   public void startEjecting() {

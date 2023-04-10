@@ -89,7 +89,7 @@ public class ThreePieceBumpFallbackAutoCommandGroup extends SequentialCommandGro
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, false),
-            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem)),
+            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem, true)),
         // Cube 2
         new ParallelDeadlineGroup(
             thirdPath,
@@ -110,7 +110,7 @@ public class ThreePieceBumpFallbackAutoCommandGroup extends SequentialCommandGro
                     .withTimeout(0.70),
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
-            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem),
+            new ShootGamepieceCommand(handSubsystem, robotStateSubsystem, false),
             new ClearGamePieceCommand(robotStateSubsystem))
         /*,new ParallelCommandGroup(
             fourthPath,

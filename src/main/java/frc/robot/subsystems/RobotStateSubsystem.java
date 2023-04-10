@@ -46,6 +46,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   private Timer intakeTimerOffset = new Timer();
   private boolean isReleaseDelayTimerRunning = false;
   private double currPoseX;
+  private boolean doStow = false;
   private double desiredPoseX;
   private boolean isAutoStageFinished = false;
   private boolean isAutoPlacing = false;
@@ -167,7 +168,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     logger.info("{} -->  TO_INTAKE_STAGE", currRobotState);
     currRobotState = RobotState.TO_INTAKE_STAGE;
     currentAxis = CurrentAxis.INTAKE;
-    intakeSubsystem.startIntaking();
+    intakeSubsystem.startIntaking(isAuto);
     if (armSubsystem.getCurrState() != ArmState.STOW && isAuto) armSubsystem.toStowPos();
     // handSubsystem.stowHand(HandConstants.kCubeGrabbingPosition);
   }
@@ -275,6 +276,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void toReleaseGamepiece() {
     logger.info("{} -> RELEASE_GAME_PIECE", currRobotState);
     currRobotState = RobotState.RELEASE_GAME_PIECE;
+    doStow = true;
     handSubsystem.runRollers(HandConstants.kRollerDrop);
     handSubsystem.open();
     rgbLightsSubsystem.setOff();
@@ -286,7 +288,8 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     logger.info("Score Pos X: {}", scorePosXIntial);
   }
 
-  public void toShootCube() {
+  public void toShootCube(boolean doStow) {
+    this.doStow = doStow;
     logger.info("{} -> RELEASE_GAME_PIECE", currRobotState);
     currRobotState = RobotState.RELEASE_GAME_PIECE;
     handSubsystem.runRollers(HandConstants.kRollerShoot);
@@ -558,6 +561,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
               hasIntakeDelayPassed = false;
               currentAxis = CurrentAxis.HAND;
               if (isAuto) armSubsystem.setArmFastStow(false);
+              intakeSubsystem.intakeOpenLoop(IntakeConstants.kIntakeSpeed);
               handSubsystem.openIntake();
               break;
             }
@@ -820,8 +824,9 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           isReleaseDelayTimerRunning = true;
           logger.info("Started release timer");
         } else if ((isReleaseDelayTimerRunning
-                && releaseDelayTimer.hasElapsed(RobotStateConstants.kReleaseDelayTime))
-            || isAuto) {
+                && releaseDelayTimer.hasElapsed(RobotStateConstants.kReleaseDelayTime)
+                && doStow)
+            || isAuto && doStow) {
           isReleaseDelayTimerRunning = false;
           releaseDelayTimer.stop();
           releaseDelayTimer.reset();
