@@ -92,12 +92,6 @@ public class ArmSubsystem extends MeasurableSubsystem {
     switch (currState) {
       case LOW: // Fall through
       case MID_CONE:
-      case TWIST_SHOULDER:
-        logger.info("{} -> TWIST_TO_STOW", currState);
-        xboxController.setRumble(RumbleType.kBothRumble, 0.0);
-        currState = ArmState.TWIST_TO_STOW;
-        currAxis = CurrentAxis.SHOULDER;
-        shoulderSubsystem.unTwist(originOfShoulder);
       case MID_CUBE:
         logger.info("{} -> SCORE_TO_STOW", currState);
         currState = ArmState.SCORE_TO_STOW;
@@ -135,6 +129,34 @@ public class ArmSubsystem extends MeasurableSubsystem {
         currState = ArmState.FLOOR_TO_STOW;
         currAxis = CurrentAxis.SHOULDER;
         shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
+        break;
+      case TWIST_SHOULDER:
+        logger.info("{} -> TWIST_TO_STOW", currState);
+        xboxController.setRumble(RumbleType.kBothRumble, 0.0);
+        currState = ArmState.TWIST_TO_STOW;
+        currAxis = CurrentAxis.SHOULDER;
+        // shoulderSubsystem.unTwist(originOfShoulder);
+        switch (beforeTwistState) {
+          case MID_CONE:
+          case MID_CUBE:
+            logger.info("{} -> SCORE_TO_STOW", currState);
+            currState = ArmState.SCORE_TO_STOW;
+            currAxis = CurrentAxis.SHOULDER;
+            shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
+            break;
+          case HIGH_CONE: // Fall through
+          case HIGH_CUBE:
+            logger.info("{} -> HIGH_TO_STOW", currState);
+            currState = ArmState.HIGH_TO_STOW;
+            currAxis = CurrentAxis.SHOULDER;
+            shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
+            break;
+          default:
+            currState = ArmState.ANY_TO_STOW;
+            currAxis = CurrentAxis.SHOULDER;
+            shoulderSubsystem.setPos(ArmState.STOW.shoulderPos);
+            break;
+        }
         break;
       default:
         logger.info("{} -> ANY_TO_STOW", currState);
