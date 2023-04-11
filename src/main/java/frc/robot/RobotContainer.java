@@ -104,6 +104,7 @@ public class RobotContainer {
   private SuppliedValueWidget<Boolean> allianceColor;
   private Alliance alliance = Alliance.Invalid;
   private SuppliedValueWidget<Boolean> currGamePiece;
+  private boolean isEvent = false;
 
   // Paths
   //   private GrabCubeBalanceCommand testpath;
@@ -120,6 +121,7 @@ public class RobotContainer {
   public RobotContainer() {
     DigitalInput eventFlag = new DigitalInput(10);
     boolean isEvent = eventFlag.get();
+    this.isEvent = isEvent;
     if (isEvent && Constants.isCompBot) {
       // must be set before the first call to  LoggerFactory.getLogger();
       System.setProperty(ContextInitializer.CONFIG_FILE_PROPERTY, "logback-event.xml");
@@ -190,6 +192,11 @@ public class RobotContainer {
 
   public void setVisionEnabled(boolean isEnabled) {
     driveSubsystem.visionUpdates = isEnabled;
+  }
+  public void autoStowTele() {
+    if (elevatorSubsystem.hasZeroed() && isEvent) {
+        robotStateSubsystem.toStow();
+    }
   }
 
   public void setDisabled(boolean isDisabled) {
