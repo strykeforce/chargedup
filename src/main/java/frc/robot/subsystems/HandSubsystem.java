@@ -250,6 +250,10 @@ public class HandSubsystem extends MeasurableSubsystem {
     return hasPieceStableCounts > Constants.HandConstants.kHasCubeStableCounts;
   }
 
+  public int numStableCount() {
+    return hasPieceStableCounts;
+  }
+
   public void grabCube() {
     if (!((desiredState == HandStates.CUBE_CLOSED && handState == HandStates.TRANSITIONING)
         || (handState == HandStates.CUBE_CLOSED))) {

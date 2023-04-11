@@ -784,6 +784,7 @@ public class Constants {
     public static final int kZeroStableCounts = 1592;
     public static final int kHasConeStableCounts = 2;
     public static final int kHasCubeStableCounts = 2;
+    public static final int kHasCubeStableCountsAuto = 1;
     public static final int kHandVelStable = 50;
 
     public static final double kHandHoldingPercent = 0.1; // FIXME
@@ -867,7 +868,7 @@ public class Constants {
     public static final double kShoulderFollowerZeroTicks = 2057;
 
     // Intake
-    public static final int kIntakeZeroTicks = 3_600; // 2440 ->2540
+    public static final int kIntakeZeroTicks = 3_500; // 2440 ->2540
     public static final double kExtendPosTicks = -2_100;
 
     // Hand

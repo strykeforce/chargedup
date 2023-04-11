@@ -9,10 +9,10 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.RobotStateConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.RobotStateSubsystem;
-import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.VisionSubsystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +66,7 @@ public class AutoPickupCommand extends CommandBase {
 
   @Override
   public void initialize() {
-
+    robotStateSubsystem.setLights(0.0, 1.0, 1.0);
     endPose =
         new Pose2d(
             new Translation2d(
@@ -122,11 +122,12 @@ public class AutoPickupCommand extends CommandBase {
                 <= DriveConstants.kAutoPickupCloseEnough
             && Math.abs(driveSubsystem.getPoseMeters().getY() - endPose.getY())
                 <= DriveConstants.kAutoPickupCloseEnough
-        || robotStateSubsystem.getGamePiece() == GamePiece.CUBE;
+        || robotStateSubsystem.handStableCount() > HandConstants.kHasCubeStableCountsAuto;
   }
 
   @Override
   public void end(boolean interrupted) {
+    robotStateSubsystem.setLights(0, 0, 0);
     driveSubsystem.drive(0, 0, 0);
     logger.info(
         "Done AutoPickup y error {} | x error {} | END POSE {} | interrupted: {}",
