@@ -11,6 +11,7 @@ import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.InterruptDriveCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
+import frc.robot.commands.elevator.AutonZeroElevatorCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.commands.robotState.AutoPlaceCommandGroup;
 import frc.robot.commands.robotState.ClearGamePieceCommand;
@@ -63,7 +64,7 @@ public class TwoPieceMiddleBalanceAutoCommandGroup extends SequentialCommandGrou
             new ZeroGyroCommand(driveSubsystem),
             new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE),
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH),
-            new ZeroElevatorCommand(elevatorSubsystem),
+            new AutonZeroElevatorCommand(elevatorSubsystem),
             new AutoGrabConeCommand(handSubsystem),
             new SetVisionUpdateCommand(driveSubsystem, false)),
         new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem),

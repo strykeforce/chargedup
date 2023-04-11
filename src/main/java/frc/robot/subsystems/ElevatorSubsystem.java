@@ -252,10 +252,10 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
           hasZeroed = true;
           break;
         }
-
+        break;
       case AUTON_ZEROING:
-        leftMainFalcon.setSelectedSensorPosition(0.0);
-        rightFollowFalcon.setSelectedSensorPosition(0.0);
+        leftMainFalcon.setSelectedSensorPosition(-200.0);
+        rightFollowFalcon.setSelectedSensorPosition(-200.0);
         leftMainFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
         rightFollowFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
         leftMainFalcon.configSupplyCurrentLimit(

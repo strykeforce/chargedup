@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
+import frc.robot.commands.elevator.AutonZeroElevatorCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.commands.robotState.ClearGamePieceCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
@@ -64,7 +65,7 @@ public class ThreePieceBumpFallbackAutoCommandGroup extends SequentialCommandGro
             new ZeroGyroCommand(driveSubsystem),
             new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE),
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH),
-            new ZeroElevatorCommand(elevatorSubsystem),
+            new AutonZeroElevatorCommand(elevatorSubsystem),
             new AutoGrabConeCommand(handSubsystem),
             new SetVisionUpdateCommand(driveSubsystem, false)),
         new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem),
