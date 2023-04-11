@@ -80,16 +80,15 @@ public class AutoPickupCommand extends CommandBase {
     logger.info("Starting auto pickup going to {}", endPose);
     omegaAutoDriveController.reset(driveSubsystem.getPoseMeters().getRotation().getRadians());
     xAutoDriveController.reset(
-        driveSubsystem.getPoseMeters().getX(),
-        robotStateSubsystem.isBlueAlliance()
-            ? driveSubsystem.getFieldRelSpeed().vxMetersPerSecond
-            : -driveSubsystem.getFieldRelSpeed().vxMetersPerSecond);
+        driveSubsystem.getPoseMeters().getX(), driveSubsystem.getFieldRelSpeed().vxMetersPerSecond);
     yAutoDriveController.reset(
         driveSubsystem.getPoseMeters().getY(), driveSubsystem.getFieldRelSpeed().vyMetersPerSecond);
   }
 
   @Override
   public void execute() {
+    double xSpeed = driveSubsystem.getFieldRelSpeed().vxMetersPerSecond;
+    double ySpeed = driveSubsystem.getFieldRelSpeed().vyMetersPerSecond;
     double xCalc =
         xAutoDriveController.calculate(driveSubsystem.getPoseMeters().getX(), endPose.getX());
     double yCalc =
@@ -98,12 +97,18 @@ public class AutoPickupCommand extends CommandBase {
         omegaAutoDriveController.calculate(
             MathUtil.angleModulus(driveSubsystem.getGyroRotation2d().getRadians()),
             robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
-    if (robotStateSubsystem.isBlueAlliance()) {
-      if (driveSubsystem.getPoseMeters().getX() <= endPose.getX()) {
-        xCalc = Math.abs(xCalc);
-      }
-    } else if (driveSubsystem.getPoseMeters().getX() >= endPose.getX())
-      xCalc = -1 * Math.abs(xCalc);
+
+    // if (robotStateSubsystem.isBlueAlliance()) {
+    //   if (driveSubsystem.getPoseMeters().getX() <= endPose.getX()) {
+    //     xCalc = Math.abs(xCalc);
+    //   }
+    // } else if (driveSubsystem.getPoseMeters().getX() >= endPose.getX())
+    //   xCalc = -1 * Math.abs(xCalc);
+    driveSubsystem.setCalcValues(
+        xCalc,
+        yCalc,
+        xAutoDriveController.getPositionError(),
+        yAutoDriveController.getPositionError());
     logger.info(
         "Moving X : {} | Moving Y : {} | \nCurrent Pose {}",
         xCalc,

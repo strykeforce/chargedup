@@ -65,6 +65,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private final ProfiledPIDController omegaAutoDriveController;
   private final ProfiledPIDController xAutoDriveController;
   private final ProfiledPIDController yAutoDriveController;
+  private double xCalcAutoPickup = 0;
+  private double yCalcAutoPickup = 0;
+  private double xCalcError = 0;
+  private double yCalcError = 0;
   private double xCalc;
   private double yCalc;
   private double omegaCalc;
@@ -282,6 +286,13 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
   public double distancePose(Pose2d a, Pose2d b) {
     return a.getTranslation().getDistance(b.getTranslation());
+  }
+
+  public void setCalcValues(double a, double b, double c, double d) {
+    xCalcAutoPickup = a;
+    yCalcAutoPickup = b;
+    xCalcError = c;
+    yCalcError = d;
   }
 
   public void setRobotStateSubsystem(RobotStateSubsystem robotStateSubsystem) {
@@ -1083,6 +1094,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("Robot Roll Deg", () -> getGyroPitch()),
         new Measure("Drive State", () -> currDriveState.ordinal()),
         new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()),
-        new Measure("Magnetic Disturbance (GYRO)", () -> ahrs.isMagneticDisturbance() ? 1.0 : 0.0));
+        new Measure("Magnetic Disturbance (GYRO)", () -> ahrs.isMagneticDisturbance() ? 1.0 : 0.0),
+        new Measure("XCalc AutoPickUp", () -> xCalcAutoPickup),
+        new Measure("YCalc AutoPickUo", () -> yCalcAutoPickup),
+        new Measure("Auto Pickup X Error", () -> xCalcError),
+        new Measure("Auto Pickup Y Error", () -> yCalcError));
   }
 }

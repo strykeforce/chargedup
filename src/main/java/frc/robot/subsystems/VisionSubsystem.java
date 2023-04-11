@@ -253,11 +253,12 @@ public class VisionSubsystem extends MeasurableSubsystem {
       double y = cameraPose.getY();
       double x = cameraPose.getX();
       Pose2d temp = new Pose2d(new Translation2d(x, y), new Rotation2d());
-      if (((Math.hypot(
+      if (((FastMath.hypot(
                       x - driveSubsystem.getPoseMeters().getX(),
                       y - driveSubsystem.getPoseMeters().getY())
                   <= 0.75
-              || (visionOff > 0 && Math.hypot(x - lastPose.getX(), y - lastPose.getY()) <= 0.75)))
+              || (visionOff > 0
+                  && FastMath.hypot(x - lastPose.getX(), y - lastPose.getY()) <= 0.75)))
           && !(useHigh && x >= 13 && x <= 3)) {
         visionOff = 0;
         driveSubsystem.updateOdometryWithVision(
@@ -316,7 +317,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
       targets = result.getTargets();
       bestTarget = result.getBestTarget();
       timeStamp = result.getTimestampSeconds();
-      gyroBufferId = (int) Math.floor(result.getLatencyMillis() / 20);
+      gyroBufferId = (int) FastMath.floor(result.getLatencyMillis() / 20);
     }
     if (resultHighCamera.hasTargets()) {
       highTargets = resultHighCamera.getTargets();

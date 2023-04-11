@@ -10,7 +10,6 @@ import frc.robot.commands.drive.AutoPickupCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.elevator.AutonZeroElevatorCommand;
-import frc.robot.commands.elevator.ZeroElevatorCommand;
 import frc.robot.commands.robotState.ClearGamePieceCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.ReleaseGamepieceCommand;
@@ -119,13 +118,13 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
                 .withTimeout(0.75)),
         new ParallelDeadlineGroup(
             fourthPath,
+            new SetVisionUpdateCommand(driveSubsystem, false),
             new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE),
             new SequentialCommandGroup(
                 new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, true),
-            new SetVisionUpdateCommand(driveSubsystem, false),
             new ConditionalCommand(
                 fallbackPath2,
                 new AutoPlaceAutonCommand(

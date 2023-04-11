@@ -193,9 +193,10 @@ public class RobotContainer {
   public void setVisionEnabled(boolean isEnabled) {
     driveSubsystem.visionUpdates = isEnabled;
   }
+
   public void autoStowTele() {
     if (elevatorSubsystem.hasZeroed() && isEvent) {
-        robotStateSubsystem.toStow();
+      robotStateSubsystem.toStow();
     }
   }
 

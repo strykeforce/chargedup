@@ -82,9 +82,9 @@ public class Constants {
     public static final Pose2d kCubeThreeAutoPickup =
         new Pose2d(new Translation2d(7.07, 3.36), new Rotation2d());
     public static final Pose2d kCubeTwoAutoPickup =
-        new Pose2d(new Translation2d(6.9, 2.18), new Rotation2d());
+        new Pose2d(new Translation2d(7.0, 2.18), new Rotation2d());
     public static final Pose2d kCubeOneAutoPickup =
-        new Pose2d(new Translation2d(6.9, 0.92), new Rotation2d());
+        new Pose2d(new Translation2d(7.0, 0.92), new Rotation2d());
 
     public static final double kPolePlaceOffset = 0.56;
     public static final double kShelfOffset = 0.75;

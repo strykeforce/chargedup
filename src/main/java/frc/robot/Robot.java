@@ -110,7 +110,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    m_robotContainer.autoStowTele(); 
+    m_robotContainer.autoStowTele();
     m_robotContainer.raiseServo();
     m_robotContainer.zeroElevator();
     m_robotContainer.setAuto(false); // commented out for now - to allow testing in Tele
