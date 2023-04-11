@@ -551,8 +551,8 @@ public class Constants {
     public static final double kStowToIntakeStageParallelAllowed = -10_000;
     public static final double kIntakeStageToIntakeParallelAllowed = kIntakeElbow;
 
-    public static final double kElbowTeleMotionCruiseVelocity = 12_000.0; // 13_000
-    public static final double kElbowTeleMotionAcceleration = 35_000.0; // 38_000
+    public static final double kElbowTeleMotionCruiseVelocity = 13_000.0; // 12_000
+    public static final double kElbowTeleMotionAcceleration = 50_000.0; // 35_000
     public static final double kElbowAutoMotionCruiseVelocity = 13_000.0;
     public static final double kElbowAutoMotionAcceleration = 50_000.0;
 
