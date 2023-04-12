@@ -61,7 +61,7 @@ public class AutoPickupCommand extends CommandBase {
     // xController.setIntegratorRange(DriveConstants.kIMin, DriveConstants.kIMax);
     yAutoDriveController =
         new PIDController(
-            DriveConstants.kPAutoPickup, DriveConstants.kIAutoPickup, DriveConstants.kDAutoPickup);
+            DriveConstants.kPAutoPickupY, DriveConstants.kIAutoPickup, DriveConstants.kDAutoPickup);
     // yAutoDriveController =
     //     new ProfiledPIDController(
     //         DriveConstants.kPAutoPickup,
