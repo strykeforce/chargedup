@@ -309,6 +309,22 @@ public class DriveSubsystem extends MeasurableSubsystem {
     return visionUpdates;
   }
 
+  public void drivePickup(Pose2d desiredPose) {
+    omegaAutoDriveController.reset(getPoseMeters().getRotation().getRadians());
+    xAutoDriveController.reset(getPoseMeters().getX(), getFieldRelSpeed().vxMetersPerSecond);
+    yAutoDriveController.reset(getPoseMeters().getY(), getFieldRelSpeed().vyMetersPerSecond);
+    endAutoDrivePose =
+        new Pose2d(
+            new Translation2d(
+                (robotStateSubsystem.isBlueAlliance()
+                    ? desiredPose.getX()
+                    : Constants.RobotStateConstants.kFieldMaxX - desiredPose.getX()),
+                desiredPose.getY()),
+            new Rotation2d());
+      logger.info("{} -> AUTO_DRIVE", currDriveState);
+      currDriveState = DriveStates.AUTO_DRIVE;
+  }
+
   public void driveToPose(TargetCol targetCol) {
     omegaAutoDriveController.reset(getPoseMeters().getRotation().getRadians());
     xAutoDriveController.reset(getPoseMeters().getX(), getFieldRelSpeed().vxMetersPerSecond);
