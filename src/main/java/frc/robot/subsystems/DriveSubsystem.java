@@ -310,9 +310,14 @@ public class DriveSubsystem extends MeasurableSubsystem {
   }
 
   public void drivePickup(Pose2d desiredPose) {
+    robotStateSubsystem.setLights(0.0, 1.0, 1.0);
     omegaAutoDriveController.reset(getPoseMeters().getRotation().getRadians());
     xAutoDriveController.reset(getPoseMeters().getX(), getFieldRelSpeed().vxMetersPerSecond);
     yAutoDriveController.reset(getPoseMeters().getY(), getFieldRelSpeed().vyMetersPerSecond);
+    xAutoDriveController.setP(DriveConstants.kPAutoPickup);
+    yAutoDriveController.setP(DriveConstants.kPAutoPickup);
+    omegaAutoDriveController.setP(DriveConstants.kPAutoPickup);
+    setAutoDriving(true);
     endAutoDrivePose =
         new Pose2d(
             new Translation2d(
@@ -321,14 +326,20 @@ public class DriveSubsystem extends MeasurableSubsystem {
                     : Constants.RobotStateConstants.kFieldMaxX - desiredPose.getX()),
                 desiredPose.getY()),
             new Rotation2d());
-      logger.info("{} -> AUTO_DRIVE", currDriveState);
-      currDriveState = DriveStates.AUTO_DRIVE;
+    if (visionSubsystem.isCameraWorking())
+      visionSubsystem.resetOdometry(endAutoDrivePose, robotStateSubsystem.isBlueAlliance());
+    logger.info("Starting auto pickup going to {}", endAutoDrivePose);
+    logger.info("{} -> AUTO_DRIVE", currDriveState);
+    currDriveState = DriveStates.AUTO_DRIVE;
   }
 
   public void driveToPose(TargetCol targetCol) {
     omegaAutoDriveController.reset(getPoseMeters().getRotation().getRadians());
     xAutoDriveController.reset(getPoseMeters().getX(), getFieldRelSpeed().vxMetersPerSecond);
     yAutoDriveController.reset(getPoseMeters().getY(), getFieldRelSpeed().vyMetersPerSecond);
+    xAutoDriveController.setP(DriveConstants.kPAutoDrive);
+    yAutoDriveController.setP(DriveConstants.kPAutoDrive);
+    omegaAutoDriveController.setP(DriveConstants.kPAutoDrive);
     if (Math.abs(getFieldRelSpeed().vxMetersPerSecond) // FIXME TEMP CHECK IF STATEMENT
                 <= DriveConstants.kMaxSpeedToAutoDrive
             && Math.abs(getFieldRelSpeed().vyMetersPerSecond) <= DriveConstants.kMaxSpeedToAutoDrive
@@ -577,6 +588,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
           this.xCalc = xCalc;
           this.yCalc = yCalc;
           this.omegaCalc = omegaCalc;
+          logger.info(
+              "Moving X : {} | Moving Y : {} | \nCurrent Pose {}", xCalc, yCalc, getPoseMeters());
+          logger.info(
+              "X controller: err: {}, goal: {}\n",
+              xAutoDriveController.getPositionError(),
+              xAutoDriveController.getGoal().position);
           move(xCalc, yCalc, omegaCalc, true);
           // calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
         }

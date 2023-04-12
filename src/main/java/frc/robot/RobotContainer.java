@@ -196,7 +196,7 @@ public class RobotContainer {
 
   public void autoStowTele() {
     if (elevatorSubsystem.hasZeroed() && isEvent) {
-      robotStateSubsystem.toStow();
+      // robotStateSubsystem.toStow();
     }
   }
 

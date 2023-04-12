@@ -226,7 +226,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
               new Rotation2d());
 
     if (cam2.isConnected()
-        && FastMath.abs(errorCheckPose.getY() - cameraPose.getY()) <= 0.75
+        && FastMath.abs(errorCheckPose.getY() - cameraPose.getY()) <= 1.0 // 0.75
         && ((isBlueAlliance && cameraPose.getX() <= 6.9 && cameraPose.getX() > 5.1)
             || (!isBlueAlliance
                 && cameraPose.getX() >= RobotStateConstants.kFieldMaxX - 6.9
