@@ -20,6 +20,7 @@ import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.TestBalanceCommand;
+import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.InterruptDriveCommand;
 import frc.robot.commands.drive.LockZeroCommand;
@@ -27,7 +28,6 @@ import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.elbow.ElbowHoldPosCommand;
 import frc.robot.commands.elbow.JogElbowCommand;
 import frc.robot.commands.elevator.AdjustElevatorCommand;
-import frc.robot.commands.elevator.AutonZeroElevatorCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.HoldPositionCommand;
 import frc.robot.commands.elevator.ZeroElevatorCommand;
@@ -109,6 +109,7 @@ public class RobotContainer {
   // Paths
   //   private GrabCubeBalanceCommand testpath;
   private TestBalanceCommand balancepath;
+  private DriveAutonCommand fiveMeterTest;
   //   private CommunityToDockCommandGroup communityToDockCommandGroup;
   //   private TwoPieceWithDockAutoCommandGroup twoPieceWithDockAutoCommandGroup;
   //   private TwoPieceAutoPlacePathCommandGroup twoPieceAutoPlacePathCommandGroup;
@@ -258,6 +259,7 @@ public class RobotContainer {
     //         elevatorSubsystem,
     //         "TestAutoDrivePathOne",
     //         "TestAutoDrivePathTwo");
+    fiveMeterTest = new DriveAutonCommand(driveSubsystem, "straightPathX", true, true);
     balancepath =
         new TestBalanceCommand(
             driveSubsystem,
@@ -351,11 +353,13 @@ public class RobotContainer {
     // new JoystickButton(driveJoystick, InterlinkButton.X.id)
     //     .onTrue(new ZeroElbowCommand(elbowSubsystem));
 
+    new JoystickButton(driveJoystick, InterlinkButton.X.id).onTrue(fiveMeterTest);
+
     // new JoystickButton(driveJoystick, InterlinkButton.X.id)
     //     .onTrue(new xLockCommand(driveSubsystem));
 
-    new JoystickButton(driveJoystick, InterlinkButton.X.id)
-        .onTrue(new AutonZeroElevatorCommand(elevatorSubsystem));
+    // new JoystickButton(driveJoystick, InterlinkButton.X.id)
+    //     .onTrue(new AutonZeroElevatorCommand(elevatorSubsystem));
 
     // Hand
     /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
@@ -774,7 +778,7 @@ public class RobotContainer {
         Map.of(
             "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
     robotStateSubsystem.setAllianceColor(alliance);
-    // testpath.generateTrajectory();
+    fiveMeterTest.generateTrajectory();
     balancepath.generateTrajectory();
     // communityToDockCommandGroup.generateTrajectory();
     // twoPieceWithDockAutoCommandGroup.generateTrajectory();

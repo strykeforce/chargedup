@@ -315,7 +315,7 @@ public class Constants {
     public static final double kAutoDriveMaxAccel = 2;
 
     // Auto PickUp Constants
-    public static final double kPAutoPickupY = 3;
+    public static final double kPAutoPickupY = 3.25;
     public static final double kPAutoPickup = 3;
     public static final double kIAutoPickup = 0.0;
     public static final double kDAutoPickup = 0.0;
@@ -859,7 +859,7 @@ public class Constants {
 
   public static class CompConstants {
     // Drive
-    public static final double kWheelDiameterInches = 3.0 * (496 / 500.0);
+    public static final double kWheelDiameterInches = 3.0 * (506.5 / 500.0);
 
     // Elbow
     public static final int kElbowZeroTicks = 705; // 700
