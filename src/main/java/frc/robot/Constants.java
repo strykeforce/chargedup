@@ -315,6 +315,7 @@ public class Constants {
     public static final double kAutoDriveMaxAccel = 2;
 
     // Auto PickUp Constants
+    public static final double kPAutoPickupY = 3;
     public static final double kPAutoPickup = 3;
     public static final double kIAutoPickup = 0.0;
     public static final double kDAutoPickup = 0.0;

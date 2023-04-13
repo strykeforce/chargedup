@@ -1,6 +1,7 @@
 package frc.robot.commands.drive;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -23,8 +24,8 @@ public class AutoPickupCommand extends CommandBase {
   Pose2d desiredPose;
   Pose2d endPose;
   private ProfiledPIDController omegaAutoDriveController;
-  private ProfiledPIDController xAutoDriveController;
-  private ProfiledPIDController yAutoDriveController;
+  private PIDController xAutoDriveController;
+  private PIDController yAutoDriveController;
   private VisionSubsystem visionSubsystem;
   private static final Logger logger = LoggerFactory.getLogger(AutoPickupCommand.class);
 
@@ -47,21 +48,27 @@ public class AutoPickupCommand extends CommandBase {
                 DriveConstants.kMaxOmega, DriveConstants.kMaxAccelOmega));
     omegaAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
 
+    // xAutoDriveController =
+    //     new ProfiledPIDController(
+    //         DriveConstants.kPAutoPickup,
+    //         DriveConstants.kIAutoPickup,
+    //         DriveConstants.kDAutoPickup,
+    //         new TrapezoidProfile.Constraints(
+    //             DriveConstants.kAutoPickupDriveMaxVel, DriveConstants.kAutoPickupDriveMaxAccel));
     xAutoDriveController =
-        new ProfiledPIDController(
-            DriveConstants.kPAutoPickup,
-            DriveConstants.kIAutoPickup,
-            DriveConstants.kDAutoPickup,
-            new TrapezoidProfile.Constraints(
-                DriveConstants.kAutoPickupDriveMaxVel, DriveConstants.kAutoPickupDriveMaxAccel));
-
+        new PIDController(
+            DriveConstants.kPAutoPickup, DriveConstants.kIAutoPickup, DriveConstants.kDAutoPickup);
+    // xController.setIntegratorRange(DriveConstants.kIMin, DriveConstants.kIMax);
     yAutoDriveController =
-        new ProfiledPIDController(
-            DriveConstants.kPAutoPickup,
-            DriveConstants.kIAutoPickup,
-            DriveConstants.kDAutoPickup,
-            new TrapezoidProfile.Constraints(
-                DriveConstants.kAutoPickupDriveMaxVel, DriveConstants.kAutoPickupDriveMaxAccel));
+        new PIDController(
+            DriveConstants.kPAutoPickupY, DriveConstants.kIAutoPickup, DriveConstants.kDAutoPickup);
+    // yAutoDriveController =
+    //     new ProfiledPIDController(
+    //         DriveConstants.kPAutoPickup,
+    //         DriveConstants.kIAutoPickup,
+    //         DriveConstants.kDAutoPickup,
+    //         new TrapezoidProfile.Constraints(
+    //             DriveConstants.kAutoPickupDriveMaxVel, DriveConstants.kAutoPickupDriveMaxAccel));
   }
 
   @Override
@@ -79,10 +86,12 @@ public class AutoPickupCommand extends CommandBase {
       visionSubsystem.resetOdometry(endPose, robotStateSubsystem.isBlueAlliance());
     logger.info("Starting auto pickup going to {}", endPose);
     omegaAutoDriveController.reset(driveSubsystem.getPoseMeters().getRotation().getRadians());
-    xAutoDriveController.reset(
-        driveSubsystem.getPoseMeters().getX(), driveSubsystem.getFieldRelSpeed().vxMetersPerSecond);
-    yAutoDriveController.reset(
-        driveSubsystem.getPoseMeters().getY(), driveSubsystem.getFieldRelSpeed().vyMetersPerSecond);
+    // xAutoDriveController.reset(
+    //     driveSubsystem.getPoseMeters().getX(),
+    // driveSubsystem.getFieldRelSpeed().vxMetersPerSecond);
+    // yAutoDriveController.reset(
+    //     driveSubsystem.getPoseMeters().getY(),
+    // driveSubsystem.getFieldRelSpeed().vyMetersPerSecond);
   }
 
   @Override
@@ -114,10 +123,8 @@ public class AutoPickupCommand extends CommandBase {
         xCalc,
         yCalc,
         driveSubsystem.getPoseMeters());
-    logger.info(
-        "X controller: err: {}, goal: {}\n",
-        xAutoDriveController.getPositionError(),
-        xAutoDriveController.getGoal().position);
+    logger.info("X controller: err: {}, goal: {}\n", xAutoDriveController.getPositionError());
+    // ,xAutoDriveController.getGoal().position);
     driveSubsystem.move(xCalc, yCalc, omegaCalc, true);
   }
 

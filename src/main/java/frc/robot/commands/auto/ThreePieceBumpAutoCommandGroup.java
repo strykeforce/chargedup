@@ -78,7 +78,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH)),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, true),
-            new AutoPickupCommand(
+            new AutoPickupCommand( // NOT USING JACOBS AUTOPICK IN DRIVESUBSYSTEM
                     driveSubsystem,
                     robotStateSubsystem,
                     RobotStateConstants.kCubeTwoAutoPickup,
@@ -110,7 +110,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID)),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, true),
-            new AutoPickupCommand(
+            new AutoPickupCommand( //  NOT USING JACOBS AUTOPICK IN DRIVESUBSYSTEM
                     driveSubsystem,
                     robotStateSubsystem,
                     RobotStateConstants.kCubeOneAutoPickup,
