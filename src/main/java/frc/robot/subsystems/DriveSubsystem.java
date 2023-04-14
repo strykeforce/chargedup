@@ -212,7 +212,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
             new TrapezoidProfile.Constraints(
                 DriveConstants.kMaxOmega, DriveConstants.kMaxAccelOmega));
     omegaAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
-
+    // xAutoDriveController =
+    //     new PIDController(
+    //         DriveConstants.kPAutoDrive, DriveConstants.kIAutoDrive, DriveConstants.kDAutoDrive);
+    // yAutoDriveController =
+    //     new PIDController(
+    //         DriveConstants.kPAutoDrive, DriveConstants.kIAutoDrive, DriveConstants.kDAutoDrive);
     xAutoDriveController =
         new ProfiledPIDController(
             DriveConstants.kPAutoDrive,
@@ -220,7 +225,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
             DriveConstants.kDAutoDrive,
             new TrapezoidProfile.Constraints(
                 DriveConstants.kAutoDriveMaxVelocity, DriveConstants.kAutoDriveMaxAccel));
-    // xAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
+    // // xAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
 
     yAutoDriveController =
         new ProfiledPIDController(

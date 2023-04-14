@@ -1,7 +1,7 @@
 max_velocity = 3.25 #m/s
 max_acceleration = 3.25 #m/s
 start_velocity = 0.0 #m/s
-end_velocity = 0.6 #m/s 
+end_velocity = 0.75 #m/s 0.6
 is_reversed = false
 target_yaw = 0.0 #degrees
 
