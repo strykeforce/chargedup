@@ -96,7 +96,12 @@ public class ThreePieceBumpLowAutoCommandGroup extends SequentialCommandGroup
             new ConditionalCommand(
                 fallbackPath,
                 new AutoPlaceAutonCommand(
-                        driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem, false)
+                        driveSubsystem,
+                        robotStateSubsystem,
+                        armSubsystem,
+                        handSubsystem,
+                        false,
+                        0.0)
                     .withTimeout(1.0),
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
@@ -128,7 +133,12 @@ public class ThreePieceBumpLowAutoCommandGroup extends SequentialCommandGroup
             new ConditionalCommand(
                 fallbackPath2,
                 new AutoPlaceAutonCommand(
-                        driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem, false)
+                        driveSubsystem,
+                        robotStateSubsystem,
+                        armSubsystem,
+                        handSubsystem,
+                        false,
+                        0.0)
                     .withTimeout(0.70),
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(

@@ -345,7 +345,7 @@ public class RobotContainer {
     new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
         .onTrue(
             new AutoPlaceCommand(
-                driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem, false))
+                driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem, false, 0.0))
         .onFalse(new InterruptDriveCommand(driveSubsystem));
     // TESTING AT
     // LAKEVIEW PRACTICE FIELD

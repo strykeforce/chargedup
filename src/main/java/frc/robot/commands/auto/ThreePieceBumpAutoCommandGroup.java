@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.RobotStateConstants;
 import frc.robot.commands.drive.AutoPickupCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
@@ -96,7 +97,12 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new ConditionalCommand(
                 fallbackPath,
                 new AutoPlaceAutonCommand(
-                        driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem, true)
+                        driveSubsystem,
+                        robotStateSubsystem,
+                        armSubsystem,
+                        handSubsystem,
+                        true,
+                        DriveConstants.kAutonBumpHighCubeYawOffsetDeg)
                     .withTimeout(0.8),
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
@@ -128,8 +134,13 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new ConditionalCommand(
                 fallbackPath2,
                 new AutoPlaceAutonCommand(
-                        driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem, false)
-                    .withTimeout(0.70),
+                        driveSubsystem,
+                        robotStateSubsystem,
+                        armSubsystem,
+                        handSubsystem,
+                        false,
+                        0.0)
+                    .withTimeout(0.67),
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
             new ShootGamepieceCommand(handSubsystem, robotStateSubsystem, false),

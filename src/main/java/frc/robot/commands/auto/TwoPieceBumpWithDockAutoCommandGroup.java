@@ -83,7 +83,12 @@ public class TwoPieceBumpWithDockAutoCommandGroup extends SequentialCommandGroup
             new ConditionalCommand(
                 fallbackPath,
                 new AutoPlaceAutonCommand(
-                        driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem, false)
+                        driveSubsystem,
+                        robotStateSubsystem,
+                        armSubsystem,
+                        handSubsystem,
+                        false,
+                        0.0)
                     .withTimeout(1.75),
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(

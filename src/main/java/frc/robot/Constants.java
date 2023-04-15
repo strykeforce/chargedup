@@ -242,7 +242,8 @@ public class Constants {
     public static final double kHoldSpeed = 0.1;
     public static final double kSettleTime = 1.0;
 
-    public static final double kAutonHighCubeYawOffsetDeg = -5.0;
+    public static final double kAutonBumpHighCubeYawOffsetDeg = -5.0;
+    public static final double kAutonSmoothHighCubeYawOffsetDeg = 5.0;
 
     public static TalonSRXConfiguration getAzimuthTalonConfig() {
       // constructor sets encoder to Quad/CTRE_MagEncoder_Relative

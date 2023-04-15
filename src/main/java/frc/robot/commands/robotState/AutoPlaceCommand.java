@@ -20,16 +20,19 @@ public class AutoPlaceCommand extends CommandBase {
   private TargetCol targetCol;
   private boolean isBlue;
   private boolean doYawAdjust;
+  private double yawAdjustBy;
 
   public AutoPlaceCommand(
       DriveSubsystem driveSubsystem,
       RobotStateSubsystem robotStateSubsystem,
       ArmSubsystem armSubsystem,
       HandSubsystem handSubsystem,
-      boolean doYawAdjust) {
+      boolean doYawAdjust,
+      double yawAdjustBy) {
     addRequirements(driveSubsystem, armSubsystem, handSubsystem);
     this.doYawAdjust = doYawAdjust;
     this.driveSubsystem = driveSubsystem;
+    this.yawAdjustBy = yawAdjustBy;
     this.robotStateSubsystem = robotStateSubsystem;
   }
 
@@ -43,7 +46,7 @@ public class AutoPlaceCommand extends CommandBase {
         robotStateSubsystem.getTargetLevel().name(),
         robotStateSubsystem.getTargetCol().name(),
         (robotStateSubsystem.getGamePiece() == GamePiece.NONE));
-    driveSubsystem.setDoYawAdjust(doYawAdjust);
+    driveSubsystem.setDoYawAdjust(doYawAdjust, yawAdjustBy);
     if (robotStateSubsystem.getGamePiece() == GamePiece.NONE) robotStateSubsystem.toAutoShelf();
     else robotStateSubsystem.toAutoScore();
     // robotStateSubsystem.toAutoDrive();
