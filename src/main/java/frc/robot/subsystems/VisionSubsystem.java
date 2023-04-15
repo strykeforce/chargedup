@@ -237,12 +237,22 @@ public class VisionSubsystem extends MeasurableSubsystem {
               new Translation2d(cameraPose.getX(), cameraPose.getY()),
               driveSubsystem.getGyroRotation2d()));
     } else {
+      // double tempX = (driveSubsystem.getPoseMeters().getX() + cameraPose.getX()) / 2;
+      double tempY = (driveSubsystem.getPoseMeters().getY() + cameraPose.getY()) / 2;
+      // logger.info("TempX: {}, TempY: {}", tempX, tempY);
+      Pose2d tempPose =
+          new Pose2d(
+              new Translation2d(driveSubsystem.getPoseMeters().getX(), tempY),
+              driveSubsystem.getGyroRotation2d());
       logger.info(
-          "Failed to reset error: {} | Camera: {}",
+          "Averaging Odom, error: {} | Camera: {}, Resetting to pose: {}, drive Odom: {}",
           FastMath.hypot(
               (cameraPose.getX() - errorCheckPose.getX()),
               (cameraPose.getY() - errorCheckPose.getY())),
-          cameraPose);
+          cameraPose,
+          tempPose,
+          driveSubsystem.getPoseMeters());
+      driveSubsystem.resetOdometry(tempPose);
     }
   }
 

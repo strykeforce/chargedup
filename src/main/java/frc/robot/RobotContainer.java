@@ -42,7 +42,6 @@ import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
 import frc.robot.commands.robotState.AutoPlaceCommand;
-import frc.robot.commands.robotState.AutoPlaceCommandGroup;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.RecoverGamepieceCommand;
@@ -339,13 +338,14 @@ public class RobotContainer {
             false,
             robotStateSubsystem.getTargetCol(),
             true));*/
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+    //     .onTrue(
+    //         new AutoPlaceCommandGroup(
+    //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
     new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
         .onTrue(
-            new AutoPlaceCommandGroup(
-                driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
-        .onTrue(
-            new AutoPlaceCommand(driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem))
+            new AutoPlaceCommand(
+                driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem, false))
         .onFalse(new InterruptDriveCommand(driveSubsystem));
     // TESTING AT
     // LAKEVIEW PRACTICE FIELD

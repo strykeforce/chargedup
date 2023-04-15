@@ -242,6 +242,8 @@ public class Constants {
     public static final double kHoldSpeed = 0.1;
     public static final double kSettleTime = 1.0;
 
+    public static final double kAutonHighCubeYawOffsetDeg = -5.0;
+
     public static TalonSRXConfiguration getAzimuthTalonConfig() {
       // constructor sets encoder to Quad/CTRE_MagEncoder_Relative
       TalonSRXConfiguration azimuthConfig = new TalonSRXConfiguration();
@@ -310,13 +312,18 @@ public class Constants {
     public static final double kPAutoDrive = 3; // 3
     public static final double kIAutoDrive = 0.0000;
     public static final double kDAutoDrive = 0.00; // kPHolonomic/100
+    public static final double kAutoDriveMaxAccelOmega = 5.0;
+
+    public static final double kPAutoDriveOmega = 4.5;
+    public static final double kIAutoDriveOmega = 0.0;
+    public static final double kDAutoDriveOmega = 0.0;
 
     public static final double kAutoDriveMaxVelocity = 2; //
     public static final double kAutoDriveMaxAccel = 2;
 
     // Auto PickUp Constants
-    public static final double kPAutoPickupY = 3.25;
-    public static final double kPAutoPickup = 3;
+    public static final double kPAutoPickupY = 3.25; // 3.25
+    public static final double kPAutoPickup = 2.75; // 3
     public static final double kIAutoPickup = 0.0;
     public static final double kDAutoPickup = 0.0;
 

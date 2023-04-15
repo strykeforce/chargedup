@@ -206,11 +206,11 @@ public class DriveSubsystem extends MeasurableSubsystem {
     // Setup Holonomic Controller
     omegaAutoDriveController =
         new ProfiledPIDController(
-            DriveConstants.kPOmega,
-            DriveConstants.kIOmega,
-            DriveConstants.kDOmega,
+            DriveConstants.kPAutoDriveOmega,
+            DriveConstants.kIAutoDriveOmega,
+            DriveConstants.kDAutoDriveOmega,
             new TrapezoidProfile.Constraints(
-                DriveConstants.kMaxOmega, DriveConstants.kMaxAccelOmega));
+                DriveConstants.kMaxOmega, DriveConstants.kAutoDriveMaxAccelOmega));
     omegaAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
     // xAutoDriveController =
     //     new PIDController(
@@ -359,7 +359,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
             robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
         logger.info("AutoDrive Scoring Gamepiece.");
         // if (robotStateSubsystem.autoDriveYawRight(getPoseMeters().getY()) != 0)
-        yawAdjustmentActive = false; // adjust yaw to get a better Odometry reading
+        // yawAdjustmentActive = false; // adjust yaw to get a better Odometry reading
       } else {
         // endAutoDrivePose =
         //     robotStateSubsystem.getShelfPosAutoDrive(
@@ -479,6 +479,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
     return autoDriving;
   }
 
+  public void setDoYawAdjust(boolean doYawAdjust) {
+    yawAdjustmentActive = doYawAdjust;
+  }
+
   public void setDriveState(DriveStates driveStates) {
     logger.info("{} -> {}", currDriveState, driveStates);
     currDriveState = driveStates;
@@ -553,14 +557,26 @@ public class DriveSubsystem extends MeasurableSubsystem {
             && visionUpdates
             && autoDriveTimer.hasElapsed(DriveConstants.kArmToAutoDriveDelaySec)) {
           lastAutoDriveTimer = autoDriveTimer.get();
+
+          double tempYaw = 0;
+          if (robotStateSubsystem.getAllianceColor() == Alliance.Red) tempYaw = Math.PI;
+          if (yawAdjustmentActive)
+            tempYaw +=
+                Rotation2d.fromDegrees(DriveConstants.kAutonHighCubeYawOffsetDeg).getRadians();
+
+          logger.info(
+              "YawAdjust: {}, target Yaw: {}, Current Yaw: {}",
+              yawAdjustmentActive,
+              Rotation2d.fromRadians(tempYaw).getDegrees(),
+              getGyroRotation2d().getDegrees());
           double xCalc =
               xAutoDriveController.calculate(getPoseMeters().getX(), endAutoDrivePose.getX());
           double yCalc =
               yAutoDriveController.calculate(getPoseMeters().getY(), endAutoDrivePose.getY());
           double omegaCalc =
               omegaAutoDriveController.calculate(
-                  MathUtil.angleModulus(getGyroRotation2d().getRadians()),
-                  robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
+                  MathUtil.angleModulus(getGyroRotation2d().getRadians()), tempYaw);
+          // robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
           // if (yawAdjustmentActive) {
           //   double tempYaw = 45;
           //   if (robotStateSubsystem.autoDriveYawRight(getPoseMeters().getY()) == 2)
