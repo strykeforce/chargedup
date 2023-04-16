@@ -745,18 +745,6 @@ public class RobotContainer {
                 intakeSubsystem, driveSubsystem, armSubsystem))
         .withPosition(2, 1);
     pitImportantTab.add("LockZero", new LockZeroCommand(driveSubsystem)).withPosition(1, 0);
-    pitImportantTab
-        .add(
-            "HealthCheck",
-            new ShuffleBoardHealthCheckCommandGroup(
-                elbowSubsystem,
-                shoulderSubsystem,
-                elevatorSubsystem,
-                handSubsystem,
-                driveSubsystem,
-                intakeSubsystem,
-                armSubsystem))
-        .withPosition(3, 1);
 
     pitImportantTab
         .add(
