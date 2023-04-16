@@ -881,7 +881,7 @@ public class Constants {
 
     // Hand
     // 273 for a tooth on the hand
-    public static final double kHandZeroTicks = 684; // 686 ->976
+    public static final double kHandZeroTicks = 950; // 684 (hand 1)
   }
 
   public static class ProtoConstants {
