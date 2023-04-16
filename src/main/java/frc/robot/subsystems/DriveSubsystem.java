@@ -151,6 +151,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private double recoveryStartingPitch;
   private boolean recoveryStartingPitchSet;
   private double autoBalanceGyroDirection = 0;
+  private double yawAdjust = 0;
   // private boolean isAutoDriveFinished = false;
 
   public DriveSubsystem(Constants constants) {
@@ -479,8 +480,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
     return autoDriving;
   }
 
-  public void setDoYawAdjust(boolean doYawAdjust) {
+  public void setDoYawAdjust(boolean doYawAdjust, double yawAdjustBy) {
     yawAdjustmentActive = doYawAdjust;
+    yawAdjust = yawAdjustBy;
   }
 
   public void setDriveState(DriveStates driveStates) {
@@ -560,9 +562,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
           double tempYaw = 0;
           if (robotStateSubsystem.getAllianceColor() == Alliance.Red) tempYaw = Math.PI;
-          if (yawAdjustmentActive)
-            tempYaw +=
-                Rotation2d.fromDegrees(DriveConstants.kAutonHighCubeYawOffsetDeg).getRadians();
+          if (yawAdjustmentActive) tempYaw += Rotation2d.fromDegrees(yawAdjust).getRadians();
 
           logger.info(
               "YawAdjust: {}, target Yaw: {}, Current Yaw: {}",

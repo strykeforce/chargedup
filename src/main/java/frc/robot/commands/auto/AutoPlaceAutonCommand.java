@@ -18,16 +18,19 @@ public class AutoPlaceAutonCommand extends CommandBase {
   private TargetCol targetCol;
   private boolean isBlue;
   private boolean doYawAdjust;
+  private double yawAdjustBy;
 
   public AutoPlaceAutonCommand(
       DriveSubsystem driveSubsystem,
       RobotStateSubsystem robotStateSubsystem,
       ArmSubsystem armSubsystem,
       HandSubsystem handSubsystem,
-      boolean doYawAdjust) {
+      boolean doYawAdjust,
+      double yawAdjustBy) {
     addRequirements(driveSubsystem, armSubsystem, handSubsystem);
     this.doYawAdjust = doYawAdjust;
     this.driveSubsystem = driveSubsystem;
+    this.yawAdjustBy = yawAdjustBy;
     this.robotStateSubsystem = robotStateSubsystem;
   }
 
@@ -38,7 +41,7 @@ public class AutoPlaceAutonCommand extends CommandBase {
         "Starting Autoplace in Auton: Level: {}, Position(Col): {}",
         robotStateSubsystem.getTargetLevel().name(),
         robotStateSubsystem.getTargetCol().name());
-    driveSubsystem.setDoYawAdjust(doYawAdjust);
+    driveSubsystem.setDoYawAdjust(doYawAdjust, yawAdjustBy);
     robotStateSubsystem.toAutoScore();
   }
 

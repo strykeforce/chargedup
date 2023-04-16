@@ -242,7 +242,8 @@ public class Constants {
     public static final double kHoldSpeed = 0.1;
     public static final double kSettleTime = 1.0;
 
-    public static final double kAutonHighCubeYawOffsetDeg = -5.0;
+    public static final double kAutonBumpHighCubeYawOffsetDeg = -5.0;
+    public static final double kAutonSmoothHighCubeYawOffsetDeg = 5.0;
 
     public static TalonSRXConfiguration getAzimuthTalonConfig() {
       // constructor sets encoder to Quad/CTRE_MagEncoder_Relative
@@ -544,7 +545,7 @@ public class Constants {
     public static final double kFloorElbowSweep = 16_876;
     public static final double kAutoLevelThreeCubeElbow = 65_497; // 64_297
     public static final double kAutoLevelTwoConeElbow = 60_097;
-    public static final double kAutoLevelTwoCubeElbow = 36_500;
+    public static final double kAutoLevelTwoCubeElbow = 37_700;
     public static final double kAutoLevelThreeConeElbow = 84_553;
 
     public static final double kRetrieveGamepiecePercentOutput = 0.2;

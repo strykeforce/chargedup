@@ -28,7 +28,7 @@ public class IntakeSubsystem extends MeasurableSubsystem {
   @HealthCheck(order = 1)
   @Timed(
       percentOutput = {0.5, -0.5},
-      duration = 5)
+      duration = 3)
   private TalonFX intakeFalcon;
 
   @HealthCheck(order = 2)
