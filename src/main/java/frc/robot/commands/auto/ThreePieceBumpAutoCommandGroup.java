@@ -5,11 +5,12 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.RobotStateConstants;
 import frc.robot.commands.drive.AutoPickupCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
-import frc.robot.commands.elevator.ZeroElevatorCommand;
+import frc.robot.commands.elevator.AutonZeroElevatorCommand;
 import frc.robot.commands.robotState.ClearGamePieceCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.ReleaseGamepieceCommand;
@@ -66,7 +67,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new ZeroGyroCommand(driveSubsystem),
             new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE),
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH),
-            new ZeroElevatorCommand(elevatorSubsystem),
+            new AutonZeroElevatorCommand(elevatorSubsystem),
             new AutoGrabConeCommand(handSubsystem),
             new SetVisionUpdateCommand(driveSubsystem, false)),
         new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem),
@@ -78,7 +79,7 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH)),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, true),
-            new AutoPickupCommand(
+            new AutoPickupCommand( // NOT USING JACOBS AUTOPICK IN DRIVESUBSYSTEM
                     driveSubsystem,
                     robotStateSubsystem,
                     RobotStateConstants.kCubeTwoAutoPickup,
@@ -96,7 +97,12 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new ConditionalCommand(
                 fallbackPath,
                 new AutoPlaceAutonCommand(
-                        driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
+                        driveSubsystem,
+                        robotStateSubsystem,
+                        armSubsystem,
+                        handSubsystem,
+                        true,
+                        DriveConstants.kAutonBumpHighCubeYawOffsetDeg)
                     .withTimeout(0.8),
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
@@ -110,26 +116,31 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.MID)),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, true),
-            new AutoPickupCommand(
+            new AutoPickupCommand( //  NOT USING JACOBS AUTOPICK IN DRIVESUBSYSTEM
                     driveSubsystem,
                     robotStateSubsystem,
                     RobotStateConstants.kCubeOneAutoPickup,
                     visionSubsystem)
-                .withTimeout(0.75)),
+                .withTimeout(0.7)),
         new ParallelDeadlineGroup(
             fourthPath,
+            new SetVisionUpdateCommand(driveSubsystem, false),
             new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE),
             new SequentialCommandGroup(
                 new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.8),
                 new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, true),
-            new SetVisionUpdateCommand(driveSubsystem, false),
             new ConditionalCommand(
                 fallbackPath2,
                 new AutoPlaceAutonCommand(
-                        driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
-                    .withTimeout(0.70),
+                        driveSubsystem,
+                        robotStateSubsystem,
+                        armSubsystem,
+                        handSubsystem,
+                        false,
+                        0.0)
+                    .withTimeout(0.65),
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
             new ShootGamepieceCommand(handSubsystem, robotStateSubsystem, false),

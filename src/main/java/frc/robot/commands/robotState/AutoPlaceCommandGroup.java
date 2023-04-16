@@ -17,7 +17,8 @@ public class AutoPlaceCommandGroup extends SequentialCommandGroup {
     addCommands(
         new setAutoDrivingCommand(driveSubsystem, true),
         new WaitCommand(0.3),
-        new AutoPlaceCommand(driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
+        new AutoPlaceCommand(
+            driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem, false, 0.0));
     addRequirements(robotStateSubsystem, driveSubsystem);
   }
 }

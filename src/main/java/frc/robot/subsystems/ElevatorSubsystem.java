@@ -170,6 +170,21 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
     elevatorState = ElevatorState.ZEROING;
   }
 
+  public void autonZeroElevator() {
+    leftMainFalcon.configForwardSoftLimitEnable(false);
+    leftMainFalcon.configReverseSoftLimitEnable(false);
+    rightFollowFalcon.configForwardSoftLimitEnable(false);
+    rightFollowFalcon.configReverseSoftLimitEnable(false);
+
+    leftMainFalcon.configStatorCurrentLimit(
+        ElevatorConstants.getElevStatorCurrentLimitConfiguration());
+    rightFollowFalcon.configStatorCurrentLimit(
+        ElevatorConstants.getElevStatorCurrentLimitConfiguration());
+
+    logger.info("Elevator is zeroing");
+    elevatorState = ElevatorState.AUTON_ZEROING;
+  }
+
   public boolean hasZeroed() {
     return hasZeroed;
   }
@@ -237,6 +252,27 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
           hasZeroed = true;
           break;
         }
+        break;
+      case AUTON_ZEROING:
+        leftMainFalcon.setSelectedSensorPosition(-200.0);
+        rightFollowFalcon.setSelectedSensorPosition(-200.0);
+        leftMainFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
+        rightFollowFalcon.configStatorCurrentLimit(ElevatorConstants.getElevStatorTurnOff());
+        leftMainFalcon.configSupplyCurrentLimit(
+            Constants.ElevatorConstants.getElevatorSupplyLimitConfig(),
+            Constants.kTalonConfigTimeout);
+        rightFollowFalcon.configSupplyCurrentLimit(
+            Constants.ElevatorConstants.getElevatorSupplyLimitConfig(),
+            Constants.kTalonConfigTimeout);
+        leftMainFalcon.configForwardSoftLimitEnable(true);
+        leftMainFalcon.configReverseSoftLimitEnable(true);
+
+        desiredPosition = 0;
+        elevatorState = ElevatorState.ZEROED;
+        logger.info("Elevator is zeroed");
+        hasZeroed = true;
+        break;
+
       case ZEROED:
         break;
       default:
@@ -247,6 +283,7 @@ public class ElevatorSubsystem extends MeasurableSubsystem implements ArmCompone
   public enum ElevatorState {
     IDLE,
     ZEROING,
+    AUTON_ZEROING,
     ZEROED
   }
 }

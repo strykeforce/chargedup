@@ -32,7 +32,7 @@ public class HandSubsystem extends MeasurableSubsystem {
   @HealthCheck
   @Timed(
       percentOutput = {0.7, -0.7},
-      duration = 5)
+      duration = 3)
   private TalonSRX rollerTalon;
   // private TalonSRX handRightTalon;
 
@@ -248,6 +248,10 @@ public class HandSubsystem extends MeasurableSubsystem {
     } else hasPieceStableCounts = 0;
 
     return hasPieceStableCounts > Constants.HandConstants.kHasCubeStableCounts;
+  }
+
+  public int numStableCount() {
+    return hasPieceStableCounts;
   }
 
   public void grabCube() {

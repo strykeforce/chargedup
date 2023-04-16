@@ -10,7 +10,7 @@ import frc.robot.commands.drive.AutoBalanceCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
 import frc.robot.commands.drive.xLockCommand;
-import frc.robot.commands.elevator.ZeroElevatorCommand;
+import frc.robot.commands.elevator.AutonZeroElevatorCommand;
 import frc.robot.commands.robotState.ClearGamePieceCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.ReleaseGamepieceCommand;
@@ -62,7 +62,7 @@ public class TwoPieceBumpWithDockAutoCommandGroup extends SequentialCommandGroup
             new ZeroGyroCommand(driveSubsystem),
             new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE),
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH),
-            new ZeroElevatorCommand(elevatorSubsystem),
+            new AutonZeroElevatorCommand(elevatorSubsystem),
             new AutoGrabConeCommand(handSubsystem),
             new SetVisionUpdateCommand(driveSubsystem, false)),
         new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem),
@@ -74,6 +74,7 @@ public class TwoPieceBumpWithDockAutoCommandGroup extends SequentialCommandGroup
             new SetTargetLevelCommand(robotStateSubsystem, TargetLevel.HIGH)),
         new ParallelDeadlineGroup(
             secondPath,
+            new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE),
             new SequentialCommandGroup(
                 new PastXPositionCommand(robotStateSubsystem, driveSubsystem, 2.5),
                 // new SetVisionUpdateCommand(driveSubsystem, true),
@@ -83,8 +84,13 @@ public class TwoPieceBumpWithDockAutoCommandGroup extends SequentialCommandGroup
             new ConditionalCommand(
                 fallbackPath,
                 new AutoPlaceAutonCommand(
-                        driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem)
-                    .withTimeout(1.75),
+                        driveSubsystem,
+                        robotStateSubsystem,
+                        armSubsystem,
+                        handSubsystem,
+                        false,
+                        0.0)
+                    .withTimeout(1.4),
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
             new SetVisionUpdateCommand(driveSubsystem, false),

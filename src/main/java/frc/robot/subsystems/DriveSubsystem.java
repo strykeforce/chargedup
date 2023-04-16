@@ -65,6 +65,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private final ProfiledPIDController omegaAutoDriveController;
   private final ProfiledPIDController xAutoDriveController;
   private final ProfiledPIDController yAutoDriveController;
+  private double xCalcAutoPickup = 0;
+  private double yCalcAutoPickup = 0;
+  private double xCalcError = 0;
+  private double yCalcError = 0;
   private double xCalc;
   private double yCalc;
   private double omegaCalc;
@@ -147,6 +151,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private double recoveryStartingPitch;
   private boolean recoveryStartingPitchSet;
   private double autoBalanceGyroDirection = 0;
+  private double yawAdjust = 0;
   // private boolean isAutoDriveFinished = false;
 
   public DriveSubsystem(Constants constants) {
@@ -202,13 +207,18 @@ public class DriveSubsystem extends MeasurableSubsystem {
     // Setup Holonomic Controller
     omegaAutoDriveController =
         new ProfiledPIDController(
-            DriveConstants.kPOmega,
-            DriveConstants.kIOmega,
-            DriveConstants.kDOmega,
+            DriveConstants.kPAutoDriveOmega,
+            DriveConstants.kIAutoDriveOmega,
+            DriveConstants.kDAutoDriveOmega,
             new TrapezoidProfile.Constraints(
-                DriveConstants.kMaxOmega, DriveConstants.kMaxAccelOmega));
+                DriveConstants.kMaxOmega, DriveConstants.kAutoDriveMaxAccelOmega));
     omegaAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
-
+    // xAutoDriveController =
+    //     new PIDController(
+    //         DriveConstants.kPAutoDrive, DriveConstants.kIAutoDrive, DriveConstants.kDAutoDrive);
+    // yAutoDriveController =
+    //     new PIDController(
+    //         DriveConstants.kPAutoDrive, DriveConstants.kIAutoDrive, DriveConstants.kDAutoDrive);
     xAutoDriveController =
         new ProfiledPIDController(
             DriveConstants.kPAutoDrive,
@@ -216,7 +226,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
             DriveConstants.kDAutoDrive,
             new TrapezoidProfile.Constraints(
                 DriveConstants.kAutoDriveMaxVelocity, DriveConstants.kAutoDriveMaxAccel));
-    // xAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
+    // // xAutoDriveController.enableContinuousInput(Math.toRadians(-180), Math.toRadians(180));
 
     yAutoDriveController =
         new ProfiledPIDController(
@@ -284,6 +294,13 @@ public class DriveSubsystem extends MeasurableSubsystem {
     return a.getTranslation().getDistance(b.getTranslation());
   }
 
+  public void setCalcValues(double a, double b, double c, double d) {
+    xCalcAutoPickup = a;
+    yCalcAutoPickup = b;
+    xCalcError = c;
+    yCalcError = d;
+  }
+
   public void setRobotStateSubsystem(RobotStateSubsystem robotStateSubsystem) {
     this.robotStateSubsystem = robotStateSubsystem;
   }
@@ -298,10 +315,37 @@ public class DriveSubsystem extends MeasurableSubsystem {
     return visionUpdates;
   }
 
+  public void drivePickup(Pose2d desiredPose) {
+    robotStateSubsystem.setLights(0.0, 1.0, 1.0);
+    omegaAutoDriveController.reset(getPoseMeters().getRotation().getRadians());
+    xAutoDriveController.reset(getPoseMeters().getX(), getFieldRelSpeed().vxMetersPerSecond);
+    yAutoDriveController.reset(getPoseMeters().getY(), getFieldRelSpeed().vyMetersPerSecond);
+    xAutoDriveController.setP(DriveConstants.kPAutoPickup);
+    yAutoDriveController.setP(DriveConstants.kPAutoPickup);
+    omegaAutoDriveController.setP(DriveConstants.kPAutoPickup);
+    setAutoDriving(true);
+    endAutoDrivePose =
+        new Pose2d(
+            new Translation2d(
+                (robotStateSubsystem.isBlueAlliance()
+                    ? desiredPose.getX()
+                    : Constants.RobotStateConstants.kFieldMaxX - desiredPose.getX()),
+                desiredPose.getY()),
+            new Rotation2d());
+    if (visionSubsystem.isCameraWorking())
+      visionSubsystem.resetOdometry(endAutoDrivePose, robotStateSubsystem.isBlueAlliance());
+    logger.info("Starting auto pickup going to {}", endAutoDrivePose);
+    logger.info("{} -> AUTO_DRIVE", currDriveState);
+    currDriveState = DriveStates.AUTO_DRIVE;
+  }
+
   public void driveToPose(TargetCol targetCol) {
     omegaAutoDriveController.reset(getPoseMeters().getRotation().getRadians());
     xAutoDriveController.reset(getPoseMeters().getX(), getFieldRelSpeed().vxMetersPerSecond);
     yAutoDriveController.reset(getPoseMeters().getY(), getFieldRelSpeed().vyMetersPerSecond);
+    xAutoDriveController.setP(DriveConstants.kPAutoDrive);
+    yAutoDriveController.setP(DriveConstants.kPAutoDrive);
+    omegaAutoDriveController.setP(DriveConstants.kPAutoDrive);
     if (Math.abs(getFieldRelSpeed().vxMetersPerSecond) // FIXME TEMP CHECK IF STATEMENT
                 <= DriveConstants.kMaxSpeedToAutoDrive
             && Math.abs(getFieldRelSpeed().vyMetersPerSecond) <= DriveConstants.kMaxSpeedToAutoDrive
@@ -316,7 +360,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
             robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
         logger.info("AutoDrive Scoring Gamepiece.");
         // if (robotStateSubsystem.autoDriveYawRight(getPoseMeters().getY()) != 0)
-        yawAdjustmentActive = false; // adjust yaw to get a better Odometry reading
+        // yawAdjustmentActive = false; // adjust yaw to get a better Odometry reading
       } else {
         // endAutoDrivePose =
         //     robotStateSubsystem.getShelfPosAutoDrive(
@@ -436,6 +480,11 @@ public class DriveSubsystem extends MeasurableSubsystem {
     return autoDriving;
   }
 
+  public void setDoYawAdjust(boolean doYawAdjust, double yawAdjustBy) {
+    yawAdjustmentActive = doYawAdjust;
+    yawAdjust = yawAdjustBy;
+  }
+
   public void setDriveState(DriveStates driveStates) {
     logger.info("{} -> {}", currDriveState, driveStates);
     currDriveState = driveStates;
@@ -510,14 +559,24 @@ public class DriveSubsystem extends MeasurableSubsystem {
             && visionUpdates
             && autoDriveTimer.hasElapsed(DriveConstants.kArmToAutoDriveDelaySec)) {
           lastAutoDriveTimer = autoDriveTimer.get();
+
+          double tempYaw = 0;
+          if (robotStateSubsystem.getAllianceColor() == Alliance.Red) tempYaw = Math.PI;
+          if (yawAdjustmentActive) tempYaw += Rotation2d.fromDegrees(yawAdjust).getRadians();
+
+          logger.info(
+              "YawAdjust: {}, target Yaw: {}, Current Yaw: {}",
+              yawAdjustmentActive,
+              Rotation2d.fromRadians(tempYaw).getDegrees(),
+              getGyroRotation2d().getDegrees());
           double xCalc =
               xAutoDriveController.calculate(getPoseMeters().getX(), endAutoDrivePose.getX());
           double yCalc =
               yAutoDriveController.calculate(getPoseMeters().getY(), endAutoDrivePose.getY());
           double omegaCalc =
               omegaAutoDriveController.calculate(
-                  MathUtil.angleModulus(getGyroRotation2d().getRadians()),
-                  robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
+                  MathUtil.angleModulus(getGyroRotation2d().getRadians()), tempYaw);
+          // robotStateSubsystem.getAllianceColor() == Alliance.Blue ? 0.0 : Math.PI);
           // if (yawAdjustmentActive) {
           //   double tempYaw = 45;
           //   if (robotStateSubsystem.autoDriveYawRight(getPoseMeters().getY()) == 2)
@@ -550,6 +609,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
           this.xCalc = xCalc;
           this.yCalc = yCalc;
           this.omegaCalc = omegaCalc;
+          logger.info(
+              "Moving X : {} | Moving Y : {} | \nCurrent Pose {}", xCalc, yCalc, getPoseMeters());
+          logger.info(
+              "X controller: err: {}, goal: {}\n",
+              xAutoDriveController.getPositionError(),
+              xAutoDriveController.getGoal().position);
           move(xCalc, yCalc, omegaCalc, true);
           // calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
         }
@@ -1060,7 +1125,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("FWD Vel", () -> lastVelocity[0]),
         new Measure("STR Vel", () -> lastVelocity[1]),
         new Measure("YAW Vel", () -> lastVelocity[2]),
-        new Measure("Field Rel Velocity", () -> getFieldRelSpeed().vxMetersPerSecond),
+        new Measure("Field Rel Velocity X", () -> getFieldRelSpeed().vxMetersPerSecond),
+        new Measure("Field Rel Velocity Y", () -> getFieldRelSpeed().vyMetersPerSecond),
         new Measure("Gyro Rate", () -> getGyroRate()),
         new Measure("Auto Drive Speed X", () -> getLastXSpeed()),
         new Measure("Auto Drive Speed Y", () -> getLastYSpeed()),
@@ -1082,6 +1148,10 @@ public class DriveSubsystem extends MeasurableSubsystem {
         new Measure("Robot Roll Deg", () -> getGyroPitch()),
         new Measure("Drive State", () -> currDriveState.ordinal()),
         new Measure("SpeedMPS AUTODRIVE", () -> getSpeedMPS()),
-        new Measure("Magnetic Disturbance (GYRO)", () -> ahrs.isMagneticDisturbance() ? 1.0 : 0.0));
+        new Measure("Magnetic Disturbance (GYRO)", () -> ahrs.isMagneticDisturbance() ? 1.0 : 0.0),
+        new Measure("XCalc AutoPickUp", () -> xCalcAutoPickup),
+        new Measure("YCalc AutoPickUo", () -> yCalcAutoPickup),
+        new Measure("Auto Pickup X Error", () -> xCalcError),
+        new Measure("Auto Pickup Y Error", () -> yCalcError));
   }
 }

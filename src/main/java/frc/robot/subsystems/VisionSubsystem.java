@@ -226,7 +226,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
               new Rotation2d());
 
     if (cam2.isConnected()
-        && FastMath.abs(errorCheckPose.getY() - cameraPose.getY()) <= 0.75
+        && FastMath.abs(errorCheckPose.getY() - cameraPose.getY()) <= 1.0 // 0.75
         && ((isBlueAlliance && cameraPose.getX() <= 6.9 && cameraPose.getX() > 5.1)
             || (!isBlueAlliance
                 && cameraPose.getX() >= RobotStateConstants.kFieldMaxX - 6.9
@@ -237,12 +237,22 @@ public class VisionSubsystem extends MeasurableSubsystem {
               new Translation2d(cameraPose.getX(), cameraPose.getY()),
               driveSubsystem.getGyroRotation2d()));
     } else {
+      // double tempX = (driveSubsystem.getPoseMeters().getX() + cameraPose.getX()) / 2;
+      double tempY = (driveSubsystem.getPoseMeters().getY() + cameraPose.getY()) / 2;
+      // logger.info("TempX: {}, TempY: {}", tempX, tempY);
+      Pose2d tempPose =
+          new Pose2d(
+              new Translation2d(driveSubsystem.getPoseMeters().getX(), tempY),
+              driveSubsystem.getGyroRotation2d());
       logger.info(
-          "Failed to reset error: {} | Camera: {}",
+          "Averaging Odom, error: {} | Camera: {}, Resetting to pose: {}, drive Odom: {}",
           FastMath.hypot(
               (cameraPose.getX() - errorCheckPose.getX()),
               (cameraPose.getY() - errorCheckPose.getY())),
-          cameraPose);
+          cameraPose,
+          tempPose,
+          driveSubsystem.getPoseMeters());
+      driveSubsystem.resetOdometry(tempPose);
     }
   }
 
@@ -253,11 +263,12 @@ public class VisionSubsystem extends MeasurableSubsystem {
       double y = cameraPose.getY();
       double x = cameraPose.getX();
       Pose2d temp = new Pose2d(new Translation2d(x, y), new Rotation2d());
-      if (((Math.hypot(
+      if (((FastMath.hypot(
                       x - driveSubsystem.getPoseMeters().getX(),
                       y - driveSubsystem.getPoseMeters().getY())
                   <= 0.75
-              || (visionOff > 0 && Math.hypot(x - lastPose.getX(), y - lastPose.getY()) <= 0.75)))
+              || (visionOff > 0
+                  && FastMath.hypot(x - lastPose.getX(), y - lastPose.getY()) <= 0.75)))
           && !(useHigh && x >= 13 && x <= 3)) {
         visionOff = 0;
         driveSubsystem.updateOdometryWithVision(
@@ -316,7 +327,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
       targets = result.getTargets();
       bestTarget = result.getBestTarget();
       timeStamp = result.getTimestampSeconds();
-      gyroBufferId = (int) Math.floor(result.getLatencyMillis() / 20);
+      gyroBufferId = (int) FastMath.floor(result.getLatencyMillis() / 20);
     }
     if (resultHighCamera.hasTargets()) {
       highTargets = resultHighCamera.getTargets();

@@ -82,9 +82,9 @@ public class Constants {
     public static final Pose2d kCubeThreeAutoPickup =
         new Pose2d(new Translation2d(7.07, 3.36), new Rotation2d());
     public static final Pose2d kCubeTwoAutoPickup =
-        new Pose2d(new Translation2d(6.9, 2.18), new Rotation2d());
+        new Pose2d(new Translation2d(7.0, 2.18), new Rotation2d());
     public static final Pose2d kCubeOneAutoPickup =
-        new Pose2d(new Translation2d(6.9, 0.92), new Rotation2d());
+        new Pose2d(new Translation2d(7.0, 0.92), new Rotation2d());
 
     public static final double kPolePlaceOffset = 0.56;
     public static final double kShelfOffset = 0.75;
@@ -242,6 +242,9 @@ public class Constants {
     public static final double kHoldSpeed = 0.1;
     public static final double kSettleTime = 1.0;
 
+    public static final double kAutonBumpHighCubeYawOffsetDeg = -5.0;
+    public static final double kAutonSmoothHighCubeYawOffsetDeg = 5.0;
+
     public static TalonSRXConfiguration getAzimuthTalonConfig() {
       // constructor sets encoder to Quad/CTRE_MagEncoder_Relative
       TalonSRXConfiguration azimuthConfig = new TalonSRXConfiguration();
@@ -310,12 +313,18 @@ public class Constants {
     public static final double kPAutoDrive = 3; // 3
     public static final double kIAutoDrive = 0.0000;
     public static final double kDAutoDrive = 0.00; // kPHolonomic/100
+    public static final double kAutoDriveMaxAccelOmega = 5.0;
+
+    public static final double kPAutoDriveOmega = 4.5;
+    public static final double kIAutoDriveOmega = 0.0;
+    public static final double kDAutoDriveOmega = 0.0;
 
     public static final double kAutoDriveMaxVelocity = 2; //
     public static final double kAutoDriveMaxAccel = 2;
 
     // Auto PickUp Constants
-    public static final double kPAutoPickup = 3;
+    public static final double kPAutoPickupY = 3.25; // 3.25
+    public static final double kPAutoPickup = 2.75; // 3
     public static final double kIAutoPickup = 0.0;
     public static final double kDAutoPickup = 0.0;
 
@@ -536,7 +545,7 @@ public class Constants {
     public static final double kFloorElbowSweep = 16_876;
     public static final double kAutoLevelThreeCubeElbow = 65_497; // 64_297
     public static final double kAutoLevelTwoConeElbow = 60_097;
-    public static final double kAutoLevelTwoCubeElbow = 36_500;
+    public static final double kAutoLevelTwoCubeElbow = 37_700;
     public static final double kAutoLevelThreeConeElbow = 84_553;
 
     public static final double kRetrieveGamepiecePercentOutput = 0.2;
@@ -551,8 +560,8 @@ public class Constants {
     public static final double kStowToIntakeStageParallelAllowed = -10_000;
     public static final double kIntakeStageToIntakeParallelAllowed = kIntakeElbow;
 
-    public static final double kElbowTeleMotionCruiseVelocity = 12_000.0; // 13_000
-    public static final double kElbowTeleMotionAcceleration = 35_000.0; // 38_000
+    public static final double kElbowTeleMotionCruiseVelocity = 13_000.0; // 12_000
+    public static final double kElbowTeleMotionAcceleration = 50_000.0; // 35_000
     public static final double kElbowAutoMotionCruiseVelocity = 13_000.0;
     public static final double kElbowAutoMotionAcceleration = 50_000.0;
 
@@ -784,6 +793,7 @@ public class Constants {
     public static final int kZeroStableCounts = 1592;
     public static final int kHasConeStableCounts = 2;
     public static final int kHasCubeStableCounts = 2;
+    public static final int kHasCubeStableCountsAuto = 1;
     public static final int kHandVelStable = 50;
 
     public static final double kHandHoldingPercent = 0.1; // FIXME
@@ -857,7 +867,7 @@ public class Constants {
 
   public static class CompConstants {
     // Drive
-    public static final double kWheelDiameterInches = 3.0 * (496 / 500.0);
+    public static final double kWheelDiameterInches = 3.0 * (506.5 / 500.0);
 
     // Elbow
     public static final int kElbowZeroTicks = 705; // 700
@@ -867,12 +877,12 @@ public class Constants {
     public static final double kShoulderFollowerZeroTicks = 2057;
 
     // Intake
-    public static final int kIntakeZeroTicks = 3_600; // 2440 ->2540
+    public static final int kIntakeZeroTicks = 2_700; // 2440 ->2540
     public static final double kExtendPosTicks = -2_100;
 
     // Hand
     // 273 for a tooth on the hand
-    public static final double kHandZeroTicks = 684; // 686 ->976
+    public static final double kHandZeroTicks = 950; // 684 (hand 1)
   }
 
   public static class ProtoConstants {

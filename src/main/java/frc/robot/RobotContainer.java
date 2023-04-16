@@ -20,11 +20,11 @@ import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.TestBalanceCommand;
+import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.InterruptDriveCommand;
 import frc.robot.commands.drive.LockZeroCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
-import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elbow.ElbowHoldPosCommand;
 import frc.robot.commands.elbow.JogElbowCommand;
 import frc.robot.commands.elevator.AdjustElevatorCommand;
@@ -42,7 +42,6 @@ import frc.robot.commands.hand.ZeroHandCommand;
 import frc.robot.commands.intake.IntakeExtendCommand;
 import frc.robot.commands.intake.IntakeOpenLoopCommand;
 import frc.robot.commands.robotState.AutoPlaceCommand;
-import frc.robot.commands.robotState.AutoPlaceCommandGroup;
 import frc.robot.commands.robotState.FloorPickupCommand;
 import frc.robot.commands.robotState.ManualScoreCommand;
 import frc.robot.commands.robotState.RecoverGamepieceCommand;
@@ -104,10 +103,12 @@ public class RobotContainer {
   private SuppliedValueWidget<Boolean> allianceColor;
   private Alliance alliance = Alliance.Invalid;
   private SuppliedValueWidget<Boolean> currGamePiece;
+  private boolean isEvent = false;
 
   // Paths
   //   private GrabCubeBalanceCommand testpath;
   private TestBalanceCommand balancepath;
+  private DriveAutonCommand fiveMeterTest;
   //   private CommunityToDockCommandGroup communityToDockCommandGroup;
   //   private TwoPieceWithDockAutoCommandGroup twoPieceWithDockAutoCommandGroup;
   //   private TwoPieceAutoPlacePathCommandGroup twoPieceAutoPlacePathCommandGroup;
@@ -120,6 +121,7 @@ public class RobotContainer {
   public RobotContainer() {
     DigitalInput eventFlag = new DigitalInput(10);
     boolean isEvent = eventFlag.get();
+    this.isEvent = isEvent;
     if (isEvent && Constants.isCompBot) {
       // must be set before the first call to  LoggerFactory.getLogger();
       System.setProperty(ContextInitializer.CONFIG_FILE_PROPERTY, "logback-event.xml");
@@ -192,6 +194,12 @@ public class RobotContainer {
     driveSubsystem.visionUpdates = isEnabled;
   }
 
+  public void autoStowTele() {
+    if (elevatorSubsystem.hasZeroed() && isEvent) {
+      // robotStateSubsystem.toStow();
+    }
+  }
+
   public void setDisabled(boolean isDisabled) {
     robotStateSubsystem.setDisabled(isDisabled);
   }
@@ -250,6 +258,7 @@ public class RobotContainer {
     //         elevatorSubsystem,
     //         "TestAutoDrivePathOne",
     //         "TestAutoDrivePathTwo");
+    fiveMeterTest = new DriveAutonCommand(driveSubsystem, "straightPathX", true, true);
     balancepath =
         new TestBalanceCommand(
             driveSubsystem,
@@ -329,13 +338,14 @@ public class RobotContainer {
             false,
             robotStateSubsystem.getTargetCol(),
             true));*/
+    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
+    //     .onTrue(
+    //         new AutoPlaceCommandGroup(
+    //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
     new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
         .onTrue(
-            new AutoPlaceCommandGroup(
-                driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
-        .onTrue(
-            new AutoPlaceCommand(driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem))
+            new AutoPlaceCommand(
+                driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem, false, 0.0))
         .onFalse(new InterruptDriveCommand(driveSubsystem));
     // TESTING AT
     // LAKEVIEW PRACTICE FIELD
@@ -343,8 +353,13 @@ public class RobotContainer {
     // new JoystickButton(driveJoystick, InterlinkButton.X.id)
     //     .onTrue(new ZeroElbowCommand(elbowSubsystem));
 
-    new JoystickButton(driveJoystick, InterlinkButton.X.id)
-        .onTrue(new xLockCommand(driveSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.X.id).onTrue(fiveMeterTest);
+
+    // new JoystickButton(driveJoystick, InterlinkButton.X.id)
+    //     .onTrue(new xLockCommand(driveSubsystem));
+
+    // new JoystickButton(driveJoystick, InterlinkButton.X.id)
+    //     .onTrue(new AutonZeroElevatorCommand(elevatorSubsystem));
 
     // Hand
     /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
@@ -701,7 +716,7 @@ public class RobotContainer {
     ShuffleboardTab pitImportantTab = Shuffleboard.getTab("PitImportant");
     pitImportantTab
         .add(
-            "HealthCheck Drive",
+            "HealthCheck",
             new ShuffleBoardHealthCheckCommandGroup(
                 elbowSubsystem,
                 shoulderSubsystem,
@@ -763,7 +778,7 @@ public class RobotContainer {
         Map.of(
             "colorWhenTrue", alliance == Alliance.Red ? "red" : "blue", "colorWhenFalse", "black"));
     robotStateSubsystem.setAllianceColor(alliance);
-    // testpath.generateTrajectory();
+    fiveMeterTest.generateTrajectory();
     balancepath.generateTrajectory();
     // communityToDockCommandGroup.generateTrajectory();
     // twoPieceWithDockAutoCommandGroup.generateTrajectory();

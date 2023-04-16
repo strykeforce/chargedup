@@ -392,6 +392,14 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
     }
   }
 
+  public int handStableCount() {
+    return handSubsystem.numStableCount();
+  }
+
+  public void setLights(double red, double green, double blue) {
+    rgbLightsSubsystem.setColor(red, green, blue);
+  }
+
   public void toRetrieveGamepiece() {
     handSubsystem.stowHand(HandConstants.kRetrieveGamepiecePosition);
     handSubsystem.runRollers(HandConstants.kRetrieveGamepieceRollerSpeed);
