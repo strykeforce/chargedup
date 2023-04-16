@@ -24,13 +24,12 @@ public class ShuffleBoardHealthCheckCommandGroup extends SequentialCommandGroup 
     addCommands(
         new toggleHealthBoolean(armSubsystem),
         new HealthCheckCommand(
-            driveSubsystem // ,
-            // handSubsystem,
-            // shoulderSubsystem,
-            // intakeSubsystem,
-            // elbowSubsystem,
-            // elevatorSubsystem
-            ),
+            driveSubsystem,
+            handSubsystem,
+            intakeSubsystem,
+            shoulderSubsystem,
+            elbowSubsystem,
+            elevatorSubsystem),
         new LockZeroCommand(driveSubsystem),
         new ElbowToPositionCommand(elbowSubsystem, 0.0),
         new toggleHealthBoolean(armSubsystem));

@@ -716,7 +716,7 @@ public class RobotContainer {
     ShuffleboardTab pitImportantTab = Shuffleboard.getTab("PitImportant");
     pitImportantTab
         .add(
-            "HealthCheck Drive",
+            "HealthCheck",
             new ShuffleBoardHealthCheckCommandGroup(
                 elbowSubsystem,
                 shoulderSubsystem,

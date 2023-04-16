@@ -22,7 +22,7 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
   @HealthCheck
   @Position(
       percentOutput = {0.2, -0.2},
-      encoderChange = (int) ShoulderConstants.kLevelThreeCubeShoulder)
+      encoderChange = (int) ((ShoulderConstants.kLevelThreeCubeShoulder * 2) / 3))
   private TalonSRX leftMainShoulderTalon;
 
   @HealthCheck
@@ -83,10 +83,10 @@ public class ShoulderSubsystem extends MeasurableSubsystem implements ArmCompone
 
   @BeforeHealthCheck
   public boolean goToZero() {
+    setPos(0.0);
     rightFollowerShoulderTalon.follow(leftMainShoulderTalon);
     leftMainShoulderTalon.configForwardSoftLimitEnable(false);
     rightFollowerShoulderTalon.configForwardSoftLimitEnable(false);
-    setPos(0.0);
     return isFinished();
   }
 

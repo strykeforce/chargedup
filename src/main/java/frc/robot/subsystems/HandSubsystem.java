@@ -32,7 +32,7 @@ public class HandSubsystem extends MeasurableSubsystem {
   @HealthCheck
   @Timed(
       percentOutput = {0.7, -0.7},
-      duration = 5)
+      duration = 3)
   private TalonSRX rollerTalon;
   // private TalonSRX handRightTalon;
 

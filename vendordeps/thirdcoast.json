@@ -1,7 +1,7 @@
 {
   "fileName": "thirdcoast.json",
   "name": "StrykeForce-ThirdCoast",
-  "version": "23.2.0",
+  "version": "23.3.0",
   "uuid": "13c4f4b5-a1c0-4670-8f8d-b7b03628c0d3",
   "mavenUrls": ["https://d1cfub2bqs98lp.cloudfront.net/repo"],
   "jsonUrl": "http://maven.strykeforce.org/thirdcoast.json",
@@ -9,7 +9,7 @@
     {
       "groupId": "org.strykeforce",
       "artifactId": "thirdcoast",
-      "version": "23.2.0"
+      "version": "23.3.0"
     }
   ],
   "jniDependencies": [],
