@@ -25,8 +25,10 @@ import frc.robot.commands.drive.DriveTeleopCommand;
 import frc.robot.commands.drive.InterruptDriveCommand;
 import frc.robot.commands.drive.LockZeroCommand;
 import frc.robot.commands.drive.ZeroGyroCommand;
+import frc.robot.commands.drive.xLockCommand;
 import frc.robot.commands.elbow.ElbowHoldPosCommand;
 import frc.robot.commands.elbow.JogElbowCommand;
+import frc.robot.commands.elbow.ZeroElbowCommand;
 import frc.robot.commands.elevator.AdjustElevatorCommand;
 import frc.robot.commands.elevator.ElevatorSpeedCommand;
 import frc.robot.commands.elevator.HoldPositionCommand;
@@ -327,6 +329,8 @@ public class RobotContainer {
         new DriveTeleopCommand(driveJoystick, driveSubsystem, robotStateSubsystem, handSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.RESET.id)
         .onTrue(new ZeroGyroCommand(driveSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+        .onTrue(new ZeroElbowCommand(elbowSubsystem));
 
     // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
     // .onTrue(new DriveToPlaceCommand(driveSubsystem, robotStateSubsystem));
@@ -353,10 +357,10 @@ public class RobotContainer {
     // new JoystickButton(driveJoystick, InterlinkButton.X.id)
     //     .onTrue(new ZeroElbowCommand(elbowSubsystem));
 
-    new JoystickButton(driveJoystick, InterlinkButton.X.id).onTrue(fiveMeterTest);
+    // new JoystickButton(driveJoystick, InterlinkButton.X.id).onTrue(fiveMeterTest);
 
-    // new JoystickButton(driveJoystick, InterlinkButton.X.id)
-    //     .onTrue(new xLockCommand(driveSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.X.id)
+        .onTrue(new xLockCommand(driveSubsystem));
 
     // new JoystickButton(driveJoystick, InterlinkButton.X.id)
     //     .onTrue(new AutonZeroElevatorCommand(elevatorSubsystem));

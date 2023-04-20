@@ -73,7 +73,7 @@ public class ElbowSubsystem extends MeasurableSubsystem implements ArmComponent 
   //   return isFinished();
   // }
 
-  private int getPulseWidthFor(PWMChannel channel) {
+  public int getPulseWidthFor(PWMChannel channel) {
     double[] pulseWidthandPeriod = new double[2];
     remoteEncoder.getPWMInput(channel, pulseWidthandPeriod);
     return (int) (4096.0 * pulseWidthandPeriod[0] / pulseWidthandPeriod[1]);
