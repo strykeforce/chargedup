@@ -11,7 +11,7 @@ target_yaw = 0.0 #degrees
     angle = 0.0
 
 [end_pose]
-    x = 6.6 #6.5 #test
+    x = 6.7 #6.6 #test
     y = 2.18
     angle = 0.0
 
