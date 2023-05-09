@@ -436,7 +436,7 @@ public class Constants {
     public static final double kMaxExtension = 1.23; // FIXME meters
 
     // Elevator Positions
-    public static final double kIntakeElevator = -23_500; // intake 9.75 gap
+    public static final double kIntakeElevator = -26_680; // intake 9.75 gap //-23_500
     public static final double kStowElevator = -2_000;
     public static final double kFloorElevator = -27_000; // 32648
     public static final double kLevelOneElevator = -10_500;
@@ -541,7 +541,7 @@ public class Constants {
     public static final double kLevelTwoCubeElbow = 60_097;
     public static final double kLevelThreeConeElbow = 84_553; // 84_553 // FIXME
     public static final double kLevelThreeCubeElbow = 84_106;
-    public static final double kShelfElbow = 41_000;
+    public static final double kShelfElbow = 41_000; // 41_000
     public static final double kFloorElbowSweep = 16_876;
     public static final double kAutoLevelThreeCubeElbow = 65_497; // 64_297
     public static final double kAutoLevelTwoConeElbow = 60_097;
@@ -870,14 +870,14 @@ public class Constants {
     public static final double kWheelDiameterInches = 3.0 * (506.5 / 500.0);
 
     // Elbow
-    public static final int kElbowZeroTicks = 705; // 700
+    public static final int kElbowZeroTicks = 705; // 705
 
     // Shoulder
     public static final double kShoulderMainZeroTicks = 2050;
     public static final double kShoulderFollowerZeroTicks = 2057;
 
     // Intake
-    public static final int kIntakeZeroTicks = 2_700; // 2440 ->2540
+    public static final int kIntakeZeroTicks = 3_000; // 2440 ->2540->2_900
     public static final double kExtendPosTicks = -2_100;
 
     // Hand
