@@ -3,6 +3,11 @@
 
 [![CI](https://github.com/strykeforce/chargedup/actions/workflows/main.yml/badge.svg)](https://github.com/strykeforce/chargedup/actions/workflows/main.yml)
 
+  <img alt="snakeyes" src="https://live.staticflickr.com/65535/52808137456_7aaf94b8ec_z.jpg" width="50%">
+&nbsp; &nbsp;
+  <img alt="snakeyes-2" src="docs/snakeyes-tipped.jpg" width="45%">
+</p>
+
 ## Controls
 
 ![driver](docs/driver-controls.png)
