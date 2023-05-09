@@ -40,7 +40,7 @@
 ## Roborio
 | Subsystem | Interface | Device | 
 | --------- | --------- | ------ |
-| Drive     | SPI/MXP   | NAVX   |
+| Drive     | USB       | NAVX   |
 
 
 ## DIO
