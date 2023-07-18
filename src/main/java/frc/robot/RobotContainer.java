@@ -268,11 +268,13 @@ public class RobotContainer {
     String joystick = DriverStation.getJoystickName(0);
     boolean success = false;
     switch (joystick) {
-      case "Interlink":
+      case "InterLink-X":
+        logger.info("Configuring Interlink Joystick");
         configureInterlinkDriverButtonBindings();
         success = true;
         break;
-      case "Flysky":
+      case "FlySky NV14 Joystick":
+        logger.info("Configuring Flysky Joystick");
         configureFlyskyDriverButtonBindings();
         success = true;
         break;
