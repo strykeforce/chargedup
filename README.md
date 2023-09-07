@@ -10,7 +10,12 @@
 
 ## Controls
 
+
+### Interlink Controloer (old)
 ![driver](docs/driver-controls.png)
+
+### Flysky Controller (new)
+![flysky](docs/flysky-driver-controls.png)
 
 ![operator](docs/operator-controls.png)
 

@@ -3,6 +3,7 @@ package frc.robot;
 import ch.qos.logback.classic.util.ContextInitializer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
@@ -62,6 +63,12 @@ import frc.robot.commands.shoulder.StopTwistCommand;
 import frc.robot.commands.shoulder.TwistShoulderCommand;
 import frc.robot.commands.shoulder.ZeroShoulderCommand;
 import frc.robot.commands.vision.ToggleUpdateWithVisionCommand;
+import frc.robot.controllers.FlyskyJoystick;
+import frc.robot.controllers.FlyskyJoystick.Button;
+import frc.robot.controllers.InterlinkJoystick;
+import frc.robot.controllers.InterlinkJoystick.InterlinkButton;
+import frc.robot.controllers.InterlinkJoystick.Shoulder;
+import frc.robot.controllers.InterlinkJoystick.Trim;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.AutoSwitch;
 import frc.robot.subsystems.DriveSubsystem;
@@ -77,6 +84,8 @@ import frc.robot.subsystems.RobotStateSubsystem.TargetLevel;
 import frc.robot.subsystems.ShoulderSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.strykeforce.healthcheck.HealthCheckCommand;
 import org.strykeforce.telemetry.TelemetryController;
 import org.strykeforce.telemetry.TelemetryService;
@@ -107,18 +116,10 @@ public class RobotContainer {
   private SuppliedValueWidget<Boolean> currGamePiece;
   private boolean isEvent = false;
 
-  // Paths
-  //   private GrabCubeBalanceCommand testpath;
   private TestBalanceCommand balancepath;
   private DriveAutonCommand fiveMeterTest;
-  //   private CommunityToDockCommandGroup communityToDockCommandGroup;
-  //   private TwoPieceWithDockAutoCommandGroup twoPieceWithDockAutoCommandGroup;
-  //   private TwoPieceAutoPlacePathCommandGroup twoPieceAutoPlacePathCommandGroup;
-  //   private TwoPieceLvl3AutoCommandGroup bumpSideTwoPieceCommandGroup;
-
-  //   private ThreePiecePathCommandGroup threePiecePath;
-
   private HandSubsystem handSubsystem;
+  private Logger logger;
 
   public RobotContainer() {
     DigitalInput eventFlag = new DigitalInput(10);
@@ -129,6 +130,7 @@ public class RobotContainer {
       System.setProperty(ContextInitializer.CONFIG_FILE_PROPERTY, "logback-event.xml");
       System.out.println("Event Flag Removed - logging to file in ~lvuser/logs/");
     }
+    logger = LoggerFactory.getLogger(this.getClass());
 
     constants = new Constants();
     handSubsystem = new HandSubsystem(constants);
@@ -174,7 +176,7 @@ public class RobotContainer {
     robotStateSubsystem.setAllianceColor(Alliance.Blue);
 
     configurePaths();
-    configureDriverButtonBindings();
+    // configureDriverButtonBindings();
     configureOperatorButtonBindings();
     configureMatchDashboard();
     if (!isEvent || !Constants.isCompBot) {
@@ -249,17 +251,6 @@ public class RobotContainer {
 
   // Path Configuration For Robot Container
   private void configurePaths() {
-
-    // testpath =
-    //     new GrabCubeBalanceCommand(
-    //         driveSubsystem,
-    //         robotStateSubsystem,
-    //         armSubsystem,
-    //         handSubsystem,
-    //         intakeSubsystem,
-    //         elevatorSubsystem,
-    //         "TestAutoDrivePathOne",
-    //         "TestAutoDrivePathTwo");
     fiveMeterTest = new DriveAutonCommand(driveSubsystem, "straightPathX", true, true);
     balancepath =
         new TestBalanceCommand(
@@ -271,105 +262,56 @@ public class RobotContainer {
             elevatorSubsystem,
             "TestAutoDrivePathTwo",
             "TestAutoDrivePathTwo");
-    // testPath = new DriveAutonCommand(driveSubsystem, "pieceTwoFetchPath", true, true);
-    // twoPieceAutoPlacePathCommandGroup =
-    //     new TwoPieceAutoPlacePathCommandGroup(
-    //         driveSubsystem,
-    //         robotStateSubsystem,
-    //         armSubsystem,
-    //         handSubsystem,
-    //         intakeSubsystem,
-    //         elevatorSubsystem,
-    //         "pieceFetchPath",
-    //         "readyForAutoPlacePath");
-    // twoPieceWithDockAutoCommandGroup =
-    //     new TwoPieceWithDockAutoCommandGroup(
-    //         driveSubsystem,
-    //         robotStateSubsystem,
-    //         armSubsystem,
-    //         handSubsystem,
-    //         intakeSubsystem,
-    //         elevatorSubsystem,
-    //         "pieceOneFetchPath",
-    //         "pieceOnePlacePath",
-    //         "pieceTwoToDockPath");
-    // threePiecePath =
-    //     new ThreePiecePathCommandGroup(
-    //         driveSubsystem,
-    //         "pieceOneFetchPath",
-    //         "pieceOnePlacePath",
-    //         "pieceTwoFetchPath",
-    //         "pieceTwoPlacePath");
-    // communityToDockCommandGroup =
-    //     new CommunityToDockCommandGroup(
-    //         driveSubsystem,
-    //         robotStateSubsystem,
-    //         handSubsystem,
-    //         armSubsystem,
-    //         elevatorSubsystem,
-    //         "piecePlaceToCommunityPath",
-    //         "communityToDockPath");
-
-    // bumpSideTwoPieceCommandGroup =
-    //     new TwoPieceLvl3AutoCommandGroup(
-    //         driveSubsystem,
-    //         robotStateSubsystem,
-    //         armSubsystem,
-    //         handSubsystem,
-    //         intakeSubsystem,
-    //         elevatorSubsystem,
-    //         "pieceFetchPath",
-    //         "pieceOneDeliverBumpPath");
   }
 
-  // , "pieceTwoPlacePath"
+  public boolean configureDriverButtonBindings() {
+    String joystick = DriverStation.getJoystickName(0);
+    boolean success = false;
+    switch (joystick) {
+      case "InterLink-X":
+        logger.info("Configuring Interlink Joystick");
+        configureInterlinkDriverButtonBindings();
+        success = true;
+        break;
+      case "FlySky NV14 Joystick":
+        logger.info("Configuring Flysky Joystick");
+        configureFlyskyDriverButtonBindings();
+        success = true;
+        break;
+      default:
+        logger.info("No joystick type {} defined", joystick);
+        break;
+    }
+    return success;
+  }
 
-  private void configureDriverButtonBindings() {
+  private void configureInterlinkDriverButtonBindings() {
+    InterlinkJoystick interlink = new InterlinkJoystick(driveJoystick);
+    // Drive
     driveSubsystem.setDefaultCommand(
-        new DriveTeleopCommand(driveJoystick, driveSubsystem, robotStateSubsystem, handSubsystem));
-    new JoystickButton(driveJoystick, InterlinkButton.RESET.id)
-        .onTrue(new ZeroGyroCommand(driveSubsystem));
-    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
-        .onTrue(new ZeroElbowCommand(elbowSubsystem));
-
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-    // .onTrue(new DriveToPlaceCommand(driveSubsystem, robotStateSubsystem));
-    /*new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-    .onTrue(
-        new DriveToPlacePathCommandGroup(
+        new DriveTeleopCommand(
+            () -> interlink.getFwd(),
+            () -> interlink.getStr(),
+            () -> interlink.getYaw(),
             driveSubsystem,
             robotStateSubsystem,
-            false,
-            robotStateSubsystem.getTargetCol(),
-            true));*/
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
-    //     .onTrue(
-    //         new AutoPlaceCommandGroup(
-    //             driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem));
-    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id) // 3578
-        .onTrue(
-            new AutoPlaceCommand(
-                driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem, false, 0.0))
-        .onFalse(new InterruptDriveCommand(driveSubsystem));
-    // TESTING AT
-    // LAKEVIEW PRACTICE FIELD
-
-    // new JoystickButton(driveJoystick, InterlinkButton.X.id)
-    //     .onTrue(new ZeroElbowCommand(elbowSubsystem));
-
-    // new JoystickButton(driveJoystick, InterlinkButton.X.id).onTrue(fiveMeterTest);
-
+            handSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.RESET.id)
+        .onTrue(new ZeroGyroCommand(driveSubsystem));
     new JoystickButton(driveJoystick, InterlinkButton.X.id)
         .onTrue(new xLockCommand(driveSubsystem));
 
-    // new JoystickButton(driveJoystick, InterlinkButton.X.id)
-    //     .onTrue(new AutonZeroElevatorCommand(elevatorSubsystem));
+    // Zero/Stow
+    new JoystickButton(driveJoystick, InterlinkButton.HAMBURGER.id)
+        .onTrue(new ZeroElbowCommand(elbowSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.UP.id)
+        .onTrue(new ZeroElevatorCommand(elevatorSubsystem));
+    new JoystickButton(driveJoystick, InterlinkButton.DOWN.id)
+        .onTrue(
+            new StowRobotCommand(
+                robotStateSubsystem, armSubsystem, intakeSubsystem, handSubsystem));
 
-    // Hand
-    /*new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
-    .onTrue(
-        new HandToPositionCommand(handSubsystem, Constants.HandConstants.kCubeGrabbingPosition))
-    .onFalse(new HandToPositionCommand(handSubsystem, Constants.HandConstants.kMaxRev));*/
+    // Release Gamepiece
     new JoystickButton(driveJoystick, Shoulder.LEFT_DOWN.id)
         .onTrue(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem))
         .onFalse(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem));
@@ -377,132 +319,122 @@ public class RobotContainer {
         .onTrue(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem))
         .onFalse(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem));
 
-    // // Shoulder
-    // new JoystickButton(driveJoystick, Trim.LEFT_X_NEG.id)
-    //     .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
-    //     .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, -0.35));
-    // new JoystickButton(driveJoystick, Trim.LEFT_X_POS.id)
-    //     .onFalse(new ShoulderSpeedCommand(shoulderSubsystem, 0))
-    //     .onTrue(new ShoulderSpeedCommand(shoulderSubsystem, 0.3));
-
-    // // Elevator testing
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
-    //     .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, -0.2))
-    //     .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-    //     .onTrue(new ElevatorSpeedCommand(elevatorSubsystem, 0.2))
-    //     .onFalse(new ElevatorSpeedCommand(elevatorSubsystem, 0));
-    new JoystickButton(driveJoystick, InterlinkButton.UP.id)
-        .onTrue(new ZeroElevatorCommand(elevatorSubsystem));
-
-    // // Elbow testing
-    // new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
-    //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-    //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.1));
-    // new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
-    //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-    //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.1));
-    // // Elbow testing
-    // new JoystickButton(driveJoystick, Trim.LEFT_Y_NEG.id)
-    //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-    //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, -0.2));
-    // new JoystickButton(driveJoystick, Trim.LEFT_Y_POS.id)
-    //     .onFalse(new ElbowOpenLoopCommand(elbowSubsystem, 0))
-    //     .onTrue(new ElbowOpenLoopCommand(elbowSubsystem, 0.2));
-
-    // intake buttons
-    // new JoystickButton(xboxController, 3).onTrue(new
-    // ToggleIntakeExtendedCommand(intakeSubsystem));
+    // Intake
     new JoystickButton(driveJoystick, Shoulder.RIGHT_DOWN.id)
         .onTrue(new ToggleIntakeCommand(robotStateSubsystem, intakeSubsystem))
         .onFalse(new ToggleIntakeCommand(robotStateSubsystem, intakeSubsystem));
-    // new JoystickButton(driveJoystick, Shoulder.RIGHT_DOWN.id)
-    // .onTrue(new ToggleIntakeExtendedCommand(intakeSubsystem))
-    // .onFalse(new ToggleIntakeExtendedCommand(intakeSubsystem));
 
-    // Toggle auto staging
+    // Manual Score
     new JoystickButton(driveJoystick, Trim.RIGHT_Y_POS.id)
         .onTrue(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem));
     new JoystickButton(driveJoystick, Trim.RIGHT_Y_NEG.id)
         .onTrue(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem));
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
-    //     .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
-    // new JoystickButton(driveJoystick, Trim.RIGHT_X_NEG.id)
-    //     .onTrue(new SetAutoStagingCommand(robotStateSubsystem, true));
 
-    new JoystickButton(driveJoystick, InterlinkButton.DOWN.id)
+    // Auto Score
+    new JoystickButton(driveJoystick, Trim.RIGHT_X_POS.id)
         .onTrue(
+            new AutoPlaceCommand(
+                driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem, false, 0.0))
+        .onFalse(new InterruptDriveCommand(driveSubsystem));
+  }
+
+  private void configureFlyskyDriverButtonBindings() {
+    FlyskyJoystick flysky = new FlyskyJoystick(driveJoystick);
+
+    // Drive
+    driveSubsystem.setDefaultCommand(
+        new DriveTeleopCommand(
+            () -> flysky.getFwd(),
+            () -> flysky.getStr(),
+            () -> flysky.getYaw(),
+            driveSubsystem,
+            robotStateSubsystem,
+            handSubsystem));
+    new JoystickButton(driveJoystick, Button.M_LTRIM_UP.id)
+        .onTrue(new ZeroGyroCommand(driveSubsystem));
+    new JoystickButton(driveJoystick, Button.M_RTRIM_UP.id)
+        .onTrue(new xLockCommand(driveSubsystem));
+
+    // Zero/Stow
+    new JoystickButton(driveJoystick, Button.M_RTRIM_DWN.id)
+        .onTrue(new ZeroElevatorCommand(elevatorSubsystem));
+    new JoystickButton(driveJoystick, Button.SWD.id)
+        .onTrue(
+            new StowRobotCommand(robotStateSubsystem, armSubsystem, intakeSubsystem, handSubsystem))
+        .onFalse(
             new StowRobotCommand(
                 robotStateSubsystem, armSubsystem, intakeSubsystem, handSubsystem));
+
+    // Release Gamepiece
+    new JoystickButton(driveJoystick, Button.SWF_UP.id)
+        .onTrue(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem))
+        .onFalse(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem));
+    new JoystickButton(driveJoystick, Button.SWF_DWN.id)
+        .onTrue(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem))
+        .onFalse(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem));
+
+    // Intake
+    new JoystickButton(driveJoystick, Button.SWB_UP.id)
+        .onTrue(new ToggleIntakeCommand(robotStateSubsystem, intakeSubsystem))
+        .onFalse(new ToggleIntakeCommand(robotStateSubsystem, intakeSubsystem));
+    new JoystickButton(driveJoystick, Button.SWB_DWN.id)
+        .onTrue(new ToggleIntakeCommand(robotStateSubsystem, intakeSubsystem))
+        .onFalse(new ToggleIntakeCommand(robotStateSubsystem, intakeSubsystem));
+
+    // Manual Score
+    new JoystickButton(driveJoystick, Button.SWG_UP.id)
+        .onTrue(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))
+        .onFalse(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem));
+    new JoystickButton(driveJoystick, Button.SWG_DWN.id)
+        .onTrue(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))
+        .onFalse(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem));
+
+    // Auto Score
+    new JoystickButton(driveJoystick, Button.M_SWC.id)
+        .onTrue(
+            new AutoPlaceCommand(
+                driveSubsystem,
+                robotStateSubsystem,
+                armSubsystem,
+                handSubsystem,
+                isEvent,
+                kJoystickDeadband))
+        .onFalse(new InterruptDriveCommand(driveSubsystem));
   }
 
   public void configureOperatorButtonBindings() {
-    /*new JoystickButton(xboxController, XboxController.Button.kY.value)
-        .onTrue(new StowArmCommand(armSubsystem));
-    new JoystickButton(xboxController, XboxController.Button.kB.value)
-        .onTrue(new ArmToIntakeCommand(armSubsystem));
-    new JoystickButton(xboxController, XboxController.Button.kA.value)
-        .onTrue(new ArmIntakeStageCommand(armSubsystem));
-    // new JoystickButton(xboxController, XboxController.Button.kY.value)
-    //     .onTrue(
-    //         new ShoulderToPositionCommand(
-    //             shoulderSubsystem, Constants.ShoulderConstants.kIntakeShoulder));
-    // new JoystickButton(xboxController, XboxController.Button.kB.value)
-    //     .onTrue(new ElbowToPositionCommand(elbowSubsystem,
-    // Constants.ElbowConstants.kIntakeElbow));
-    // new JoystickButton(xboxController, XboxController.Button.kA.value)
-    //     .onTrue(
-    //         new ElevatorToPositionCommand(
-    //             elevatorSubsystem, Constants.ElevatorConstants.kIntakeElevator));
-
-    // new JoystickButton(xboxController, XboxController.Button.kX.value)
-    //     .onTrue(
-    //         new ElevatorToPositionCommand(
-    //             elevatorSubsystem, Constants.ElevatorConstants.kStowElevator));
-    new JoystickButton(xboxController, XboxController.Button.kX.value)
-        .onTrue(new ArmHighCommand(armSubsystem));
-    new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value)
-        .onTrue(new ArmLowCommand(armSubsystem));
-    new JoystickButton(xboxController, XboxController.Button.kBack.value)
-        .onTrue(new ArmMidCommand(armSubsystem));
-    new JoystickButton(xboxController, XboxController.Button.kStart.value)
-        .onTrue(new ArmFloorCommand(armSubsystem));
-    new JoystickButton(xboxController, XboxController.Button.kRightBumper.value)
-        .onTrue(new ArmShelfCommand(armSubsystem));*/
-
-    // new JoystickButton(xboxController, XboxController.Button.kStart.value)
-    //     .onTrue(new ElbowToPositionCommand(elbowSubsystem, Constants.ElbowConstants.kStowElbow));
-    // Set auto staging target
-    // Left column
+    // Rescue Trapped Piece
     new JoystickButton(xboxController, XboxController.Button.kRightStick.value)
         .onTrue(new RetrieveGamePieceCommand(armSubsystem, handSubsystem, robotStateSubsystem));
-
-    new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value)
-        .onTrue(
-            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID, TargetCol.LEFT));
     new JoystickButton(xboxController, XboxController.Button.kStart.value)
         .onTrue(new RecoverGamepieceCommand(robotStateSubsystem, handSubsystem));
+
+    // Stow
     new JoystickButton(xboxController, XboxController.Button.kBack.value)
         .onTrue(
             new StowRobotCommand(
                 robotStateSubsystem, armSubsystem, intakeSubsystem, handSubsystem));
 
+    // Set Level/Col
+    // Level 3
     Trigger leftTrigger =
         new Trigger(() -> xboxController.getLeftTriggerAxis() >= 0.1)
             .onTrue(
                 new SetLevelAndColCommandGroup(
                     robotStateSubsystem, TargetLevel.HIGH, TargetCol.LEFT));
-    // Right column
-    new JoystickButton(xboxController, XboxController.Button.kRightBumper.value)
-        .onTrue(
-            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID, TargetCol.RIGHT));
     Trigger rightTrigger =
         new Trigger(() -> xboxController.getRightTriggerAxis() >= 0.1)
             .onTrue(
                 new SetLevelAndColCommandGroup(
                     robotStateSubsystem, TargetLevel.HIGH, TargetCol.RIGHT));
-
-    // Floor place
+    // Level 2
+    new JoystickButton(xboxController, XboxController.Button.kLeftBumper.value)
+        .onTrue(
+            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID, TargetCol.LEFT));
+    new JoystickButton(xboxController, XboxController.Button.kRightBumper.value)
+        .onTrue(
+            new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.MID, TargetCol.RIGHT));
+    // Level 1
     Trigger floorPlace = new Trigger(() -> xboxController.getPOV() == 0);
     floorPlace.onTrue(
         new SetLevelAndColCommandGroup(robotStateSubsystem, TargetLevel.LOW, TargetCol.MID));
@@ -510,28 +442,24 @@ public class RobotContainer {
     // Hand
     new JoystickButton(xboxController, XboxController.Button.kA.value)
         .onTrue(new ToggleHandCommand(handSubsystem, robotStateSubsystem, armSubsystem));
+
+    // Intake
     new JoystickButton(xboxController, XboxController.Button.kX.value)
         .onTrue(new ToggleIntakeCommand(robotStateSubsystem, intakeSubsystem));
+
+    // Shelf
     new JoystickButton(xboxController, XboxController.Button.kY.value)
         .onTrue(new ShelfPickupCommand(robotStateSubsystem));
 
-    // Floor pickup
+    // Floor Cone
     Trigger dPadPressed = new Trigger(() -> xboxController.getPOV() == 180);
     dPadPressed.onTrue(new FloorPickupCommand(armSubsystem, robotStateSubsystem));
 
-    // Set game piece
-    // new JoystickButton(xboxController, XboxController.Button.kBack.value)
-    //     .onTrue(new SetGamePieceCommand(robotStateSubsystem, GamePiece.CUBE));
-    // new JoystickButton(xboxController, XboxController.Button.kStart.value)
-    //     .onTrue(new SetGamePieceCommand(robotStateSubsystem, GamePiece.CONE));
+    // Clear Gamepiece
     new JoystickButton(xboxController, XboxController.Button.kB.value)
         .onTrue(new SetGamePieceCommand(robotStateSubsystem, GamePiece.NONE));
 
-    // new JoystickButton(xboxController, XboxController.Button.kBack.value)
-    //     .onTrue(new RGBsetPieceCommand(rgbLightsSubsystem, GamePiece.CUBE));
-
-    // new JoystickButton(xboxController, XboxController.Button.kStart.value)
-    //     .onTrue(new RGBsetPieceCommand(rgbLightsSubsystem, GamePiece.CONE));
+    // Manual Adjust
 
     // Adjust elevator
     Trigger leftUp =
@@ -543,6 +471,7 @@ public class RobotContainer {
             .onTrue(new AdjustElevatorCommand(elevatorSubsystem, robotStateSubsystem, 1000))
             .onFalse(new HoldPositionCommand(elevatorSubsystem, robotStateSubsystem));
 
+    // Adjust Elbow
     Trigger rightDown =
         new Trigger(() -> xboxController.getRightY() <= -0.1)
             .onTrue(new JogElbowCommand(elbowSubsystem, robotStateSubsystem, 1))
@@ -552,6 +481,7 @@ public class RobotContainer {
             .onTrue(new JogElbowCommand(elbowSubsystem, robotStateSubsystem, -1))
             .onFalse(new ElbowHoldPosCommand(elbowSubsystem, robotStateSubsystem));
 
+    // Twit Shoudler
     Trigger rightRight =
         new Trigger(() -> xboxController.getRightX() <= -0.1)
             .onTrue(new TwistShoulderCommand(shoulderSubsystem, armSubsystem, -1))
@@ -807,93 +737,5 @@ public class RobotContainer {
             robotStateSubsystem.getGamePiece() == GamePiece.CUBE ? "purple" : "yellow",
             "colorWhenFalse",
             "black"));
-  }
-
-  // Interlink Controller Mapping
-  public enum Axis {
-    RIGHT_X(1),
-    RIGHT_Y(0),
-    LEFT_X(2),
-    LEFT_Y(5),
-    TUNER(6),
-    LEFT_BACK(4),
-    RIGHT_BACK(3);
-
-    public final int id;
-
-    Axis(int id) {
-      this.id = id;
-    }
-  }
-
-  public enum Shoulder {
-    RIGHT_DOWN(2),
-    LEFT_DOWN(4),
-    LEFT_UP(5);
-
-    private final int id;
-
-    Shoulder(int id) {
-      this.id = id;
-    }
-  }
-
-  public enum Toggle {
-    LEFT_TOGGLE(1);
-
-    private final int id;
-
-    Toggle(int id) {
-      this.id = id;
-    }
-  }
-
-  public enum InterlinkButton {
-    RESET(3),
-    HAMBURGER(14),
-    X(15),
-    UP(16),
-    DOWN(17);
-
-    private final int id;
-
-    InterlinkButton(int id) {
-      this.id = id;
-    }
-  }
-
-  public enum Trim {
-    LEFT_Y_POS(7),
-    LEFT_Y_NEG(6),
-    LEFT_X_POS(8),
-    LEFT_X_NEG(9),
-    RIGHT_X_POS(10),
-    RIGHT_X_NEG(11),
-    RIGHT_Y_POS(12),
-    RIGHT_Y_NEG(13);
-
-    private final int id;
-
-    Trim(int id) {
-      this.id = id;
-    }
-  }
-
-  public double getLeftX() {
-    double val = driveJoystick.getRawAxis(Axis.LEFT_X.id);
-    if (Math.abs(val) < kJoystickDeadband) return 0.0;
-    return val;
-  }
-
-  public double getLeftY() {
-    double val = driveJoystick.getRawAxis(Axis.LEFT_Y.id);
-    if (Math.abs(val) < kJoystickDeadband) return 0.0;
-    return val;
-  }
-
-  public double getRightY() {
-    double val = driveJoystick.getRawAxis(Axis.RIGHT_Y.id);
-    if (Math.abs(val) < kJoystickDeadband) return 0.0;
-    return val;
   }
 }
