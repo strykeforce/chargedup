@@ -11,7 +11,7 @@
 ## Controls
 
 
-### Interlink Controloer (old)
+### Interlink Controller (old)
 ![driver](docs/driver-controls.png)
 
 ### Flysky Controller (new)
