@@ -366,12 +366,12 @@ public class RobotContainer {
                 robotStateSubsystem, armSubsystem, intakeSubsystem, handSubsystem));
 
     // Release Gamepiece
-    new JoystickButton(driveJoystick, Button.SWF_UP.id)
-        .onTrue(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem))
-        .onFalse(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem));
-    new JoystickButton(driveJoystick, Button.SWF_DWN.id)
-        .onTrue(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem))
-        .onFalse(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem));
+    new JoystickButton(driveJoystick, Button.M_SWH.id)
+        .onTrue(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem));
+    // .onFalse(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem));
+    // new JoystickButton(driveJoystick, Button.SWF_DWN.id)
+    //     .onTrue(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem))
+    //     .onFalse(new ReleaseGamepieceCommand(handSubsystem, robotStateSubsystem, armSubsystem));
 
     // Intake
     new JoystickButton(driveJoystick, Button.SWB_UP.id)
@@ -382,12 +382,12 @@ public class RobotContainer {
         .onFalse(new ToggleIntakeCommand(robotStateSubsystem, intakeSubsystem));
 
     // Manual Score
-    new JoystickButton(driveJoystick, Button.SWG_UP.id)
-        .onTrue(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))
-        .onFalse(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem));
-    new JoystickButton(driveJoystick, Button.SWG_DWN.id)
-        .onTrue(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))
-        .onFalse(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem));
+    new JoystickButton(driveJoystick, Button.M_SWE.id)
+        .onTrue(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem));
+    // .onFalse(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem));
+    // new JoystickButton(driveJoystick, Button.SWG_DWN.id)
+    //     .onTrue(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem))
+    //     .onFalse(new ManualScoreCommand(robotStateSubsystem, armSubsystem, handSubsystem));
 
     // Auto Score
     new JoystickButton(driveJoystick, Button.M_SWC.id)
