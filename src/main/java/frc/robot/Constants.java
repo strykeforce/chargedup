@@ -43,7 +43,7 @@ public class Constants {
   public static double kShoulderFollowerZeroTicks = 3167;
   public static int kIntakeZeroTicks = 3150;
   public static double kHandZeroTicks = 975;
-  public static double kExtendPosTicks = -2_100;
+  public static double kExtendPosTicks = -2_100; // -2_100
 
   public Constants() {
     if (isCompBot) {
@@ -878,7 +878,7 @@ public class Constants {
 
     // Intake
     public static final int kIntakeZeroTicks = 3_300; // 2440 ->2540->2_900
-    public static final double kExtendPosTicks = -2_100;
+    public static final double kExtendPosTicks = -2_200;
 
     // Hand
     // 273 for a tooth on the hand
