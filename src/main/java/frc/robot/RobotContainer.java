@@ -168,7 +168,7 @@ public class RobotContainer {
     driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
 
     driveSubsystem.setVisionSubsystem(visionSubsystem);
-    visionSubsystem.setFillBuffers(true); // FIXME TRUE
+    //visionSubsystem.setFillBuffers(true); // FIXME TRUE
 
     // FIX ME
     robotStateSubsystem.setAllianceColor(Alliance.Blue);

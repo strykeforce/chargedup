@@ -410,6 +410,29 @@ public class Constants {
     // Vision Odometry Standard devs
     public static Matrix<N3, N1> kVisionMeasurementStdDevs =
         VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5));
+
+    // When trusting wheels the amount of times before the decay goes away
+    public static int kNumResultsToResetStdDev = 3;
+
+    // Times it takes to trust wheels after trusting vision
+    public static final int kNumResultsToTrustWheels = 5;
+
+    // Time (seconds) before std dev starts to decay
+    public static final double kTimeToTightenStdDev = 1.0;
+
+    // Time (seconds) before getting kicked into only trusting camera
+    public static final double kTimeToTrustCamera = 10.0;
+
+    // The linear rate of change on the std dev
+    public static final double kStdDevDecayCoeff = 0.01 / 3.0;
+
+    // Minimum std dev for the declining std dev
+    public static final double kMinimumStdDev = 0.01;
+
+    // Constants for the vision filter equation
+    public static final double kLinearCoeffOnVelFilter = 0.1;
+    public static final double kOffsetOnVelFilter = 0.2;
+    public static final double kSquaredCoeffOnVelFilter = 0.2;
   }
 
   public static final class FieldConstants {
