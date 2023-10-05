@@ -30,9 +30,9 @@ import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
+import frc.robot.subsystems.VisionSubsystem.VisionStates;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Set;
@@ -349,10 +349,9 @@ public class DriveSubsystem extends MeasurableSubsystem {
     if (Math.abs(getFieldRelSpeed().vxMetersPerSecond) // FIXME TEMP CHECK IF STATEMENT
                 <= DriveConstants.kMaxSpeedToAutoDrive
             && Math.abs(getFieldRelSpeed().vyMetersPerSecond) <= DriveConstants.kMaxSpeedToAutoDrive
-            && (visionSubsystem.lastUpdateWithinThresholdTime(
-                    VisionConstants.kLastUpdateCloseEnoughThreshold)
+            && (visionSubsystem.getState() == VisionStates.trustWheels
                 || robotStateSubsystem.getIsAuto())
-            && ((visionSubsystem.getBufferedVelocity() <= DriveConstants.kMaxSpeedForCamUpdate))
+            && ((true))
         || robotStateSubsystem.getIsAuto()) {
       setAutoDriving(true);
       if (robotStateSubsystem.getGamePiece() != GamePiece.NONE) {
@@ -385,8 +384,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
                   >= DriveConstants.kMaxSpeedToAutoDrive
               && Math.abs(getFieldRelSpeed().vyMetersPerSecond)
                   >= DriveConstants.kMaxSpeedToAutoDrive,
-          visionSubsystem.lastUpdateWithinThresholdTime(
-              VisionConstants.kLastUpdateCloseEnoughThreshold));
+          visionSubsystem.getState() == VisionStates.trustWheels);
       logger.info("{} -> AUTO_DRIVE_FAILED", currDriveState);
       currDriveState = DriveStates.AUTO_DRIVE_FAILED;
     }

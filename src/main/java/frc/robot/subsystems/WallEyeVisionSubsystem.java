@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import WallEye.WallEye;
 import WallEye.WallEyeResult;
-import ch.qos.logback.core.recovery.ResilientFileOutputStream;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -18,8 +17,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Set;
 import net.jafama.FastMath;
@@ -45,22 +42,24 @@ public class WallEyeVisionSubsystem extends MeasurableSubsystem {
   private DigitalInput[][] dios = {diosHigh, diosLow};
   private WallEyeResult[][] results;
   private Pose3d[] camPoses = {new Pose3d(), new Pose3d()};
-  private int[] updates = {0,0};
+  private int[] updates = {0, 0};
   private int[] numTags = {0, 0};
-  private double[] camDelay = {0,0};
-  private double[] camAmbig = {0,0};
+  private double[] camDelay = {0, 0};
+  private double[] camAmbig = {0, 0};
   private double[] camLengths = {VisionConstants.kHighCameraOffset, VisionConstants.kCameraOffset};
-  private double[] camAngle = {VisionConstants.kHighCameraAngleOffset, VisionConstants.kCameraAngleOffset};
+  private double[] camAngle = {
+    VisionConstants.kHighCameraAngleOffset, VisionConstants.kCameraAngleOffset
+  };
 
   public Matrix<N3, N1> adaptiveVisionMatrix;
 
   public WallEyeVisionSubsystem(DriveSubsystem driveSubsystem) {
     adaptiveVisionMatrix = Constants.VisionConstants.kVisionMeasurementStdDevs.copy();
     this.driveSubsystem = driveSubsystem;
-    
+
     for (int i = 0; i < names.length; ++i) {
-        cams[i] = new WallEye(names[i], numCams[i], dios[i]);
-        cams[i].setCamToCenter(0, cameraOffset(camLengths[i], camAngle[i]));
+      cams[i] = new WallEye(names[i], numCams[i], dios[i]);
+      cams[i].setCamToCenter(0, cameraOffset(camLengths[i], camAngle[i]));
     }
   }
 
@@ -70,13 +69,11 @@ public class WallEyeVisionSubsystem extends MeasurableSubsystem {
             length
                 * FastMath.cos(
                     Units.degreesToRadians(
-                        angle
-                            - driveSubsystem.getGyroRotation2d().getDegrees())),
+                        angle - driveSubsystem.getGyroRotation2d().getDegrees())),
             -length
                 * FastMath.sin(
                     Units.degreesToRadians(
-                        angle
-                            - driveSubsystem.getGyroRotation2d().getDegrees())),
+                        angle - driveSubsystem.getGyroRotation2d().getDegrees())),
             0.0),
         new Rotation3d());
   }
@@ -85,76 +82,75 @@ public class WallEyeVisionSubsystem extends MeasurableSubsystem {
   public void periodic() {
     boolean noUpdate = true;
     for (int i = 0; i < names.length; ++i) {
-        if (cams[i].hasNewUpdate()) {
-            noUpdate = false;
-            results[i] = cams[i].getResults();
-            camDelay[i] = RobotController.getFPGATime() - results[i][0].getTimeStamp();
-            numTags[i] = results[i][0].getNumTags();
-            camPoses[i] = cams[i].camPoseToCenter(i, results[i][0].getCameraPose());
-            updates[i] = cams[i].getUpdateNumber();
-            camAmbig[i] = results[i][0].getAmbiguity();
+      if (cams[i].hasNewUpdate()) {
+        noUpdate = false;
+        results[i] = cams[i].getResults();
+        camDelay[i] = RobotController.getFPGATime() - results[i][0].getTimeStamp();
+        numTags[i] = results[i][0].getNumTags();
+        camPoses[i] = cams[i].camPoseToCenter(i, results[i][0].getCameraPose());
+        updates[i] = cams[i].getUpdateNumber();
+        camAmbig[i] = results[i][0].getAmbiguity();
 
-            handleCameraFilter(results[i], cams[i]);
-        }
+        handleCameraFilter(results[i], cams[i]);
+      }
     }
     if (noUpdate) {
-        if (getTimeSec() - timeLastCam > VisionConstants.kTimeToTightenStdDev) {
-          if (getTimeSec() - timeLastCam > VisionConstants.kTimeToTrustCamera)
-            curState = VisionStates.trustVision;
+      if (getTimeSec() - timeLastCam > VisionConstants.kTimeToTightenStdDev) {
+        if (getTimeSec() - timeLastCam > VisionConstants.kTimeToTrustCamera)
+          curState = VisionStates.trustVision;
 
-          numUpdateForReset = 0;
-          for (int i = 0; i < 2; ++i) {
-            double estimatedWeight =
-                VisionConstants.kVisionMeasurementStdDevs.get(i, 0)
-                    - VisionConstants.kStdDevDecayCoeff
-                        * ((getTimeSec() - timeLastCam) - VisionConstants.kTimeToTightenStdDev);
+        numUpdateForReset = 0;
+        for (int i = 0; i < 2; ++i) {
+          double estimatedWeight =
+              VisionConstants.kVisionMeasurementStdDevs.get(i, 0)
+                  - VisionConstants.kStdDevDecayCoeff
+                      * ((getTimeSec() - timeLastCam) - VisionConstants.kTimeToTightenStdDev);
 
-            adaptiveVisionMatrix.set(
-                i,
-                0,
-                estimatedWeight < VisionConstants.kMinimumStdDev
-                    ? VisionConstants.kMinimumStdDev
-                    : estimatedWeight);
-          }
+          adaptiveVisionMatrix.set(
+              i,
+              0,
+              estimatedWeight < VisionConstants.kMinimumStdDev
+                  ? VisionConstants.kMinimumStdDev
+                  : estimatedWeight);
         }
       }
     }
-
+  }
 
   private void handleCameraFilter(WallEyeResult[] results, WallEye cam) {
     try {
-        for (WallEyeResult res : results) {
-          Pose2d camPose = cam.camPoseToCenter(0, res.getCameraPose()).toPose2d();
-          if ((res.getAmbiguity() < 0.15 || res.getNumTags() > 1)) {
-            timeLastCam = getTimeSec();
-            switch (curState) {
-              case trustWheels:
-                if (canAcceptPose(camPose)) {
-                  handleVision(res);
-                  timesCamOffWheel = 0;
-                } else {
-                  timesCamOffWheel++;
-                }
-                if (numUpdateForReset > VisionConstants.kNumResultsToResetStdDev)
-                  adaptiveVisionMatrix = VisionConstants.kVisionMeasurementStdDevs.copy();
-
-                break;
-              case trustVision:
+      for (WallEyeResult res : results) {
+        Pose2d camPose = cam.camPoseToCenter(0, res.getCameraPose()).toPose2d();
+        if ((res.getAmbiguity() < 0.15 || res.getNumTags() > 1)) {
+          timeLastCam = getTimeSec();
+          switch (curState) {
+            case trustWheels:
+              if (canAcceptPose(camPose)) {
                 handleVision(res);
-                if (numUpdateForReset > VisionConstants.kNumResultsToTrustWheels) {
-                  curState = VisionStates.trustWheels;
-                  adaptiveVisionMatrix = VisionConstants.kVisionMeasurementStdDevs.copy();
-                }
-                break;
-              case onlyTrustVision:
-                break;
-              case onlyTrustWheels:
-                break;
-            }
+                timesCamOffWheel = 0;
+              } else {
+                timesCamOffWheel++;
+              }
+              if (numUpdateForReset > VisionConstants.kNumResultsToResetStdDev)
+                adaptiveVisionMatrix = VisionConstants.kVisionMeasurementStdDevs.copy();
+
+              break;
+            case trustVision:
+              handleVision(res);
+              if (numUpdateForReset > VisionConstants.kNumResultsToTrustWheels) {
+                curState = VisionStates.trustWheels;
+                adaptiveVisionMatrix = VisionConstants.kVisionMeasurementStdDevs.copy();
+              }
+              break;
+            case onlyTrustVision:
+              break;
+            case onlyTrustWheels:
+              break;
           }
         }
-      } catch (Exception e) {
       }
+    } catch (Exception e) {
+    }
   }
 
   public void handleVision(WallEyeResult res) {
@@ -197,8 +193,7 @@ public class WallEyeVisionSubsystem extends MeasurableSubsystem {
   public Pose2d[] getPose2ds() {
     ArrayList<Pose2d> poses = new ArrayList<>();
     for (int i = 0; i < cams.length; ++i) {
-        for (WallEyeResult res : results[i])
-            poses.add(res.getCameraPose().toPose2d());
+      for (WallEyeResult res : results[i]) poses.add(res.getCameraPose().toPose2d());
     }
     return (Pose2d[]) poses.toArray();
   }

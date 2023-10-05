@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import WallEye.WallEye;
 import WallEye.WallEyeResult;
-import ch.qos.logback.core.recovery.ResilientFileOutputStream;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -19,8 +18,6 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Servo;
 import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Set;
 import net.jafama.FastMath;
@@ -40,20 +37,23 @@ public class VisionSubsystem extends MeasurableSubsystem {
   private int timesCamOffWheel = 0;
   private int numUpdateForReset = 0;
   private boolean hasGottenUpdates = false;
-  private Servo highCamera; 
+  private Servo highCamera;
 
-  private WallEye[] cams;
+  private WallEye[] cams = {null, null};
   private String[] names = {"High", "Low"};
   private int[] numCams = {1, 1};
   private DigitalInput[][] dios = {diosHigh, diosLow};
   private WallEyeResult[][] results;
   private Pose3d[] camPoses = {new Pose3d(), new Pose3d()};
-  private int[] updates = {0,0};
+  private int[] updates = {0, 0};
   private int[] numTags = {0, 0};
-  private double[] camDelay = {0,0};
-  private double[] camAmbig = {0,0};
+  private double[] camDelay = {0, 0};
+  private double[] camAmbig = {0, 0};
   private double[] camLengths = {VisionConstants.kHighCameraOffset, VisionConstants.kCameraOffset};
-  private double[] camAngle = {VisionConstants.kHighCameraAngleOffset, VisionConstants.kCameraAngleOffset};
+  private double[] camAngle = {
+    VisionConstants.kHighCameraAngleOffset, VisionConstants.kCameraAngleOffset
+  };
+  private boolean hasResetOdomAuto = false;
 
   public Matrix<N3, N1> adaptiveVisionMatrix;
 
@@ -61,10 +61,10 @@ public class VisionSubsystem extends MeasurableSubsystem {
     highCamera = new Servo(1);
     adaptiveVisionMatrix = Constants.VisionConstants.kVisionMeasurementStdDevs.copy();
     this.driveSubsystem = driveSubsystem;
-    
+
     for (int i = 0; i < names.length; ++i) {
-        cams[i] = new WallEye(names[i], numCams[i], dios[i]);
-        cams[i].setCamToCenter(0, cameraOffset(camLengths[i], camAngle[i]));
+      cams[i] = new WallEye(names[i], numCams[i], dios[i]);
+      cams[i].setCamToCenter(0, cameraOffset(camLengths[i], camAngle[i]));
     }
   }
 
@@ -74,13 +74,11 @@ public class VisionSubsystem extends MeasurableSubsystem {
             length
                 * FastMath.cos(
                     Units.degreesToRadians(
-                        angle
-                            - driveSubsystem.getGyroRotation2d().getDegrees())),
+                        angle - driveSubsystem.getGyroRotation2d().getDegrees())),
             -length
                 * FastMath.sin(
                     Units.degreesToRadians(
-                        angle
-                            - driveSubsystem.getGyroRotation2d().getDegrees())),
+                        angle - driveSubsystem.getGyroRotation2d().getDegrees())),
             0.0),
         new Rotation3d());
   }
@@ -89,77 +87,76 @@ public class VisionSubsystem extends MeasurableSubsystem {
   public void periodic() {
     boolean noUpdate = true;
     for (int i = 0; i < names.length; ++i) {
-        if (cams[i].hasNewUpdate()) {
-            hasGottenUpdates = true;
-            noUpdate = false;
-            results[i] = cams[i].getResults();
-            camDelay[i] = RobotController.getFPGATime() - results[i][0].getTimeStamp();
-            numTags[i] = results[i][0].getNumTags();
-            camPoses[i] = cams[i].camPoseToCenter(i, results[i][0].getCameraPose());
-            updates[i] = cams[i].getUpdateNumber();
-            camAmbig[i] = results[i][0].getAmbiguity();
+      if (cams[i].hasNewUpdate()) {
+        hasGottenUpdates = true;
+        noUpdate = false;
+        results[i] = cams[i].getResults();
+        camDelay[i] = RobotController.getFPGATime() - results[i][0].getTimeStamp();
+        numTags[i] = results[i][0].getNumTags();
+        camPoses[i] = cams[i].camPoseToCenter(i, results[i][0].getCameraPose());
+        updates[i] = cams[i].getUpdateNumber();
+        camAmbig[i] = results[i][0].getAmbiguity();
 
-            handleCameraFilter(results[i], cams[i]);
-        }
+        handleCameraFilter(results[i], cams[i]);
+      }
     }
     if (noUpdate) {
-        if (getTimeSec() - timeLastCam > VisionConstants.kTimeToTightenStdDev) {
-          if (getTimeSec() - timeLastCam > VisionConstants.kTimeToTrustCamera)
-            curState = VisionStates.trustVision;
+      if (getTimeSec() - timeLastCam > VisionConstants.kTimeToTightenStdDev) {
+        if (getTimeSec() - timeLastCam > VisionConstants.kTimeToTrustCamera)
+          curState = VisionStates.trustVision;
 
-          numUpdateForReset = 0;
-          for (int i = 0; i < 2; ++i) {
-            double estimatedWeight =
-                VisionConstants.kVisionMeasurementStdDevs.get(i, 0)
-                    - VisionConstants.kStdDevDecayCoeff
-                        * ((getTimeSec() - timeLastCam) - VisionConstants.kTimeToTightenStdDev);
+        numUpdateForReset = 0;
+        for (int i = 0; i < 2; ++i) {
+          double estimatedWeight =
+              VisionConstants.kVisionMeasurementStdDevs.get(i, 0)
+                  - VisionConstants.kStdDevDecayCoeff
+                      * ((getTimeSec() - timeLastCam) - VisionConstants.kTimeToTightenStdDev);
 
-            adaptiveVisionMatrix.set(
-                i,
-                0,
-                estimatedWeight < VisionConstants.kMinimumStdDev
-                    ? VisionConstants.kMinimumStdDev
-                    : estimatedWeight);
-          }
+          adaptiveVisionMatrix.set(
+              i,
+              0,
+              estimatedWeight < VisionConstants.kMinimumStdDev
+                  ? VisionConstants.kMinimumStdDev
+                  : estimatedWeight);
         }
       }
     }
-
+  }
 
   private void handleCameraFilter(WallEyeResult[] results, WallEye cam) {
     try {
-        for (WallEyeResult res : results) {
-          Pose2d camPose = cam.camPoseToCenter(0, res.getCameraPose()).toPose2d();
-          if ((res.getAmbiguity() < 0.15 || res.getNumTags() > 1)) {
-            timeLastCam = getTimeSec();
-            switch (curState) {
-              case trustWheels:
-                if (canAcceptPose(camPose)) {
-                  handleVision(res);
-                  timesCamOffWheel = 0;
-                } else {
-                  timesCamOffWheel++;
-                }
-                if (numUpdateForReset > VisionConstants.kNumResultsToResetStdDev)
-                  adaptiveVisionMatrix = VisionConstants.kVisionMeasurementStdDevs.copy();
-
-                break;
-              case trustVision:
+      for (WallEyeResult res : results) {
+        Pose2d camPose = cam.camPoseToCenter(0, res.getCameraPose()).toPose2d();
+        if ((res.getAmbiguity() < 0.15 || res.getNumTags() > 1)) {
+          timeLastCam = getTimeSec();
+          switch (curState) {
+            case trustWheels:
+              if (canAcceptPose(camPose)) {
                 handleVision(res);
-                if (numUpdateForReset > VisionConstants.kNumResultsToTrustWheels) {
-                  curState = VisionStates.trustWheels;
-                  adaptiveVisionMatrix = VisionConstants.kVisionMeasurementStdDevs.copy();
-                }
-                break;
-              case onlyTrustVision:
-                break;
-              case onlyTrustWheels:
-                break;
-            }
+                timesCamOffWheel = 0;
+              } else {
+                timesCamOffWheel++;
+              }
+              if (numUpdateForReset > VisionConstants.kNumResultsToResetStdDev)
+                adaptiveVisionMatrix = VisionConstants.kVisionMeasurementStdDevs.copy();
+
+              break;
+            case trustVision:
+              handleVision(res);
+              if (numUpdateForReset > VisionConstants.kNumResultsToTrustWheels) {
+                curState = VisionStates.trustWheels;
+                adaptiveVisionMatrix = VisionConstants.kVisionMeasurementStdDevs.copy();
+              }
+              break;
+            case onlyTrustVision:
+              break;
+            case onlyTrustWheels:
+              break;
           }
         }
-      } catch (Exception e) {
       }
+    } catch (Exception e) {
+    }
   }
 
   public void handleVision(WallEyeResult res) {
@@ -175,6 +172,10 @@ public class VisionSubsystem extends MeasurableSubsystem {
   public void switchVisionMode(boolean doTrustWheels) {
     trustingWheels = doTrustWheels;
     curState = trustingWheels ? VisionStates.trustWheels : curState;
+  }
+
+  public VisionStates getState() {
+    return curState;
   }
 
   public boolean trustWheels() {
@@ -206,17 +207,27 @@ public class VisionSubsystem extends MeasurableSubsystem {
   public void raiseServo() {
     highCamera.set(VisionConstants.kServoUpPos);
   }
-    
+
   public void lowerServo() {
     highCamera.set(VisionConstants.kServoDownPos);
   }
 
+  public boolean getOdomAutoBool() {
+    return hasResetOdomAuto;
+  }
+
+  public void resetOdometry(Pose2d pose, boolean val) {
+    driveSubsystem.resetOdometry(pose);
+  }
+
+  public void setOdomAutoBool(boolean val) {
+    hasResetOdomAuto = val;
+  }
 
   public Pose2d[] getPose2ds() {
     ArrayList<Pose2d> poses = new ArrayList<>();
     for (int i = 0; i < cams.length; ++i) {
-        for (WallEyeResult res : results[i])
-            poses.add(res.getCameraPose().toPose2d());
+      for (WallEyeResult res : results[i]) poses.add(res.getCameraPose().toPose2d());
     }
     return (Pose2d[]) poses.toArray();
   }
@@ -243,8 +254,6 @@ public class VisionSubsystem extends MeasurableSubsystem {
     onlyTrustWheels,
   }
 }
-
-
 
 // package frc.robot.subsystems;
 
@@ -310,7 +319,8 @@ public class VisionSubsystem extends MeasurableSubsystem {
 //   private Pose3d lastPose;
 //   private int lastUpdate = 0;
 //   private int currUpdate = 0;
-//   private Pose3d cameraPose = new Pose3d(new Translation3d(2767.0, 2767.0, 0.0), new Rotation3d());
+//   private Pose3d cameraPose = new Pose3d(new Translation3d(2767.0, 2767.0, 0.0), new
+// Rotation3d());
 //   private final Notifier photonVisionThread;
 //   private Servo highCameraMount;
 
@@ -417,9 +427,11 @@ public class VisionSubsystem extends MeasurableSubsystem {
 //   public Translation2d getPositionFromRobot() {
 //     if (result.hasTargets()) {
 //       double x =
-//           bestTarget.getBestCameraToTarget().getX(); // + Constants.VisionConstants.kXCameraOffset;
+//           bestTarget.getBestCameraToTarget().getX(); // +
+// Constants.VisionConstants.kXCameraOffset;
 //       double y =
-//           bestTarget.getBestCameraToTarget().getY(); // + Constants.VisionConstants.kYCameraOffset;
+//           bestTarget.getBestCameraToTarget().getY(); // +
+// Constants.VisionConstants.kYCameraOffset;
 //       return new Translation2d(x, y); // z is from the camera height
 //     }
 //     return new Translation2d(2767, 2767);
@@ -645,7 +657,8 @@ public class VisionSubsystem extends MeasurableSubsystem {
 //         new Measure("Camera Odometry X NO", () -> getOdometry().getX()),
 //         new Measure("hasResetOdomAuto", () -> (getOdomAutoBool() ? 1 : 0)),
 //         new Measure("gyro bufferId", () -> gyroBufferId),
-//         new Measure("Gyro Buffer", () -> new Rotation2d(gyroBuffer.get(gyroBufferId)).getDegrees()),
+//         new Measure("Gyro Buffer", () -> new
+// Rotation2d(gyroBuffer.get(gyroBufferId)).getDegrees()),
 //         new Measure("canFillBuffers", () -> canFillBuffers ? 1 : 0),
 //         new Measure("Camera Odometry Y NO", () -> getOdometry().getY()),
 //         new Measure(
