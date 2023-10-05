@@ -74,7 +74,7 @@ public class Robot extends TimedRobot {
     if (!mappedDriveJoystick) {
       String joystick = DriverStation.getJoystickName(0);
       if (lastJoystick != joystick) {
-        System.out.println("Joystick Name: " + joystick);
+        // System.out.println("Joystick Name: " + joystick);
         mappedDriveJoystick = m_robotContainer.configureDriverButtonBindings();
       }
       lastJoystick = joystick;

@@ -279,7 +279,7 @@ public class RobotContainer {
         success = true;
         break;
       default:
-        logger.info("No joystick type {} defined", joystick);
+        // logger.info("No joystick type {} defined", joystick);
         break;
     }
     return success;
