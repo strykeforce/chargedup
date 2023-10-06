@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.AHRS.SerialDataType;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -19,6 +20,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
@@ -1035,8 +1038,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
     odometryStrategy.addVisionMeasurement(calculatedPose, Timer.getFPGATimestamp());
   }
 
-  public void updateOdometryWithVision(Pose2d calculatedPose, double timestamp) {
-    odometryStrategy.addVisionMeasurement(calculatedPose, timestamp);
+  public void updateOdometryWithVision(Pose2d calculatedPose, double timestamp, Matrix<N3,N1> visionMatrix) {
+    odometryStrategy.addVisionMeasurement(calculatedPose, timestamp, visionMatrix);
   }
 
   // Holonomic Controller

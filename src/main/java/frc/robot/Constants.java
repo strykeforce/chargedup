@@ -403,7 +403,7 @@ public class Constants {
     // Increase these numbers to trust sensor readings from encoders and gyros less. This matrix is
     // in the form [theta], with units in radians.
     public static Matrix<N1, N1> kLocalMeasurementStdDevs =
-        VecBuilder.fill(Units.degreesToRadians(0.01));
+        VecBuilder.fill(Units.degreesToRadians(0.0));
 
     // Increase these numbers to trust global measurements from vision less. This matrix is in the
     // form [x, y, theta]ᵀ, with units in meters and radians.
