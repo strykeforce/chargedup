@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.auto.AutoCommandInterface;
+import frc.robot.commands.auto.AutoShowOffCommand;
 import frc.robot.commands.auto.TestBalanceCommand;
 import frc.robot.commands.drive.DriveAutonCommand;
 import frc.robot.commands.drive.DriveTeleopCommand;
@@ -118,6 +119,7 @@ public class RobotContainer {
 
   private TestBalanceCommand balancepath;
   private DriveAutonCommand fiveMeterTest;
+  private AutoShowOffCommand committeePath;
   private HandSubsystem handSubsystem;
   private Logger logger;
 
@@ -251,6 +253,9 @@ public class RobotContainer {
 
   // Path Configuration For Robot Container
   private void configurePaths() {
+    committeePath =
+        new AutoShowOffCommand(
+            driveSubsystem, robotStateSubsystem, elevatorSubsystem, handSubsystem, armSubsystem);
     fiveMeterTest = new DriveAutonCommand(driveSubsystem, "straightPathX", true, true);
     balancepath =
         new TestBalanceCommand(
@@ -401,8 +406,7 @@ public class RobotContainer {
                 kJoystickDeadband))
         .onFalse(new InterruptDriveCommand(driveSubsystem));
 
-
-    new Joystick(driveJoystick, )
+    new JoystickButton(driveJoystick, Button.SWF_UP.id).onTrue(committeePath);
   }
 
   public void configureOperatorButtonBindings() {
@@ -717,6 +721,7 @@ public class RobotContainer {
     robotStateSubsystem.setAllianceColor(alliance);
     fiveMeterTest.generateTrajectory();
     balancepath.generateTrajectory();
+    committeePath.generateTrajectory();
     // communityToDockCommandGroup.generateTrajectory();
     // twoPieceWithDockAutoCommandGroup.generateTrajectory();
     // threePiecePath.generateTrajectory();

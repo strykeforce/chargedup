@@ -1,0 +1,10 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Match/SetAllianceBlue": "Command",
+      "/Shuffleboard/Match/SetAllianceRed": "Command",
+      "/Shuffleboard/Match/Update With Vision": "Command"
+    }
+  }
+}

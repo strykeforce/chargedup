@@ -877,7 +877,7 @@ public class Constants {
     public static final double kShoulderFollowerZeroTicks = 2097; // 2057
 
     // Intake
-    public static final int kIntakeZeroTicks = 3_300; // 2440 ->2540->2_900
+    public static final int kIntakeZeroTicks = 3_700; // 3300
     public static final double kExtendPosTicks = -2_200;
 
     // Hand
