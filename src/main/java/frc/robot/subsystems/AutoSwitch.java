@@ -2,6 +2,9 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.DefaultAutoCommand;
@@ -30,6 +33,7 @@ public class AutoSwitch {
   private int newAutoSwitchPos;
   private int autoSwitchStableCounts = 0;
   private Logger logger = LoggerFactory.getLogger(AutoSwitch.class);
+  private static SendableChooser<Integer> sendableChooser = new SendableChooser<>();
 
   private AutoCommandInterface autoCommand;
   private final RobotStateSubsystem robotStateSubsystem;
@@ -43,6 +47,7 @@ public class AutoSwitch {
   private final VisionSubsystem visionSubsystem;
   private final RGBlightsSubsystem rgBlightsSubsystem;
   AutoCommandInterface defaultCommand;
+  private boolean useVirtualSwitch;
 
   public AutoSwitch(
       RobotStateSubsystem robotStateSubsystem,
@@ -65,6 +70,26 @@ public class AutoSwitch {
     this.handSubsystem = handSubsystem;
     this.visionSubsystem = visionSubsystem;
     this.rgBlightsSubsystem = rgBlightsSubsystem;
+
+    sendableChooser.addOption("Cone Lvl 3, Cube Lvl 3, Auto Balance", 0x00);
+    sendableChooser.setDefaultOption("Cone Lvl 3, Cube Lvl 3", 0x01);
+    sendableChooser.setDefaultOption("Same as #1 but scores cone mid", 0x02);
+    sendableChooser.setDefaultOption("Cone lvl 3, Cube lvl 3, Cube lvl 2", 0x03);
+    sendableChooser.setDefaultOption("Cone lvl 3, cube lvl 3, balance", 0x10);
+    sendableChooser.setDefaultOption("Middle to dock", 0x11);
+    sendableChooser.setDefaultOption("Middle to dock with mobility", 0x12);
+    sendableChooser.setDefaultOption("Cone Lvl 3, Cube Lvl 3", 0x20);
+    sendableChooser.setDefaultOption("FALLBACK - Cone Lvl 3, cube lvl 2 and 3", 0x21);
+    sendableChooser.setDefaultOption("Cone Lvl3, Cube Lvl3", 0x22);
+    sendableChooser.setDefaultOption("Cone Lvl 3, cube lvl 2 and 3", 0x23);
+    sendableChooser.setDefaultOption("Cone Lvl 1, Cube Lvl 3 and 2", 0x24);
+    sendableChooser.setDefaultOption("Do nothing", 0x30);
+    SmartDashboard.putData("Auto Mode", sendableChooser);
+
+    Shuffleboard.getTab("Match")
+        .add("autonSwitch", sendableChooser)
+        .withSize(1, 1)
+        .withPosition(1, 2);
 
     defaultCommand =
         new DefaultAutoCommand(
@@ -100,7 +125,7 @@ public class AutoSwitch {
 
   private boolean hasSwitchChanged() {
     boolean changed = false;
-    int switchPos = autoSwitch.position();
+    int switchPos = useVirtualSwitch ? sendableChooser.getSelected() : autoSwitch.position();
 
     if (switchPos != newAutoSwitchPos) {
       autoSwitchStableCounts = 0;
@@ -114,6 +139,10 @@ public class AutoSwitch {
     }
 
     return changed;
+  }
+
+  public String getSwitchPos() {
+    return Integer.toHexString(currAutoSwitchPos);
   }
 
   private AutoCommandInterface getAutoCommand(int switchPos) {

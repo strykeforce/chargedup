@@ -543,6 +543,10 @@ public class RobotContainer {
         .addBoolean("Is Navx Connected", () -> driveSubsystem.isNavxWorking())
         .withSize(1, 1)
         .withPosition(8, 1);
+    Shuffleboard.getTab("Match")
+        .addString("AutoSwitchPos", () -> autoSwitch.getSwitchPos())
+        .withSize(1, 1)
+        .withPosition(1, 0);
   }
 
   private void configurePitDashboard() {
