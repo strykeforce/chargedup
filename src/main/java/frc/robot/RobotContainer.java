@@ -58,6 +58,7 @@ import frc.robot.commands.robotState.ShuffleBoardHealthCheckHandCommandGroup;
 import frc.robot.commands.robotState.ShuffleBoardHealthCheckIntakeCommandGroup;
 import frc.robot.commands.robotState.StowRobotCommand;
 import frc.robot.commands.robotState.ToggleIntakeCommand;
+import frc.robot.commands.robotState.ToggleVirtualSwitchCommand;
 import frc.robot.commands.shoulder.ShoulderSpeedCommand;
 import frc.robot.commands.shoulder.StopTwistCommand;
 import frc.robot.commands.shoulder.TwistShoulderCommand;
@@ -518,7 +519,6 @@ public class RobotContainer {
         .addBoolean("Update With Vision True", () -> driveSubsystem.visionUpdates)
         .withSize(1, 1)
         .withPosition(4, 0);
-
     Shuffleboard.getTab("Match")
         .addBoolean("IsRight", () -> robotStateSubsystem.getTargetCol() == TargetCol.RIGHT)
         .withSize(1, 1)
@@ -546,7 +546,19 @@ public class RobotContainer {
     Shuffleboard.getTab("Match")
         .addString("AutoSwitchPos", () -> autoSwitch.getSwitchPos())
         .withSize(1, 1)
-        .withPosition(1, 0);
+        .withPosition(0, 2);
+    Shuffleboard.getTab("Match")
+        .add("VirtualAutonSwitch", autoSwitch.getSendableChooser())
+        .withSize(1, 1)
+        .withPosition(1, 2);
+    Shuffleboard.getTab("Match")
+        .add("ToggleVirtualSwitch", new ToggleVirtualSwitchCommand(autoSwitch))
+        .withSize(1, 1)
+        .withPosition(2, 2);
+    Shuffleboard.getTab("Match")
+        .addBoolean("VirtualSwitchUsed?", () -> autoSwitch.isUseVirtualSwitch())
+        .withSize(1, 1)
+        .withPosition(3, 2);
   }
 
   private void configurePitDashboard() {

@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.AutonConstants;
@@ -22,11 +21,14 @@ import frc.robot.commands.auto.TwoPieceMiddleBalanceAutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceWithDockAutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceWithDockAutoMidCommandGroup;
 import java.util.ArrayList;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
+import org.strykeforce.telemetry.measurable.Measure;
 import org.strykeforce.thirdcoast.util.AutonSwitch;
 
-public class AutoSwitch {
+public class AutoSwitch extends MeasurableSubsystem {
   private final AutonSwitch autoSwitch;
   private ArrayList<DigitalInput> switchInputs = new ArrayList<>();
   private int currAutoSwitchPos = -1;
@@ -47,7 +49,7 @@ public class AutoSwitch {
   private final VisionSubsystem visionSubsystem;
   private final RGBlightsSubsystem rgBlightsSubsystem;
   AutoCommandInterface defaultCommand;
-  private boolean useVirtualSwitch;
+  private boolean useVirtualSwitch = false;
 
   public AutoSwitch(
       RobotStateSubsystem robotStateSubsystem,
@@ -85,11 +87,6 @@ public class AutoSwitch {
     sendableChooser.setDefaultOption("Cone Lvl 1, Cube Lvl 3 and 2", 0x24);
     sendableChooser.setDefaultOption("Do nothing", 0x30);
     SmartDashboard.putData("Auto Mode", sendableChooser);
-
-    Shuffleboard.getTab("Match")
-        .add("autonSwitch", sendableChooser)
-        .withSize(1, 1)
-        .withPosition(1, 2);
 
     defaultCommand =
         new DefaultAutoCommand(
@@ -141,8 +138,26 @@ public class AutoSwitch {
     return changed;
   }
 
+  public void toggleVirtualSwitch() {
+    logger.info("toggledSwitch:function");
+    if (useVirtualSwitch) {
+      useVirtualSwitch = false;
+    } else {
+      useVirtualSwitch = true;
+    }
+    // useVirtualSwitch = useVirtualSwitch ? false : true;
+  }
+
   public String getSwitchPos() {
     return Integer.toHexString(currAutoSwitchPos);
+  }
+
+  public boolean isUseVirtualSwitch() {
+    return useVirtualSwitch;
+  }
+
+  public SendableChooser<Integer> getSendableChooser() {
+    return sendableChooser;
   }
 
   private AutoCommandInterface getAutoCommand(int switchPos) {
@@ -320,5 +335,12 @@ public class AutoSwitch {
         return new DefaultAutoCommand(
             driveSubsystem, robotStateSubsystem, elevatorSubsystem, handSubsystem, armSubsystem);
     }
+  }
+
+  @Override
+  public Set<Measure> getMeasures() {
+    return Set.of(
+        new Measure("AutoSwitch", () -> currAutoSwitchPos),
+        new Measure("usingVirtualSwitch", () -> this.useVirtualSwitch ? 1.0 : 0.0));
   }
 }
