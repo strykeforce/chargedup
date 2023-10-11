@@ -6,14 +6,15 @@ is_reversed = false
 target_yaw = 0.0 #degrees
 
 [start_pose]
-    x = 0.0
-    y = 0.0
+    x = 2.02
+    y = 4.895
     angle = 0.0
+
 [end_pose]
-    x = 5.0
-    y = 0.0
+    x = 6.143
+    y = 2.525
     angle = 0.0
 
 [[internal_points]]
-    x = 2.5
-    y = 0.0
+    x = 4.359
+    y = 5.211
