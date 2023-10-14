@@ -385,10 +385,10 @@ public class Constants {
     public static final double kApTag7y = 2.748;
     public static final double kApTag8y = 1.072;
 
-    public static final double kCameraOffset = .335; // was .273 on driveChasis
+    public static final double kCameraOffset = -.335; // was .273 on driveChasis
     public static final double kCameraAngleOffset = 0; // DEGREES was 24 on driveChasis
     public static final double kHighCameraAngleOffset = 0.0;
-    public static final double kHighCameraOffset = -0.075;
+    public static final double kHighCameraOffset = 0.075;
     public static final double kLastUpdateCloseEnoughThreshold = 2.0; // IN SECONDS
     public static final double kLastUpdateCloseEnoughThresholdYaw = 1.0;
     public static final double kDifferenceCloseEnoughThreshold = .1;
@@ -429,10 +429,12 @@ public class Constants {
     // Minimum std dev for the declining std dev
     public static final double kMinimumStdDev = 0.01;
 
-    // Constants for the vision filter equation
+    // Constants for the vision filter equations
+    public static final int kMaxVisionOff = 5;
     public static final double kLinearCoeffOnVelFilter = 0.1;
     public static final double kOffsetOnVelFilter = 0.2;
     public static final double kSquaredCoeffOnVelFilter = 0.2;
+    public static final double kCloseDistance = 4.0;
   }
 
   public static final class FieldConstants {
@@ -900,7 +902,7 @@ public class Constants {
     public static final double kShoulderFollowerZeroTicks = 2097; // 2057
 
     // Intake
-    public static final int kIntakeZeroTicks = 3_300; // 2440 ->2540->2_900
+    public static final int kIntakeZeroTicks = 3_700; // 3300
     public static final double kExtendPosTicks = -2_200;
 
     // Hand

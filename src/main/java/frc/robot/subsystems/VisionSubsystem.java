@@ -14,9 +14,11 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Servo;
 import frc.robot.Constants;
+import frc.robot.Constants.RobotStateConstants;
 import frc.robot.Constants.VisionConstants;
 import java.util.ArrayList;
 import java.util.Set;
@@ -29,6 +31,7 @@ import org.strykeforce.telemetry.measurable.Measure;
 public class VisionSubsystem extends MeasurableSubsystem {
   private DigitalInput[] empty = {};
   public static DriveSubsystem driveSubsystem;
+  public static RobotStateSubsystem robotStateSubsystem;
   private DigitalInput[] diosHigh = {};
   private DigitalInput[] diosLow = {};
   private Pose2d[] suppliedCamPose = {new Pose2d(), new Pose2d()};
@@ -68,6 +71,10 @@ public class VisionSubsystem extends MeasurableSubsystem {
       cams[i] = new WallEye(names[i], numCams[i], dios[i]);
       cams[i].setCamToCenter(0, cameraOffset(camLengths[i], camAngle[i]));
     }
+  }
+
+  public void setRobotStateSubsystem(RobotStateSubsystem robotStateSubsystem) {
+    this.robotStateSubsystem = robotStateSubsystem;
   }
 
   // Find Transform3d from camera to center of the robot
@@ -121,10 +128,11 @@ public class VisionSubsystem extends MeasurableSubsystem {
     // The adaptive vision matrix math
     if (noUpdate) {
       if (getTimeSec() - timeLastCam > VisionConstants.kTimeToTightenStdDev) {
-        if (getTimeSec() - timeLastCam > VisionConstants.kTimeToTrustCamera)
+        if (getTimeSec() - timeLastCam > VisionConstants.kTimeToTrustCamera
+            && curState != VisionStates.trustVision) {
           logger.info("Vision State: {} -> trustVision", curState.name());
-        curState = VisionStates.trustVision;
-
+          curState = VisionStates.trustVision;
+        }
         numUpdateForReset = 0;
         for (int i = 0; i < 2; ++i) {
           double estimatedWeight =
@@ -150,32 +158,53 @@ public class VisionSubsystem extends MeasurableSubsystem {
         if (res.getCameraPose().getX() > 1000.0) continue;
 
         Pose2d camPose = cam.camPoseToCenter(0, res.getCameraPose()).toPose2d();
+        Pose2d curPose = driveSubsystem.getPoseMeters();
         if ((res.getAmbiguity() < 0.15 || res.getNumTags() > 1)) {
-          timeLastCam = getTimeSec();
-          switch (curState) {
-            case trustWheels:
-              if (canAcceptPose(camPose)) {
-                handleVision(res, camNum);
-                timesCamOffWheel = 0;
-              } else {
-                timesCamOffWheel++;
-              }
-              if (numUpdateForReset > VisionConstants.kNumResultsToResetStdDev)
-                adaptiveVisionMatrix = VisionConstants.kVisionMeasurementStdDevs.copy();
 
-              break;
-            case trustVision:
-              handleVision(res, camNum);
-              if (numUpdateForReset > VisionConstants.kNumResultsToTrustWheels) {
-                logger.info("Vision State: {} -> trustWheels", curState.name());
-                curState = VisionStates.trustWheels;
-                adaptiveVisionMatrix = VisionConstants.kVisionMeasurementStdDevs.copy();
-              }
-              break;
-            case onlyTrustVision:
-              break;
-            case onlyTrustWheels:
-              break;
+          // Filter High camera
+          // Only lets high through when its close and has atleast two tags or its far away
+          if (names[camNum] != "High"
+              || ((robotStateSubsystem.getAllianceColor() == Alliance.Blue)
+                  && ((curPose.getX() < VisionConstants.kCloseDistance && res.getNumTags() > 1)
+                      || curPose.getX() > VisionConstants.kCloseDistance))
+              || ((robotStateSubsystem.getAllianceColor() == Alliance.Red)
+                  && ((curPose.getX()
+                              > RobotStateConstants.kFieldMaxX - VisionConstants.kCloseDistance
+                          && res.getNumTags() > 1)
+                      || curPose.getX()
+                          < RobotStateConstants.kFieldMaxX - VisionConstants.kCloseDistance))) {
+
+            timeLastCam = getTimeSec();
+
+            switch (curState) {
+              case trustWheels:
+                if (canAcceptPose(camPose)) {
+                  handleVision(res, camNum);
+                  timesCamOffWheel = 0;
+                } else {
+                  timesCamOffWheel++;
+                }
+                if (timesCamOffWheel > VisionConstants.kMaxVisionOff) {
+                  logger.info("Vision State: {} -> trustVision", curState.name());
+                  curState = VisionStates.trustVision;
+                }
+                if (numUpdateForReset > VisionConstants.kNumResultsToResetStdDev)
+                  adaptiveVisionMatrix = VisionConstants.kVisionMeasurementStdDevs.copy();
+
+                break;
+              case trustVision:
+                handleVision(res, camNum);
+                if (numUpdateForReset > VisionConstants.kNumResultsToTrustWheels) {
+                  logger.info("Vision State: {} -> trustWheels", curState.name());
+                  curState = VisionStates.trustWheels;
+                  adaptiveVisionMatrix = VisionConstants.kVisionMeasurementStdDevs.copy();
+                }
+                break;
+              case onlyTrustVision:
+                break;
+              case onlyTrustWheels:
+                break;
+            }
           }
         }
       }
@@ -187,8 +216,11 @@ public class VisionSubsystem extends MeasurableSubsystem {
   public void handleVision(WallEyeResult res, int camNum) {
     numUpdateForReset++;
     suppliedCamPose[camNum] = res.getCameraPose().toPose2d();
+    System.out.println(suppliedCamPose[camNum]);
     driveSubsystem.updateOdometryWithVision(
-        suppliedCamPose[camNum], res.getTimeStamp() / 1000000, adaptiveVisionMatrix);
+        suppliedCamPose[camNum],
+        res.getTimeStamp() / 1000000,
+        VisionConstants.kVisionMeasurementStdDevs);
   }
 
   public double getTimeSec() {
