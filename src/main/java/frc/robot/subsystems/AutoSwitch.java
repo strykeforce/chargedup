@@ -73,19 +73,19 @@ public class AutoSwitch extends MeasurableSubsystem {
     this.visionSubsystem = visionSubsystem;
     this.rgBlightsSubsystem = rgBlightsSubsystem;
 
-    sendableChooser.addOption("Cone Lvl 3, Cube Lvl 3, Auto Balance", 0x00);
-    sendableChooser.setDefaultOption("Cone Lvl 3, Cube Lvl 3", 0x01);
-    sendableChooser.setDefaultOption("Same as #1 but scores cone mid", 0x02);
-    sendableChooser.setDefaultOption("Cone lvl 3, Cube lvl 3, Cube lvl 2", 0x03);
-    sendableChooser.setDefaultOption("Cone lvl 3, cube lvl 3, balance", 0x10);
-    sendableChooser.setDefaultOption("Middle to dock", 0x11);
-    sendableChooser.setDefaultOption("Middle to dock with mobility", 0x12);
-    sendableChooser.setDefaultOption("Cone Lvl 3, Cube Lvl 3", 0x20);
-    sendableChooser.setDefaultOption("FALLBACK - Cone Lvl 3, cube lvl 2 and 3", 0x21);
-    sendableChooser.setDefaultOption("Cone Lvl3, Cube Lvl3", 0x22);
-    sendableChooser.setDefaultOption("Cone Lvl 3, cube lvl 2 and 3", 0x23);
-    sendableChooser.setDefaultOption("Cone Lvl 1, Cube Lvl 3 and 2", 0x24);
-    sendableChooser.setDefaultOption("Do nothing", 0x30);
+    sendableChooser.addOption("00  Cone Lvl 3, Cube Lvl 3, Auto Balance", 0x00);
+    sendableChooser.setDefaultOption("01  Cone Lvl 3, Cube Lvl 3", 0x01);
+    sendableChooser.setDefaultOption("02  Same as #1 but scores cone mid", 0x02);
+    sendableChooser.setDefaultOption("03  Cone lvl 3, Cube lvl 3, Cube lvl 2", 0x03);
+    sendableChooser.setDefaultOption("10  Cone lvl 3, cube lvl 3, balance", 0x10);
+    sendableChooser.setDefaultOption("11  Middle to dock", 0x11);
+    sendableChooser.setDefaultOption("12  Middle to dock with mobility", 0x12);
+    sendableChooser.setDefaultOption("20  Cone Lvl 3, Cube Lvl 3", 0x20);
+    sendableChooser.setDefaultOption("21  FALLBACK - Cone Lvl 3, cube lvl 2 and 3", 0x21);
+    sendableChooser.setDefaultOption("22  Cone Lvl3, Cube Lvl3", 0x22);
+    sendableChooser.setDefaultOption("23  Cone Lvl 3, cube lvl 2 and 3", 0x23);
+    sendableChooser.setDefaultOption("24  Cone Lvl 1, Cube Lvl 3 and 2", 0x24);
+    sendableChooser.setDefaultOption("30  Do nothing", 0x30);
     SmartDashboard.putData("Auto Mode", sendableChooser);
 
     defaultCommand =
