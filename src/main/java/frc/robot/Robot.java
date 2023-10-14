@@ -20,6 +20,8 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
   private boolean haveAlliance;
+  private boolean mappedDriveJoystick = false;
+  private String lastJoystick = "";
 
   @Override
   public void robotInit() {
@@ -69,6 +71,14 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+    if (!mappedDriveJoystick) {
+      String joystick = DriverStation.getJoystickName(0);
+      if (lastJoystick != joystick) {
+        System.out.println("Joystick Name: " + joystick);
+        mappedDriveJoystick = m_robotContainer.configureDriverButtonBindings();
+      }
+      lastJoystick = joystick;
+    }
     m_robotContainer.getAutoSwitch().checkSwitch();
     m_robotContainer.checkCameraOnline();
   }

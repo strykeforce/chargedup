@@ -43,7 +43,7 @@ public class Constants {
   public static double kShoulderFollowerZeroTicks = 3167;
   public static int kIntakeZeroTicks = 3150;
   public static double kHandZeroTicks = 975;
-  public static double kExtendPosTicks = -2_100;
+  public static double kExtendPosTicks = -2_100; // -2_100
 
   public Constants() {
     if (isCompBot) {
@@ -556,7 +556,7 @@ public class Constants {
     // Elbow Positions
     public static final double kJogElbowTicks = 500.0;
     public static final double kIntakeStageElbow = -14_465;
-    public static final double kIntakeElbow = -21_767; // -21_087
+    public static final double kIntakeElbow = -22_815; // -21_767
     public static final double kStowElbow = 0;
     public static final double kFloorElbow = 21_289; // 43_214
     public static final double kLevelOneElbow = 21_548;
@@ -896,12 +896,12 @@ public class Constants {
     public static final int kElbowZeroTicks = 705; // 705
 
     // Shoulder
-    public static final double kShoulderMainZeroTicks = 2050;
-    public static final double kShoulderFollowerZeroTicks = 2057;
+    public static final double kShoulderMainZeroTicks = 2010; // 2050
+    public static final double kShoulderFollowerZeroTicks = 2097; // 2057
 
     // Intake
     public static final int kIntakeZeroTicks = 3_300; // 2440 ->2540->2_900
-    public static final double kExtendPosTicks = -2_100;
+    public static final double kExtendPosTicks = -2_200;
 
     // Hand
     // 273 for a tooth on the hand
