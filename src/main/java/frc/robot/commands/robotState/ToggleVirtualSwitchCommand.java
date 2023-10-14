@@ -24,4 +24,9 @@ public class ToggleVirtualSwitchCommand extends InstantCommand {
   public boolean isFinished() {
     return true;
   }
+
+  @Override
+  public boolean runsWhenDisabled() {
+    return true;
+  }
 }
