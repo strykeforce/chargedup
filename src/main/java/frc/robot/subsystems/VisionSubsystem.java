@@ -21,7 +21,6 @@ import frc.robot.Constants.VisionConstants;
 import java.util.ArrayList;
 import java.util.Set;
 import net.jafama.FastMath;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
@@ -29,7 +28,6 @@ import org.strykeforce.telemetry.measurable.Measure;
 
 public class VisionSubsystem extends MeasurableSubsystem {
   private DigitalInput[] empty = {};
-
   public static DriveSubsystem driveSubsystem;
   private DigitalInput[] diosHigh = {};
   private DigitalInput[] diosLow = {};
@@ -46,7 +44,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   private String[] names = {"High", "Low"};
   private int[] numCams = {1, 1};
   private DigitalInput[][] dios = {diosHigh, diosLow};
-  private WallEyeResult[][] results = { {}, {} };
+  private WallEyeResult[][] results = {{}, {}};
   private Pose3d[] camPoses = {new Pose3d(), new Pose3d()};
   private int[] updates = {0, 0};
   private int[] numTags = {0, 0};
@@ -72,7 +70,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
     }
   }
 
-  //Find Transform3d from camera to center of the robot
+  // Find Transform3d from camera to center of the robot
   public Transform3d cameraOffset(double length, double angle) {
     return new Transform3d(
         new Translation3d(
@@ -92,40 +90,40 @@ public class VisionSubsystem extends MeasurableSubsystem {
   public void periodic() {
     boolean noUpdate = true;
 
-    //Go through each Walleye instance
+    // Go through each Walleye instance
     for (int i = 0; i < names.length; ++i) {
 
-      //Grab the camera and check for an update
+      // Grab the camera and check for an update
       if (cams[i].hasNewUpdate()) {
         hasGottenUpdates = true;
         noUpdate = false;
 
-        //Grab results and update values to the values for cam i
+        // Grab results and update values to the values for cam i
         try {
           results[i] = cams[i].getResults();
-        } catch(Exception e) {
+        } catch (Exception e) {
           System.out.print(e);
         }
         camDelay[i] = RobotController.getFPGATime() - results[i][0].getTimeStamp();
 
-        for (int j = 0; j < numCams[i]; ++j)
-        {
+        for (int j = 0; j < numCams[i]; ++j) {
           numTags[i] = results[i][j].getNumTags();
-          camPoses[i] = cams[i].camPoseToCenter(j, results[i][j].getCameraPose());
+          camPoses[i] = cams[i].camPoseToCenter(j, (results[i][j].getCameraPose()));
           updates[i] = cams[i].getUpdateNumber();
           camAmbig[i] = results[i][j].getAmbiguity();
         }
 
-        //Handle velocity filter
+        // Handle velocity filter
         handleCameraFilter(results[i], cams[i], i);
       }
     }
 
-    //The adaptive vision matrix math
+    // The adaptive vision matrix math
     if (noUpdate) {
       if (getTimeSec() - timeLastCam > VisionConstants.kTimeToTightenStdDev) {
         if (getTimeSec() - timeLastCam > VisionConstants.kTimeToTrustCamera)
-          curState = VisionStates.trustVision;
+          logger.info("Vision State: {} -> trustVision", curState.name());
+        curState = VisionStates.trustVision;
 
         numUpdateForReset = 0;
         for (int i = 0; i < 2; ++i) {
@@ -148,10 +146,9 @@ public class VisionSubsystem extends MeasurableSubsystem {
   private void handleCameraFilter(WallEyeResult[] results, WallEye cam, int camNum) {
     try {
       for (WallEyeResult res : results) {
-        
-        if (res.getCameraPose().getX() > 1000.0)
-          continue;
-        
+
+        if (res.getCameraPose().getX() > 1000.0) continue;
+
         Pose2d camPose = cam.camPoseToCenter(0, res.getCameraPose()).toPose2d();
         if ((res.getAmbiguity() < 0.15 || res.getNumTags() > 1)) {
           timeLastCam = getTimeSec();
@@ -170,6 +167,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
             case trustVision:
               handleVision(res, camNum);
               if (numUpdateForReset > VisionConstants.kNumResultsToTrustWheels) {
+                logger.info("Vision State: {} -> trustWheels", curState.name());
                 curState = VisionStates.trustWheels;
                 adaptiveVisionMatrix = VisionConstants.kVisionMeasurementStdDevs.copy();
               }
@@ -182,13 +180,15 @@ public class VisionSubsystem extends MeasurableSubsystem {
         }
       }
     } catch (Exception e) {
+      logger.error("Vision State error: {}", e.getMessage());
     }
   }
 
   public void handleVision(WallEyeResult res, int camNum) {
     numUpdateForReset++;
     suppliedCamPose[camNum] = res.getCameraPose().toPose2d();
-    driveSubsystem.updateOdometryWithVision(suppliedCamPose[camNum], res.getTimeStamp() / 1000000, adaptiveVisionMatrix);
+    driveSubsystem.updateOdometryWithVision(
+        suppliedCamPose[camNum], res.getTimeStamp() / 1000000, adaptiveVisionMatrix);
   }
 
   public double getTimeSec() {
@@ -197,6 +197,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
 
   public void switchVisionMode(boolean doTrustWheels) {
     trustingWheels = doTrustWheels;
+    logger.info("Vision State: {} -> trustWheels", curState.name());
     curState = trustingWheels ? VisionStates.trustWheels : curState;
   }
 

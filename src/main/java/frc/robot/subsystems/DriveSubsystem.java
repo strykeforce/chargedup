@@ -1038,7 +1038,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
     odometryStrategy.addVisionMeasurement(calculatedPose, Timer.getFPGATimestamp());
   }
 
-  public void updateOdometryWithVision(Pose2d calculatedPose, double timestamp, Matrix<N3,N1> visionMatrix) {
+  public void updateOdometryWithVision(
+      Pose2d calculatedPose, double timestamp, Matrix<N3, N1> visionMatrix) {
     odometryStrategy.addVisionMeasurement(calculatedPose, timestamp, visionMatrix);
   }
 

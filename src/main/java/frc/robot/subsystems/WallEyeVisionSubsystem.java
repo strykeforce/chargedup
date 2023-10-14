@@ -156,7 +156,8 @@ public class WallEyeVisionSubsystem extends MeasurableSubsystem {
   public void handleVision(WallEyeResult res) {
     numUpdateForReset++;
     suppliedCamPose = res.getCameraPose().toPose2d();
-    driveSubsystem.updateOdometryWithVision(suppliedCamPose, res.getTimeStamp() / 1000000, adaptiveVisionMatrix);
+    driveSubsystem.updateOdometryWithVision(
+        suppliedCamPose, res.getTimeStamp() / 1000000, adaptiveVisionMatrix);
   }
 
   public double getTimeSec() {
