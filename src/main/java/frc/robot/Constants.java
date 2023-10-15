@@ -385,10 +385,10 @@ public class Constants {
     public static final double kApTag7y = 2.748;
     public static final double kApTag8y = 1.072;
 
-    public static final double kCameraOffset = -.335; // was .273 on driveChasis
+    public static final double kCameraOffset = .335; // was .273 on driveChasis
     public static final double kCameraAngleOffset = 0; // DEGREES was 24 on driveChasis
-    public static final double kHighCameraAngleOffset = 0.0;
-    public static final double kHighCameraOffset = 0.075;
+    public static final double kHighCameraAngleOffset = 0;
+    public static final double kHighCameraOffset = -0.075;
     public static final double kLastUpdateCloseEnoughThreshold = 2.0; // IN SECONDS
     public static final double kLastUpdateCloseEnoughThresholdYaw = 1.0;
     public static final double kDifferenceCloseEnoughThreshold = .1;
@@ -398,18 +398,18 @@ public class Constants {
     public static int kBufferLookupOffset = 2;
 
     public static Matrix<N3, N1> kStateStdDevs =
-        VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(5));
+        VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(0));
 
     // Increase these numbers to trust sensor readings from encoders and gyros less. This matrix is
     // in the form [theta], with units in radians.
     public static Matrix<N1, N1> kLocalMeasurementStdDevs =
-        VecBuilder.fill(Units.degreesToRadians(0.0));
+        VecBuilder.fill(Units.degreesToRadians(0.01));
 
     // Increase these numbers to trust global measurements from vision less. This matrix is in the
     // form [x, y, theta]ᵀ, with units in meters and radians.
     // Vision Odometry Standard devs
     public static Matrix<N3, N1> kVisionMeasurementStdDevs =
-        VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5));
+        VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5000));
 
     // When trusting wheels the amount of times before the decay goes away
     public static int kNumResultsToResetStdDev = 3;

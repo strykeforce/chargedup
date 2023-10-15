@@ -4,11 +4,9 @@ import WallEye.WallEye;
 import WallEye.WallEyeResult;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -48,7 +46,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   private int[] numCams = {1, 1};
   private DigitalInput[][] dios = {diosHigh, diosLow};
   private WallEyeResult[][] results = {{}, {}};
-  private Pose3d[] camPoses = {new Pose3d(), new Pose3d()};
+  private Pose2d[] camPoses = {new Pose2d(), new Pose2d()};
   private int[] updates = {0, 0};
   private int[] numTags = {0, 0};
   private double[] camDelay = {0, 0};
@@ -57,6 +55,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   private double[] camAngle = {
     VisionConstants.kHighCameraAngleOffset, VisionConstants.kCameraAngleOffset
   };
+  private boolean isHighCamConnected = false;
   private boolean hasResetOdomAuto = false;
   private static final Logger logger = LoggerFactory.getLogger(VisionSubsystem.class);
 
@@ -69,7 +68,6 @@ public class VisionSubsystem extends MeasurableSubsystem {
 
     for (int i = 0; i < names.length; ++i) {
       cams[i] = new WallEye(names[i], numCams[i], dios[i]);
-      cams[i].setCamToCenter(0, cameraOffset(camLengths[i], camAngle[i]));
     }
   }
 
@@ -78,19 +76,32 @@ public class VisionSubsystem extends MeasurableSubsystem {
   }
 
   // Find Transform3d from camera to center of the robot
-  public Transform3d cameraOffset(double length, double angle) {
-    return new Transform3d(
-        new Translation3d(
-            length
-                * FastMath.cos(
-                    Units.degreesToRadians(
-                        angle - driveSubsystem.getGyroRotation2d().getDegrees())),
-            -length
-                * FastMath.sin(
-                    Units.degreesToRadians(
-                        angle - driveSubsystem.getGyroRotation2d().getDegrees())),
-            0.0),
-        new Rotation3d());
+  public Translation2d cameraOffset() {
+    return new Translation2d(
+        VisionConstants.kCameraOffset
+            * FastMath.cos(
+                Units.degreesToRadians(
+                    VisionConstants.kCameraAngleOffset
+                        - driveSubsystem.getGyroRotation2d().getDegrees())),
+        -VisionConstants.kCameraOffset
+            * FastMath.sin(
+                Units.degreesToRadians(
+                    VisionConstants.kCameraAngleOffset
+                        - driveSubsystem.getGyroRotation2d().getDegrees())));
+  }
+
+  public Translation2d highCameraOffset() {
+    return new Translation2d(
+        VisionConstants.kHighCameraOffset
+            * FastMath.cos(
+                Units.degreesToRadians(
+                    VisionConstants.kHighCameraAngleOffset
+                        - driveSubsystem.getGyroRotation2d().getDegrees())),
+        -VisionConstants.kHighCameraAngleOffset
+            * FastMath.sin(
+                Units.degreesToRadians(
+                    VisionConstants.kHighCameraAngleOffset
+                        - driveSubsystem.getGyroRotation2d().getDegrees())));
   }
 
   @Override
@@ -102,6 +113,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
 
       // Grab the camera and check for an update
       if (cams[i].hasNewUpdate()) {
+        if (i == 0) isHighCamConnected = true;
         hasGottenUpdates = true;
         noUpdate = false;
 
@@ -115,13 +127,20 @@ public class VisionSubsystem extends MeasurableSubsystem {
 
         for (int j = 0; j < numCams[i]; ++j) {
           numTags[i] = results[i][j].getNumTags();
-          camPoses[i] = cams[i].camPoseToCenter(j, (results[i][j].getCameraPose()));
+
+          camPoses[i] =
+              new Pose2d(
+                  new Translation2d(
+                          results[i][j].getCameraPose().getX(),
+                          results[i][j].getCameraPose().getY())
+                      .plus(i == 0 ? highCameraOffset() : cameraOffset()),
+                  new Rotation2d(results[i][j].getCameraPose().getRotation().getZ() + Math.PI));
           updates[i] = cams[i].getUpdateNumber();
           camAmbig[i] = results[i][j].getAmbiguity();
         }
 
         // Handle velocity filter
-        handleCameraFilter(results[i], cams[i], i);
+        handleCameraFilter(results[i], cams[i], i, i == 0);
       }
     }
 
@@ -151,14 +170,21 @@ public class VisionSubsystem extends MeasurableSubsystem {
     }
   }
 
-  private void handleCameraFilter(WallEyeResult[] results, WallEye cam, int camNum) {
+  private void handleCameraFilter(
+      WallEyeResult[] results, WallEye cam, int camNum, boolean isHigh) {
     try {
       for (WallEyeResult res : results) {
 
         if (res.getCameraPose().getX() > 1000.0) continue;
 
-        Pose2d camPose = cam.camPoseToCenter(0, res.getCameraPose()).toPose2d();
+        Pose2d camPose =
+            new Pose2d(
+                new Translation2d(res.getCameraPose().getX(), res.getCameraPose().getY())
+                    .plus(isHigh == true ? highCameraOffset() : cameraOffset()),
+                new Rotation2d(res.getCameraPose().getRotation().getZ() + Math.PI));
+
         Pose2d curPose = driveSubsystem.getPoseMeters();
+
         if ((res.getAmbiguity() < 0.15 || res.getNumTags() > 1)) {
 
           // Filter High camera
@@ -179,7 +205,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
             switch (curState) {
               case trustWheels:
                 if (canAcceptPose(camPose)) {
-                  handleVision(res, camNum);
+                  handleVision(res, camNum, camPose);
                   timesCamOffWheel = 0;
                 } else {
                   timesCamOffWheel++;
@@ -193,7 +219,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
 
                 break;
               case trustVision:
-                handleVision(res, camNum);
+                handleVision(res, camNum, camPose);
                 if (numUpdateForReset > VisionConstants.kNumResultsToTrustWheels) {
                   logger.info("Vision State: {} -> trustWheels", curState.name());
                   curState = VisionStates.trustWheels;
@@ -213,14 +239,12 @@ public class VisionSubsystem extends MeasurableSubsystem {
     }
   }
 
-  public void handleVision(WallEyeResult res, int camNum) {
+  public void handleVision(WallEyeResult res, int camNum, Pose2d camPose) {
     numUpdateForReset++;
-    suppliedCamPose[camNum] = res.getCameraPose().toPose2d();
+    suppliedCamPose[camNum] = camPose;
     System.out.println(suppliedCamPose[camNum]);
-    driveSubsystem.updateOdometryWithVision(
-        suppliedCamPose[camNum],
-        res.getTimeStamp() / 1000000,
-        VisionConstants.kVisionMeasurementStdDevs);
+
+    driveSubsystem.updateOdometryWithVision(camPose, res.getTimeStamp() / 1000000);
   }
 
   public double getTimeSec() {
@@ -275,8 +299,43 @@ public class VisionSubsystem extends MeasurableSubsystem {
     return hasResetOdomAuto;
   }
 
-  public void resetOdometry(Pose2d pose, boolean val) {
-    driveSubsystem.resetOdometry(pose);
+  public void resetOdometry(Pose2d errorCheckPose, boolean isBlueAlliance) {
+    if (!isBlueAlliance)
+      errorCheckPose =
+          new Pose2d(
+              new Translation2d(
+                  RobotStateConstants.kFieldMaxX - errorCheckPose.getX(), errorCheckPose.getY()),
+              new Rotation2d());
+
+    if (isHighCamConnected
+        && FastMath.abs(errorCheckPose.getY() - camPoses[0].getY()) <= 1.0 // 0.75
+        && ((isBlueAlliance && camPoses[0].getX() <= 6.9 && camPoses[0].getX() > 5.1)
+            || (!isBlueAlliance
+                && camPoses[0].getX() >= RobotStateConstants.kFieldMaxX - 6.9
+                && camPoses[0].getX() < RobotStateConstants.kFieldMaxX - 5.1))) {
+      logger.info("reseting to X : {} | Y : {}", camPoses[0].getX(), camPoses[0].getY());
+      driveSubsystem.resetOdometry(
+          new Pose2d(
+              new Translation2d(camPoses[0].getX(), camPoses[0].getY()),
+              driveSubsystem.getGyroRotation2d()));
+    } else {
+      // double tempX = (driveSubsystem.getPoseMeters().getX() + cameraPose.getX()) / 2;
+      double tempY = (driveSubsystem.getPoseMeters().getY() + camPoses[0].getY()) / 2;
+      // logger.info("TempX: {}, TempY: {}", tempX, tempY);
+      Pose2d tempPose =
+          new Pose2d(
+              new Translation2d(driveSubsystem.getPoseMeters().getX(), tempY),
+              driveSubsystem.getGyroRotation2d());
+      logger.info(
+          "Averaging Odom, error: {} | Camera: {}, Resetting to pose: {}, drive Odom: {}",
+          FastMath.hypot(
+              (camPoses[0].getX() - errorCheckPose.getX()),
+              (camPoses[0].getY() - errorCheckPose.getY())),
+          camPoses[0],
+          tempPose,
+          driveSubsystem.getPoseMeters());
+      driveSubsystem.resetOdometry(tempPose);
+    }
   }
 
   public void setOdomAutoBool(boolean val) {
@@ -296,10 +355,8 @@ public class VisionSubsystem extends MeasurableSubsystem {
     return Set.of(
         new Measure("High Cam x", () -> camPoses[0].getX()),
         new Measure("High Cam y", () -> camPoses[0].getY()),
-        new Measure("High Cam z", () -> camPoses[0].getZ()),
         new Measure("Low Cam x", () -> camPoses[1].getX()),
         new Measure("Low Cam y", () -> camPoses[1].getY()),
-        new Measure("Low Cam z", () -> camPoses[1].getZ()),
         new Measure("High latency", () -> camDelay[0] / 1000),
         new Measure("High Update num", () -> updates[0]),
         new Measure("High Tag Ambig", () -> camAmbig[0]),
