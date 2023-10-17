@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.commands.auto.AutoCommandInterface;
 import frc.robot.commands.auto.DefaultAutoCommand;
@@ -19,17 +21,21 @@ import frc.robot.commands.auto.TwoPieceMiddleBalanceAutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceWithDockAutoCommandGroup;
 import frc.robot.commands.auto.TwoPieceWithDockAutoMidCommandGroup;
 import java.util.ArrayList;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
+import org.strykeforce.telemetry.measurable.Measure;
 import org.strykeforce.thirdcoast.util.AutonSwitch;
 
-public class AutoSwitch {
+public class AutoSwitch extends MeasurableSubsystem {
   private final AutonSwitch autoSwitch;
   private ArrayList<DigitalInput> switchInputs = new ArrayList<>();
   private int currAutoSwitchPos = -1;
   private int newAutoSwitchPos;
   private int autoSwitchStableCounts = 0;
   private Logger logger = LoggerFactory.getLogger(AutoSwitch.class);
+  private static SendableChooser<Integer> sendableChooser = new SendableChooser<>();
 
   private AutoCommandInterface autoCommand;
   private final RobotStateSubsystem robotStateSubsystem;
@@ -43,6 +49,7 @@ public class AutoSwitch {
   private final VisionSubsystem visionSubsystem;
   private final RGBlightsSubsystem rgBlightsSubsystem;
   AutoCommandInterface defaultCommand;
+  private boolean useVirtualSwitch = false;
 
   public AutoSwitch(
       RobotStateSubsystem robotStateSubsystem,
@@ -65,6 +72,21 @@ public class AutoSwitch {
     this.handSubsystem = handSubsystem;
     this.visionSubsystem = visionSubsystem;
     this.rgBlightsSubsystem = rgBlightsSubsystem;
+
+    sendableChooser.addOption("00  Cone Lvl 3, Cube Lvl 3, Auto Balance", 0x00);
+    sendableChooser.setDefaultOption("01  Cone Lvl 3, Cube Lvl 3", 0x01);
+    sendableChooser.setDefaultOption("02  Same as #1 but scores cone mid", 0x02);
+    sendableChooser.setDefaultOption("03  Cone lvl 3, Cube lvl 3, Cube lvl 2", 0x03);
+    sendableChooser.setDefaultOption("10  Cone lvl 3, cube lvl 3, balance", 0x10);
+    sendableChooser.setDefaultOption("11  Middle to dock", 0x11);
+    sendableChooser.setDefaultOption("12  Middle to dock with mobility", 0x12);
+    sendableChooser.setDefaultOption("20  Cone Lvl 3, Cube Lvl 3", 0x20);
+    sendableChooser.setDefaultOption("21  FALLBACK - Cone Lvl 3, cube lvl 2 and 3", 0x21);
+    sendableChooser.setDefaultOption("22  Cone Lvl3, Cube Lvl3", 0x22);
+    sendableChooser.setDefaultOption("23  Cone Lvl 3, cube lvl 2 and 3", 0x23);
+    sendableChooser.setDefaultOption("24  Cone Lvl 1, Cube Lvl 3 and 2", 0x24);
+    sendableChooser.setDefaultOption("30  Do nothing", 0x30);
+    SmartDashboard.putData("Auto Mode", sendableChooser);
 
     defaultCommand =
         new DefaultAutoCommand(
@@ -100,7 +122,7 @@ public class AutoSwitch {
 
   private boolean hasSwitchChanged() {
     boolean changed = false;
-    int switchPos = autoSwitch.position();
+    int switchPos = useVirtualSwitch ? sendableChooser.getSelected() : autoSwitch.position();
 
     if (switchPos != newAutoSwitchPos) {
       autoSwitchStableCounts = 0;
@@ -114,6 +136,28 @@ public class AutoSwitch {
     }
 
     return changed;
+  }
+
+  public void toggleVirtualSwitch() {
+    logger.info("toggledSwitch:function");
+    if (useVirtualSwitch) {
+      useVirtualSwitch = false;
+    } else {
+      useVirtualSwitch = true;
+    }
+    // useVirtualSwitch = useVirtualSwitch ? false : true;
+  }
+
+  public String getSwitchPos() {
+    return Integer.toHexString(currAutoSwitchPos);
+  }
+
+  public boolean isUseVirtualSwitch() {
+    return useVirtualSwitch;
+  }
+
+  public SendableChooser<Integer> getSendableChooser() {
+    return sendableChooser;
   }
 
   private AutoCommandInterface getAutoCommand(int switchPos) {
@@ -291,5 +335,12 @@ public class AutoSwitch {
         return new DefaultAutoCommand(
             driveSubsystem, robotStateSubsystem, elevatorSubsystem, handSubsystem, armSubsystem);
     }
+  }
+
+  @Override
+  public Set<Measure> getMeasures() {
+    return Set.of(
+        new Measure("AutoSwitch", () -> currAutoSwitchPos),
+        new Measure("usingVirtualSwitch", () -> this.useVirtualSwitch ? 1.0 : 0.0));
   }
 }

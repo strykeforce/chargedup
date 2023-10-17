@@ -736,8 +736,19 @@ public class DriveSubsystem extends MeasurableSubsystem {
           } else {
             drive(0, 0, 0);
             xLock();
-            logger.info("{} -> AUTO_BALANCE_FINISHED", currDriveState);
-            currDriveState = DriveStates.AUTO_BALANCE_FINISHED;
+
+            logger.info(
+                "AutoBalance Stop: Gyro Roll: {}, trigger Difference: {}",
+                getGyroPitch(),
+                Math.abs(avgStartingRoll) - Math.abs(getGyroPitch()));
+            logger.info("{} -> AUTO_BALANCE_RECOVERY", currDriveState);
+            currDriveState = DriveStates.AUTO_BALANCE_RECOVERY;
+
+            autoBalanceRecoveryTimer.reset();
+            autoBalanceRecoveryTimer.start();
+            recoveryStartingPitchSet = false;
+            // logger.info("{} -> AUTO_BALANCE_FINISHED", currDriveState);
+            // currDriveState = DriveStates.AUTO_BALANCE_FINISHED;
           }
         }
         break;
