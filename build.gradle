@@ -52,6 +52,7 @@ dependencies {
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
 
+    implementation "org.strykeforce:wallEYE:1.0.0"
     implementation("com.opencsv:opencsv:5.7.1")
     implementation("com.squareup.moshi:moshi:1.13.0")
     implementation 'net.jafama:jafama:2.3.2'

@@ -1,0 +1,32 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/Match/SetAllianceBlue": "Command",
+      "/Shuffleboard/Match/SetAllianceRed": "Command",
+      "/Shuffleboard/Match/Update With Vision": "Command"
+    }
+  },
+  "NetworkTables": {
+    "transitory": {
+      "High": {
+        "open": true
+      },
+      "WallEYE": {
+        "open": true
+      }
+    }
+  },
+  "NetworkTables Info": {
+    "Clients": {
+      "open": true
+    },
+    "glass@1": {
+      "Publishers": {
+        "open": true
+      },
+      "open": true
+    },
+    "visible": true
+  }
+}

@@ -387,7 +387,7 @@ public class Constants {
 
     public static final double kCameraOffset = .335; // was .273 on driveChasis
     public static final double kCameraAngleOffset = 0; // DEGREES was 24 on driveChasis
-    public static final double kHighCameraAngleOffset = 0.0;
+    public static final double kHighCameraAngleOffset = 0;
     public static final double kHighCameraOffset = -0.075;
     public static final double kLastUpdateCloseEnoughThreshold = 2.0; // IN SECONDS
     public static final double kLastUpdateCloseEnoughThresholdYaw = 1.0;
@@ -398,7 +398,7 @@ public class Constants {
     public static int kBufferLookupOffset = 2;
 
     public static Matrix<N3, N1> kStateStdDevs =
-        VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(5));
+        VecBuilder.fill(0.1, 0.1, Units.degreesToRadians(0));
 
     // Increase these numbers to trust sensor readings from encoders and gyros less. This matrix is
     // in the form [theta], with units in radians.
@@ -409,7 +409,32 @@ public class Constants {
     // form [x, y, theta]ᵀ, with units in meters and radians.
     // Vision Odometry Standard devs
     public static Matrix<N3, N1> kVisionMeasurementStdDevs =
-        VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5));
+        VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5000));
+
+    // When trusting wheels the amount of times before the decay goes away
+    public static int kNumResultsToResetStdDev = 3;
+
+    // Times it takes to trust wheels after trusting vision
+    public static final int kNumResultsToTrustWheels = 5;
+
+    // Time (seconds) before std dev starts to decay
+    public static final double kTimeToTightenStdDev = 1.0;
+
+    // Time (seconds) before getting kicked into only trusting camera
+    public static final double kTimeToTrustCamera = 10.0;
+
+    // The linear rate of change on the std dev
+    public static final double kStdDevDecayCoeff = 0.01 / 3.0;
+
+    // Minimum std dev for the declining std dev
+    public static final double kMinimumStdDev = 0.01;
+
+    // Constants for the vision filter equations
+    public static final int kMaxVisionOff = 5;
+    public static final double kLinearCoeffOnVelFilter = 0.1;
+    public static final double kOffsetOnVelFilter = 0.2;
+    public static final double kSquaredCoeffOnVelFilter = 0.2;
+    public static final double kCloseDistance = 4.0;
   }
 
   public static final class FieldConstants {
@@ -877,7 +902,7 @@ public class Constants {
     public static final double kShoulderFollowerZeroTicks = 2097; // 2057
 
     // Intake
-    public static final int kIntakeZeroTicks = 3_300; // 2440 ->2540->2_900
+    public static final int kIntakeZeroTicks = 3_700; // 3300
     public static final double kExtendPosTicks = -2_200;
 
     // Hand

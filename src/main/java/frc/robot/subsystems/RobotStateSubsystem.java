@@ -15,7 +15,6 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.HandConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotStateConstants;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.ArmSubsystem.ArmState;
 import frc.robot.subsystems.DriveSubsystem.DriveStates;
 import frc.robot.subsystems.HandSubsystem.HandStates;
@@ -320,6 +319,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         "Starting AutoDrive. Gamepiece: {}, TargetCol: {}", gamePiece.toString(), tempTargetCol);
     driveSubsystem.driveToPose(tempTargetCol); // FIXME
   }
+
   /**
    * @param isOnAllianceSide Is the robot on the alliance side of the charge station(Towards Tori)
    */
@@ -430,13 +430,14 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   public void periodic() {
     switch (currRobotState) {
       case STOW:
-        // if (!hasZeroedHand && handSubsystem.getVel() <= HandConstants.kHandVelocityThreshold) {
-        //   stableHandVel++;
-        //   if (stableHandVel >= HandConstants.kHandVelStable) {
-        //     stableHandVel = 0;
-        //     handSubsystem.zeroHand();
-        //     hasZeroedHand = true;
-        //   }
+        // if (!hasZeroedHand && handSubsystem.getVel() <=
+        // HandConstants.kHandVelocityThreshold) {
+        // stableHandVel++;
+        // if (stableHandVel >= HandConstants.kHandVelStable) {
+        // stableHandVel = 0;
+        // handSubsystem.zeroHand();
+        // hasZeroedHand = true;
+        // }
         // }
         if (currRobotState != nextRobotState) {
           switch (nextRobotState) {
@@ -937,7 +938,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
         // INDICATOR STATE
 
         // if (driveSubsystem.currDriveState == DriveStates.AUTO_BALANCE_FINISHED) {
-        //   //Auto_Balance_Finished
+        // //Auto_Balance_Finished
         // }
         break;
       case CHECK_AMBIGUITY:
@@ -950,11 +951,11 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
           currRobotState = RobotState.SHELF_WAIT_TRANSITION;
         }
         // if (visionSubsystem.lastUpdateWithinThresholdTime(
-        //     VisionConstants.kLastUpdateCloseEnoughThreshold)) {
-        //   rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
-        //   // toAutoDrive();
+        // VisionConstants.kLastUpdateCloseEnoughThreshold)) {
+        // rgbLightsSubsystem.setColor(0.0, 1.0, 1.0);
+        // // toAutoDrive();
         // } else {
-        //   rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
+        // rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
         // }
         break;
       case RECOVER_GAMEPIECE:
@@ -987,11 +988,7 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
                 && driveSubsystem.getPoseMeters().getX()
                     <= (RobotStateConstants.kFieldMaxX - DriveConstants.kPastBumpIndicateX)))
         && !driveSubsystem.isAutoDriving()) {
-      if (visionSubsystem.lastUpdateWithinThresholdTime(
-              VisionConstants.kLastUpdateCloseEnoughThreshold
-                  - VisionConstants.kDifferenceCloseEnoughThreshold)
-          && (visionSubsystem.getBufferedVelocity() <= DriveConstants.kMaxSpeedForCamUpdate))
-        rgbLightsSubsystem.setCubeColor();
+      if (true) rgbLightsSubsystem.setCubeColor();
       else rgbLightsSubsystem.setColor(1.0, 0.0, 0.0);
     }
   }
@@ -1048,35 +1045,37 @@ public class RobotStateSubsystem extends MeasurableSubsystem {
   }
 
   // public double autoDriveYawRight(double yCoord) {
-  //   int gridIndex =
-  //       ((yCoord > Constants.RobotStateConstants.kBound1Y) ? 1 : 0)
-  //           + ((yCoord > Constants.RobotStateConstants.kBound2Y) ? 1 : 0);
-  //   // CHECK VISION
-  //   double tempYaw = driveSubsystem.getGyroRotation2d().getDegrees();
-  //   if (getAllianceColor() == Alliance.Red)
-  //     tempYaw = driveSubsystem.getGyroRotation2d().getDegrees() - 180;
-  //   logger.info("grid Index: {}", gridIndex);
-  //   if (!visionSubsystem.lastUpdateWithinThresholdTime(0.05)) {
-  //     // && visionSubsystem.getHasTargets() == 0) {
-  //     logger.info("Threshold and no targets");
-  //     if (driveSubsystem.getPoseMeters().getY() <
+  // int gridIndex =
+  // ((yCoord > Constants.RobotStateConstants.kBound1Y) ? 1 : 0)
+  // + ((yCoord > Constants.RobotStateConstants.kBound2Y) ? 1 : 0);
+  // // CHECK VISION
+  // double tempYaw = driveSubsystem.getGyroRotation2d().getDegrees();
+  // if (getAllianceColor() == Alliance.Red)
+  // tempYaw = driveSubsystem.getGyroRotation2d().getDegrees() - 180;
+  // logger.info("grid Index: {}", gridIndex);
+  // if (!visionSubsystem.lastUpdateWithinThresholdTime(0.05)) {
+  // // && visionSubsystem.getHasTargets() == 0) {
+  // logger.info("Threshold and no targets");
+  // if (driveSubsystem.getPoseMeters().getY() <
   // Constants.RobotStateConstants.kGridY[gridIndex]) {
-  //       // left of tag on grid {gridIndex} GYRO POSITIVE IS COUNTERCLOCKWISE (Yaw/Look To The
-  //       // Right)
-  //       logger.info("Left Of Tag, Look Right(Yaw CounterClockwise), tempYaw: {}", tempYaw);
-  //       return 1;
-  //     } else {
-  //       // right of tag GYRO NEGATIVE IS CLOCKWISE (Yaw/Look To The LEFT)
-  //       logger.info("Right Of Tag, Look Left(Yaw Clockwise), tempYaw: {}", tempYaw);
-  //       return 2;
-  //     }
-  //   }
-  //   logger.info(
-  //       "Returned 0, tempYaw: {}, withThresholdVisUpdate: {}",
-  //       tempYaw,
-  //       visionSubsystem.lastUpdateWithinThresholdTime(
-  //           Constants.VisionConstants.kLastUpdateCloseEnoughThresholdYaw));
-  //   return 0;
+  // // left of tag on grid {gridIndex} GYRO POSITIVE IS COUNTERCLOCKWISE
+  // (Yaw/Look To The
+  // // Right)
+  // logger.info("Left Of Tag, Look Right(Yaw CounterClockwise), tempYaw: {}",
+  // tempYaw);
+  // return 1;
+  // } else {
+  // // right of tag GYRO NEGATIVE IS CLOCKWISE (Yaw/Look To The LEFT)
+  // logger.info("Right Of Tag, Look Left(Yaw Clockwise), tempYaw: {}", tempYaw);
+  // return 2;
+  // }
+  // }
+  // logger.info(
+  // "Returned 0, tempYaw: {}, withThresholdVisUpdate: {}",
+  // tempYaw,
+  // visionSubsystem.lastUpdateWithinThresholdTime(
+  // Constants.VisionConstants.kLastUpdateCloseEnoughThresholdYaw));
+  // return 0;
   // }
 
   public boolean isBlueAlliance() {

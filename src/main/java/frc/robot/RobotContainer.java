@@ -168,12 +168,10 @@ public class RobotContainer {
             rgbLightsSubsystem);
 
     driveSubsystem.setRobotStateSubsystem(robotStateSubsystem);
+    visionSubsystem.setRobotStateSubsystem(robotStateSubsystem);
 
     driveSubsystem.setVisionSubsystem(visionSubsystem);
-    visionSubsystem.setFillBuffers(true); // FIXME TRUE
-
-    // FIX ME
-    robotStateSubsystem.setAllianceColor(Alliance.Blue);
+    // visionSubsystem.setFillBuffers(true); // FIXME TRUE
 
     configurePaths();
     // configureDriverButtonBindings();
