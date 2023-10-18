@@ -47,6 +47,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   private DigitalInput[][] dios = {diosHigh, diosLow};
   private WallEyeResult[][] results = {{}, {}};
   private Pose2d[] camPoses = {new Pose2d(), new Pose2d()};
+  private Pose2d[] currCamPoses = {new Pose2d(), new Pose2d()};
   private int[] updates = {0, 0};
   private int[] numTags = {0, 0};
   private double[] camDelay = {0, 0};
@@ -128,7 +129,8 @@ public class VisionSubsystem extends MeasurableSubsystem {
         for (int j = 0; j < numCams[i]; ++j) {
           numTags[i] = results[i][j].getNumTags();
 
-          camPoses[i] =
+          // Save current camera pose to temp variable until check that it's valid
+          currCamPoses[i] =
               new Pose2d(
                   new Translation2d(
                           results[i][j].getCameraPose().getX(),
@@ -176,7 +178,9 @@ public class VisionSubsystem extends MeasurableSubsystem {
       for (WallEyeResult res : results) {
 
         if (res.getCameraPose().getX() > 1000.0) continue;
-
+        camPoses =
+            currCamPoses; // If current camera pose = valid then overwrite last valid cam pose with
+        // it
         Pose2d camPose =
             new Pose2d(
                 new Translation2d(res.getCameraPose().getX(), res.getCameraPose().getY())
@@ -242,7 +246,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   public void handleVision(WallEyeResult res, int camNum, Pose2d camPose) {
     numUpdateForReset++;
     suppliedCamPose[camNum] = camPose;
-    System.out.println(suppliedCamPose[camNum]);
+    // System.out.println(suppliedCamPose[camNum]);
 
     driveSubsystem.updateOdometryWithVision(camPose, res.getTimeStamp() / 1000000);
   }
@@ -318,7 +322,8 @@ public class VisionSubsystem extends MeasurableSubsystem {
           new Pose2d(
               new Translation2d(camPoses[0].getX(), camPoses[0].getY()),
               driveSubsystem.getGyroRotation2d()));
-    } else {
+    } else if (!((camPoses[0].getX() == 0 && camPoses[0].getY() == 0)
+        || (camPoses[0].getX() == 2767 && camPoses[0].getY() == 2767))) {
       // double tempX = (driveSubsystem.getPoseMeters().getX() + cameraPose.getX()) / 2;
       double tempY = (driveSubsystem.getPoseMeters().getY() + camPoses[0].getY()) / 2;
       // logger.info("TempX: {}, TempY: {}", tempX, tempY);
@@ -335,6 +340,8 @@ public class VisionSubsystem extends MeasurableSubsystem {
           tempPose,
           driveSubsystem.getPoseMeters());
       driveSubsystem.resetOdometry(tempPose);
+    } else {
+      logger.info("Not resetting odometry, last cam pose: {}", camPoses[0]);
     }
   }
 

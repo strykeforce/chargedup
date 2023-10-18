@@ -73,6 +73,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private double yCalc;
   private double omegaCalc;
   private RobotStateSubsystem robotStateSubsystem;
+  private int numAutoBalanceRetries = 0;
 
   // HEALTHCHECK FIX
   @HealthCheck
@@ -498,6 +499,7 @@ public class DriveSubsystem extends MeasurableSubsystem {
 
   public void autoBalance(boolean isOnAllianceSide) {
     // On alliance side of charge station, drive Positive X
+    numAutoBalanceRetries = 0;
     autoBalanceAvgCount = 0;
     sumRoll = 0;
     avgStartingRoll = 0;
@@ -702,6 +704,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
           if (!recoveryStartingPitchSet) {
             recoveryStartingPitch = getGyroPitch();
             recoveryStartingPitchSet = true;
+            logger.info("Recovery Start Pitch: {}", recoveryStartingPitch);
+            numAutoBalanceRetries++;
           }
           // if (isOnAllianceSide)
           if ((Math.abs(tempRoll - getGyroPitch()) > 2)
@@ -741,8 +745,13 @@ public class DriveSubsystem extends MeasurableSubsystem {
                 "AutoBalance Stop: Gyro Roll: {}, trigger Difference: {}",
                 getGyroPitch(),
                 Math.abs(avgStartingRoll) - Math.abs(getGyroPitch()));
-            logger.info("{} -> AUTO_BALANCE_RECOVERY", currDriveState);
-            currDriveState = DriveStates.AUTO_BALANCE_RECOVERY;
+            if (numAutoBalanceRetries < DriveConstants.kMaxAutoBalanceRetries) {
+              logger.info("{} -> AUTO_BALANCE_RECOVERY", currDriveState);
+              currDriveState = DriveStates.AUTO_BALANCE_RECOVERY;
+            } else {
+              logger.info("{} -> AUTO_BALANCE_FINISHED", currDriveState);
+              currDriveState = DriveStates.AUTO_BALANCE_FINISHED;
+            }
 
             autoBalanceRecoveryTimer.reset();
             autoBalanceRecoveryTimer.start();

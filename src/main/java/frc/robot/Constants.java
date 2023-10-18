@@ -226,6 +226,7 @@ public class Constants {
     public static final double kAutoBalanceStableCount = 10;
     public static final double kAutoBalanceStartTimerThresholdDeg = 5;
     public static final double kAutoBalanceEnableGyroThresholdDegrees = 8;
+    public static final int kMaxAutoBalanceRetries = 3;
 
     public static final double kAutoBalanceSlowDriveVel = 0.35; // 0.6
     public static final double kAutoBalanceRecoveryDriveVel = 0.25;

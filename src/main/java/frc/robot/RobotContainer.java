@@ -73,6 +73,7 @@ import frc.robot.controllers.InterlinkJoystick.Trim;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.AutoSwitch;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.DriveSubsystem.DriveStates;
 import frc.robot.subsystems.ElbowSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.HandSubsystem;
@@ -201,6 +202,10 @@ public class RobotContainer {
     if (elevatorSubsystem.hasZeroed() && isEvent) {
       // robotStateSubsystem.toStow();
     }
+  }
+
+  public void driveSubsystemTele() {
+    driveSubsystem.setDriveState(DriveStates.IDLE);
   }
 
   public void setDisabled(boolean isDisabled) {
