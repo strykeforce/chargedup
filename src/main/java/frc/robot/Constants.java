@@ -94,6 +94,7 @@ public class Constants {
 
     public static final double kReleaseDelayTime = 0.5; // s
     public static final double kFieldMaxX = 16.540988; // m
+    public static final double kFieldMaxY = 8.02; // m
   }
 
   public static final class ArmConstants {
@@ -243,7 +244,7 @@ public class Constants {
     public static final double kHoldSpeed = 0.1;
     public static final double kSettleTime = 1.0;
 
-    public static final double kAutonBumpHighCubeYawOffsetDeg = -5.0;
+    public static final double kAutonBumpHighCubeYawOffsetDeg = -7.0;
     public static final double kAutonSmoothHighCubeYawOffsetDeg = 5.0;
 
     public static TalonSRXConfiguration getAzimuthTalonConfig() {
@@ -896,19 +897,19 @@ public class Constants {
     public static final double kWheelDiameterInches = 3.0 * (506.5 / 500.0);
 
     // Elbow
-    public static final int kElbowZeroTicks = 705; // 705
+    public static final int kElbowZeroTicks = 705; // 705 715 710
 
     // Shoulder
     public static final double kShoulderMainZeroTicks = 2010; // 2050
     public static final double kShoulderFollowerZeroTicks = 2097; // 2057
 
     // Intake
-    public static final int kIntakeZeroTicks = 3_700; // 3300
-    public static final double kExtendPosTicks = -2_200;
+    public static final int kIntakeZeroTicks = 3200; // 3300 3700 4_100 2_920
+    public static final double kExtendPosTicks = -1_950; // -2_200
 
     // Hand
     // 273 for a tooth on the hand
-    public static final double kHandZeroTicks = 950; // 684 (hand 1)
+    public static final double kHandZeroTicks = 950; // 684 (hand 1) 950 1025
   }
 
   public static class ProtoConstants {

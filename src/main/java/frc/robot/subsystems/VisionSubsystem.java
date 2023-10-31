@@ -322,8 +322,10 @@ public class VisionSubsystem extends MeasurableSubsystem {
           new Pose2d(
               new Translation2d(camPoses[0].getX(), camPoses[0].getY()),
               driveSubsystem.getGyroRotation2d()));
-    } else if (!((camPoses[0].getX() == 0 && camPoses[0].getY() == 0)
-        || (camPoses[0].getX() == 2767 && camPoses[0].getY() == 2767))) {
+    } else if (!(camPoses[0].getX() <= 0
+        || camPoses[0].getY() <= 0
+        || camPoses[0].getX() > Constants.RobotStateConstants.kFieldMaxX
+        || camPoses[0].getY() > Constants.RobotStateConstants.kFieldMaxY)) {
       // double tempX = (driveSubsystem.getPoseMeters().getX() + cameraPose.getX()) / 2;
       double tempY = (driveSubsystem.getPoseMeters().getY() + camPoses[0].getY()) / 2;
       // logger.info("TempX: {}, TempY: {}", tempX, tempY);

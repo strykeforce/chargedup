@@ -101,7 +101,7 @@ public class ThreePieceSmoothAutoCommandGroup extends SequentialCommandGroup
                         robotStateSubsystem,
                         armSubsystem,
                         handSubsystem,
-                        true,
+                        false,
                         DriveConstants.kAutonSmoothHighCubeYawOffsetDeg)
                     .withTimeout(0.8),
                 () -> !visionSubsystem.isCameraWorking())),

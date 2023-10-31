@@ -138,8 +138,8 @@ public class ThreePieceBumpAutoCommandGroup extends SequentialCommandGroup
                         robotStateSubsystem,
                         armSubsystem,
                         handSubsystem,
-                        false,
-                        0.0)
+                        true,
+                        -2.0)
                     .withTimeout(0.65),
                 () -> !visionSubsystem.isCameraWorking())),
         new ParallelCommandGroup(
