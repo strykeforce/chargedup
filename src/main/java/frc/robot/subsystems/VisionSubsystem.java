@@ -1,6 +1,6 @@
 package frc.robot.subsystems;
 
-import WallEye.WallEye;
+import WallEye.WallEyeCam;
 import WallEye.WallEyeResult;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -30,8 +30,6 @@ public class VisionSubsystem extends MeasurableSubsystem {
   private DigitalInput[] empty = {};
   public static DriveSubsystem driveSubsystem;
   public static RobotStateSubsystem robotStateSubsystem;
-  private DigitalInput[] diosHigh = {};
-  private DigitalInput[] diosLow = {};
   private Pose2d[] suppliedCamPose = {new Pose2d(), new Pose2d()};
   private boolean trustingWheels = true;
   private VisionStates curState = VisionStates.trustWheels;
@@ -41,12 +39,14 @@ public class VisionSubsystem extends MeasurableSubsystem {
   private boolean hasGottenUpdates = false;
   private Servo highCamera;
 
-  private WallEye[] cams = {null, null};
+  private int numCameras = 2;
+  private WallEyeCam[] cams = {null, null};
   private String[] names = {"High", "Low"};
-  private int[] numCams = {1, 1};
-  private DigitalInput[][] dios = {diosHigh, diosLow};
-  private WallEyeResult[][] results = {{}, {}};
+  private int[] camNum = {1, 1};
+  private int[] dios = {-1, -1};
+  private WallEyeResult[] results;
   private Pose2d[] camPoses = {new Pose2d(), new Pose2d()};
+  private Pose2d[] curCamPoses = {new Pose2d(), new Pose2d()};
   private int[] updates = {0, 0};
   private int[] numTags = {0, 0};
   private double[] camDelay = {0, 0};
@@ -62,12 +62,13 @@ public class VisionSubsystem extends MeasurableSubsystem {
   public Matrix<N3, N1> adaptiveVisionMatrix;
 
   public VisionSubsystem(DriveSubsystem driveSubsystem) {
+
     highCamera = new Servo(1);
     adaptiveVisionMatrix = Constants.VisionConstants.kVisionMeasurementStdDevs.copy();
     this.driveSubsystem = driveSubsystem;
-
+    results = new WallEyeResult[names.length];
     for (int i = 0; i < names.length; ++i) {
-      cams[i] = new WallEye(names[i], numCams[i], dios[i]);
+      cams[i] = new WallEyeCam(names[i], camNum[i], dios[i]);
     }
   }
 
@@ -123,21 +124,19 @@ public class VisionSubsystem extends MeasurableSubsystem {
         } catch (Exception e) {
           System.out.print(e);
         }
-        camDelay[i] = RobotController.getFPGATime() - results[i][0].getTimeStamp();
+        camDelay[i] = RobotController.getFPGATime() - results[i].getTimeStamp();
 
-        for (int j = 0; j < numCams[i]; ++j) {
-          numTags[i] = results[i][j].getNumTags();
+        numTags[i] = results[i].getNumTags();
 
-          camPoses[i] =
-              new Pose2d(
-                  new Translation2d(
-                          results[i][j].getCameraPose().getX(),
-                          results[i][j].getCameraPose().getY())
-                      .plus(i == 0 ? highCameraOffset() : cameraOffset()),
-                  new Rotation2d(results[i][j].getCameraPose().getRotation().getZ() + Math.PI));
-          updates[i] = cams[i].getUpdateNumber();
-          camAmbig[i] = results[i][j].getAmbiguity();
-        }
+        // Save current camera pose to temp variable until check that it's valid
+        curCamPoses[i] =
+            new Pose2d(
+                new Translation2d(
+                        results[i].getCameraPose().getX(), results[i].getCameraPose().getY())
+                    .plus(i == 0 ? highCameraOffset() : cameraOffset()),
+                new Rotation2d(results[i].getCameraPose().getRotation().getZ() + Math.PI));
+        updates[i] = cams[i].getUpdateNumber();
+        camAmbig[i] = results[i].getAmbiguity();
 
         // Handle velocity filter
         handleCameraFilter(results[i], cams[i], i, i == 0);
@@ -170,67 +169,64 @@ public class VisionSubsystem extends MeasurableSubsystem {
     }
   }
 
-  private void handleCameraFilter(
-      WallEyeResult[] results, WallEye cam, int camNum, boolean isHigh) {
+  private void handleCameraFilter(WallEyeResult res, WallEyeCam cam, int camNum, boolean isHigh) {
     try {
-      for (WallEyeResult res : results) {
+      camPoses =
+          curCamPoses; // If current camera pose = valid then overwrite last valid cam pose with
+      // it
+      Pose2d camPose =
+          new Pose2d(
+              new Translation2d(res.getCameraPose().getX(), res.getCameraPose().getY())
+                  .plus(isHigh == true ? highCameraOffset() : cameraOffset()),
+              new Rotation2d(res.getCameraPose().getRotation().getZ() + Math.PI));
 
-        if (res.getCameraPose().getX() > 1000.0) continue;
+      Pose2d curPose = driveSubsystem.getPoseMeters();
 
-        Pose2d camPose =
-            new Pose2d(
-                new Translation2d(res.getCameraPose().getX(), res.getCameraPose().getY())
-                    .plus(isHigh == true ? highCameraOffset() : cameraOffset()),
-                new Rotation2d(res.getCameraPose().getRotation().getZ() + Math.PI));
+      if ((res.getAmbiguity() < 0.15 || res.getNumTags() > 1)) {
 
-        Pose2d curPose = driveSubsystem.getPoseMeters();
+        // Filter High camera
+        // Only lets high through when its close and has atleast two tags or its far away
+        if (names[camNum] != "High"
+            || ((robotStateSubsystem.getAllianceColor() == Alliance.Blue)
+                && ((curPose.getX() < VisionConstants.kCloseDistance && res.getNumTags() > 1)
+                    || curPose.getX() > VisionConstants.kCloseDistance))
+            || ((robotStateSubsystem.getAllianceColor() == Alliance.Red)
+                && ((curPose.getX()
+                            > RobotStateConstants.kFieldMaxX - VisionConstants.kCloseDistance
+                        && res.getNumTags() > 1)
+                    || curPose.getX()
+                        < RobotStateConstants.kFieldMaxX - VisionConstants.kCloseDistance))) {
 
-        if ((res.getAmbiguity() < 0.15 || res.getNumTags() > 1)) {
+          timeLastCam = getTimeSec();
 
-          // Filter High camera
-          // Only lets high through when its close and has atleast two tags or its far away
-          if (names[camNum] != "High"
-              || ((robotStateSubsystem.getAllianceColor() == Alliance.Blue)
-                  && ((curPose.getX() < VisionConstants.kCloseDistance && res.getNumTags() > 1)
-                      || curPose.getX() > VisionConstants.kCloseDistance))
-              || ((robotStateSubsystem.getAllianceColor() == Alliance.Red)
-                  && ((curPose.getX()
-                              > RobotStateConstants.kFieldMaxX - VisionConstants.kCloseDistance
-                          && res.getNumTags() > 1)
-                      || curPose.getX()
-                          < RobotStateConstants.kFieldMaxX - VisionConstants.kCloseDistance))) {
-
-            timeLastCam = getTimeSec();
-
-            switch (curState) {
-              case trustWheels:
-                if (canAcceptPose(camPose)) {
-                  handleVision(res, camNum, camPose);
-                  timesCamOffWheel = 0;
-                } else {
-                  timesCamOffWheel++;
-                }
-                if (timesCamOffWheel > VisionConstants.kMaxVisionOff) {
-                  logger.info("Vision State: {} -> trustVision", curState.name());
-                  curState = VisionStates.trustVision;
-                }
-                if (numUpdateForReset > VisionConstants.kNumResultsToResetStdDev)
-                  adaptiveVisionMatrix = VisionConstants.kVisionMeasurementStdDevs.copy();
-
-                break;
-              case trustVision:
+          switch (curState) {
+            case trustWheels:
+              if (canAcceptPose(camPose)) {
                 handleVision(res, camNum, camPose);
-                if (numUpdateForReset > VisionConstants.kNumResultsToTrustWheels) {
-                  logger.info("Vision State: {} -> trustWheels", curState.name());
-                  curState = VisionStates.trustWheels;
-                  adaptiveVisionMatrix = VisionConstants.kVisionMeasurementStdDevs.copy();
-                }
-                break;
-              case onlyTrustVision:
-                break;
-              case onlyTrustWheels:
-                break;
-            }
+                timesCamOffWheel = 0;
+              } else {
+                timesCamOffWheel++;
+              }
+              if (timesCamOffWheel > VisionConstants.kMaxVisionOff) {
+                logger.info("Vision State: {} -> trustVision", curState.name());
+                curState = VisionStates.trustVision;
+              }
+              if (numUpdateForReset > VisionConstants.kNumResultsToResetStdDev)
+                adaptiveVisionMatrix = VisionConstants.kVisionMeasurementStdDevs.copy();
+
+              break;
+            case trustVision:
+              handleVision(res, camNum, camPose);
+              if (numUpdateForReset > VisionConstants.kNumResultsToTrustWheels) {
+                logger.info("Vision State: {} -> trustWheels", curState.name());
+                curState = VisionStates.trustWheels;
+                adaptiveVisionMatrix = VisionConstants.kVisionMeasurementStdDevs.copy();
+              }
+              break;
+            case onlyTrustVision:
+              break;
+            case onlyTrustWheels:
+              break;
           }
         }
       }
@@ -283,7 +279,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
     return hasGottenUpdates;
   }
 
-  public WallEyeResult[] getPoses() {
+  public WallEyeResult getPoses() {
     return results[0];
   }
 
@@ -345,7 +341,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   public Pose2d[] getPose2ds() {
     ArrayList<Pose2d> poses = new ArrayList<>();
     for (int i = 0; i < cams.length; ++i) {
-      for (WallEyeResult res : results[i]) poses.add(res.getCameraPose().toPose2d());
+      for (WallEyeResult res : results) poses.add(res.getCameraPose().toPose2d());
     }
     return (Pose2d[]) poses.toArray();
   }
