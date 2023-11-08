@@ -39,6 +39,9 @@ public class VisionSubsystem extends MeasurableSubsystem {
   private boolean hasGottenUpdates = false;
   private Servo highCamera;
 
+  private org.littletonrobotics.junction.Logger advLogger =
+      org.littletonrobotics.junction.Logger.getInstance();
+
   private int numCameras = 2;
   private WallEyeCam[] cams = {null, null};
   private String[] names = {"High", "Low"};
@@ -181,6 +184,8 @@ public class VisionSubsystem extends MeasurableSubsystem {
               new Rotation2d(res.getCameraPose().getRotation().getZ() + Math.PI));
 
       Pose2d curPose = driveSubsystem.getPoseMeters();
+
+      advLogger.recordOutput("VisionSubSystem/CamPose", camPose);
 
       if ((res.getAmbiguity() < 0.15 || res.getNumTags() > 1)) {
 
