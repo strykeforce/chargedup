@@ -45,7 +45,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   private int numCameras = 2;
   private WallEyeCam[] cams = {null, null};
   private String[] names = {"High", "Low"};
-  private int[] camNum = {1, 1};
+  private int[] camNum = {0, 0};
   private int[] dios = {-1, -1};
   private WallEyeResult[] results;
   private Pose2d[] camPoses = {new Pose2d(), new Pose2d()};
