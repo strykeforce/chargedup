@@ -153,6 +153,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private double autoBalanceGyroDirection = 0;
   private double yawAdjust = 0;
   // private boolean isAutoDriveFinished = false;
+  private org.littletonrobotics.junction.Logger advLogger =
+      org.littletonrobotics.junction.Logger.getInstance();
 
   public DriveSubsystem(Constants constants) {
     this.constants = constants;
@@ -793,6 +795,8 @@ public class DriveSubsystem extends MeasurableSubsystem {
       default:
         break;
     }
+
+    advLogger.recordOutput("DriveSubsystem/CurOdometry", getPoseMeters());
   }
 
   public double getSpeedMPS() {
