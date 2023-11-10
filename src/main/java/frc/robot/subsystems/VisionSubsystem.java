@@ -170,6 +170,9 @@ public class VisionSubsystem extends MeasurableSubsystem {
         }
       }
     }
+
+    advLogger.recordOutput("VisionSubSystem/CamPoseHigh", camPoses[0]);
+    advLogger.recordOutput("VisionSubSystem/CamPoseLow", camPoses[1]);
   }
 
   private void handleCameraFilter(WallEyeResult res, WallEyeCam cam, int camNum, boolean isHigh) {
@@ -184,8 +187,6 @@ public class VisionSubsystem extends MeasurableSubsystem {
               new Rotation2d(res.getCameraPose().getRotation().getZ() + Math.PI));
 
       Pose2d curPose = driveSubsystem.getPoseMeters();
-
-      advLogger.recordOutput("VisionSubSystem/CamPose", camPose);
 
       if ((res.getAmbiguity() < 0.15 || res.getNumTags() > 1)) {
 
