@@ -11,6 +11,7 @@ import frc.robot.subsystems.HandSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShoulderSubsystem;
 import org.strykeforce.healthcheck.HealthCheckCommand;
+import org.strykeforce.healthcheck.internal.ResetCaseNum;
 
 public class ShuffleBoardHealthCheckCommandGroup extends SequentialCommandGroup {
   public ShuffleBoardHealthCheckCommandGroup(
@@ -22,7 +23,9 @@ public class ShuffleBoardHealthCheckCommandGroup extends SequentialCommandGroup 
       IntakeSubsystem intakeSubsystem,
       ArmSubsystem armSubsystem) {
     addCommands(
-        new toggleHealthBoolean(armSubsystem),
+      new toggleHealthBoolean(armSubsystem),
+      
+      new ResetCaseNum().resetCaseId()
         new HealthCheckCommand(
             driveSubsystem
             // handSubsystem,
