@@ -1,5 +1,6 @@
 package frc.robot.commands.robotState;
 
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.drive.LockZeroCommand;
 import frc.robot.commands.elbow.ElbowToPositionCommand;
@@ -23,9 +24,8 @@ public class ShuffleBoardHealthCheckCommandGroup extends SequentialCommandGroup 
       IntakeSubsystem intakeSubsystem,
       ArmSubsystem armSubsystem) {
     addCommands(
-      new toggleHealthBoolean(armSubsystem),
-      
-      new ResetCaseNum().resetCaseId()
+        new toggleHealthBoolean(armSubsystem),
+        // Commands.runOnce(() -> new ResetCaseNum().resetCaseId()),
         new HealthCheckCommand(
             driveSubsystem
             // handSubsystem,
