@@ -440,6 +440,17 @@ public class Constants {
 
   public static final class FieldConstants {
     public static final double kFieldLength = 16.54;
+
+    // Autoscore Hallway Stuff
+    public static final double kChargeStationEdgeFieldX = 4.9;
+    public static final double kChargeStationEdgeAllianceX = 2.97;
+    public static final double kChargeStationEdgeFlatY = 3.97;
+    public static final double kChargeStationEdgeBumpY = 1.54;
+    public static final double kCenterChargeStation = 2.75; 
+    public static final double kAllianceSideX = 2.02;
+    public static final double kBumpCorridorGoalY = 0.75;
+    public static final double kFlatCorridorGoalY = 4.72;
+
   }
 
   public static class ElevatorConstants {

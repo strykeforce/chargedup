@@ -340,6 +340,9 @@ public class RobotContainer {
             new AutoPlaceCommand(
                 driveSubsystem, robotStateSubsystem, armSubsystem, handSubsystem, false, 0.0))
         .onFalse(new InterruptDriveCommand(driveSubsystem));
+
+    // Auto Corridor Movement Testing
+    new JoystickButton()
   }
 
   private void configureFlyskyDriverButtonBindings() {

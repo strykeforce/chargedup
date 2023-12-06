@@ -33,6 +33,8 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.RobotStateSubsystem.GamePiece;
 import frc.robot.subsystems.RobotStateSubsystem.TargetCol;
 import frc.robot.subsystems.VisionSubsystem.VisionStates;
+
+import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Set;
@@ -54,6 +56,7 @@ import org.strykeforce.swerve.TalonSwerveModule;
 import org.strykeforce.telemetry.TelemetryService;
 import org.strykeforce.telemetry.measurable.MeasurableSubsystem;
 import org.strykeforce.telemetry.measurable.Measure;
+import frc.robot.Constants.FieldConstants;
 
 public class DriveSubsystem extends MeasurableSubsystem {
   private static final Logger logger = LoggerFactory.getLogger(DriveSubsystem.class);
@@ -74,7 +77,6 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private double omegaCalc;
   private RobotStateSubsystem robotStateSubsystem;
   private int numAutoBalanceRetries = 0;
-
   // HEALTHCHECK FIX
   @HealthCheck
   @Timed(
@@ -153,6 +155,12 @@ public class DriveSubsystem extends MeasurableSubsystem {
   private boolean recoveryStartingPitchSet;
   private double autoBalanceGyroDirection = 0;
   private double yawAdjust = 0;
+
+  private Pose2d driveToPose2d;
+  private boolean isFieldSide;
+  private boolean isBumpSide;
+  private boolean inCorridor;
+  private boolean isPastChargeStation;
   // private boolean isAutoDriveFinished = false;
 
   public DriveSubsystem(Constants constants) {
@@ -341,6 +349,30 @@ public class DriveSubsystem extends MeasurableSubsystem {
   }
 
   public void driveToPose(TargetCol targetCol) {
+    if (FieldConstants.kChargeStationEdgeFieldX < getPoseMeters().getX()){
+      isFieldSide = true;
+    } else {isFieldSide= false;}
+
+    if (FieldConstants.kCenterChargeStation > getPoseMeters().getY()) {
+      isBumpSide = true;
+    } else {
+      isBumpSide = false;
+    }
+
+    if (FieldConstants.kChargeStationEdgeAllianceX < getPoseMeters().getX() 
+      && FieldConstants.kChargeStationEdgeFlatY < getPoseMeters().getY() 
+        || FieldConstants.kChargeStationEdgeBumpY > getPoseMeters().getY() ) {
+      inCorridor = true;
+    } else {inCorridor = false;}
+
+    if (FieldConstants.kChargeStationEdgeAllianceX > getPoseMeters().getX()) {
+      isPastChargeStation = true;
+    } else {
+      isPastChargeStation = false;
+    }
+    double rotation = Math.PI;
+    if (!robotStateSubsystem.isBlueAlliance()) rotation = 0.0;
+
     omegaAutoDriveController.reset(getPoseMeters().getRotation().getRadians());
     xAutoDriveController.reset(getPoseMeters().getX(), getFieldRelSpeed().vxMetersPerSecond);
     yAutoDriveController.reset(getPoseMeters().getY(), getFieldRelSpeed().vyMetersPerSecond);
@@ -356,11 +388,24 @@ public class DriveSubsystem extends MeasurableSubsystem {
         || robotStateSubsystem.getIsAuto()) {
       setAutoDriving(true);
       if (robotStateSubsystem.getGamePiece() != GamePiece.NONE) {
-        endAutoDrivePose =
-            robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
-        logger.info("AutoDrive Scoring Gamepiece.");
-        // if (robotStateSubsystem.autoDriveYawRight(getPoseMeters().getY()) != 0)
-        // yawAdjustmentActive = false; // adjust yaw to get a better Odometry reading
+        if (!isFieldSide  && isPastChargeStation){
+          endAutoDrivePose = 
+          robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
+          driveToPose2d = endAutoDrivePose;
+      logger.info("AutoDrive Scoring Gamepiece.");
+      // if (robotStateSubsystem.autoDriveYawRight(getPoseMeters().getY()) != 0)
+      // yawAdjustmentActive = false; // adjust yaw to get a better Odometry reading
+        } else if (inCorridor && isBumpSide && !isFieldSide) {
+            driveToPose2d = new Pose2d(
+                  new Translation2d(FieldConstants.kAllianceSideX, FieldConstants.kBumpCorridorGoalY),
+                  new Rotation2d(rotation)
+            );
+        } else if (inCorridor && !isBumpSide && !isFieldSide) {
+          driveToPose2d = new Pose2d(
+            new Translation2d(FieldConstants.kAllianceSideX, FieldConstants.kFlatCorridorGoalY),
+            new Rotation2d(rotation)
+          ); 
+        }
       } else {
         // endAutoDrivePose =
         //     robotStateSubsystem.getShelfPosAutoDrive(
@@ -455,6 +500,42 @@ public class DriveSubsystem extends MeasurableSubsystem {
     currDriveState = DriveStates.AUTO_DRIVE;
     grapherTrajectoryActive(true);
     // calculateController(place.sample(autoDriveTimer.get()), desiredHeading);
+  }
+
+  public void autoDrive(TargetCol targetCol, boolean isAuto, boolean intelligent) {
+    if (robotStateSubsystem.isBlueAlliance()) desiredHeading = new Rotation2d(0.0);
+    else desiredHeading = new Rotation2d(Math.PI);
+
+    setEnableHolo(true);
+    resetHolonomicController();
+    logger.info("Moving to place");
+    TrajectoryConfig config = new TrajectoryConfig(2.5, 1.5);
+    config.setEndVelocity(0);
+    config.setStartVelocity(0.0);
+    ArrayList<Translation2d> points = new ArrayList<>();
+    Pose2d endPose = new Pose2d();
+    double startAngle = robotStateSubsystem.isBlueAlliance() ? Math.PI : 0.0;
+
+    Pose2d start =
+        new Pose2d(
+            new Translation2d(getPoseMeters().getX(), getPoseMeters().getY()),
+            new Rotation2d(startAngle));
+
+    endPose = robotStateSubsystem.getAutoPlaceDriveTarget(getPoseMeters().getY(), targetCol);
+
+    points.add(
+          new Translation2d(
+              (getPoseMeters().getX() + endPose.getX()) / 2,
+              (getPoseMeters().getY() + endPose.getY()) / 2));
+    points.add(new Translation2d((start.getX() * 0.2 + endPose.getX() * 0.8), endPose.getY()));
+    visionUpdates = false;
+    place = TrajectoryGenerator.generateTrajectory(start, points, endPose, config);
+    autoDriveTimer.reset();
+    autoDriveTimer.start();
+    logger.info("{} -> AUTO_DRIVE", currDriveState);
+    currDriveState = DriveStates.AUTO_DRIVE;
+    grapherTrajectoryActive(true);
+
   }
   // private void autoDrive() {
   //   Pose2d currentPose = getPoseMeters();
