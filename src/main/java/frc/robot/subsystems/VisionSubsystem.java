@@ -52,6 +52,7 @@ public class VisionSubsystem extends MeasurableSubsystem {
   private Pose2d[] curCamPoses = {new Pose2d(), new Pose2d()};
   private int[] updates = {0, 0};
   private int[] numTags = {0, 0};
+  private double[][] tags = {{0}, {0}};
   private double[] camDelay = {0, 0};
   private double[] camAmbig = {0, 0};
   private double[] camLengths = {VisionConstants.kHighCameraOffset, VisionConstants.kCameraOffset};
@@ -130,6 +131,9 @@ public class VisionSubsystem extends MeasurableSubsystem {
         camDelay[i] = RobotController.getFPGATime() - results[i].getTimeStamp();
 
         numTags[i] = results[i].getNumTags();
+        int[] tagsTemp = results[i].getTagIDs();
+        tags[i] = new double[tagsTemp.length];
+        for (int j = 0; j < tagsTemp.length; ++j) tags[i][j] = (tagsTemp[j]);
 
         // Save current camera pose to temp variable until check that it's valid
         curCamPoses[i] =
@@ -173,6 +177,10 @@ public class VisionSubsystem extends MeasurableSubsystem {
 
     advLogger.recordOutput("VisionSubSystem/CamPoseHigh", camPoses[0]);
     advLogger.recordOutput("VisionSubSystem/CamPoseLow", camPoses[1]);
+    advLogger.recordOutput("VisionSubSystem/TagsLow", tags[1]);
+    advLogger.recordOutput("VisionSubSystem/TagsHigh", tags[0]);
+    advLogger.recordOutput("VisionSubSystem/AmbigLow", camAmbig[1]);
+    advLogger.recordOutput("VisionSubSystem/AmbigHigh", camAmbig[0]);
   }
 
   private void handleCameraFilter(WallEyeResult res, WallEyeCam cam, int camNum, boolean isHigh) {

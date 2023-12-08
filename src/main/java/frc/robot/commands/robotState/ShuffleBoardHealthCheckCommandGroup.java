@@ -1,6 +1,5 @@
 package frc.robot.commands.robotState;
 
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.drive.LockZeroCommand;
 import frc.robot.commands.elbow.ElbowToPositionCommand;
@@ -12,7 +11,6 @@ import frc.robot.subsystems.HandSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShoulderSubsystem;
 import org.strykeforce.healthcheck.HealthCheckCommand;
-import org.strykeforce.healthcheck.internal.ResetCaseNum;
 
 public class ShuffleBoardHealthCheckCommandGroup extends SequentialCommandGroup {
   public ShuffleBoardHealthCheckCommandGroup(
